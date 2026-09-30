@@ -1,0 +1,372 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:280:56: warning: passing argument 3 of 'SkelAnime_InitFlex' from incompatible pointer type [-Wincompatible-pointer-types]
+  280 |             SkelAnime_InitFlex(play, &this->skelAnime, &gEnMbSpearSkel, &gEnMbSpearStandStillAnim, this->jointTable,
+      |                                                        ^~~~~~~~~~~~~~~
+      |                                                        |
+      |                                                        const char (*)[40]
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1329:83: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[40]'
+ 1329 | s32 SkelAnime_InitFlex(PlayState* play, SkelAnime* skelAnime, FlexSkeletonHeader* skeletonHeaderSeg,
+      |                                                               ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:280:73: warning: passing argument 4 of 'SkelAnime_InitFlex' from incompatible pointer type [-Wincompatible-pointer-types]
+  280 |             SkelAnime_InitFlex(play, &this->skelAnime, &gEnMbSpearSkel, &gEnMbSpearStandStillAnim, this->jointTable,
+      |                                                                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                         |
+      |                                                                         const char (*)[50]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1330:41: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[50]'
+ 1330 |                        AnimationHeader* animation, Vec3s* jointTable, Vec3s* morphTable, s32 limbCount);
+      |                        ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:289:56: warning: passing argument 3 of 'SkelAnime_InitFlex' from incompatible pointer type [-Wincompatible-pointer-types]
+  289 |             SkelAnime_InitFlex(play, &this->skelAnime, &gEnMbClubSkel, &gEnMbClubStandStillClubDownAnim,
+      |                                                        ^~~~~~~~~~~~~~
+      |                                                        |
+      |                                                        const char (*)[39]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1329:83: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[39]'
+ 1329 | s32 SkelAnime_InitFlex(PlayState* play, SkelAnime* skelAnime, FlexSkeletonHeader* skeletonHeaderSeg,
+      |                                                               ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:289:72: warning: passing argument 4 of 'SkelAnime_InitFlex' from incompatible pointer type [-Wincompatible-pointer-types]
+  289 |             SkelAnime_InitFlex(play, &this->skelAnime, &gEnMbClubSkel, &gEnMbClubStandStillClubDownAnim,
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                        |
+      |                                                                        const char (*)[57]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1330:41: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[57]'
+ 1330 |                        AnimationHeader* animation, Vec3s* jointTable, Vec3s* morphTable, s32 limbCount);
+      |                        ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:318:56: warning: passing argument 3 of 'SkelAnime_InitFlex' from incompatible pointer type [-Wincompatible-pointer-types]
+  318 |             SkelAnime_InitFlex(play, &this->skelAnime, &gEnMbSpearSkel, &gEnMbSpearStandStillAnim, this->jointTable,
+      |                                                        ^~~~~~~~~~~~~~~
+      |                                                        |
+      |                                                        const char (*)[40]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1329:83: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[40]'
+ 1329 | s32 SkelAnime_InitFlex(PlayState* play, SkelAnime* skelAnime, FlexSkeletonHeader* skeletonHeaderSeg,
+      |                                                               ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:318:73: warning: passing argument 4 of 'SkelAnime_InitFlex' from incompatible pointer type [-Wincompatible-pointer-types]
+  318 |             SkelAnime_InitFlex(play, &this->skelAnime, &gEnMbSpearSkel, &gEnMbSpearStandStillAnim, this->jointTable,
+      |                                                                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                         |
+      |                                                                         const char (*)[50]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1330:41: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[50]'
+ 1330 |                        AnimationHeader* animation, Vec3s* jointTable, Vec3s* morphTable, s32 limbCount);
+      |                        ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_SetupSpearGuardLookAround':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:438:45: warning: passing argument 2 of 'Animation_MorphToLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  438 |     Animation_MorphToLoop(&this->skelAnime, &gEnMbSpearLookLeftAndRightAnim, -4.0f);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char (*)[56]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1342:67: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[56]'
+ 1342 | void Animation_MorphToLoop(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                  ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_SetupClubWaitPlayerNear':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:446:42: warning: passing argument 2 of 'Animation_PlayLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  446 |     Animation_PlayLoop(&this->skelAnime, &gEnMbClubStandStillClubDownAnim);
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                          |
+      |                                          const char (*)[57]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1341:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[57]'
+ 1341 | void Animation_PlayLoop(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_SetupSpearPatrolTurnTowardsWaypoint':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:454:45: warning: passing argument 2 of 'Animation_MorphToLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  454 |     Animation_MorphToLoop(&this->skelAnime, &gEnMbSpearLookLeftAndRightAnim, -4.0f);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char (*)[56]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1342:67: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[56]'
+ 1342 | void Animation_MorphToLoop(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                  ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_SetupSpearGuardWalk':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:463:96: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  463 |     Animation_Change(&this->skelAnime, &gEnMbSpearWalkAnim, 0.0f, 0.0f, Animation_GetLastFrame(&gEnMbSpearWalkAnim),
+      |                                                                                                ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[44]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:463:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  463 |     Animation_Change(&this->skelAnime, &gEnMbSpearWalkAnim, 0.0f, 0.0f, Animation_GetLastFrame(&gEnMbSpearWalkAnim),
+      |                                        ^~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[44]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[44]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_SetupSpearPatrolWalkTowardsWaypoint':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:473:45: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  473 |     f32 frameCount = Animation_GetLastFrame(&gEnMbSpearWalkAnim);
+      |                                             ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[44]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:479:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  479 |     Animation_Change(&this->skelAnime, &gEnMbSpearWalkAnim, 0.0f, 0.0f, frameCount, ANIMMODE_LOOP_INTERP, -4.0f);
+      |                                        ^~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[44]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[44]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_SetupSpearPrepareAndCharge':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:484:45: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  484 |     f32 frameCount = Animation_GetLastFrame(&gEnMbSpearPrepareChargeAnim);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[53]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:486:49: warning: passing argument 2 of 'Animation_MorphToPlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+  486 |     Animation_MorphToPlayOnce(&this->skelAnime, &gEnMbSpearPrepareChargeAnim, -4.0f);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                 |
+      |                                                 const char (*)[53]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1339:71: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[53]'
+ 1339 | void Animation_MorphToPlayOnce(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_SetupSpearPatrolImmediateCharge':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:499:42: warning: passing argument 2 of 'Animation_PlayLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  499 |     Animation_PlayLoop(&this->skelAnime, &gEnMbSpearChargeAnim);
+      |                                          ^~~~~~~~~~~~~~~~~~~~~
+      |                                          |
+      |                                          const char (*)[46]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1341:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[46]'
+ 1341 | void Animation_PlayLoop(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_SetupClubAttack':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:509:41: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  509 |     f32 frames = Animation_GetLastFrame(&gEnMbClubLiftClubAnim);
+      |                                         ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[47]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:520:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  520 |     Animation_Change(&this->skelAnime, &gEnMbClubLiftClubAnim, 3.0f, 0.0f, frames, ANIMMODE_ONCE_INTERP, 0.0f);
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_SetupSpearEndChargeQuick':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:536:42: warning: passing argument 2 of 'Animation_PlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+  536 |     Animation_PlayOnce(&this->skelAnime, &gEnMbSpearSlowDownAnim);
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~~
+      |                                          |
+      |                                          const char (*)[48]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1338:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[48]'
+ 1338 | void Animation_PlayOnce(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_SetupSpearPatrolEndCharge':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:545:42: warning: passing argument 2 of 'Animation_PlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+  545 |     Animation_PlayOnce(&this->skelAnime, &gEnMbSpearSlowDownAnim);
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~~
+      |                                          |
+      |                                          const char (*)[48]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1338:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[48]'
+ 1338 | void Animation_PlayOnce(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_SetupClubWaitAfterAttack':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:557:45: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  557 |     f32 frameCount = Animation_GetLastFrame(&gEnMbClubStandStillClubDownAnim);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[57]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:560:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  560 |     Animation_Change(&this->skelAnime, &gEnMbClubStandStillClubDownAnim, 5.0f, 0.0f, frameCount, ANIMMODE_ONCE_INTERP,
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[57]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[57]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_SetupClubDamaged':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:566:42: warning: passing argument 2 of 'Animation_PlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+  566 |     Animation_PlayOnce(&this->skelAnime, &gEnMbClubDamagedKneelAnim);
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                          |
+      |                                          const char (*)[51]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1338:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[51]'
+ 1338 | void Animation_PlayOnce(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_SetupClubDamagedWhileKneeling':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:575:41: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  575 |     f32 frames = Animation_GetLastFrame(&gEnMbClubBeatenKneelingAnim);
+      |                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[53]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:580:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  580 |     Animation_Change(&this->skelAnime, &gEnMbClubBeatenKneelingAnim, 1.0f, 4.0f, frames, ANIMMODE_ONCE_INTERP, 0.0f);
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[53]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[53]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_SetupClubDead':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:585:49: warning: passing argument 2 of 'Animation_MorphToPlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+  585 |     Animation_MorphToPlayOnce(&this->skelAnime, &gEnMbClubFallOnItsBackAnim, -4.0f);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                 |
+      |                                                 const char (*)[52]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1339:71: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[52]'
+ 1339 | void Animation_MorphToPlayOnce(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_SetupStunned':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:604:58: warning: passing argument 2 of 'Animation_PlayOnceSetSpeed' from incompatible pointer type [-Wincompatible-pointer-types]
+  604 |             Animation_PlayOnceSetSpeed(&this->skelAnime, &gEnMbSpearDamagedFromFrontAnim, 0.0f);
+      |                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                          |
+      |                                                          const char (*)[56]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1340:72: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[56]'
+ 1340 | void Animation_PlayOnceSetSpeed(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed);
+      |                                                       ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_SpearEndChargeQuick':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:699:57: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  699 |                                  Animation_GetLastFrame(&gEnMbSpearPrepareChargeAnim), 0.0f, ANIMMODE_ONCE, 0.0f);
+      |                                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[53]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:698:52: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  698 |                 Animation_Change(&this->skelAnime, &gEnMbSpearPrepareChargeAnim, -1.0f,
+      |                                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                    |
+      |                                                    const char (*)[53]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[53]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_SpearPatrolEndCharge':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:762:56: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  762 |                     lastFrame = Animation_GetLastFrame(&gEnMbSpearPrepareChargeAnim);
+      |                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[53]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:764:56: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  764 |                     Animation_Change(&this->skelAnime, &gEnMbSpearPrepareChargeAnim, -1.0f, lastFrame, 0.0f,
+      |                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                        |
+      |                                                        const char (*)[53]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[53]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:780:52: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  780 |                 lastFrame = Animation_GetLastFrame(&gEnMbSpearChargeAnim);
+      |                                                    ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[46]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:781:52: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  781 |                 Animation_Change(&this->skelAnime, &gEnMbSpearChargeAnim, 0.5f, 0.0f, lastFrame, ANIMMODE_LOOP_INTERP,
+      |                                                    ^~~~~~~~~~~~~~~~~~~~~
+      |                                                    |
+      |                                                    const char (*)[46]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[46]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_SpearGuardPrepareAndCharge':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:812:46: warning: passing argument 2 of 'Animation_PlayLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  812 |         Animation_PlayLoop(&this->skelAnime, &gEnMbSpearChargeAnim);
+      |                                              ^~~~~~~~~~~~~~~~~~~~~
+      |                                              |
+      |                                              const char (*)[46]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1341:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[46]'
+ 1341 | void Animation_PlayLoop(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_ClubAttack':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:880:60: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  880 |                 f32 lastAnimFrame = Animation_GetLastFrame(&gEnMbClubStrikeDownAnim);
+      |                                                            ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[49]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:881:52: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  881 |                 Animation_Change(&this->skelAnime, &gEnMbClubStrikeDownAnim, 1.5f, 0.0f, lastAnimFrame,
+      |                                                    ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                    |
+      |                                                    const char (*)[49]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[49]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_SpearPatrolPrepareAndCharge':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:923:46: warning: passing argument 2 of 'Animation_PlayLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  923 |         Animation_PlayLoop(&this->skelAnime, &gEnMbSpearChargeAnim);
+      |                                              ^~~~~~~~~~~~~~~~~~~~~
+      |                                              |
+      |                                              const char (*)[46]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1341:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[46]'
+ 1341 | void Animation_PlayLoop(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_ClubDamaged':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:1076:50: warning: passing argument 2 of 'Animation_PlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1076 |             Animation_PlayOnce(&this->skelAnime, &gEnMbClubStandUpAnim);
+      |                                                  ^~~~~~~~~~~~~~~~~~~~~
+      |                                                  |
+      |                                                  const char (*)[46]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1338:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[46]'
+ 1338 | void Animation_PlayOnce(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_ClubDamagedWhileKneeling':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:1095:61: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+ 1095 |                                      Animation_GetLastFrame(&gEnMbClubStandUpAnim), ANIMMODE_ONCE_INTERP, 0.0f);
+      |                                                             ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[46]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:1094:56: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1094 |                     Animation_Change(&this->skelAnime, &gEnMbClubStandUpAnim, 3.0f, 0.0f,
+      |                                                        ^~~~~~~~~~~~~~~~~~~~~
+      |                                                        |
+      |                                                        const char (*)[46]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[46]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:1100:61: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+ 1100 |                                      Animation_GetLastFrame(&gEnMbClubStandUpAnim), ANIMMODE_ONCE_INTERP, 0.0f);
+      |                                                             ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[46]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:1099:56: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1099 |                     Animation_Change(&this->skelAnime, &gEnMbClubStandUpAnim, 3.0f, 0.0f,
+      |                                                        ^~~~~~~~~~~~~~~~~~~~~
+      |                                                        |
+      |                                                        const char (*)[46]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[46]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_SetupSpearDamaged':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:1294:53: warning: passing argument 2 of 'Animation_MorphToPlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1294 |         Animation_MorphToPlayOnce(&this->skelAnime, &gEnMbSpearDamagedFromFrontAnim, -4.0f);
+      |                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                     |
+      |                                                     const char (*)[56]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1339:71: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[56]'
+ 1339 | void Animation_MorphToPlayOnce(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:1297:53: warning: passing argument 2 of 'Animation_MorphToPlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1297 |         Animation_MorphToPlayOnce(&this->skelAnime, &gEnMbSpearDamagedFromBehindAnim, -4.0f);
+      |                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                     |
+      |                                                     const char (*)[57]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1339:71: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[57]'
+ 1339 | void Animation_MorphToPlayOnce(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c: In function 'EnMb_SetupSpearDead':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:1323:53: warning: passing argument 2 of 'Animation_MorphToPlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1323 |         Animation_MorphToPlayOnce(&this->skelAnime, &gEnMbSpearFallOnItsBackAnim, -4.0f);
+      |                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                     |
+      |                                                     const char (*)[53]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1339:71: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[53]'
+ 1339 | void Animation_MorphToPlayOnce(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Mb/z_en_mb.c:1327:53: warning: passing argument 2 of 'Animation_MorphToPlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1327 |         Animation_MorphToPlayOnce(&this->skelAnime, &gEnMbSpearFallOnItsBackAnim, -4.0f);
+      |                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                     |
+      |                                                     const char (*)[53]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1339:71: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[53]'
+ 1339 | void Animation_MorphToPlayOnce(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~

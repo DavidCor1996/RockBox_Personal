@@ -563,6 +563,7 @@ class DesktopModeService:
         env = os.environ.copy()
         env["RBROOT"] = preview["preview_root"]
         env["ROCKBOX_SIM_PLUGIN"] = "/.rockbox/rocks/apps/desktop_mode.rock"
+        env["ROCKBOX_SIM_PLUGIN_PARAM"] = "simulator-desktop"
         env["ROCKBOX_SIM_PLUGIN_EXIT"] = "1"
         # The person driving the parity session is sitting at a computer, so
         # the session fills their display and their own mouse moves the Snow

@@ -1,0 +1,25 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Haheniron/z_bg_jya_haheniron.c: In function 'BgJyaHaheniron_SpawnFragments':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Haheniron/z_bg_jya_haheniron.c:110:66: warning: passing argument 16 of 'EffectSsKakera_Spawn' from incompatible pointer type [-Wincompatible-pointer-types]
+  110 |                              KAKERA_COLOR_NONE, OBJECT_JYA_IRON, gObjectJyaIronDL_000880);
+      |                                                                  ^~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                  |
+      |                                                                  const char *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Haheniron/z_bg_jya_haheniron.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Haheniron/z_bg_jya_haheniron.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:329:43: note: expected 'Gfx *' but argument is of type 'const char *'
+  329 |                           s16 objId, Gfx* dList);
+      |                                      ~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Haheniron/z_bg_jya_haheniron.c: In function 'BgJyaHaheniron_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Haheniron/z_bg_jya_haheniron.c:207:9: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  207 |         gObjectJyaIronDL_000880,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Haheniron/z_bg_jya_haheniron.c:207:9: note: (near initialization for 'dLists[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Haheniron/z_bg_jya_haheniron.c:208:9: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  208 |         gObjectJyaIronDL_000AE0,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Haheniron/z_bg_jya_haheniron.c:208:9: note: (near initialization for 'dLists[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Haheniron/z_bg_jya_haheniron.c:209:9: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  209 |         gObjectJyaIronDL_000600,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Haheniron/z_bg_jya_haheniron.c:209:9: note: (near initialization for 'dLists[2]')

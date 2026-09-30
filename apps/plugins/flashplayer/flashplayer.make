@@ -26,7 +26,7 @@ OTHER_INC += -I$(FLASHPLAYERSRCDIR) -I$(APPSDIR)/plugins/imageviewer/png \
 FLASHPLAYER_CFLAGS = $(PLUGINFLAGS) -I$(FLASHPLAYERSRCDIR) \
 	-I$(APPSDIR)/plugins/imageviewer/png \
 	-Wno-strict-prototypes -Wno-unused-parameter -Wno-unused-function
-FLASHPLAYER_CXXFLAGS = $(PLUGIN_CXXFLAGS) -I$(FLASHPLAYERSRCDIR) \
+FLASHPLAYER_CXXFLAGS = $(filter-out -Os,$(PLUGIN_CXXFLAGS)) -O2 -I$(FLASHPLAYERSRCDIR) \
 	-I$(APPSDIR)/plugins/imageviewer/png \
 	-I$(FLASHPLAYERSRCDIR)/gameswf_compat \
 	-I$(FLASHPLAYERSRCDIR)/gameswf \
@@ -34,6 +34,12 @@ FLASHPLAYER_CXXFLAGS = $(PLUGIN_CXXFLAGS) -I$(FLASHPLAYERSRCDIR) \
 	-I$(FLASHPLAYERSRCDIR)/gameswf/gameswf \
 	-include $(FLASHPLAYERSRCDIR)/gameswf_compat/compatibility_include.h \
 	-DNDEBUG -w
+
+FLASHPLAYER_HEADERS := $(wildcard $(FLASHPLAYERSRCDIR)/*.h \
+    $(FLASHPLAYERSRCDIR)/gameswf/base/*.h \
+    $(FLASHPLAYERSRCDIR)/gameswf/gameswf/*.h \
+    $(FLASHPLAYERSRCDIR)/gameswf_compat/*.h)
+$(FLASHPLAYER_OBJ): $(FLASHPLAYER_HEADERS)
 
 $(FLASHPLAYERBUILDDIR)/flashplayer.rock: $(FLASHPLAYER_OBJ)
 

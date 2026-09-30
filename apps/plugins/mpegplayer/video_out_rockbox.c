@@ -24,12 +24,15 @@
 #include "mpegplayer.h"
 #include "mpeg_settings.h"
 #include "livetv.h"
+#include "videoout_geometry.h"
 
 #define VO_NON_NULL_RECT 0x1
 #define VO_VISIBLE       0x2
 
 struct vo_data
 {
+    int tv_dar_n, tv_dar_d;
+    bool tv_yuv420;
     int image_width;
     int image_height;
     int image_chroma_x;
@@ -254,15 +257,21 @@ static void vo_resist_yuv_overlay(uint8_t * const *overlay,
     }
 }
 
-static void vo_draw_yuv_overlay(uint8_t * const *buf)
+static void vo_draw_yuv_overlay(uint8_t * const *buf, int height, int screen_y)
 {
     uint8_t *overlay[3] = {
         vo_overlay_y, vo_overlay_u, vo_overlay_v
     };
-    int height = mpegplayer_yuv_overlay_height();
-    int screen_y;
+    int caption_height = height;
+    int caption_y = screen_y;
+    bool complete_frame = mpegplayer_netflix_launch && height > 0 &&
+                          settings.display_mode != MPEG_VIDEO_DISPLAY_FILL;
     int x;
     int y;
+    struct vo_rect twitch_area;
+    struct vo_rect twitch_rect;
+    bool twitch_reflow =
+        mpegplayer_twitch_chat_video_rect(&twitch_area);
     struct vo_rect instagram_rect;
     bool instagram_inline =
         mpegplayer_instagram_inline_rect(&instagram_rect);
@@ -282,8 +291,34 @@ static void vo_draw_yuv_overlay(uint8_t * const *buf)
 
     if (buf == NULL || height <= 0 || height > VO_YUV_OVERLAY_MAX_H)
         return;
+    if (complete_frame && (vo.src_x < 0 || vo.src_y < 0 ||
+        vo.output_width <= 0 || vo.output_height <= 0 ||
+        vo.src_x + vo.output_width > vo.image_width ||
+        vo.src_y + vo.output_height > vo.image_height))
+        return;
 
-    if (instagram_inline)
+    if (twitch_reflow)
+    {
+        int area_w = twitch_area.r - twitch_area.l;
+        int area_h = twitch_area.b - twitch_area.t;
+        int dst_w = area_w;
+        int dst_h = (int)((int64_t)vo.image_height * dst_w /
+                          vo.image_width);
+
+        if (dst_h > area_h)
+        {
+            dst_h = area_h;
+            dst_w = (int)((int64_t)vo.image_width * dst_h /
+                          vo.image_height);
+        }
+        dst_w = MAX(2, dst_w & ~1);
+        dst_h = MAX(2, dst_h & ~1);
+        vo_rect_set_ext(&twitch_rect,
+                        twitch_area.l + (area_w - dst_w) / 2,
+                        twitch_area.t + (area_h - dst_h) / 2,
+                        dst_w, dst_h);
+    }
+    else if (instagram_inline)
     {
         int dst_w = instagram_rect.r - instagram_rect.l;
         int dst_h = instagram_rect.b - instagram_rect.t;
@@ -301,16 +336,92 @@ static void vo_draw_yuv_overlay(uint8_t * const *buf)
         instagram_src_y = ((vo.image_height - instagram_src_h) / 2) & ~1;
     }
 
-    screen_y = mpegplayer_yuv_overlay_y();
     if (screen_y < 0 || screen_y + height > LCD_HEIGHT)
         return;
+    /* One complete presentation prevents the panel/composite output from
+     * showing a new picture with the previous overlay (or vice versa).
+     * Reuse the existing overlay storage; no additional frame allocation. */
+    if (complete_frame)
+    {
+        height = LCD_HEIGHT;
+        screen_y = 0;
+    }
+    /* Ordinary video is already at its output scale. Copy complete row
+     * spans instead of rechecking every pixel through the multi-app mapper.
+     * Keep its general path for reflow/crop and odd chroma alignment. */
+    if (!twitch_reflow && !instagram_inline && !weather_panel &&
+        !((vo.output_x | vo.output_y | vo.output_width | vo.output_height |
+           vo.src_x | vo.src_y | screen_y | height) & 1))
+    {
+        int left = MAX(0, vo.output_x);
+        int right = MIN(LCD_WIDTH, vo.output_x + vo.output_width);
+        for (int plane = 0; plane < 3; plane++)
+        {
+            int shift = plane ? 1 : 0;
+            int stride = LCD_WIDTH >> shift;
+            int source_stride = vo.image_width >> shift;
+            if (left == 0 && right == LCD_WIDTH && source_stride == stride &&
+                vo.src_x == vo.output_x)
+            {
+                int rows = height >> shift;
+                int first = MAX(0, MIN(rows, (vo.output_y - screen_y) >> shift));
+                int last = MAX(first, MIN(rows,
+                    (vo.output_y + vo.output_height - screen_y) >> shift));
+                rb->memset(overlay[plane], plane ? 128 : 16, first * stride);
+                if (last > first)
+                {
+                    int sy = (vo.src_y + screen_y - vo.output_y) / (1 << shift) + first;
+                    rb->memcpy(overlay[plane] + first * stride,
+                               buf[plane] + sy * source_stride,
+                               (last - first) * stride);
+                }
+                rb->memset(overlay[plane] + last * stride, plane ? 128 : 16,
+                           (rows - last) * stride);
+                continue;
+            }
+            for (y = 0; y < (height >> shift); y++)
+            {
+                int display_y = screen_y + (y << shift);
+                uint8_t *dst = overlay[plane] + y * stride;
+                if (right > left && display_y >= vo.output_y &&
+                    display_y < vo.output_y + vo.output_height)
+                {
+                    int l = left >> shift, r = right >> shift;
+                    int sx = (vo.src_x + left - vo.output_x) >> shift;
+                    int sy = (vo.src_y + display_y - vo.output_y) >> shift;
+                    rb->memset(dst, plane ? 128 : 16, l);
+                    rb->memcpy(dst + l, buf[plane] + sy * source_stride + sx, r - l);
+                    rb->memset(dst + r, plane ? 128 : 16, stride - r);
+                }
+                else
+                    rb->memset(dst, plane ? 128 : 16, stride);
+            }
+        }
+        goto overlay_ready;
+    }
     for (y = 0; y < height; y++)
     {
         int display_y = screen_y + y;
 
         for (x = 0; x < LCD_WIDTH; x++)
         {
-            if (instagram_inline && x >= instagram_rect.l &&
+            if (twitch_reflow && x >= twitch_rect.l &&
+                x < twitch_rect.r && display_y >= twitch_rect.t &&
+                display_y < twitch_rect.b)
+            {
+                int src_x = (x - twitch_rect.l) * vo.image_width /
+                            (twitch_rect.r - twitch_rect.l);
+                int src_y = (display_y - twitch_rect.t) * vo.image_height /
+                            (twitch_rect.b - twitch_rect.t);
+
+                overlay[0][y * LCD_WIDTH + x] =
+                    buf[0][src_y * vo.image_width + src_x];
+            }
+            else if (twitch_reflow)
+            {
+                overlay[0][y * LCD_WIDTH + x] = 16;
+            }
+            else if (instagram_inline && x >= instagram_rect.l &&
                 x < instagram_rect.r && display_y >= instagram_rect.t &&
                 display_y < instagram_rect.b)
             {
@@ -359,7 +470,27 @@ static void vo_draw_yuv_overlay(uint8_t * const *buf)
             int display_x = x * 2;
             int index = y * (LCD_WIDTH / 2) + x;
 
-            if (instagram_inline && display_x >= instagram_rect.l &&
+            if (twitch_reflow && display_x >= twitch_rect.l &&
+                display_x < twitch_rect.r &&
+                display_y >= twitch_rect.t &&
+                display_y < twitch_rect.b)
+            {
+                int src_x = (display_x - twitch_rect.l) * vo.image_width /
+                            (twitch_rect.r - twitch_rect.l);
+                int src_y = (display_y - twitch_rect.t) * vo.image_height /
+                            (twitch_rect.b - twitch_rect.t);
+                int src_index =
+                    (src_y / 2) * (vo.image_width / 2) + src_x / 2;
+
+                overlay[1][index] = buf[1][src_index];
+                overlay[2][index] = buf[2][src_index];
+            }
+            else if (twitch_reflow)
+            {
+                overlay[1][index] = 128;
+                overlay[2][index] = 128;
+            }
+            else if (instagram_inline && display_x >= instagram_rect.l &&
                 display_x < instagram_rect.r &&
                 display_y >= instagram_rect.t &&
                 display_y < instagram_rect.b)
@@ -407,7 +538,18 @@ static void vo_draw_yuv_overlay(uint8_t * const *buf)
         }
     }
 
-    mpegplayer_yuv_overlay_draw(overlay, LCD_WIDTH, height);
+overlay_ready:
+    if (complete_frame)
+    {
+        uint8_t *band[3] = {
+            overlay[0] + caption_y * LCD_WIDTH,
+            overlay[1] + (caption_y / 2) * (LCD_WIDTH / 2),
+            overlay[2] + (caption_y / 2) * (LCD_WIDTH / 2)
+        };
+        mpegplayer_yuv_overlay_draw(band, LCD_WIDTH, caption_height);
+    }
+    else
+        mpegplayer_yuv_overlay_draw(overlay, LCD_WIDTH, height);
     if (mpegplayer_yuv_overlay_resistance_offset() != 0)
         vo_resist_yuv_overlay(
             overlay, LCD_WIDTH, height,
@@ -423,7 +565,7 @@ static void vo_draw_yuv_overlay(uint8_t * const *buf)
              LCD_WIDTH, height);
 }
 #else
-#define vo_draw_yuv_overlay(buf) do { } while (0)
+#define vo_draw_yuv_overlay(buf, height, top) do { } while (0)
 #endif
 
 void stretch_image_plane(const uint8_t * src, uint8_t *dst, int stride,
@@ -507,8 +649,49 @@ static bool vo_draw_frame_scaled(uint8_t * const * buf)
     return true;
 }
 
+#ifdef HAVE_COMPOSITE_VIDEO_OUT
+static bool vo_tv_frame_valid(uint8_t * const *buf)
+{
+    /* Submit the decoded surface, never the LCD thumbnail. The TV API
+     * consumes planar 4:2:0 synchronously and must not read 4:2:2/4:4:4
+     * planes using half-height chroma or include macroblock padding. */
+    return buf && buf[0] && buf[1] && buf[2] && vo.tv_yuv420 &&
+        vo.display_width > 0 && vo.display_height > 0 &&
+        vo.display_width <= vo.image_width &&
+        vo.display_height <= vo.image_height &&
+        !((vo.display_width | vo.display_height | vo.image_width) & 1);
+}
+#endif
+
 void vo_draw_frame(uint8_t * const * buf)
 {
+#if defined(HAVE_LCD_COLOR) && LCD_WIDTH == 320 && LCD_HEIGHT == 240
+    /* Snapshot the band once so a cue change cannot produce conflicting
+     * geometry between the ordinary video and overlay portions. */
+    int overlay_height = mpegplayer_yuv_overlay_height();
+    int overlay_top = LCD_HEIGHT - overlay_height;
+#endif
+#ifdef HAVE_COMPOSITE_VIDEO_OUT
+    /* Keep the native TV picture protected between decoder frames, including
+     * paused/hidden-control refreshes. Plane pointers are copied synchronously
+     * by the presenter; only display ownership persists. */
+    if (vo_tv_frame_valid(buf) &&
+        (vo.flags & (VO_NON_NULL_RECT | VO_VISIBLE)) ==
+        (VO_NON_NULL_RECT | VO_VISIBLE) &&
+        !(mpegplayer_livetv_launch && (mpegplayer_livetv_pig ||
+          mpegplayer_livetv_pin_active || mpegplayer_livetv_weather_hidden)))
+    {
+        const unsigned char *src[3]={buf[0],buf[1],buf[2]};
+        rb->tv_video_prepare(src,vo.display_width,vo.display_height,
+            vo.image_width,vo.tv_dar_n,vo.tv_dar_d,
+            (uint64_t)stream_get_time()*1000/CLOCK_RATE,
+            (uint64_t)stream_get_duration()*1000/TS_SECOND,
+            stream_status()==STREAM_PAUSED,overlay_height>0,
+            mpegplayer_tv_caption());
+    }
+    else
+        rb->tv_video_prepare(NULL,0,0,0,0,0,0,0,false,false,NULL);
+#endif
     if ((vo.flags & (VO_NON_NULL_RECT | VO_VISIBLE)) !=
         (VO_NON_NULL_RECT | VO_VISIBLE))
     {
@@ -543,6 +726,16 @@ void vo_draw_frame(uint8_t * const * buf)
          * while watching full screen never reaches this: it is hidden
          * entirely (VO_NON_NULL_RECT clear, caught above), not boxed. */
         vo_draw_frame_thumb(buf, &vo.rc_vid);
+#ifdef HAVE_COMPOSITE_VIDEO_OUT
+        if (vo_tv_frame_valid(buf))
+        {
+            struct tv_guide_picture picture = {
+                {buf[0], buf[1], buf[2]}, vo.display_width,
+                vo.display_height, vo.image_width, vo.tv_dar_n, vo.tv_dar_d
+            };
+            rb->tv_guide_render(TV_GUIDE_PICTURE,0,0,0,0,0,&picture);
+        }
+#endif
     }
 #if LCD_WIDTH >= 1920 && LCD_HEIGHT >= 1080
     else if (mpegplayer_netflix_launch && buf != NULL)
@@ -560,6 +753,13 @@ void vo_draw_frame(uint8_t * const * buf)
         vo_draw_black(NULL);
         DEBUGF("vo no frame\n");
     }
+#if defined(HAVE_LCD_COLOR) && LCD_WIDTH == 320 && LCD_HEIGHT == 240
+    else if (mpegplayer_netflix_launch && overlay_height > 0 &&
+             settings.display_mode != MPEG_VIDEO_DISPLAY_FILL)
+    {
+        /* The compositor below owns this whole frame, including volume. */
+    }
+#endif
     else if (vo_draw_frame_scaled(buf))
     {
         /* Scaled fill handled */
@@ -577,8 +777,6 @@ void vo_draw_frame(uint8_t * const * buf)
     else
     {
 #if defined(HAVE_LCD_COLOR) && LCD_WIDTH == 320 && LCD_HEIGHT == 240
-        int overlay_height = mpegplayer_yuv_overlay_height();
-        int overlay_top = mpegplayer_yuv_overlay_y();
         int overlay_bottom = overlay_top + overlay_height;
         int video_bottom = vo.output_y + vo.output_height;
 
@@ -624,7 +822,7 @@ void vo_draw_frame(uint8_t * const * buf)
 #endif
     }
 
-    vo_draw_yuv_overlay(buf);
+    vo_draw_yuv_overlay(buf, overlay_height, overlay_top);
 
     if (vo.post_draw_callback)
         vo.post_draw_callback();
@@ -1014,6 +1212,22 @@ void vo_setup(const mpeg2_sequence_t * sequence)
     const bool livetv_pig = false;
 #endif
 
+    uint64_t dar_n = (uint64_t)sequence->display_width * sequence->pixel_width;
+    uint64_t dar_d = (uint64_t)sequence->display_height * sequence->pixel_height;
+    if (!dar_n || !dar_d)
+    {
+        dar_n = sequence->display_width;
+        dar_d = sequence->display_height;
+    }
+    while (dar_n > 65536 || dar_d > 65536)
+    {
+        dar_n = (dar_n + 1) / 2;
+        dar_d = (dar_d + 1) / 2;
+    }
+    vo.tv_dar_n = dar_n;
+    vo.tv_dar_d = dar_d;
+    vo.tv_yuv420 = sequence->chroma_width * 2 == sequence->width &&
+                   sequence->chroma_height * 2 == sequence->height;
     vo.image_width = sequence->width;
     vo.image_height = sequence->height;
     vo.display_width = sequence->display_width;
@@ -1268,7 +1482,12 @@ bool vo_show(bool show)
     if (show)
         vo.flags |= VO_VISIBLE;
     else
+    {
         vo.flags &= ~VO_VISIBLE;
+#ifdef HAVE_COMPOSITE_VIDEO_OUT
+        rb->tv_video_prepare(NULL,0,0,0,0,0,0,0,false,false,NULL);
+#endif
+    }
 
     return vis;
 }
@@ -1281,6 +1500,9 @@ bool vo_is_visible(void)
 void vo_cleanup(void)
 {
     vo.flags = 0;
+#ifdef HAVE_COMPOSITE_VIDEO_OUT
+    rb->tv_video_prepare(NULL,0,0,0,0,0,0,0,false,false,NULL);
+#endif
 }
 
 void vo_set_clip_rect(const struct vo_rect *rc)

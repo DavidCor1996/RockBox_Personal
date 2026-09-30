@@ -2,13 +2,14 @@
 """Execute the stock iPod 6G VP auto-geometry routine under Unicorn.
 
 This is an analysis helper for the decrypted iPod 2.0.4 OSOS body.  It runs
-the exact ARM routine at body offset 0x169074 and reports the SVID VP geometry
+the exact ARM routine at runtime address 0x0815e19c and reports the SVID VP geometry
 registers it writes, without booting or modifying an iPod.
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import struct
 import sys
 from pathlib import Path
@@ -41,11 +42,28 @@ from unicorn.arm_const import (  # noqa: E402
     UC_ARM_REG_R10,
     UC_ARM_REG_R11,
     UC_ARM_REG_SP,
+    UC_ARM_REG_PC,
 )
 
 
-IMAGE_BASE = 0x08000800
-GEOMETRY_OFFSET = 0x00169074
+# The startup relocator loads the DRAM body segment after the IRAM prefix.
+# The old flat 0x08000800 mapping shifted code by 0xb6d8 while absolute
+# literals still referenced the real runtime addresses.
+from ipod6g_stock_hibernate_audit import SEGMENTS, body_offset
+
+BODY_SHA256 = "7910c276c85a0aa67c4f36fb2d72476791b7d7fe9a21442dae53bff27b48d684"
+WRAPPED_SHA256 = "f4368251a58b2fdc7b46acf3178dae1d24bc1e029736240741015851256c65c4"
+GEOMETRY_ADDRESS = 0x0815E19C
+
+
+def verified_body(image: bytes) -> bytes:
+    digest = hashlib.sha256(image).hexdigest()
+    if digest == WRAPPED_SHA256:
+        return image[0x800:]
+    if digest == BODY_SHA256:
+        return image
+    raise ValueError(f"unexpected RetailOS image SHA-256: {digest}")
+
 GLOBAL_STATE = 0x089CC9B4
 VP_BASE = 0x39100000
 STACK_BASE = 0x10000000
@@ -82,6 +100,23 @@ def read_u32(emulator: Uc, address: int) -> int:
     return struct.unpack("<I", emulator.mem_read(address, 4))[0]
 
 
+def make_emulator(body: bytes) -> Uc:
+    emulator = Uc(UC_ARCH_ARM, UC_MODE_ARM)
+    body = verified_body(body)
+    pages = set()
+    for segment in SEGMENTS:
+        for page in range(segment.address & ~0xfff,
+                          align_up(segment.address + segment.size), 0x1000):
+            if page not in pages:
+                emulator.mem_map(page, 0x1000)
+                pages.add(page)
+        emulator.mem_write(segment.address,
+                           body[segment.body_offset:segment.body_offset + segment.size])
+    emulator.mem_map(VP_BASE, 0x1000)
+    emulator.mem_map(STACK_BASE, STACK_SIZE)
+    return emulator
+
+
 def probe(
     body: bytes,
     source_width: int,
@@ -94,14 +129,7 @@ def probe(
     aspect_denominator: int,
     trace: bool = False,
 ) -> dict[str, int]:
-    emulator = Uc(UC_ARCH_ARM, UC_MODE_ARM)
-    image_map_base = IMAGE_BASE & ~0xFFF
-    image_prefix = IMAGE_BASE - image_map_base
-    image_map_size = align_up(image_prefix + len(body))
-    emulator.mem_map(image_map_base, image_map_size)
-    emulator.mem_write(IMAGE_BASE, body)
-    emulator.mem_map(VP_BASE, 0x1000)
-    emulator.mem_map(STACK_BASE, STACK_SIZE)
+    emulator = make_emulator(body)
 
     # The stock draw method writes the incoming frame dimensions to VP+0x4c
     # and VP+0x50 immediately before calling the auto-geometry routine.
@@ -128,7 +156,7 @@ def probe(
         }
 
         def trace_code(uc, address, _size, _user_data):
-            offset = address - IMAGE_BASE
+            offset = body_offset(address)
             if offset not in trace_offsets:
                 return
             registers = (
@@ -192,12 +220,48 @@ def probe(
     emulator.reg_write(UC_ARM_REG_R1, source_height)
     emulator.reg_write(UC_ARM_REG_R2, widescreen)
     emulator.reg_write(UC_ARM_REG_R3, output_mode)
-    emulator.emu_start(IMAGE_BASE + GEOMETRY_OFFSET, RETURN_PC, count=200000)
+    emulator.emu_start(GEOMETRY_ADDRESS, RETURN_PC, count=200000)
+    if emulator.reg_read(UC_ARM_REG_PC) != RETURN_PC:
+        raise RuntimeError(
+            "stock geometry routine did not return within instruction budget")
 
     return {
         name: read_u32(emulator, VP_BASE + offset)
         for offset, name in VP_REGISTERS.items()
     }
+
+
+def probe_format8(body: bytes, width: int, height: int) -> dict[str, int]:
+    """Execute stock image and format-8 descriptor setters, without MMIO hardware."""
+    emulator = make_emulator(body)
+    emulator.mem_map(0x39200000, 0x1000)
+    object_address = STACK_BASE + 0x100
+    descriptor = STACK_BASE + 0x400
+    # Stock descriptor slots 0, 2, 1 are the qualified Y, Cb, Cr order.
+    y = 0x09000000
+    cb = y + width * height
+    cr = cb + width * height // 4
+    emulator.mem_write(descriptor, struct.pack("<3I", y, cr, cb))
+
+    def call(address, *arguments):
+        emulator.reg_write(UC_ARM_REG_SP, STACK_BASE + STACK_SIZE // 2)
+        emulator.reg_write(UC_ARM_REG_LR, RETURN_PC)
+        for register, value in zip((UC_ARM_REG_R0, UC_ARM_REG_R1,
+                                    UC_ARM_REG_R2, UC_ARM_REG_R3), arguments):
+            emulator.reg_write(register, value)
+        emulator.emu_start(address, RETURN_PC, count=200000)
+        if emulator.reg_read(UC_ARM_REG_PC) != RETURN_PC:
+            raise RuntimeError("stock setter exceeded instruction budget")
+        if emulator.reg_read(UC_ARM_REG_R0) != 0:
+            raise RuntimeError("stock setter rejected the configuration")
+
+    call(0x0815EC2C, object_address, width, height, 8)
+    call(0x0815E86C, object_address, 5, descriptor)
+    registers = {0x3c: "image_w", 0x40: "image_h", 0x28: "y",
+                 0x2c: "cb", 0x30: "cr", 0x34: "unused",
+                 0x3c0: "plane_mode", 0x3c4: "y_stride", 0x3c8: "c_stride"}
+    return {name: read_u32(emulator, VP_BASE + offset)
+            for offset, name in registers.items()}
 
 
 def main() -> int:
@@ -210,6 +274,8 @@ def main() -> int:
     parser.add_argument("--frame-flag", type=int, default=0)
     parser.add_argument("--aspect", default="1:1")
     parser.add_argument("--trace", action="store_true")
+    parser.add_argument("--format8", action="store_true",
+                        help="also execute image and planar descriptor setters")
     args = parser.parse_args()
 
     source_width, source_height = map(int, args.source.lower().split("x", 1))
@@ -227,6 +293,9 @@ def main() -> int:
         args.trace,
     )
     print(" ".join(f"{name}={value}" for name, value in values.items()))
+    if args.format8:
+        values = probe_format8(args.body.read_bytes(), source_width, source_height)
+        print(" ".join(f"{name}={value}" for name, value in values.items()))
     return 0
 
 

@@ -1,0 +1,580 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'func_80A74714':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:281:41: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  281 |     f32 frames = Animation_GetLastFrame(&gIronKnuckleStandUpAnim);
+      |                                         ^~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[49]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:290:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  290 |     Animation_Change(&this->skelAnime, &gIronKnuckleStandUpAnim, 0.0f, frame, frames, ANIMMODE_ONCE, 0.0f);
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[49]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[49]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'func_80A7489C':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:321:41: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  321 |     f32 frames = Animation_GetLastFrame(&object_ik_Anim_00DD50);
+      |                                         ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[47]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:326:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  326 |     Animation_Change(&this->skelAnime, &object_ik_Anim_00DD50, 0.0f, 0.0f, frames, ANIMMODE_LOOP, 4.0f);
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'func_80A74AAC':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:354:49: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  354 |                          Animation_GetLastFrame(&gIronKnuckleWalkAnim), ANIMMODE_LOOP, -4.0f);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[46]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:353:44: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  353 |         Animation_Change(&this->skelAnime, &gIronKnuckleWalkAnim, 1.0f, 0.0f,
+      |                                            ^~~~~~~~~~~~~~~~~~~~~
+      |                                            |
+      |                                            const char (*)[46]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[46]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:358:49: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  358 |                          Animation_GetLastFrame(&gIronKnuckleRunAnim), ANIMMODE_LOOP, -4.0f);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[45]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:357:44: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  357 |         Animation_Change(&this->skelAnime, &gIronKnuckleRunAnim, 1.0f, 0.0f,
+      |                                            ^~~~~~~~~~~~~~~~~~~~
+      |                                            |
+      |                                            const char (*)[45]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[45]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'func_80A74E2C':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:425:41: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  425 |     f32 frames = Animation_GetLastFrame(&gIronKnuckleVerticalAttackAnim);
+      |                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[56]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:430:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  430 |     Animation_Change(&this->skelAnime, &gIronKnuckleVerticalAttackAnim, 1.5f, 0.0f, frames, ANIMMODE_ONCE, -4.0f);
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[56]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[56]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'func_80A7506C':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:465:41: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  465 |     f32 frames = Animation_GetLastFrame(&gIronKnuckleAxeStuckAnim);
+      |                                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[50]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:471:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  471 |     Animation_Change(&this->skelAnime, &gIronKnuckleAxeStuckAnim, 1.0f, 0.0f, frames, ANIMMODE_LOOP, -4.0f);
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[50]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[50]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'func_80A7510C':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:483:45: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  483 |             frames = Animation_GetLastFrame(&gIronKnuckleRecoverFromVerticalAttackAnim);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[67]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:485:48: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  485 |             Animation_Change(&this->skelAnime, &gIronKnuckleRecoverFromVerticalAttackAnim, 1.5f, 0.0f, frames,
+      |                                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                |
+      |                                                const char (*)[67]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[67]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'func_80A751C8':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:492:41: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  492 |     f32 frames = Animation_GetLastFrame(&gIronKnuckleHorizontalAttackAnim);
+      |                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[58]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:498:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  498 |     Animation_Change(&this->skelAnime, &gIronKnuckleHorizontalAttackAnim, 0.0f, 0.0f, frames, ANIMMODE_ONCE_INTERP,
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'func_80A753D0':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:533:41: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  533 |     f32 frames = Animation_GetLastFrame(&gIronKnuckleRecoverFromHorizontalAttackAnim);
+      |                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[69]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:537:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  537 |     Animation_Change(&this->skelAnime, &gIronKnuckleRecoverFromHorizontalAttackAnim, 1.5f, 0.0f, frames,
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[69]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[69]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'func_80A754A0':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:550:41: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  550 |     f32 frames = Animation_GetLastFrame(&gIronKnuckleHorizontalAttackAnim);
+      |                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[58]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:555:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  555 |     Animation_Change(&this->skelAnime, &gIronKnuckleHorizontalAttackAnim, 0.5f, 13.0f, frames, ANIMMODE_ONCE_INTERP,
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'func_80A755F0':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:578:41: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  578 |     f32 frames = Animation_GetLastFrame(&gIronKnuckleBlockAnim);
+      |                                         ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[47]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:583:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  583 |     Animation_Change(&this->skelAnime, &gIronKnuckleBlockAnim, 1.0f, 0.0f, frames, ANIMMODE_ONCE_INTERP, -4.0f);
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'func_80A75790':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:612:49: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  612 |                          Animation_GetLastFrame(&gIronKnuckleFrontHitAnim), ANIMMODE_ONCE, -4.0f);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[50]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:611:44: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  611 |         Animation_Change(&this->skelAnime, &gIronKnuckleFrontHitAnim, 1.0f, 0.0f,
+      |                                            ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                            |
+      |                                            const char (*)[50]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[50]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:616:49: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  616 |                          Animation_GetLastFrame(&gIronKnuckleBackHitAnim), ANIMMODE_ONCE, -4.0f);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[49]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:615:44: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  615 |         Animation_Change(&this->skelAnime, &gIronKnuckleBackHitAnim, 1.0f, 0.0f,
+      |                                            ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                            |
+      |                                            const char (*)[49]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[49]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'func_80A7598C':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:639:41: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  639 |     f32 frames = Animation_GetLastFrame(&gIronKnuckleDeathAnim);
+      |                                         ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[47]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:644:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  644 |     Animation_Change(&this->skelAnime, &gIronKnuckleDeathAnim, 1.0f, 0.0f, frames, ANIMMODE_ONCE, -4.0f);
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'func_80A75C38':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:695:42: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  695 |         temp_f0 = Animation_GetLastFrame(&gIronKnuckleBlockAnim) - 2.0f;
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[47]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'EnIk_OverrideLimbDraw3':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:837:20: warning: assignment to 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  837 |             *dList = gIronKnuckleHelmetDL;
+      |                    ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:841:20: warning: assignment to 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  841 |             *dList = gIronKnuckleGerudoHeadDL;
+      |                    ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'EnIk_PostLimbDraw3':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:890:45: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  890 |             gSPDisplayList(POLY_XLU_DISP++, gIronKnuckleHelmetMarkingDL);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:892:45: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  892 |             gSPDisplayList(POLY_XLU_DISP++, object_ik_DL_016D88);
+      |                                             ^~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:927:45: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  927 |             gSPDisplayList(POLY_XLU_DISP++, object_ik_DL_016F88);
+      |                                             ^~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:931:45: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  931 |             gSPDisplayList(POLY_XLU_DISP++, object_ik_DL_016EE8);
+      |                                             ^~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:937:49: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  937 |                 gSPDisplayList(POLY_XLU_DISP++, gIronKnuckleArmorRivetAndSymbolDL);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                 |
+      |                                                 const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:944:49: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  944 |                 gSPDisplayList(POLY_XLU_DISP++, object_ik_DL_016CD8);
+      |                                                 ^~~~~~~~~~~~~~~~~~~
+      |                                                 |
+      |                                                 const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'func_80A76798':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:961:43: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  961 |         gSPSegment(POLY_OPA_DISP++, 0x08, func_80A761B0(play->state.gfxCtx, 245, 225, 155, 30, 30, 0));
+      |                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                           |
+      |                                           Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:962:43: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  962 |         gSPSegment(POLY_OPA_DISP++, 0x09, func_80A761B0(play->state.gfxCtx, 255, 40, 0, 40, 0, 0));
+      |                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                           |
+      |                                           Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:963:43: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  963 |         gSPSegment(POLY_OPA_DISP++, 0x0A, func_80A761B0(play->state.gfxCtx, 255, 255, 255, 20, 40, 30));
+      |                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                           |
+      |                                           Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:965:43: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  965 |         gSPSegment(POLY_OPA_DISP++, 0x08, func_80A761B0(play->state.gfxCtx, 245, 255, 205, 30, 35, 0));
+      |                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                           |
+      |                                           Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:966:43: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  966 |         gSPSegment(POLY_OPA_DISP++, 0x09, func_80A761B0(play->state.gfxCtx, 185, 135, 25, 20, 20, 0));
+      |                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                           |
+      |                                           Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:967:43: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  967 |         gSPSegment(POLY_OPA_DISP++, 0x0A, func_80A761B0(play->state.gfxCtx, 255, 255, 255, 30, 40, 20));
+      |                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                           |
+      |                                           Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:969:43: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  969 |         gSPSegment(POLY_OPA_DISP++, 0x08, func_80A761B0(play->state.gfxCtx, 55, 65, 55, 0, 0, 0));
+      |                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                           |
+      |                                           Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:970:43: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  970 |         gSPSegment(POLY_OPA_DISP++, 0x09, func_80A761B0(play->state.gfxCtx, 205, 165, 75, 25, 20, 0));
+      |                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                           |
+      |                                           Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:971:43: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  971 |         gSPSegment(POLY_OPA_DISP++, 0x0A, func_80A761B0(play->state.gfxCtx, 205, 165, 75, 25, 20, 0));
+      |                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                           |
+      |                                           Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:973:43: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  973 |         gSPSegment(POLY_OPA_DISP++, 0x08, func_80A761B0(play->state.gfxCtx, 255, 255, 255, 180, 180, 180));
+      |                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                           |
+      |                                           Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:974:43: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  974 |         gSPSegment(POLY_OPA_DISP++, 0x09, func_80A761B0(play->state.gfxCtx, 225, 205, 115, 25, 20, 0));
+      |                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                           |
+      |                                           Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:975:43: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  975 |         gSPSegment(POLY_OPA_DISP++, 0x0A, func_80A761B0(play->state.gfxCtx, 225, 205, 115, 25, 20, 0));
+      |                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                           |
+      |                                           Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'func_80A77158':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1094:45: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+ 1094 |                      Animation_GetLastFrame(&gIronKnuckleNabooruSummonAxeAnim), ANIMMODE_ONCE, 0.0f);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[58]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1093:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1093 |     Animation_Change(&this->skelAnime, &gIronKnuckleNabooruSummonAxeAnim, 1.0f, 0.0f,
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'func_80A771E4':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1103:45: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+ 1103 |                      Animation_GetLastFrame(&gIronKnuckleNabooruSummonAxeAnim), ANIMMODE_ONCE, 0.0f);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[58]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1102:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1102 |     Animation_Change(&this->skelAnime, &gIronKnuckleNabooruSummonAxeAnim, 1.0f, 0.0f,
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'func_80A7735C':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1133:41: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+ 1133 |     f32 frames = Animation_GetLastFrame(&gIronKnuckleNabooruDeathAnim);
+      |                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[54]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1135:48: warning: passing argument 3 of 'SkelAnime_InitFlex' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1135 |     SkelAnime_InitFlex(play, &this->skelAnime, &gIronKnuckleDefeatSkel, NULL, this->jointTable, this->morphTable, 30);
+      |                                                ^~~~~~~~~~~~~~~~~~~~~~~
+      |                                                |
+      |                                                const char (*)[48]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1329:83: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[48]'
+ 1329 | s32 SkelAnime_InitFlex(PlayState* play, SkelAnime* skelAnime, FlexSkeletonHeader* skeletonHeaderSeg,
+      |                                                               ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1136:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1136 |     Animation_Change(&this->skelAnime, &gIronKnuckleNabooruDeathAnim, 1.0f, 0.0f, frames, ANIMMODE_ONCE, 0.0f);
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[54]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[54]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'EnIk_PostLimbDraw2':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1197:49: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1197 |                 gSPDisplayList(POLY_XLU_DISP++, object_ik_DL_016D88);
+      |                                                 ^~~~~~~~~~~~~~~~~~~
+      |                                                 |
+      |                                                 const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1202:45: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1202 |             gSPDisplayList(POLY_XLU_DISP++, object_ik_DL_016F88);
+      |                                             ^~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1206:45: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1206 |             gSPDisplayList(POLY_XLU_DISP++, object_ik_DL_016EE8);
+      |                                             ^~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1213:49: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1213 |                 gSPDisplayList(POLY_XLU_DISP++, gIronKnuckleArmorRivetAndSymbolDL);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                 |
+      |                                                 const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1221:49: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1221 |                 gSPDisplayList(POLY_XLU_DISP++, object_ik_DL_016CD8);
+      |                                                 ^~~~~~~~~~~~~~~~~~~
+      |                                                 |
+      |                                                 const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'func_80A77844':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1238:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1238 |     gSPSegment(POLY_OPA_DISP++, 0x08, func_80A761B0(gfxCtx, 245, 225, 155, 30, 30, 0));
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                       |
+      |                                       Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1239:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1239 |     gSPSegment(POLY_OPA_DISP++, 0x09, func_80A761B0(gfxCtx, 255, 40, 0, 40, 0, 0));
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                       |
+      |                                       Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1240:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1240 |     gSPSegment(POLY_OPA_DISP++, 0x0A, func_80A761B0(gfxCtx, 255, 255, 255, 20, 40, 30));
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                       |
+      |                                       Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'EnIk_PostLimbDraw1':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1350:45: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1350 |             gSPDisplayList(POLY_XLU_DISP++, object_ik_DL_016D88);
+      |                                             ^~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1354:45: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1354 |             gSPDisplayList(POLY_XLU_DISP++, object_ik_DL_016F88);
+      |                                             ^~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1358:45: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1358 |             gSPDisplayList(POLY_XLU_DISP++, object_ik_DL_016EE8);
+      |                                             ^~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1362:45: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1362 |             gSPDisplayList(POLY_XLU_DISP++, gIronKnuckleArmorRivetAndSymbolDL);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1366:45: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1366 |             gSPDisplayList(POLY_XLU_DISP++, object_ik_DL_016CD8);
+      |                                             ^~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'func_80A77EDC':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1386:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1386 |     gSPSegment(POLY_OPA_DISP++, 0x08, func_80A761B0(gfxCtx, 245, 225, 155, 30, 30, 0));
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                       |
+      |                                       Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1387:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1387 |     gSPSegment(POLY_OPA_DISP++, 0x09, func_80A761B0(gfxCtx, 255, 40, 0, 40, 0, 0));
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                       |
+      |                                       Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1388:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1388 |     gSPSegment(POLY_OPA_DISP++, 0x0A, func_80A761B0(gfxCtx, 255, 255, 255, 20, 40, 30));
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                       |
+      |                                       Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'func_80A781CC':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1437:39: warning: passing argument 2 of 'Cutscene_SetSegment' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1437 |             Cutscene_SetSegment(play, gSpiritBossNabooruKnuckleDefeatCs);
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:872:49: note: expected 'void *' but argument is of type 'const char *'
+  872 | void Cutscene_SetSegment(PlayState* play, void* segment);
+      |                                           ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c: In function 'EnIk_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1456:52: warning: passing argument 3 of 'SkelAnime_InitFlex' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1456 |         SkelAnime_InitFlex(play, &this->skelAnime, &gIronKnuckleSkel, &gIronKnuckleNabooruSummonAxeAnim,
+      |                                                    ^~~~~~~~~~~~~~~~~
+      |                                                    |
+      |                                                    const char (*)[42]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1329:83: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[42]'
+ 1329 | s32 SkelAnime_InitFlex(PlayState* play, SkelAnime* skelAnime, FlexSkeletonHeader* skeletonHeaderSeg,
+      |                                                               ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ik/z_en_ik.c:1456:71: warning: passing argument 4 of 'SkelAnime_InitFlex' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1456 |         SkelAnime_InitFlex(play, &this->skelAnime, &gIronKnuckleSkel, &gIronKnuckleNabooruSummonAxeAnim,
+      |                                                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                       |
+      |                                                                       const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1330:41: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+ 1330 |                        AnimationHeader* animation, Vec3s* jointTable, Vec3s* morphTable, s32 limbCount);
+      |                        ~~~~~~~~~~~~~~~~~^~~~~~~~~

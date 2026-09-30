@@ -47,6 +47,12 @@ void audiohw_set_hp_power(bool enable);
 void audiohw_idle_powerdown(void);
 void audiohw_idle_powerup(void);
 
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+bool audiohw_hibernate_save(void);
+bool audiohw_hibernate_restore(void);
+#endif
+
 /* Register addresses and bits */
 
 #define HIDDENCTL               0x00

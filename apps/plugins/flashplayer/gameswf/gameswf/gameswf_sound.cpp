@@ -13,6 +13,8 @@
 #include "gameswf/gameswf_movie_def.h"
 
 
+extern "C" int flashplayer_create_predecoded_sound(int character_id);
+
 namespace gameswf
 {
 	// Callback interface to host, for handling sounds.  If it's NULL,
@@ -92,7 +94,8 @@ namespace gameswf
 		 */
 		if (s_sound_handler)
 		{
-			int handler_id = s_sound_handler->create_sound(
+			int handler_id = flashplayer_create_predecoded_sound(character_id);
+            if (handler_id < 0) handler_id = s_sound_handler->create_sound(
 				NULL,
 				0,
 				sample_count,

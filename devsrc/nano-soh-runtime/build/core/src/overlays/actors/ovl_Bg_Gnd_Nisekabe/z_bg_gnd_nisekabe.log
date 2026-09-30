@@ -1,0 +1,13 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Gnd_Nisekabe/z_bg_gnd_nisekabe.c: In function 'BgGndNisekabe_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Gnd_Nisekabe/z_bg_gnd_nisekabe.c:52:9: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   52 |         gLightTrialFakeWallDL,
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Gnd_Nisekabe/z_bg_gnd_nisekabe.c:52:9: note: (near initialization for 'dLists[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Gnd_Nisekabe/z_bg_gnd_nisekabe.c:53:9: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   53 |         gGanonsCastleUnusedFakeWallDL,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Gnd_Nisekabe/z_bg_gnd_nisekabe.c:53:9: note: (near initialization for 'dLists[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Gnd_Nisekabe/z_bg_gnd_nisekabe.c:54:9: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   54 |         gGanonsCastleScrubsFakeWallDL,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Gnd_Nisekabe/z_bg_gnd_nisekabe.c:54:9: note: (near initialization for 'dLists[2]')

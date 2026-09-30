@@ -178,16 +178,18 @@ void tu_string::encode_utf8_from_wchar(tu_string* result, const uint16* wstr)
 }
 
 
-/*static*/ int	tu_string::stricmp(const char* a, const char* b)
+/*static*/ int tu_string::stricmp(const char* a, const char* b)
 {
-#ifdef _WIN32
-	return _stricmp(a, b);
-#else
-	//TODO - pete - fix strcasecmp infinite loop - redefine?
-	//define in _root.cpp
-	return strcmp(a, b);
-	//return strcasecmp(a, b);
-#endif
+    /* AVM1 identifiers and the stringi_hash key comparison use ASCII case
+     * folding. strcmp here makes a valid MovieClip.Play() lookup fail even
+     * though its hash is the same as the registered MovieClip.play(). */
+    for (;;) {
+        unsigned char ca = (unsigned char)*a++;
+        unsigned char cb = (unsigned char)*b++;
+        if (ca >= 'A' && ca <= 'Z') ca += 'a' - 'A';
+        if (cb >= 'A' && cb <= 'Z') cb += 'a' - 'A';
+        if (ca != cb || ca == 0) return (int)ca - (int)cb;
+    }
 }
 
 

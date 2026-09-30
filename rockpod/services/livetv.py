@@ -15,6 +15,8 @@ See docs/livetv-directv-guide-spec.md.
 from __future__ import annotations
 
 import filecmp
+import csv
+import io
 import hashlib
 import json
 import logging
@@ -27,7 +29,7 @@ import sqlite3
 import subprocess
 import threading
 import time
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field, asdict, replace
 from datetime import datetime
 from pathlib import Path
 
@@ -43,6 +45,10 @@ LIVETV_FIRST_CHANNEL = 100
 # holds today and tomorrow, so that pair is what has to fit.
 LIVETV_DEVICE_MAX_SLOTS = 8192
 LIVETV_DAY_SECONDS = 86400
+# Two hours at the profile's maximum bitrate stays below signed 32-bit file
+# offsets as well as FAT32's 4 GiB limit. Keep a marathon as one guide block.
+LIVETV_PART_SECONDS = 7200
+LIVETV_MAX_FILE_BYTES = 0x7fffffff
 LIVETV_MIN_TAIL_SECONDS = 60
 
 MEDIA_EXTENSIONS = {
@@ -469,6 +475,31 @@ class LiveTvMedia:
 
     def to_dict(self) -> dict:
         return asdict(self)
+
+    def playback_parts(self):
+        """Bound decoder files without shuffling parts or inserting adverts."""
+        if hasattr(self, "_device_parts"):
+            return self._device_parts
+        if self.duration <= LIVETV_PART_SECONDS:
+            return [self]
+        parts = []
+        offset = 0
+        for begin, finish in self.keep_ranges():
+            while begin < finish:
+                end = min(finish, begin + LIVETV_PART_SECONDS)
+                part = replace(
+                    self, segment=f"{self.segment}-tvpart-{len(parts) + 1:04d}",
+                    start=begin, end=end, duration=end - begin, cuts=[],
+                    device_only=False,
+                )
+                # A complete existing encode can be remuxed, saving hours of
+                # re-encoding. These transient hints are not saved in edits.
+                part._parent_media = self
+                part._parent_offset = offset
+                parts.append(part)
+                offset += end - begin
+                begin = end
+        return parts
 
 
 @dataclass
@@ -1109,8 +1140,9 @@ def _callsign_for(name: str, taken_channels) -> str:
 class LiveTvScheduler:
     """Builds the seven day rotation and resolves instants against it."""
 
-    def __init__(self, lineup: LiveTvLineup, shows, ads):
+    def __init__(self, lineup: LiveTvLineup, shows, ads, split_media=True):
         self._lineup = lineup
+        self._split_media = split_media
         # Keyed by programme, not by file: one recording can hold several.
         self._by_path = {item.key: item for item in list(shows) + list(ads)}
         # A station-specific Weather safety spot should not leak into game
@@ -1178,7 +1210,7 @@ class LiveTvScheduler:
                 rating=show.rating or "TV-PG",
                 description=show.description or f"{channel.name}.",
                 path=show.device_relative(),
-                source=show.path,
+                source=show.key,
                 block_start=block_start,
             )]
             cursor += duration
@@ -1209,7 +1241,7 @@ class LiveTvScheduler:
                         rating=show.rating or "TV-PG",
                         description=show.description or f"{channel.name}.",
                         path=ad.device_relative(),
-                        source=ad.path,
+                        source=ad.key,
                         block_start=block_start,
                         ad_title=ad.title,
                     ))
@@ -1218,7 +1250,19 @@ class LiveTvScheduler:
             block_duration = cursor - block_start
             for slot in block:
                 slot.block_duration = block_duration
-            slots.extend(block)
+                item = self._by_path[slot.source]
+                remaining = slot.duration
+                start = slot.start
+                parts = item.playback_parts() if self._split_media else [item]
+                for part in parts:
+                    duration = min(remaining, part.duration)
+                    if duration <= 0:
+                        break
+                    slots.append(replace(slot, start=start, duration=duration,
+                                         path=part.device_relative(),
+                                         source=part.key))
+                    start += duration
+                    remaining -= duration
 
         # Never leave a sliver at the end of the day: stretch the last slot
         # and the block it belongs to.
@@ -2948,6 +2992,47 @@ def write_guide_tsv(path: str, slots):
     _write_text(path, "\n".join(lines) + "\n")
 
 
+def _merge_channel_rows(existing_path, fresh_path, selected_numbers, width):
+    """Merge a freshly rendered channel subset with this iPod's old rows."""
+    def read(path):
+        try:
+            with open(path, encoding="utf-8", newline="") as stream:
+                lines = stream.readlines()
+        except OSError:
+            return [], []
+        header = lines[:1]
+        rows = [row for row in csv.reader(lines[1:], delimiter="\t")
+                if len(row) == width]
+        return header, rows
+
+    _old_header, old_rows = read(existing_path)
+    new_header, new_rows = read(fresh_path)
+    if not new_header:
+        raise RuntimeError("Live TV could not render the selected channel")
+    kept = []
+    for row in old_rows:
+        try:
+            if int(row[0]) not in selected_numbers:
+                kept.append(row)
+        except ValueError:
+            continue
+    indexes = (0, 1, 2) if width == 11 else (0,)
+    sortable = []
+    for row in kept + new_rows:
+        try:
+            key = tuple(int(row[index]) for index in indexes)
+        except ValueError:
+            continue
+        sortable.append((key, row))
+    sortable.sort(key=lambda entry: entry[0])
+    combined = [row for _key, row in sortable]
+    output = io.StringIO()
+    output.write(new_header[0])
+    writer = csv.writer(output, delimiter="\t", lineterminator="\n")
+    writer.writerows(combined)
+    return combined, output.getvalue()
+
+
 def _tsv_clean(value: str) -> str:
     return re.sub(r"\s+", " ", _clean_text(value)).strip()
 
@@ -3487,6 +3572,10 @@ class LiveTvSync:
             (self.cached_mpeg_path(item), False),
         ]
         if mount_path:
+            if (not os.path.isfile(path) and
+                    not os.path.isfile(self.cached_mpeg_path(item)) and
+                    self._restore_device_parts(item, mount_path)):
+                return item
             candidates.append((
                 os.path.join(
                     self.device_root(mount_path), item.device_relative()
@@ -3496,12 +3585,62 @@ class LiveTvSync:
         for candidate, device_only in candidates:
             if not (os.path.isfile(candidate) and os.path.getsize(candidate) > 0):
                 continue
+            if device_only:
+                factory = getattr(self._library, "clip_manifest", None)
+                record = factory().lookup(LIVETV_MPEG_PROFILE,
+                                          item.device_relative()) if factory else None
+                if record is not None and os.path.getsize(candidate) != record[1]:
+                    continue
             duration = self._library._probe_duration(candidate)
             if duration > 0:
                 item.duration = duration
                 item.device_only = device_only
                 return item
         return None
+
+    def _restore_device_parts(self, item, mount_path):
+        """Keep a synced marathon when its source and encode cache are gone."""
+        root = self.device_root(mount_path)
+        prefix = item.device_relative()[:-4] + "-tvpart-"
+        durations = {}
+        try:
+            with open(os.path.join(root, "guide.tsv"), encoding="utf-8") as guide:
+                for line in guide:
+                    fields = line.rstrip("\n").split("\t")
+                    if len(fields) < 9 or not fields[8].startswith(prefix):
+                        continue
+                    suffix = fields[8][len(prefix):]
+                    if not re.fullmatch(r"[0-9]{4}\.mpg", suffix):
+                        continue
+                    number = int(suffix[:4])
+                    duration = int(fields[3])
+                    if not 0 < duration <= LIVETV_PART_SECONDS:
+                        return False
+                    durations[number] = max(durations.get(number, 0), duration)
+            if not durations or sorted(durations) != list(range(1, len(durations) + 1)):
+                return False
+            factory = getattr(self._library, "clip_manifest", None)
+            manifest = factory() if callable(factory) else _NoClipManifest()
+            parts = []
+            cursor = 0
+            for number, duration in sorted(durations.items()):
+                part = replace(item, segment=f"{item.segment}-tvpart-{number:04d}",
+                               start=cursor, end=cursor + duration,
+                               duration=duration, cuts=[], device_only=True)
+                target = os.path.join(root, part.device_relative())
+                size = os.path.getsize(target)
+                record = manifest.lookup(LIVETV_MPEG_PROFILE, part.device_relative())
+                if (not 0 < size <= LIVETV_MAX_FILE_BYTES or
+                        (record is not None and record[1] != size)):
+                    return False
+                parts.append(part)
+                cursor += duration
+        except (OSError, ValueError):
+            return False
+        item.duration = cursor
+        item.device_only = True
+        item._device_parts = parts
+        return True
 
     def reconcile_missing_sources(
             self, lineup: LiveTvLineup, shows, ads, mount_path: str = ""):
@@ -4447,8 +4586,32 @@ class LiveTvSync:
 
     def _mpeg_command(self, source: str, target: str, item=None):
         """320x240 MPEG-2 program stream, the profile mpegplayer expects."""
+        parent = getattr(item, "_parent_media", None)
+        if parent is not None:
+            cached = self.cached_mpeg_path(parent)
+            if not os.path.isfile(cached):
+                cached = getattr(item, "_parent_device_path", cached)
+            if (os.path.isfile(cached) and os.path.getsize(cached) > 0 and
+                    (not os.path.isfile(parent.path) or
+                     os.path.getmtime(cached) + 2 >= os.path.getmtime(parent.path))):
+                return [
+                    self._library.ffmpeg_bin(), "-y", "-loglevel", "error",
+                    # Demux from the beginning before discarding packets.
+                    # Input seeking in MPEG-PS can start inside an MP2 frame
+                    # and leave the new file with an invalid audio header.
+                    "-i", cached, "-ss", str(item._parent_offset),
+                    "-t", str(item.duration), "-map", "0:v:0",
+                    "-map", "0:a:0?", "-c", "copy", "-f", "mpeg", target,
+                ]
         ranges = item.keep_ranges() if item is not None and (
             item.is_segment or item.cuts) else None
+
+        if ranges and len(ranges) == 1 and ranges[0][1] > ranges[0][0]:
+            command = self._mpeg_command(source, target)
+            input_index = command.index("-i")
+            command[input_index:input_index] = ["-ss", str(ranges[0][0])]
+            command[-1:-1] = ["-t", str(ranges[0][1] - ranges[0][0])]
+            return command
 
         if ranges:
             return [
@@ -4556,17 +4719,28 @@ class LiveTvSync:
     # -- sync ------------------------------------------------------------
 
     def sync(self, mount_path: str, lineup: LiveTvLineup, shows, ads,
-             progress=None, cancel=None, remove_device_relatives=None):
+             progress=None, cancel=None, remove_device_relatives=None,
+             channel_numbers=None):
         """Convert, copy and write the guide. Returns a summary dict."""
         shows, ads = self.reconcile_missing_sources(
             lineup, shows, ads, mount_path
         )
-        by_path = {item.key: item for item in list(shows) + list(ads)}
+        media = list(shows) + list(ads)
+        by_path = {part.key: part for item in media
+                   for part in item.playback_parts()}
         # The device resolves channels by number, so never ship a duplicate.
         if lineup.ensure_unique_numbers():
             lineup.save()
         scheduler = LiveTvScheduler(lineup, shows, ads)
         slots = scheduler.build()
+        selected_numbers = None if channel_numbers is None else {
+            int(value) for value in channel_numbers
+        }
+        if selected_numbers is not None:
+            known = {channel.number for channel in lineup.channels}
+            if not selected_numbers or selected_numbers - known:
+                raise ValueError("Select an existing Live TV channel to sync")
+            slots = [slot for slot in slots if slot.channel in selected_numbers]
         if not slots:
             raise RuntimeError(
                 "No Live TV programming. Add videos to ~/Videos/Live and "
@@ -4583,7 +4757,6 @@ class LiveTvSync:
             if item is not None:
                 needed[slot.path] = item
 
-        staging = self._library.staging_dir()
         summary = {
             "converted": 0, "copied": 0, "skipped": 0,
             "reused": 0, "adopted": 0,
@@ -4605,9 +4778,22 @@ class LiveTvSync:
         on_device = set()
         factory = getattr(self._library, "clip_manifest", None)
         manifest = factory() if callable(factory) else _NoClipManifest()
+        for part in needed.values():
+            parent = getattr(part, "_parent_media", None)
+            if parent is None:
+                continue
+            parent_relative = parent.device_relative()
+            parent_target = os.path.join(root, parent_relative)
+            record = manifest.lookup(LIVETV_MPEG_PROFILE, parent_relative)
+            if (record is not None and os.path.isfile(parent_target) and
+                    os.path.getsize(parent_target) == record[1] and
+                    (parent.device_only or record[0] == clip_fingerprint(
+                        parent, LIVETV_MPEG_PROFILE))):
+                part._parent_device_path = parent_target
         for index, (relative, item) in enumerate(sorted(needed.items()), 1):
             if cancel and cancel():
-                break
+                summary["cancelled"] = True
+                return summary
             if progress:
                 progress(index, total, item.title)
 
@@ -4623,7 +4809,8 @@ class LiveTvSync:
 
             expected = None
             record = manifest.lookup(LIVETV_MPEG_PROFILE, relative)
-            if item.device_only and device_size > 0:
+            if (item.device_only and device_size > 0 and
+                    (record is None or record[1] == device_size)):
                 # The source and disposable laptop encode are both gone, but
                 # this exact scheduled path is physically present on the
                 # mounted iPod.  Adopt it as the authoritative copy.  Should
@@ -4655,7 +4842,7 @@ class LiveTvSync:
             # The copy already on the device is the finished article. When the
             # manifest vouches for it there is nothing to encode and nothing to
             # copy, so a cleared encode cache costs no ffmpeg time at all.
-            if device_size > 0 and expected == device_size:
+            if 0 < device_size <= LIVETV_MAX_FILE_BYTES and expected == device_size:
                 summary["reused"] += 1
                 on_device.add(relative)
                 continue
@@ -4668,45 +4855,54 @@ class LiveTvSync:
             summary["converted"] += 1
 
             source_size = os.path.getsize(cached)
-            manifest.record(LIVETV_MPEG_PROFILE, relative, fingerprint,
-                            source_size, item.path)
-            copied_to_device = False
+            if not 0 < source_size <= LIVETV_MAX_FILE_BYTES:
+                summary["errors"].append(
+                    f"Invalid device MPEG size for {item.title}: {source_size}")
+                continue
             if os.path.isfile(target) and os.path.getsize(target) == source_size:
                 summary["skipped"] += 1
             else:
                 try:
-                    shutil.copy2(cached, target)
+                    self._copy_device_mpeg(cached, target)
                 except OSError as error:
                     summary["errors"].append(
                         f"Could not copy {os.path.basename(item.path)} to "
                         f"the device: {error}")
                     continue
                 summary["copied"] += 1
-                copied_to_device = True
 
             if os.path.isfile(target) and \
                     os.path.getsize(target) == source_size:
                 on_device.add(relative)
+                manifest.record(LIVETV_MPEG_PROFILE, relative, fingerprint,
+                                source_size, item.path)
 
-            # Auto-delete only applies to files the Store downloaded into the
-            # staging area. The user's own ~/Videos/Live library is never
-            # touched by a sync.
-            # A split recording feeds several programmes, so removing the
-            # source after the first would strand the rest.
-            if (copied_to_device and
-                    not item.is_segment and
-                    item.path.startswith(staging + os.sep)):
-                if relative in on_device:
-                    try:
-                        os.remove(item.path)
-                        summary["staged_deleted"] += 1
-                    except OSError:
-                        pass
+            # Retain Store downloads so another iPod can receive the same
+            # channel without relying on the first iPod as its source.
 
-        # A slot whose file never made it to the device would otherwise air
-        # as "Channel unavailable", so it must not be listed at all.
-        playable_slots = [slot for slot in slots if slot.path in on_device]
-        dropped = len(slots) - len(playable_slots)
+        # Rebuild from complete programmes, not individual surviving rows:
+        # retaining only a failed show's commercials publishes hours of gaps.
+        def complete(item):
+            return all(part.device_relative() in on_device
+                       for part in item.playback_parts())
+
+        playable_slots = LiveTvScheduler(
+            lineup, [item for item in shows if complete(item)],
+            [item for item in ads if complete(item)],
+        ).build()
+        if selected_numbers is not None:
+            playable_slots = [slot for slot in playable_slots
+                              if slot.channel in selected_numbers]
+            if not playable_slots:
+                raise RuntimeError(
+                    "Selected channel has no playable listings; its previous guide was kept"
+                )
+        if max_two_day_slot_count(playable_slots) > LIVETV_DEVICE_MAX_SLOTS:
+            raise RuntimeError(
+                "The rebuilt Live TV guide exceeds the iPod's listing limit. "
+                "The previous guide was kept; reduce channels or use longer shows."
+            )
+        dropped = sum(slot.path not in on_device for slot in slots)
         if dropped:
             summary["warnings"].append(
                 f"{dropped} programme slot(s) could not be copied to the "
@@ -4714,8 +4910,9 @@ class LiveTvSync:
                 "an unplayable channel. See errors above."
             )
 
-        summary["cache_pruned"] = self.prune_orphaned_cache(needed.keys())
-        manifest.prune(LIVETV_MPEG_PROFILE, needed.keys())
+        keep_cache = set(needed) | {item.device_relative() for item in media}
+        summary["cache_pruned"] = self.prune_orphaned_cache(keep_cache)
+        manifest.prune(LIVETV_MPEG_PROFILE, keep_cache)
 
         # Logos first: channels.tsv records where the artwork landed on
         # the device, so it cannot be written until conversion has run.
@@ -4732,8 +4929,10 @@ class LiveTvSync:
         device_channels = [
             channel for channel in lineup.channels
             if channel.number in playable_channels
+            and (selected_numbers is None or channel.number in selected_numbers)
         ]
-        omitted = len(lineup.channels) - len(device_channels)
+        omitted = (len(selected_numbers) if selected_numbers is not None
+                   else len(lineup.channels)) - len(device_channels)
         if omitted:
             summary["warnings"].append(
                 f"{omitted} channel(s) had no playable listings and were "
@@ -4759,12 +4958,60 @@ class LiveTvSync:
                 summary["warnings"].append(
                     f"Could not remove superseded Live TV clip "
                     f"{os.path.basename(target)}: {error}")
-        write_guide_tsv(os.path.join(root, "guide.tsv"), playable_slots)
-        write_channels_tsv(os.path.join(root, "channels.tsv"),
-                           device_channels, os.path.join(root, "logos"))
-        summary["channels"] = len(device_channels)
+        guide_path = os.path.join(root, "guide.tsv")
+        channels_path = os.path.join(root, "channels.tsv")
+        if selected_numbers is None:
+            write_guide_tsv(guide_path, playable_slots)
+            write_channels_tsv(channels_path, device_channels,
+                               os.path.join(root, "logos"))
+            summary["channels"] = len(device_channels)
+            summary["slots"] = len(playable_slots)
+        else:
+            fresh_guide = os.path.join(root, ".guide-selected.tsv")
+            fresh_channels = os.path.join(root, ".channels-selected.tsv")
+            try:
+                write_guide_tsv(fresh_guide, playable_slots)
+                write_channels_tsv(fresh_channels, device_channels,
+                                   os.path.join(root, "logos"))
+                guide_rows, guide_text = _merge_channel_rows(
+                    guide_path, fresh_guide, selected_numbers, 11)
+                channel_rows, channel_text = _merge_channel_rows(
+                    channels_path, fresh_channels, selected_numbers, 7)
+                per_day = {}
+                for row in guide_rows:
+                    day = int(row[1])
+                    per_day[day] = per_day.get(day, 0) + 1
+                worst = max((per_day.get(day, 0) + per_day.get((day + 1) % 7, 0)
+                             for day in range(7)), default=0)
+                if worst > LIVETV_DEVICE_MAX_SLOTS or len(channel_rows) > LIVETV_MAX_CHANNELS:
+                    raise RuntimeError("Selected channel would exceed the iPod's Live TV limits")
+                _write_text(guide_path, guide_text)
+                _write_text(channels_path, channel_text)
+                summary["channels"] = len(channel_rows)
+                summary["slots"] = len(guide_rows)
+            finally:
+                for path in (fresh_guide, fresh_channels):
+                    try:
+                        os.unlink(path)
+                    except FileNotFoundError:
+                        pass
 
         return summary
+
+    @staticmethod
+    def _copy_device_mpeg(source, target):
+        """Publish only a complete durable file; keep the old clip on error."""
+        tmp = f"{target}.{os.getpid()}-{time.time_ns()}.tmp"
+        try:
+            shutil.copy2(source, tmp)
+            if os.path.getsize(tmp) != os.path.getsize(source):
+                raise OSError("MPEG copy was incomplete")
+            with open(tmp, "rb") as stream:
+                os.fsync(stream.fileno())
+            os.replace(tmp, target)
+        finally:
+            if os.path.exists(tmp):
+                os.remove(tmp)
 
     # -- artwork ---------------------------------------------------------
 
@@ -4932,13 +5179,15 @@ else:
         """Convert, copy and write the guide off the UI thread."""
 
         def __init__(self, sync: LiveTvSync, mount_path: str,
-                     lineup: LiveTvLineup, shows, ads, config=None):
+                     lineup: LiveTvLineup, shows, ads, config=None,
+                     channel_numbers=None):
             super().__init__()
             self._sync = sync
             self._mount_path = mount_path
             self._lineup = lineup
             self._shows = list(shows)
             self._ads = list(ads)
+            self._channel_numbers = channel_numbers
             # Optional: when given, the Weather channel's bumper videos
             # (ffmpeg work, hence done here off the UI thread rather than
             # eagerly on every panel render) are built and added to the
@@ -4963,7 +5212,7 @@ else:
         @Slot()
         def run(self):
             try:
-                if self._config is not None:
+                if self._config is not None and self._channel_numbers is None:
                     self._shows = ensure_weather_channel(
                         self._sync, self._lineup, self._config, self._shows,
                         self._ads,
@@ -4977,6 +5226,7 @@ else:
                         _emit(self.signals.progress, done, total,
                               f"Live TV clip {done} of {total}: {label}"),
                     cancel=self.is_cancelled,
+                    channel_numbers=self._channel_numbers,
                 )
                 summary["success"] = True
                 result = summary

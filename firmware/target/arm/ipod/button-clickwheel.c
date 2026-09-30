@@ -109,6 +109,10 @@ static inline int ipod_4g_button_read(void)
 {
     int whl = -1;
     int btn = BUTTON_NONE;
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+    bool button_state_packet = false;
+#endif
 
 #ifdef CPU_PP    
     if ((inl(0x7000c104) & 0x04000000) != 0) 
@@ -118,6 +122,10 @@ static inline int ipod_4g_button_read(void)
 
         if ((status & 0x800000ff) == 0x8000001a) 
         {
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+            button_state_packet = true;
+#endif
             if (status & 0x00000100)
                 btn |= BUTTON_SELECT;
             if (status & 0x00000200)
@@ -270,6 +278,10 @@ static inline int ipod_4g_button_read(void)
 #if CONFIG_CPU==S5L8701 || CONFIG_CPU==S5L8702 || CONFIG_CPU==S5L8720
         else if ((status & 0x8000FFFF) == 0x8000023A)
         {
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+            button_state_packet = true;
+#endif
             if (status & 0x00010000)
                 btn |= BUTTON_SELECT;
             if (status & 0x00020000)
@@ -297,6 +309,11 @@ static inline int ipod_4g_button_read(void)
         wheel_position = whl;
     else if (!wheel_is_touched)
         wheel_position = -1;
+#endif
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+    if (button_state_packet)
+        button_hibernate_wheel_sample(btn);
 #endif
     return btn;
 }
@@ -417,58 +434,264 @@ static void button_hibernate_reset_wheel_state(void)
 #endif
 }
 
+#define HIBERNATE_WHEEL_STATE_QUERY 0x8000063au
+#define HIBERNATE_WHEEL_STATE_ACK   0x8000062au
+#define HIBERNATE_WHEEL_BUTTON_QUERY 0x8000023au
+
+/* RetailOS stores the recovered bits before deciding whether to acknowledge
+ * them.  Rockbox has no consumer for that private controller state, but keep
+ * the same volatile store/reload data flow around the hardware transaction. */
+static volatile uint32_t hibernate_wheel_command_state;
+static bool hibernate_retained_hold_locked;
+
+struct hibernate_wheel_button_state
+{
+    bool valid;
+    unsigned int buttons;
+};
+
+/* A synchronous command can receive an unsolicited 0x1a button-state report
+ * instead of the requested reply. Preserve the latest valid physical state
+ * across the complete mode-3 transaction; the final observation must win so
+ * an earlier neutral report cannot hide a later held-button report. */
+static void __attribute__((noinline, noclone))
+button_hibernate_wheel_observe_response(
+        struct hibernate_wheel_button_state *state, uint32_t response)
+{
+    unsigned int buttons;
+
+    if ((response & 0x800000ffu) == 0x8000001au)
+        buttons = (response >> 8) & 0x1fu;
+    else if ((response & 0x8000ffffu) == HIBERNATE_WHEEL_BUTTON_QUERY)
+        buttons = (response >> 16) & 0x1fu;
+    else
+        return;
+
+    state->valid = true;
+    state->buttons = buttons;
+}
+
+/* RetailOS 2.0.4 0x08362bd0 transmits one click-wheel sideband command.
+ * Timer E is already running and CPU IRQ/FIQ are still masked here, so every
+ * wait is a bounded hardware poll. */
+static void __attribute__((noinline, noclone))
+button_hibernate_wheel_send(uint32_t command)
+{
+    uint32_t start;
+
+    WHEEL00 &= ~(1u << 21);
+    udelay(1000);
+    WHEEL00 |= 1u << 21;
+    WHEELTX = 0x80000000u | (command >> 1);
+    WHEEL04 |= 1u;
+
+    start = USEC_TIMER;
+    while ((WHEEL0C & 8u) != 0 &&
+           (uint32_t)(USEC_TIMER - start) < 1500u)
+    {
+        /* Match the bounded 0x08362c24 status poll. */
+    }
+}
+
+/* RetailOS 0x08362a0c clears receive interrupt 0, sends a command, waits up
+ * to 2 ms for a valid receive word, and restores WHEEL10 before returning. */
+static uint32_t __attribute__((noinline, noclone))
+button_hibernate_wheel_exchange(
+        uint32_t command, struct hibernate_wheel_button_state *button_state)
+{
+    uint32_t saved_control = WHEEL10;
+    uint32_t response = 0;
+    uint32_t start;
+
+    WHEEL10 = 0;
+    if ((WHEEL0C & 1u) != 0)
+    {
+        response = WHEELRX;
+        button_hibernate_wheel_observe_response(button_state, response);
+        WHEELINT = 1u;
+        if ((response & 0x8000ffffu) == command)
+            goto complete;
+        response = 0;
+    }
+    WHEELINT = 1u;
+    WHEELINT = 1u;
+    button_hibernate_wheel_send(command);
+
+    start = USEC_TIMER;
+    while ((uint32_t)(USEC_TIMER - start) < 2000u)
+    {
+        if ((WHEELINT & 1u) != 0)
+        {
+            if ((WHEEL0C & 1u) != 0)
+                break;
+            WHEELINT = 1u;
+        }
+    }
+
+    if ((WHEEL0C & 1u) != 0)
+    {
+        response = WHEELRX;
+        button_hibernate_wheel_observe_response(button_state, response);
+    }
+
+complete:
+    WHEELINT = 1u;
+    WHEEL10 = saved_control;
+    return response;
+}
+
+/* RetailOS full click-wheel initializer 0x0806dba0.  This is deliberately a
+ * resume-only implementation: the proven cold-start Rockbox path remains
+ * unchanged. */
+static void __attribute__((noinline, noclone))
+button_hibernate_wheel_init(void)
+{
+    /* The resume bootloader intentionally leaves only Timer and GPIO clocks
+     * running.  RetailOS reaches this routine with the wheel clock restored
+     * by its own warm-boot substrate; establish that same prerequisite here. */
+    clockgate_enable(CLOCKGATE_CWHEEL, true);
+
+    /* GPIO 0x72..0x75 are E2..E5.  Stock restores alternate function 2 one
+     * pin at a time and leaves a measured 1 ms gap after E2. */
+    GPIOCMD = 0xe0202u;
+    udelay(1000);
+    GPIOCMD = 0xe0302u;
+    GPIOCMD = 0xe0402u;
+    GPIOCMD = 0xe0502u;
+
+    /* Preserve the individual read/modify/write edges from 0x0806dbec..
+     * 0x0806dc20; this control register can have write-side effects. */
+    WHEEL00 = (WHEEL00 >> 16) << 16;
+    WHEEL00 &= ~0x00070000u;
+    WHEEL00 &= ~0x00080000u;
+    WHEEL00 &= ~0x00400000u;
+    WHEELINT = 7u;
+    WHEEL10 |= 1u;
+    WHEEL08 = 0x0003a980u;
+    WHEEL00 |= 1u << 20;
+    WHEEL00 |= 1u << 21;
+}
+
+/* RetailOS 0x08362b44 permits five zero replies. A matching reply carries a
+ * 15-bit sideband state in bits 16..30; nonzero state is consumed with the
+ * paired acknowledgement command. Rockbox also charges a malformed nonzero
+ * reply against the bounded budget: its async ISR can otherwise race a 0x1a
+ * report into this transplanted synchronous transaction and stall forever. */
+static void __attribute__((noinline, noclone))
+button_hibernate_wheel_restore_command(
+        struct hibernate_wheel_button_state *button_state)
+{
+    uint32_t saved_control = WHEEL10;
+    unsigned int attempts_left = 5;
+
+    /* 0x08362b50 clears WHEEL10 for the complete retry epoch.  Each nested
+     * exchange therefore saves and restores zero; only this outer routine
+     * reinstates the pre-transaction value. */
+    WHEEL10 = 0;
+
+    while (attempts_left-- > 0)
+    {
+        uint32_t response = button_hibernate_wheel_exchange(
+                HIBERNATE_WHEEL_STATE_QUERY, button_state);
+
+        if (response == 0)
+            continue;
+        if ((response & 0x8000ffffu) != HIBERNATE_WHEEL_STATE_QUERY)
+            continue;
+
+        hibernate_wheel_command_state = (response >> 16) & 0x7fffu;
+        if (hibernate_wheel_command_state != 0)
+            button_hibernate_wheel_send(HIBERNATE_WHEEL_STATE_ACK);
+        break;
+    }
+
+    WHEEL10 = saved_control;
+}
+
+/* RetailOS's mode-3 power transition gates raw wheel edges until its input
+ * recognizer has returned to a normal power state. Rockbox has no equivalent
+ * power-state gate, so use RetailOS's own mode-0 five-button snapshot primitive
+ * to establish the same observable boundary: only a syntactically valid
+ * all-buttons-up response may reopen input. A timeout is not neutrality. */
+static void __attribute__((noinline, noclone))
+button_hibernate_wheel_buttons_snapshot(
+        struct hibernate_wheel_button_state *button_state)
+{
+    uint32_t saved_control = WHEEL10;
+    unsigned int attempts_left = 5;
+
+    WHEEL10 = 0;
+
+    while (attempts_left-- > 0)
+    {
+        uint32_t response = button_hibernate_wheel_exchange(
+                HIBERNATE_WHEEL_BUTTON_QUERY, button_state);
+
+        if (response == 0)
+            continue;
+        if ((response & 0x8000ffffu) != HIBERNATE_WHEEL_BUTTON_QUERY)
+            continue;
+
+        break;
+    }
+
+    WHEEL10 = saved_control;
+}
+
 void button_hibernate_suspend(void)
 {
-    /* RetailOS device-manager mode 2 stops the click-wheel before entering
-     * retained standby.  Do the same so the Play edge that requested suspend
-     * cannot survive as a level IRQ in the restored VIC. */
-    WHEEL00 = 0;
-    WHEELINT = 7;
-    PCON14 = (PCON14 & ~0x00ffff00) | 0x000e0e00;
-    clockgate_enable(CLOCKGATE_CWHEEL, false);
+    /* RetailOS device-manager mode 2 at 0x08362c88 does not stop or power-gate
+     * the controller.  It drives E4 low, waits 1 ms, then drives E2 low. */
+    GPIOCMD = 0xe040eu;
+    udelay(1000);
+    GPIOCMD = 0xe020eu;
     button_hibernate_reset_wheel_state();
 }
 
 void button_hibernate_resume(void)
 {
-    button_hibernate_reset_wheel_state();
+    struct hibernate_wheel_button_state button_state = { false, 0 };
 
-    /* Preserve the retained hold-switch state.  Re-enabling the controller
-     * while hold is locked would leave it active indefinitely because the
-     * software edge detector also retained its locked state. */
-    if (pmu_holdswitch_locked())
+    button_hibernate_reset_wheel_state();
+    hibernate_retained_hold_locked = button_hold();
+
+    /* RetailOS mode 3 at 0x08362cc4 is unconditional, including while Hold
+     * is locked: wait 25 ms, run its full initializer, then execute the
+     * 0x8000063a/0x8000062a command-state transaction. */
+    udelay(25000);
+    button_hibernate_wheel_init();
+    button_hibernate_wheel_restore_command(&button_state);
+    int_btn = BUTTON_NONE;
+
+    button_hibernate_resume_state();
+    button_hibernate_wheel_buttons_snapshot(&button_state);
+    if (button_state.valid && button_state.buttons == 0)
+        button_hibernate_wheel_sample(BUTTON_NONE);
+}
+
+void button_hibernate_resume_complete(void)
+{
+    bool hold_locked = button_hold();
+
+    /* RetailOS completes unconditional wheel mode 3 before restoring GPIO and
+     * the remaining platform services, then suppresses input in its higher
+     * power-state recognizer. Rockbox enforces Hold in wheel hardware only on
+     * a switch edge. Reconcile that hardware after the saved GPIO image and
+     * PMU input cache are current, but still before CPU interrupts reopen. */
+    if (hold_locked)
     {
         WHEEL00 = 0;
         PCON14 = (PCON14 & ~0x00ffff00) | 0x000e0e00;
         clockgate_enable(CLOCKGATE_CWHEEL, false);
     }
-    else
+    else if (hibernate_retained_hold_locked)
     {
-        uint32_t start;
-
-        /* RetailOS device-manager mode 3 waits 25 ms before rebuilding the
-         * controller.  Its command path then drains the first response before
-         * returning to normal input. */
-        udelay(25000);
+        /* Hold was released while asleep; the saved GPIO image restored its
+         * old disabled state, so establish the ordinary unlocked controller. */
         s5l_clickwheel_init();
-
-        start = USEC_TIMER;
-        while ((WHEELINT & 7) == 0 &&
-               (uint32_t)(USEC_TIMER - start) < 10000u)
-        {
-            /* Hardware polling only: IRQ/FIQ are still masked here. */
-        }
-
-        if (WHEELINT & 7)
-            INT_WHEEL();
-
-        /* The initialization response is not a user press.  Leave no raw
-         * controller edge for the full saved VIC mask to inherit. */
-        WHEELINT = 7;
-        int_btn = BUTTON_NONE;
     }
 
-    button_hibernate_resume_state();
+    hibernate_retained_hold_locked = hold_locked;
 }
 #endif
 
@@ -500,7 +723,12 @@ bool headphones_inserted(void)
 #if CONFIG_CPU==S5L8701
     return ((PDAT14 & (1 << 5)) != 0);
 #elif CONFIG_CPU==S5L8702 || CONFIG_CPU==S5L8720
+#ifdef IPOD_NANO3G
+    /* Nano 3G headphone detect: GPIO 7.0, active high */
+    return (PDAT(7) & (1 << 0)) != 0;
+#else
     return ((PDAT10 & (1 << 6)) != 0);
+#endif
 #endif
 }
 #endif

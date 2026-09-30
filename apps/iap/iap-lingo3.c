@@ -830,6 +830,14 @@ void iap_handlepkt_mode3(const unsigned int len, const unsigned char *buf)
                         break;
                     }
 #endif
+                    if (iap_remote_volume_navigation(buf[3 + doff],
+                            buf[4 + doff],
+                            len >= 6 + doff ? buf[5 + doff] : 0))
+                    {
+                        cmd_ok(cmd);
+                        iap_remote_volume_recenter();
+                        break;
+                    }
                     if (buf[0x03 + doff]==0x00){
                         /* Not Muted */
                         global_status.volume = iap_volume_from_byte(buf[0x04 + doff]);
@@ -1011,6 +1019,15 @@ void iap_handlepkt_mode3(const unsigned int len, const unsigned char *buf)
                         break;
                     }
 #endif
+                    /* This form synchronizes the volume cursor too; it
+                     * must not restore navigation steps as audio gain. */
+                    if (iap_remote_volume_navigation(buf[3 + doff],
+                            buf[4 + doff], 0))
+                    {
+                        cmd_ok(cmd);
+                        iap_remote_volume_recenter();
+                        break;
+                    }
                     if (buf[0x03 + doff]==0x00){
                         /* Not Muted */
                         global_status.volume = iap_volume_from_byte(buf[0x04 + doff]);

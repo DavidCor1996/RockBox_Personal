@@ -1,0 +1,120 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okuta/z_en_okuta.c: In function 'EnOkuta_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okuta/z_en_okuta.c:131:48: warning: passing argument 3 of 'SkelAnime_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  131 |         SkelAnime_Init(play, &this->skelAnime, &gOctorokSkel, &gOctorokAppearAnim, this->jointTable, this->morphTable,
+      |                                                ^~~~~~~~~~~~~
+      |                                                |
+      |                                                const char (*)[41]
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okuta/z_en_okuta.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okuta/z_en_okuta.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1327:75: note: expected 'SkeletonHeader *' but argument is of type 'const char (*)[41]'
+ 1327 | s32 SkelAnime_Init(PlayState* play, SkelAnime* skelAnime, SkeletonHeader* skeletonHeaderSeg,
+      |                                                           ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okuta/z_en_okuta.c:131:63: warning: passing argument 4 of 'SkelAnime_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  131 |         SkelAnime_Init(play, &this->skelAnime, &gOctorokSkel, &gOctorokAppearAnim, this->jointTable, this->morphTable,
+      |                                                               ^~~~~~~~~~~~~~~~~~~
+      |                                                               |
+      |                                                               const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1328:37: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1328 |                    AnimationHeader* animation, Vec3s* jointTable, Vec3s* morphTable, s32 limbCount);
+      |                    ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okuta/z_en_okuta.c: In function 'EnOkuta_SetupAppear':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okuta/z_en_okuta.c:213:42: warning: passing argument 2 of 'Animation_PlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+  213 |     Animation_PlayOnce(&this->skelAnime, &gOctorokAppearAnim);
+      |                                          ^~~~~~~~~~~~~~~~~~~
+      |                                          |
+      |                                          const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1338:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1338 | void Animation_PlayOnce(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okuta/z_en_okuta.c: In function 'EnOkuta_SetupHide':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okuta/z_en_okuta.c:219:42: warning: passing argument 2 of 'Animation_PlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+  219 |     Animation_PlayOnce(&this->skelAnime, &gOctorokHideAnim);
+      |                                          ^~~~~~~~~~~~~~~~~
+      |                                          |
+      |                                          const char (*)[45]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1338:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[45]'
+ 1338 | void Animation_PlayOnce(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okuta/z_en_okuta.c: In function 'EnOkuta_SetupWaitToShoot':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okuta/z_en_okuta.c:224:42: warning: passing argument 2 of 'Animation_PlayLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  224 |     Animation_PlayLoop(&this->skelAnime, &gOctorokFloatAnim);
+      |                                          ^~~~~~~~~~~~~~~~~~
+      |                                          |
+      |                                          const char (*)[46]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1341:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[46]'
+ 1341 | void Animation_PlayLoop(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okuta/z_en_okuta.c: In function 'EnOkuta_SetupShoot':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okuta/z_en_okuta.c:230:42: warning: passing argument 2 of 'Animation_PlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+  230 |     Animation_PlayOnce(&this->skelAnime, &gOctorokShootAnim);
+      |                                          ^~~~~~~~~~~~~~~~~~
+      |                                          |
+      |                                          const char (*)[46]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1338:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[46]'
+ 1338 | void Animation_PlayOnce(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okuta/z_en_okuta.c: In function 'EnOkuta_SetupWaitToDie':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okuta/z_en_okuta.c:246:49: warning: passing argument 2 of 'Animation_MorphToPlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+  246 |     Animation_MorphToPlayOnce(&this->skelAnime, &gOctorokHitAnim, -5.0f);
+      |                                                 ^~~~~~~~~~~~~~~~
+      |                                                 |
+      |                                                 const char (*)[44]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1339:71: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[44]'
+ 1339 | void Animation_MorphToPlayOnce(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okuta/z_en_okuta.c: In function 'EnOkuta_SetupDie':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okuta/z_en_okuta.c:255:49: warning: passing argument 2 of 'Animation_MorphToPlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+  255 |     Animation_MorphToPlayOnce(&this->skelAnime, &gOctorokDieAnim, -3.0f);
+      |                                                 ^~~~~~~~~~~~~~~~
+      |                                                 |
+      |                                                 const char (*)[44]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1339:71: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[44]'
+ 1339 | void Animation_MorphToPlayOnce(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okuta/z_en_okuta.c: In function 'EnOkuta_ProjectileFly':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okuta/z_en_okuta.c:545:42: warning: passing argument 16 of 'EffectSsKakera_Spawn' from incompatible pointer type [-Wincompatible-pointer-types]
+  545 |                                          gSilverRockFragmentsDL);
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~
+      |                                          |
+      |                                          const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:329:43: note: expected 'Gfx *' but argument is of type 'const char *'
+  329 |                           s16 objId, Gfx* dList);
+      |                                      ~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okuta/z_en_okuta.c:548:80: warning: passing argument 10 of 'EffectSsHahen_SpawnBurst' from incompatible pointer type [-Wincompatible-pointer-types]
+  548 |                 EffectSsHahen_SpawnBurst(play, &pos, 6.0f, 0, 1, 2, 15, 7, 10, gOctorokProjectileDL);
+      |                                                                                ^~~~~~~~~~~~~~~~~~~~
+      |                                                                                |
+      |                                                                                const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:309:88: note: expected 'Gfx *' but argument is of type 'const char *'
+  309 |                               s16 randScaleRange, s16 count, s16 objId, s16 life, Gfx* dList);
+      |                                                                                   ~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okuta/z_en_okuta.c: In function 'EnOkuta_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okuta/z_en_okuta.c:766:24: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  766 |                        Gfx_TwoTexScrollEx(play->state.gfxCtx, 0, 1 * (play->state.frames * 6),
+      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                        |
+      |                        Gfx *
+  767 |                                           1 * (play->state.frames * 6), 32, 32, 1, 1 * (play->state.frames * 6),
+      |                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  768 |                                           1 * (play->state.frames * 6), 32, 32, 6, 6, 6, 6));
+      |                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okuta/z_en_okuta.c:772:45: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  772 |             gSPDisplayList(POLY_OPA_DISP++, gSilverRockDL);
+      |                                             ^~~~~~~~~~~~~
+      |                                             |
+      |                                             const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okuta/z_en_okuta.c:777:45: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  777 |             gSPDisplayList(POLY_OPA_DISP++, gOctorokProjectileDL);
+      |                                             ^~~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~

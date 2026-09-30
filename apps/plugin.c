@@ -20,7 +20,9 @@
  ****************************************************************************/
 #define DIRFUNCTIONS_DEFINED
 #define FILEFUNCTIONS_DEFINED
+#include "ambient_clock.h"
 #include "plugin.h"
+#include "gui/tv_ui.h"
 #include "notification_manager.h"
 #include "open_plugin.h"
 #include <ctype.h>
@@ -917,6 +919,14 @@ static const struct plugin_api rockbox_api = {
 #if defined(IPOD_6G) || defined(IPOD_VIDEO)
     video_h264_play,
 #endif
+#ifdef HAVE_DOCKED_AMBIENT_CLOCK
+    ambient_clock_ready,
+    ambient_clock_run,
+#endif
+#ifdef HAVE_COMPOSITE_VIDEO_OUT
+    tv_guide_render,
+    tv_video_prepare,
+#endif
 };
 
 static int plugin_buffer_handle;
@@ -943,6 +953,7 @@ static void plugin_quiesce_audio_buffer_users(void)
 
 int plugin_load(const char* plugin, const void* parameter)
 {
+    tv_ui_release();
     struct plugin_header *p_hdr;
     struct lc_header     *hdr;
     const char * resume_plugin = NULL;
@@ -981,6 +992,10 @@ int plugin_load(const char* plugin, const void* parameter)
                 plugin_quiesce_audio_buffer_users();
             lc_close(current_plugin_handle);
             current_plugin_handle = pfn_tsr_exit = NULL;
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+            sys_poweroff_plugin_reset();
+#endif
             plugin_buffer_handle = core_free(plugin_buffer_handle);
 
             if (!reenter)
@@ -993,6 +1008,10 @@ int plugin_load(const char* plugin, const void* parameter)
 #ifdef HAVE_DISK_STORAGE
     if (!storage_disk_is_active() && global_settings.storage_mode != 2)
         splash(0, ID2P(LANG_WAIT));
+#endif
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+    sys_poweroff_plugin_reset();
 #endif
     strcpy(current_plugin, plugin);
     current_plugin_handle = lc_open(plugin, pluginbuf, PLUGIN_BUFFER_SIZE);
@@ -1035,6 +1054,10 @@ int plugin_load(const char* plugin, const void* parameter)
     {
         lc_close(current_plugin_handle);
         current_plugin_handle = NULL;
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+        sys_poweroff_plugin_reset();
+#endif
         splash(HZ*2, hdr ? ID2P(LANG_PLUGIN_WRONG_VERSION)
                          : ID2P(LANG_PLUGIN_WRONG_MODEL));
         return -1;
@@ -1103,6 +1126,10 @@ int plugin_load(const char* plugin, const void* parameter)
             plugin_quiesce_audio_buffer_users();
         lc_close(current_plugin_handle);
         current_plugin_handle = NULL;
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+        sys_poweroff_plugin_reset();
+#endif
         plugin_buffer_handle = core_free(plugin_buffer_handle);
     }
 
@@ -1304,4 +1331,9 @@ int plugin_open(const char *plugin, const char *parameter)
 char *plugin_get_current_filename(void)
 {
     return current_plugin;
+}
+
+bool plugin_is_loaded(void)
+{
+    return current_plugin_handle != NULL;
 }

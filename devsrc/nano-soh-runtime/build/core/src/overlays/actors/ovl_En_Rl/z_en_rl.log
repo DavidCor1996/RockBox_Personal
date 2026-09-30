@@ -1,0 +1,184 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c:31:31: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   31 | static void* D_80AE81A0[] = { object_rl_Tex_003620, object_rl_Tex_003960, object_rl_Tex_003B60 };
+      |                               ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c:31:53: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   31 | static void* D_80AE81A0[] = { object_rl_Tex_003620, object_rl_Tex_003960, object_rl_Tex_003B60 };
+      |                                                     ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c:31:75: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   31 | static void* D_80AE81A0[] = { object_rl_Tex_003620, object_rl_Tex_003960, object_rl_Tex_003B60 };
+      |                                                                           ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c: In function 'func_80AE7358':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c:57:45: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+   57 |                      Animation_GetLastFrame(&object_rl_Anim_000A3C), ANIMMODE_LOOP, 0.0f);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[47]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c:56:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+   56 |     Animation_Change(&this->skelAnime, &object_rl_Anim_000A3C, 1.0f, 0.0f,
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c: In function 'func_80AE7544':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c:113:48: warning: passing argument 3 of 'SkelAnime_InitFlex' from incompatible pointer type [-Wincompatible-pointer-types]
+  113 |     SkelAnime_InitFlex(play, &this->skelAnime, &object_rl_Skel_007B38, &object_rl_Anim_000A3C, NULL, NULL, 0);
+      |                                                ^~~~~~~~~~~~~~~~~~~~~~
+      |                                                |
+      |                                                const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1329:83: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[47]'
+ 1329 | s32 SkelAnime_InitFlex(PlayState* play, SkelAnime* skelAnime, FlexSkeletonHeader* skeletonHeaderSeg,
+      |                                                               ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c:113:72: warning: passing argument 4 of 'SkelAnime_InitFlex' from incompatible pointer type [-Wincompatible-pointer-types]
+  113 |     SkelAnime_InitFlex(play, &this->skelAnime, &object_rl_Skel_007B38, &object_rl_Anim_000A3C, NULL, NULL, 0);
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~~~
+      |                                                                        |
+      |                                                                        const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1330:41: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1330 |                        AnimationHeader* animation, Vec3s* jointTable, Vec3s* morphTable, s32 limbCount);
+      |                        ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c: In function 'func_80AE7698':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c:151:53: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  151 |                              Animation_GetLastFrame(&object_rl_Anim_00040C), ANIMMODE_ONCE, 0.0f);
+      |                                                     ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[47]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c:150:48: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  150 |             Animation_Change(&this->skelAnime, &object_rl_Anim_00040C, 1.0f, 0.0f,
+      |                                                ^~~~~~~~~~~~~~~~~~~~~~
+      |                                                |
+      |                                                const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c: In function 'func_80AE772C':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c:160:49: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  160 |                          Animation_GetLastFrame(&object_rl_Anim_000830), ANIMMODE_LOOP, 0.0f);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[47]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c:159:44: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  159 |         Animation_Change(&this->skelAnime, &object_rl_Anim_000830, 1.0f, 0.0f,
+      |                                            ^~~~~~~~~~~~~~~~~~~~~~
+      |                                            |
+      |                                            const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c: In function 'func_80AE7878':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c:193:48: warning: passing argument 3 of 'SkelAnime_InitFlex' from incompatible pointer type [-Wincompatible-pointer-types]
+  193 |     SkelAnime_InitFlex(play, &this->skelAnime, &object_rl_Skel_007B38, &object_rl_Anim_000A3C, NULL, NULL, 0);
+      |                                                ^~~~~~~~~~~~~~~~~~~~~~
+      |                                                |
+      |                                                const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1329:83: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[47]'
+ 1329 | s32 SkelAnime_InitFlex(PlayState* play, SkelAnime* skelAnime, FlexSkeletonHeader* skeletonHeaderSeg,
+      |                                                               ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c:193:72: warning: passing argument 4 of 'SkelAnime_InitFlex' from incompatible pointer type [-Wincompatible-pointer-types]
+  193 |     SkelAnime_InitFlex(play, &this->skelAnime, &object_rl_Skel_007B38, &object_rl_Anim_000A3C, NULL, NULL, 0);
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~~~
+      |                                                                        |
+      |                                                                        const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1330:41: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1330 |                        AnimationHeader* animation, Vec3s* jointTable, Vec3s* morphTable, s32 limbCount);
+      |                        ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c: In function 'func_80AE7AF8':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c:246:49: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  246 |                          Animation_GetLastFrame(&object_rl_Anim_00040C), ANIMMODE_ONCE, -8.0f);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[47]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c:245:44: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  245 |         Animation_Change(&this->skelAnime, &object_rl_Anim_00040C, 1.0f, 0.0f,
+      |                                            ^~~~~~~~~~~~~~~~~~~~~~
+      |                                            |
+      |                                            const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c: In function 'func_80AE7BF8':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c:264:49: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  264 |                          Animation_GetLastFrame(&object_rl_Anim_000830), ANIMMODE_LOOP, 0.0f);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[47]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c:263:44: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  263 |         Animation_Change(&this->skelAnime, &object_rl_Anim_000830, 1.0f, 0.0f,
+      |                                            ^~~~~~~~~~~~~~~~~~~~~~
+      |                                            |
+      |                                            const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:10:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c: In function 'func_80AE7D94':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c:310:60: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  310 |     gSPSegment(POLY_XLU_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(tex));
+      |                                                            ^~~
+      |                                                            |
+      |                                                            void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c:311:60: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  311 |     gSPSegment(POLY_XLU_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(tex));
+      |                                                            ^~~
+      |                                                            |
+      |                                                            void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c:313:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  313 |     gSPSegment(POLY_XLU_DISP++, 0x0C, D_80116280);
+      |                                       ^~~~~~~~~~
+      |                                       |
+      |                                       Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c: In function 'func_80AE7FDC':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c:359:60: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  359 |     gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(tex));
+      |                                                            ^~~
+      |                                                            |
+      |                                                            void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c:360:60: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  360 |     gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(tex));
+      |                                                            ^~~
+      |                                                            |
+      |                                                            void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rl/z_en_rl.c:362:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  362 |     gSPSegment(POLY_OPA_DISP++, 0x0C, &D_80116280[2]);
+      |                                       ^~~~~~~~~~~~~~
+      |                                       |
+      |                                       Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~

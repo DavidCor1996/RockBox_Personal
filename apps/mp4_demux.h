@@ -28,13 +28,14 @@
 #include <stdbool.h>
 
 /* Max SPS/PPS codec data from avcC box */
-#define MP4V_MAX_CODECDATA  512
+#include "video_capabilities.h"
+#define MP4V_MAX_CODECDATA  VIDEO_CAP_CODEC_DATA_BYTES
 
 /* Max sample table entries we'll store in memory */
 #define MP4V_MAX_SAMPLES    65536
-#define MP4V_MAX_STTS       4096
+#define MP4V_MAX_STTS       VIDEO_CAP_TIMING_RUNS
 #define MP4V_MAX_STCO       8192
-#define MP4V_MAX_STSS       4096
+#define MP4V_MAX_STSS       VIDEO_CAP_SYNC_SAMPLES
 
 #ifndef MAKEFOURCC
 #define MAKEFOURCC(ch0, ch1, ch2, ch3) ( \

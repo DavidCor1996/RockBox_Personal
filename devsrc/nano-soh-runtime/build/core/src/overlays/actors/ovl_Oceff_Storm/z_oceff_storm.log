@@ -1,0 +1,36 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Oceff_Storm/z_oceff_storm.c: In function 'OceffStorm_Draw2':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Oceff_Storm/z_oceff_storm.c:140:37: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  140 |     gSPDisplayList(POLY_XLU_DISP++, sMaterialDL);
+      |                                     ^~~~~~~~~~~
+      |                                     |
+      |                                     const char *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Oceff_Storm/z_oceff_storm.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Oceff_Storm/z_oceff_storm.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Oceff_Storm/z_oceff_storm.c: In function 'OceffStorm_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Oceff_Storm/z_oceff_storm.c:153:45: warning: passing argument 1 of 'ResourceMgr_LoadVtxByName' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  153 |     Vtx* vtxPtr = ResourceMgr_LoadVtxByName(sCylinderVtx);
+      |                                             ^~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Oceff_Storm/z_oceff_storm.c:9:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:59:38: note: expected 'char *' but argument is of type 'const char *'
+   59 | Vtx* ResourceMgr_LoadVtxByName(char* path);
+      |                                ~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Oceff_Storm/z_oceff_storm.c:169:37: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  169 |     gSPDisplayList(POLY_XLU_DISP++, sCylinderMaterialDL);
+      |                                     ^~~~~~~~~~~~~~~~~~~
+      |                                     |
+      |                                     const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Oceff_Storm/z_oceff_storm.c:172:37: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  172 |     gSPDisplayList(POLY_XLU_DISP++, sCylinderModelDL);
+      |                                     ^~~~~~~~~~~~~~~~
+      |                                     |
+      |                                     const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~

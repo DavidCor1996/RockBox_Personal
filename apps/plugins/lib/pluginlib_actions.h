@@ -63,4 +63,10 @@ int pluginlib_getaction(int timeout,
                         const struct button_mapping *plugin_contexts[],
                         int count);
 
+/* Core remote navigation, with the caller's handheld button maps retained.
+ * ACTION_STD_MENU requests Home; PLA_EXIT keeps its existing local meaning. */
+int pluginlib_getaction_remote(int timeout,
+                              const struct button_mapping *plugin_contexts[],
+                              int count);
+
 #endif /*  __PLUGINLIB_ACTIONS_H__ */

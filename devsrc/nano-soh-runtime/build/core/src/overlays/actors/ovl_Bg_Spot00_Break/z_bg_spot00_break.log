@@ -1,0 +1,33 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot00_Break/z_bg_spot00_break.c: In function 'BgSpot00Break_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot00_Break/z_bg_spot00_break.c:46:36: warning: passing argument 1 of 'CollisionHeader_GetVirtual' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+   46 |         CollisionHeader_GetVirtual(&gBarbedWireFenceCol, &colHeader);
+      |                                    ^~~~~~~~~~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot00_Break/z_bg_spot00_break.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot00_Break/z_bg_spot00_break.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:673:39: note: expected 'void *' but argument is of type 'const char (*)[55]'
+  673 | void CollisionHeader_GetVirtual(void* colHeader, CollisionHeader** dest);
+      |                                 ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot00_Break/z_bg_spot00_break.c:48:36: warning: passing argument 1 of 'CollisionHeader_GetVirtual' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+   48 |         CollisionHeader_GetVirtual(&gBrokenDrawbridgeCol, &colHeader);
+      |                                    ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:673:39: note: expected 'void *' but argument is of type 'const char (*)[56]'
+  673 | void CollisionHeader_GetVirtual(void* colHeader, CollisionHeader** dest);
+      |                                 ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot00_Break/z_bg_spot00_break.c: In function 'BgSpot00Break_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot00_Break/z_bg_spot00_break.c:71:32: warning: passing argument 2 of 'Gfx_DrawDListOpa' from incompatible pointer type [-Wincompatible-pointer-types]
+   71 |         Gfx_DrawDListOpa(play, gBarbedWireFenceDL);
+      |                                ^~~~~~~~~~~~~~~~~~
+      |                                |
+      |                                const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:546:45: note: expected 'Gfx *' but argument is of type 'const char *'
+  546 | void Gfx_DrawDListOpa(PlayState* play, Gfx* dlist);
+      |                                        ~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot00_Break/z_bg_spot00_break.c:73:32: warning: passing argument 2 of 'Gfx_DrawDListOpa' from incompatible pointer type [-Wincompatible-pointer-types]
+   73 |         Gfx_DrawDListOpa(play, gBrokenDrawbridgeDL);
+      |                                ^~~~~~~~~~~~~~~~~~~
+      |                                |
+      |                                const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:546:45: note: expected 'Gfx *' but argument is of type 'const char *'
+  546 | void Gfx_DrawDListOpa(PlayState* play, Gfx* dlist);
+      |                                        ~~~~~^~~~~

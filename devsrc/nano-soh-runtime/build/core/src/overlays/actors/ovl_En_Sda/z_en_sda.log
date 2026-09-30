@@ -1,0 +1,28 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sda/z_en_sda.c: In function 'func_80AF9C70':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sda/z_en_sda.c:357:37: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  357 |     gSPDisplayList(POLY_XLU_DISP++, D_80AFA3D8);
+      |                                     ^~~~~~~~~~
+      |                                     |
+      |                                     const char *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sda/z_en_sda.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sda/z_en_sda.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sda/z_en_sda.c:362:37: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  362 |     gSPDisplayList(POLY_XLU_DISP++, D_80AFA3F8);
+      |                                     ^~~~~~~~~~
+      |                                     |
+      |                                     const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sda/z_en_sda.c:367:41: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  367 |         gSPDisplayList(POLY_XLU_DISP++, D_80AFA3F8);
+      |                                         ^~~~~~~~~~
+      |                                         |
+      |                                         const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~

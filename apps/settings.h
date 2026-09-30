@@ -852,6 +852,29 @@ struct user_settings
 #if (defined(IPOD_6G) || defined(IPOD_VIDEO)) && !defined(SIMULATOR)
     int composite_video_output;
 #endif
+#ifdef HAVE_COMPOSITE_VIDEO_OUT
+    int tv_screen;
+    bool tv_fit;
+    int tv_overscan;
+    int tv_interface;
+    int tv_text_size;
+    int tv_now_playing;
+#endif
+#ifdef IPOD_ACCESSORY_PROTOCOL
+    int dock_remote_mode;
+    bool remote_wake;
+#endif
+#ifdef HAVE_VIDEOOUT_BACKLIGHT_OFF
+    bool videoout_backlight_off;
+#ifdef HAVE_DOCKED_AMBIENT_CLOCK
+    bool ambient_clock;
+    int ambient_delay;
+    int ambient_colors;
+    int ambient_brightness;
+    bool ambient_reduced_motion;
+    bool ambient_weather;
+#endif
+#endif
 #if defined(IPOD_6G) && !defined(SIMULATOR)
     int ipod6g_poweroff_mode;
 #endif
@@ -1056,6 +1079,11 @@ struct user_settings
     bool notification_storage; /* storage warning notification source */
     bool notification_sound; /* notification reward cue */
     int ui_engine_applications_appearance; /* native Applications style */
+    bool ui_engine_playback_screensaver; /* idle WPS time/battery screen */
+#ifdef HAVE_COMPOSITE_VIDEO_OUT
+    /* Append to preserve offsets of existing plugin-visible settings. */
+    bool tv_ui_sounds;
+#endif
 };
 
 /* global settings */

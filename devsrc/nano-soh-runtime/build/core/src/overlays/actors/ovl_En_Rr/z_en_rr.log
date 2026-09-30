@@ -1,0 +1,32 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rr/z_en_rr.c: In function 'EnRr_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rr/z_en_rr.c:855:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  855 |     gSPSegment(POLY_XLU_DISP++, 0x0C, segMtx);
+      |                                       ^~~~~~
+      |                                       |
+      |                                       Mtx * {aka MtxS *}
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rr/z_en_rr.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rr/z_en_rr.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Mtx *' {aka 'MtxS *'}
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rr/z_en_rr.c:857:16: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  857 |                Gfx_TwoTexScrollEx(play->state.gfxCtx, 0, (this->scrollTimer * 0) & 0x7F, (this->scrollTimer * 0) & 0x3F,
+      |                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                |
+      |                Gfx *
+  858 |                                   32, 16, 1, (this->scrollTimer * 0) & 0x3F, (this->scrollTimer * -6) & 0x7F, 32, 16, 0,
+      |                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  859 |                                   0, 0, this->stopScroll ? 0 : -6));
+      |                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Rr/z_en_rr.c:885:37: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  885 |     gSPDisplayList(POLY_XLU_DISP++, gLikeLikeDL);
+      |                                     ^~~~~~~~~~~
+      |                                     |
+      |                                     const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~

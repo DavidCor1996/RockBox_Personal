@@ -34,6 +34,12 @@
 #include "appevents.h"
 #include "button.h"
 #include "action.h"
+#include "videoout.h"
+#ifdef IPOD_ACCESSORY_PROTOCOL
+#include "iap/iap-remote-debug.h"
+#include "iap.h"
+#include "wps.h"
+#endif
 #include "kernel.h"
 #include "core_alloc.h"
 
@@ -327,6 +333,23 @@ static void action_handle_backlight(bool backlight, bool ignore_next)
 
 #endif /*defined(HAVE_BACKLIGHT) || !defined(HAS_BUTTON_HOLD) HELPER FUNCTIONS*/
 
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+static void action_hibernate_resume_state(action_last_t *last, int context)
+{
+    /* Apple consumes the wake-key state and starts a fresh UI event epoch.
+     * Preserve user configuration/security fields, but discard every
+     * transient prerequisite carried by Rockbox's action mapper. */
+    last->action = ACTION_NONE;
+    last->button = BUTTON_NONE | BUTTON_REL;
+    last->context = context;
+    last->data = 0;
+    last->tick = current_tick;
+    last->repeated = false;
+    last->wait_for_release = false;
+}
+#endif
+
 /******************************************************************
 * action_poll_button filters button presses for get_action_worker;
 * if button_get_w_tmo returns...
@@ -341,6 +364,12 @@ static inline bool action_poll_button(action_last_t *last, action_cur_t *cur)
     int *button = &cur->button;
 
     *button = button_get_w_tmo(cur->timeout);
+
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+    if (button_hibernate_take_action_reset())
+        action_hibernate_resume_state(last, cur->context);
+#endif
 
    /* ********************************************************
     * Can return button immediately, sys_event & multimedia
@@ -1074,6 +1103,13 @@ static inline int do_backlight(action_last_t *last, action_cur_t *cur, int actio
     (void) cur;
     return action;
 #else
+#ifdef IPOD_ACCESSORY_PROTOCOL
+    if ((cur->button & BUTTON_REMOTE) && global_settings.remote_wake)
+    {
+        if (!videoout_active()) backlight_on();
+        return action;
+    }
+#endif
     if (!has_flag(last->backlight_mask, SEL_ACTION_ENABLED)
         || (action & (SYS_EVENT|BUTTON_MULTIMEDIA)) != 0
         || action == ACTION_REDRAW)
@@ -1486,6 +1522,20 @@ int get_action(int context, int timeout)
 #endif
 
     action = do_backlight(&action_last, &current, action);
+#ifdef IPOD_ACCESSORY_PROTOCOL
+    iap_remote_action(current.button, context, action);
+    if (iap_remote_navigation_active() &&
+        (current.button & BUTTON_REMOTE) && action == ACTION_WPS_PLAY &&
+        (context & ~ALLOW_SOFTLOCK) != CONTEXT_WPS)
+    {
+        if (audio_status() & AUDIO_STATUS_PLAY)
+        {
+            if (audio_status() & AUDIO_STATUS_PAUSE) unpause_action(true);
+            else pause_action(true);
+        }
+        action = ACTION_REDRAW;
+    }
+#endif
 #ifdef HAVE_IPODJS_UI
     notification_manager_service();
 #endif
@@ -1589,6 +1639,20 @@ int get_custom_action(int context,int timeout,
     int action = get_action_worker(&action_last, &current);
 
     action = do_backlight(&action_last, &current, action);
+#ifdef IPOD_ACCESSORY_PROTOCOL
+    iap_remote_action(current.button, context, action);
+    if (iap_remote_navigation_active() &&
+        (current.button & BUTTON_REMOTE) && action == ACTION_WPS_PLAY &&
+        (context & ~ALLOW_SOFTLOCK) != CONTEXT_WPS)
+    {
+        if (audio_status() & AUDIO_STATUS_PLAY)
+        {
+            if (audio_status() & AUDIO_STATUS_PAUSE) unpause_action(true);
+            else pause_action(true);
+        }
+        action = ACTION_REDRAW;
+    }
+#endif
 #ifdef HAVE_IPODJS_UI
     notification_manager_service();
 #endif

@@ -1,0 +1,90 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Box/z_en_box.c:73:44: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[52]' [-Wincompatible-pointer-types]
+   73 | static AnimationHeader* sAnimations[4] = { &gTreasureChestAnim_00024C, &gTreasureChestAnim_000128,
+      |                                            ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Box/z_en_box.c:73:44: note: (near initialization for 'sAnimations[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Box/z_en_box.c:73:72: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[52]' [-Wincompatible-pointer-types]
+   73 | static AnimationHeader* sAnimations[4] = { &gTreasureChestAnim_00024C, &gTreasureChestAnim_000128,
+      |                                                                        ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Box/z_en_box.c:73:72: note: (near initialization for 'sAnimations[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Box/z_en_box.c:74:44: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[52]' [-Wincompatible-pointer-types]
+   74 |                                            &gTreasureChestAnim_00043C, &gTreasureChestAnim_00043C };
+      |                                            ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Box/z_en_box.c:74:44: note: (near initialization for 'sAnimations[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Box/z_en_box.c:74:72: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[52]' [-Wincompatible-pointer-types]
+   74 |                                            &gTreasureChestAnim_00043C, &gTreasureChestAnim_00043C };
+      |                                                                        ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Box/z_en_box.c:74:72: note: (near initialization for 'sAnimations[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Box/z_en_box.c: In function 'EnBox_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Box/z_en_box.c:125:32: warning: passing argument 1 of 'CollisionHeader_GetVirtual' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  125 |     CollisionHeader_GetVirtual(&gTreasureChestCol, &colHeader);
+      |                                ^~~~~~~~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Box/z_en_box.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Box/z_en_box.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:673:39: note: expected 'void *' but argument is of type 'const char (*)[44]'
+  673 | void CollisionHeader_GetVirtual(void* colHeader, CollisionHeader** dest);
+      |                                 ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Box/z_en_box.c:192:44: warning: passing argument 3 of 'SkelAnime_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  192 |     SkelAnime_Init(play, &this->skelanime, &gTreasureChestSkel, anim, this->jointTable, this->morphTable, 5);
+      |                                            ^~~~~~~~~~~~~~~~~~~
+      |                                            |
+      |                                            const char (*)[45]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1327:75: note: expected 'SkeletonHeader *' but argument is of type 'const char (*)[45]'
+ 1327 | s32 SkelAnime_Init(PlayState* play, SkelAnime* skelAnime, SkeletonHeader* skeletonHeaderSeg,
+      |                                                           ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Box/z_en_box.c: In function 'EnBox_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Box/z_en_box.c:725:43: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  725 |         gSPSegment(POLY_OPA_DISP++, 0x08, EnBox_EmptyDList(play->state.gfxCtx));
+      |                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                           |
+      |                                           Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Box/z_en_box.c:727:79: warning: passing argument 4 of 'SkelAnime_DrawSkeleton2' from incompatible pointer type [-Wincompatible-pointer-types]
+  727 |         POLY_OPA_DISP = SkelAnime_DrawSkeleton2(play, &this->skelanime, NULL, EnBox_PostLimbDraw, this, POLY_OPA_DISP);
+      |                                                                               ^~~~~~~~~~~~~~~~~~
+      |                                                                               |
+      |                                                                               void (*)(PlayState *, s32,  Gfx **, Vec3s *, void *, Gfx **) {aka void (*)(PlayState *, long int,  Gfx **, Vec3s *, void *, Gfx **)}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1272:49: note: expected 'PostLimbDrawOpa' {aka 'void (*)(struct PlayState *, long int,  Gfx **, Vec3s *, void *)'} but argument is of type 'void (*)(PlayState *, s32,  Gfx **, Vec3s *, void *, Gfx **)' {aka 'void (*)(PlayState *, long int,  Gfx **, Vec3s *, void *, Gfx **)'}
+ 1272 |                                 PostLimbDrawOpa postLimbDraw, void* arg, Gfx* gfx);
+      |                                 ~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Box/z_en_box.c:649:6: note: 'EnBox_PostLimbDraw' declared here
+  649 | void EnBox_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, void* thisx, Gfx** gfx) {
+      |      ^~~~~~~~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64actor.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64.h:10,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:4:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64animation.h:117:16: note: 'PostLimbDrawOpa' declared here
+  117 | typedef void (*PostLimbDrawOpa)(struct PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, void*);
+      |                ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Box/z_en_box.c:733:47: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  733 |             gSPSegment(POLY_XLU_DISP++, 0x08, func_809CA518(play->state.gfxCtx));
+      |                                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                               |
+      |                                               Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Box/z_en_box.c:735:47: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  735 |             gSPSegment(POLY_XLU_DISP++, 0x08, func_809CA4A0(play->state.gfxCtx));
+      |                                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                               |
+      |                                               Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Box/z_en_box.c:737:79: warning: passing argument 4 of 'SkelAnime_DrawSkeleton2' from incompatible pointer type [-Wincompatible-pointer-types]
+  737 |         POLY_XLU_DISP = SkelAnime_DrawSkeleton2(play, &this->skelanime, NULL, EnBox_PostLimbDraw, this, POLY_XLU_DISP);
+      |                                                                               ^~~~~~~~~~~~~~~~~~
+      |                                                                               |
+      |                                                                               void (*)(PlayState *, s32,  Gfx **, Vec3s *, void *, Gfx **) {aka void (*)(PlayState *, long int,  Gfx **, Vec3s *, void *, Gfx **)}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1272:49: note: expected 'PostLimbDrawOpa' {aka 'void (*)(struct PlayState *, long int,  Gfx **, Vec3s *, void *)'} but argument is of type 'void (*)(PlayState *, s32,  Gfx **, Vec3s *, void *, Gfx **)' {aka 'void (*)(PlayState *, long int,  Gfx **, Vec3s *, void *, Gfx **)'}
+ 1272 |                                 PostLimbDrawOpa postLimbDraw, void* arg, Gfx* gfx);
+      |                                 ~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Box/z_en_box.c:649:6: note: 'EnBox_PostLimbDraw' declared here
+  649 | void EnBox_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, void* thisx, Gfx** gfx) {
+      |      ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64animation.h:117:16: note: 'PostLimbDrawOpa' declared here
+  117 | typedef void (*PostLimbDrawOpa)(struct PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, void*);
+      |                ^~~~~~~~~~~~~~~

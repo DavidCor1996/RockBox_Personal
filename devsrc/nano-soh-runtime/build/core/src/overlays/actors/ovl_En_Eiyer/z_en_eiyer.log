@@ -1,0 +1,131 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c: In function 'EnEiyer_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c:126:44: warning: passing argument 3 of 'SkelAnime_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  126 |     SkelAnime_Init(play, &this->skelanime, &gStingerSkel, &gStingerIdleAnim, this->jointTable, this->morphTable, 19);
+      |                                            ^~~~~~~~~~~~~
+      |                                            |
+      |                                            const char (*)[38]
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1327:75: note: expected 'SkeletonHeader *' but argument is of type 'const char (*)[38]'
+ 1327 | s32 SkelAnime_Init(PlayState* play, SkelAnime* skelAnime, SkeletonHeader* skeletonHeaderSeg,
+      |                                                           ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c:126:59: warning: passing argument 4 of 'SkelAnime_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  126 |     SkelAnime_Init(play, &this->skelanime, &gStingerSkel, &gStingerIdleAnim, this->jointTable, this->morphTable, 19);
+      |                                                           ^~~~~~~~~~~~~~~~~
+      |                                                           |
+      |                                                           const char (*)[42]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1328:37: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[42]'
+ 1328 |                    AnimationHeader* animation, Vec3s* jointTable, Vec3s* morphTable, s32 limbCount);
+      |                    ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c: In function 'EnEiyer_SetupAppearFromGround':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c:184:42: warning: passing argument 2 of 'Animation_PlayLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  184 |     Animation_PlayLoop(&this->skelanime, &gStingerIdleAnim);
+      |                                          ^~~~~~~~~~~~~~~~~
+      |                                          |
+      |                                          const char (*)[42]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1341:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[42]'
+ 1341 | void Animation_PlayLoop(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c: In function 'EnEiyer_SetupAmbush':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c:232:42: warning: passing argument 2 of 'Animation_PlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+  232 |     Animation_PlayOnce(&this->skelanime, &gStingerBackflipAnim);
+      |                                          ^~~~~~~~~~~~~~~~~~~~~
+      |                                          |
+      |                                          const char (*)[46]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1338:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[46]'
+ 1338 | void Animation_PlayOnce(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c: In function 'EnEiyer_SetupGlide':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c:248:45: warning: passing argument 2 of 'Animation_MorphToLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  248 |     Animation_MorphToLoop(&this->skelanime, &gStingerHitAnim, -5.0f);
+      |                                             ^~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char (*)[41]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1342:67: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[41]'
+ 1342 | void Animation_MorphToLoop(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                  ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c: In function 'EnEiyer_SetupLand':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c:268:49: warning: passing argument 2 of 'Animation_MorphToPlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+  268 |     Animation_MorphToPlayOnce(&this->skelanime, &gStingerDiveAnim, -3.0f);
+      |                                                 ^~~~~~~~~~~~~~~~~
+      |                                                 |
+      |                                                 const char (*)[42]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1339:71: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[42]'
+ 1339 | void Animation_MorphToPlayOnce(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c: In function 'EnEiyer_SetupHurt':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c:281:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  281 |     Animation_Change(&this->skelanime, &gStingerHitAnim, 2.0f, 0.0f, 0.0f, 0, -3.0f);
+      |                                        ^~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[41]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[41]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c: In function 'EnEiyer_SetupDie':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c:297:49: warning: passing argument 2 of 'Animation_MorphToLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  297 |         Animation_MorphToLoop(&this->skelanime, &gStingerHitAnim, -3.0f);
+      |                                                 ^~~~~~~~~~~~~~~~
+      |                                                 |
+      |                                                 const char (*)[41]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1342:67: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[41]'
+ 1342 | void Animation_MorphToLoop(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                  ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c: In function 'EnEiyer_SetupStunned':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c:316:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  316 |     Animation_Change(&this->skelanime, &gStingerPopOutAnim, 2.0f, 0.0f, 0.0f, 0, -8.0f);
+      |                                        ^~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[44]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[44]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c: In function 'EnEiyer_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c:705:43: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  705 |         gSPSegment(POLY_OPA_DISP++, 0x08, &D_80116280[2]);
+      |                                           ^~~~~~~~~~~~~~
+      |                                           |
+      |                                           Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c:709:61: warning: passing argument 3 of 'SkelAnime_DrawSkeleton2' from incompatible pointer type [-Wincompatible-pointer-types]
+  709 |             SkelAnime_DrawSkeleton2(play, &this->skelanime, EnEiyer_OverrideLimbDraw, NULL, this, POLY_OPA_DISP);
+      |                                                             ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                             |
+      |                                                             s32 (*)(PlayState *, s32,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **) {aka long int (*)(PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **)}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1271:89: note: expected 'OverrideLimbDrawOpa' {aka 'long int (*)(struct PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *)'} but argument is of type 's32 (*)(PlayState *, s32,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **)' {aka 'long int (*)(PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **)'}
+ 1271 | Gfx* SkelAnime_DrawSkeleton2(PlayState* play, SkelAnime* skelAnime, OverrideLimbDrawOpa overrideLimbDraw,
+      |                                                                     ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c:684:5: note: 'EnEiyer_OverrideLimbDraw' declared here
+  684 | s32 EnEiyer_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, void* thisx,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64actor.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64.h:10,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:4:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64animation.h:114:15: note: 'OverrideLimbDrawOpa' declared here
+  114 | typedef s32 (*OverrideLimbDrawOpa)(struct PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot,
+      |               ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c:712:43: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  712 |         gSPSegment(POLY_XLU_DISP++, 0x08, D_80116280);
+      |                                           ^~~~~~~~~~
+      |                                           |
+      |                                           Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c:716:61: warning: passing argument 3 of 'SkelAnime_DrawSkeleton2' from incompatible pointer type [-Wincompatible-pointer-types]
+  716 |             SkelAnime_DrawSkeleton2(play, &this->skelanime, EnEiyer_OverrideLimbDraw, NULL, this, POLY_XLU_DISP);
+      |                                                             ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                             |
+      |                                                             s32 (*)(PlayState *, s32,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **) {aka long int (*)(PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **)}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1271:89: note: expected 'OverrideLimbDrawOpa' {aka 'long int (*)(struct PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *)'} but argument is of type 's32 (*)(PlayState *, s32,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **)' {aka 'long int (*)(PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **)'}
+ 1271 | Gfx* SkelAnime_DrawSkeleton2(PlayState* play, SkelAnime* skelAnime, OverrideLimbDrawOpa overrideLimbDraw,
+      |                                                                     ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c:684:5: note: 'EnEiyer_OverrideLimbDraw' declared here
+  684 | s32 EnEiyer_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, void* thisx,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64animation.h:114:15: note: 'OverrideLimbDrawOpa' declared here
+  114 | typedef s32 (*OverrideLimbDrawOpa)(struct PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot,
+      |               ^~~~~~~~~~~~~~~~~~~

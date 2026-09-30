@@ -1,0 +1,693 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:54:101: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+   54 |     { OBJECT_HORSE_ZELDA, OBJECT_HORSE_ZELDA, 1, 0, ENVIEWER_SHADOW_HORSE, 20, ENVIEWER_DRAW_HORSE, &gHorseZeldaSkel,
+      |                                                                                                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:55:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[59]' [-Wincompatible-pointer-types]
+   55 |       &gHorseZeldaGallopingAnim },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:55:7: note: (near initialization for 'sInitData[0].anim')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:57:92: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+   57 |     { OBJECT_IM, OBJECT_OPENING_DEMO1, 1, 0, ENVIEWER_SHADOW_NONE, 10, ENVIEWER_DRAW_IMPA, &gImpaSkel,
+      |                                                                                            ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:58:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[69]' [-Wincompatible-pointer-types]
+   58 |       &object_opening_demo1_Anim_0029CC },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:58:7: note: (near initialization for 'sInitData[1].anim')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:60:94: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+   60 |     { OBJECT_ZL4, OBJECT_OPENING_DEMO1, 1, 0, ENVIEWER_SHADOW_NONE, 10, ENVIEWER_DRAW_ZELDA, &gChildZeldaSkel,
+      |                                                                                              ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:61:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[69]' [-Wincompatible-pointer-types]
+   61 |       &object_opening_demo1_Anim_000450 },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:61:7: note: (near initialization for 'sInitData[2].anim')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:63:91: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+   63 |     { OBJECT_GNDD, OBJECT_GNDD, 1, -6, ENVIEWER_SHADOW_NONE, 10, ENVIEWER_DRAW_GANONDORF, &gYoungGanondorfSkel,
+      |                                                                                           ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:64:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[60]' [-Wincompatible-pointer-types]
+   64 |       &gYoungGanondorfHorsebackIdleAnim },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:64:7: note: (near initialization for 'sInitData[3].anim')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:66:101: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+   66 |     { OBJECT_HORSE_GANON, OBJECT_HORSE_GANON, 1, 0, ENVIEWER_SHADOW_HORSE, 20, ENVIEWER_DRAW_HORSE, &gHorseGanonSkel,
+      |                                                                                                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:67:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[57]' [-Wincompatible-pointer-types]
+   67 |       &gHorseGanonRearingAnim },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:67:7: note: (near initialization for 'sInitData[4].anim')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:69:91: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+   69 |     { OBJECT_GNDD, OBJECT_GNDD, 1, -6, ENVIEWER_SHADOW_NONE, 10, ENVIEWER_DRAW_GANONDORF, &gYoungGanondorfSkel,
+      |                                                                                           ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:70:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[60]' [-Wincompatible-pointer-types]
+   70 |       &gYoungGanondorfHorsebackRideAnim },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:70:7: note: (near initialization for 'sInitData[5].anim')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:72:101: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+   72 |     { OBJECT_HORSE_GANON, OBJECT_HORSE_GANON, 1, 0, ENVIEWER_SHADOW_HORSE, 20, ENVIEWER_DRAW_HORSE, &gHorseGanonSkel,
+      |                                                                                                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:73:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[59]' [-Wincompatible-pointer-types]
+   73 |       &gHorseGanonGallopingAnim },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:73:7: note: (near initialization for 'sInitData[6].anim')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:75:91: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+   75 |     { OBJECT_GNDD, OBJECT_GNDD, 1, -6, ENVIEWER_SHADOW_NONE, 10, ENVIEWER_DRAW_GANONDORF, &gYoungGanondorfSkel,
+      |                                                                                           ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:76:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[58]' [-Wincompatible-pointer-types]
+   76 |       &gYoungGanondorfArmsCrossedAnim },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:76:7: note: (near initialization for 'sInitData[7].anim')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:78:91: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+   78 |     { OBJECT_GNDD, OBJECT_GNDD, 1, -6, ENVIEWER_SHADOW_NONE, 10, ENVIEWER_DRAW_GANONDORF, &gYoungGanondorfSkel,
+      |                                                                                           ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:79:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[51]' [-Wincompatible-pointer-types]
+   79 |       &gYoungGanondorfWalkAnim },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:79:7: note: (near initialization for 'sInitData[8].anim')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:81:93: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+   81 |     { OBJECT_GANON, OBJECT_GANON, 1, -6, ENVIEWER_SHADOW_NONE, 10, ENVIEWER_DRAW_GANONDORF, &gGanondorfSkel,
+      |                                                                                             ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:82:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[54]' [-Wincompatible-pointer-types]
+   82 |       &gGanondorfEndingFloatAnim },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:82:7: note: (near initialization for 'sInitData[9].anim')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c: In function 'EnViewer_UpdateImpl':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:288:75: warning: passing argument 2 of 'Animation_PlayLoopSetSpeed' from incompatible pointer type [-Wincompatible-pointer-types]
+  288 |                         Animation_PlayLoopSetSpeed(&this->skin.skelAnime, &gYoungGanondorfHorsebackIdleAnim, 1.0f);
+      |                                                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                           |
+      |                                                                           const char (*)[60]
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1343:72: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[60]'
+ 1343 | void Animation_PlayLoopSetSpeed(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed);
+      |                                                       ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:291:71: warning: passing argument 2 of 'Animation_PlayLoopSetSpeed' from incompatible pointer type [-Wincompatible-pointer-types]
+  291 |                     Animation_PlayLoopSetSpeed(&this->skin.skelAnime, &gHorseGanonIdleAnim, 1.0f);
+      |                                                                       ^~~~~~~~~~~~~~~~~~~~
+      |                                                                       |
+      |                                                                       const char (*)[54]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1343:72: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[54]'
+ 1343 | void Animation_PlayLoopSetSpeed(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed);
+      |                                                       ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:297:75: warning: passing argument 2 of 'Animation_PlayLoopSetSpeed' from incompatible pointer type [-Wincompatible-pointer-types]
+  297 |                         Animation_PlayLoopSetSpeed(&this->skin.skelAnime, &gYoungGanondorfHorsebackRearAnim, 1.0f);
+      |                                                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                           |
+      |                                                                           const char (*)[60]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1343:72: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[60]'
+ 1343 | void Animation_PlayLoopSetSpeed(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed);
+      |                                                       ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:300:71: warning: passing argument 2 of 'Animation_PlayLoopSetSpeed' from incompatible pointer type [-Wincompatible-pointer-types]
+  300 |                     Animation_PlayLoopSetSpeed(&this->skin.skelAnime, &gHorseGanonRearingAnim, 1.0f);
+      |                                                                       ^~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                       |
+      |                                                                       const char (*)[57]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1343:72: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[57]'
+ 1343 | void Animation_PlayLoopSetSpeed(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed);
+      |                                                       ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:307:55: warning: passing argument 2 of 'Animation_MorphToPlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+  307 |                                                       &gYoungGanondorfHorsebackLookSidewaysStartAnim, -5.0f);
+      |                                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                       |
+      |                                                       const char (*)[73]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1339:71: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[73]'
+ 1339 | void Animation_MorphToPlayOnce(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:313:74: warning: passing argument 2 of 'Animation_MorphToLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  313 |                             Animation_MorphToLoop(&this->skin.skelAnime, &gYoungGanondorfHorsebackLookSidewaysLoopAnim,
+      |                                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                          |
+      |                                                                          const char (*)[72]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1342:67: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[72]'
+ 1342 | void Animation_MorphToLoop(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                  ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:321:55: warning: passing argument 2 of 'Animation_MorphToPlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+  321 |                                                       &gYoungGanondorfHorsebackMagicChargeUpStartAnim, -5.0f);
+      |                                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                       |
+      |                                                       const char (*)[74]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1339:71: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[74]'
+ 1339 | void Animation_MorphToPlayOnce(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:327:74: warning: passing argument 2 of 'Animation_MorphToLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  327 |                             Animation_MorphToLoop(&this->skin.skelAnime, &gYoungGanondorfHorsebackMagicChargeUpLoopAnim,
+      |                                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                          |
+      |                                                                          const char (*)[73]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1342:67: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[73]'
+ 1342 | void Animation_MorphToLoop(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                  ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:334:74: warning: passing argument 2 of 'Animation_MorphToLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  334 |                             Animation_MorphToLoop(&this->skin.skelAnime, &gYoungGanondorfHorsebackLookSidewaysLoopAnim,
+      |                                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                          |
+      |                                                                          const char (*)[72]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1342:67: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[72]'
+ 1342 | void Animation_MorphToLoop(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                  ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:341:74: warning: passing argument 2 of 'Animation_MorphToLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  341 |                             Animation_MorphToLoop(&this->skin.skelAnime, &gYoungGanondorfHorsebackIdleAnim, -15.0f);
+      |                                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                          |
+      |                                                                          const char (*)[60]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1342:67: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[60]'
+ 1342 | void Animation_MorphToLoop(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                  ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:348:79: warning: passing argument 2 of 'Animation_PlayLoopSetSpeed' from incompatible pointer type [-Wincompatible-pointer-types]
+  348 |                             Animation_PlayLoopSetSpeed(&this->skin.skelAnime, &gYoungGanondorfHorsebackRideAnim, 3.0f);
+      |                                                                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                               |
+      |                                                                               const char (*)[60]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1343:72: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[60]'
+ 1343 | void Animation_PlayLoopSetSpeed(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed);
+      |                                                       ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:358:67: warning: passing argument 2 of 'Animation_PlayLoopSetSpeed' from incompatible pointer type [-Wincompatible-pointer-types]
+  358 |                 Animation_PlayLoopSetSpeed(&this->skin.skelAnime, &gHorseGanonGallopingAnim, 3.0f);
+      |                                                                   ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                   |
+      |                                                                   const char (*)[59]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1343:72: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[59]'
+ 1343 | void Animation_PlayLoopSetSpeed(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed);
+      |                                                       ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:378:71: warning: passing argument 2 of 'Animation_PlayLoopSetSpeed' from incompatible pointer type [-Wincompatible-pointer-types]
+  378 |                     Animation_PlayLoopSetSpeed(&this->skin.skelAnime, &object_opening_demo1_Anim_002574, 1.5f);
+      |                                                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                       |
+      |                                                                       const char (*)[69]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1343:72: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[69]'
+ 1343 | void Animation_PlayLoopSetSpeed(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed);
+      |                                                       ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:386:71: warning: passing argument 2 of 'Animation_PlayLoopSetSpeed' from incompatible pointer type [-Wincompatible-pointer-types]
+  386 |                     Animation_PlayLoopSetSpeed(&this->skin.skelAnime, &object_opening_demo1_Anim_0029CC, 3.0f);
+      |                                                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                       |
+      |                                                                       const char (*)[69]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1343:72: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[69]'
+ 1343 | void Animation_PlayLoopSetSpeed(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed);
+      |                                                       ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:398:79: warning: passing argument 2 of 'Animation_PlayLoopSetSpeed' from incompatible pointer type [-Wincompatible-pointer-types]
+  398 |                             Animation_PlayLoopSetSpeed(&this->skin.skelAnime, &object_opening_demo1_Anim_001410, 1.5f);
+      |                                                                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                               |
+      |                                                                               const char (*)[69]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1343:72: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[69]'
+ 1343 | void Animation_PlayLoopSetSpeed(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed);
+      |                                                       ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:407:79: warning: passing argument 2 of 'Animation_PlayLoopSetSpeed' from incompatible pointer type [-Wincompatible-pointer-types]
+  407 |                             Animation_PlayLoopSetSpeed(&this->skin.skelAnime, &object_opening_demo1_Anim_000450, 3.0f);
+      |                                                                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                               |
+      |                                                                               const char (*)[69]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1343:72: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[69]'
+ 1343 | void Animation_PlayLoopSetSpeed(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed);
+      |                                                       ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:417:71: warning: passing argument 2 of 'Animation_PlayLoopSetSpeed' from incompatible pointer type [-Wincompatible-pointer-types]
+  417 |                     Animation_PlayLoopSetSpeed(&this->skin.skelAnime, &object_opening_demo1_Anim_00504C, 1.0f);
+      |                                                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                       |
+      |                                                                       const char (*)[69]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1343:72: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[69]'
+ 1343 | void Animation_PlayLoopSetSpeed(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed);
+      |                                                       ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:422:74: warning: passing argument 2 of 'Animation_MorphToPlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+  422 |                         Animation_MorphToPlayOnce(&this->skin.skelAnime, &object_opening_demo1_Anim_00420C, -5.0f);
+      |                                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                          |
+      |                                                                          const char (*)[69]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1339:71: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[69]'
+ 1339 | void Animation_MorphToPlayOnce(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:428:70: warning: passing argument 2 of 'Animation_MorphToLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  428 |                         Animation_MorphToLoop(&this->skin.skelAnime, &object_opening_demo1_Anim_0048FC, -5.0f);
+      |                                                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                      |
+      |                                                                      const char (*)[69]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1342:67: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[69]'
+ 1342 | void Animation_MorphToLoop(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                  ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:443:70: warning: passing argument 2 of 'Animation_MorphToPlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+  443 |                     Animation_MorphToPlayOnce(&this->skin.skelAnime, &gYoungGanondorfLaughStartAnim, -5.0f);
+      |                                                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                      |
+      |                                                                      const char (*)[57]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1339:71: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[57]'
+ 1339 | void Animation_MorphToPlayOnce(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:449:66: warning: passing argument 2 of 'Animation_MorphToLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  449 |                     Animation_MorphToLoop(&this->skin.skelAnime, &gYoungGanondorfLaughLoopAnim, -5.0f);
+      |                                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                  |
+      |                                                                  const char (*)[56]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1342:67: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[56]'
+ 1342 | void Animation_MorphToLoop(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                  ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:459:75: warning: passing argument 2 of 'Animation_PlayLoopSetSpeed' from incompatible pointer type [-Wincompatible-pointer-types]
+  459 |                         Animation_PlayLoopSetSpeed(&this->skin.skelAnime, &gYoungGanondorfWalkAnim, 1.0f);
+      |                                                                           ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                           |
+      |                                                                           const char (*)[51]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1343:72: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[51]'
+ 1343 | void Animation_PlayLoopSetSpeed(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed);
+      |                                                       ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:466:70: warning: passing argument 2 of 'Animation_MorphToPlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+  466 |                     Animation_MorphToPlayOnce(&this->skin.skelAnime, &gYoungGanondorfKneelStartAnim, -10.0f);
+      |                                                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                      |
+      |                                                                      const char (*)[57]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1339:71: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[57]'
+ 1339 | void Animation_MorphToPlayOnce(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:472:66: warning: passing argument 2 of 'Animation_MorphToLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  472 |                     Animation_MorphToLoop(&this->skin.skelAnime, &gYoungGanondorfKneelLoopAnim, -5.0f);
+      |                                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                  |
+      |                                                                  const char (*)[56]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1342:67: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[56]'
+ 1342 | void Animation_MorphToLoop(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                  ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:478:70: warning: passing argument 2 of 'Animation_MorphToPlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+  478 |                     Animation_MorphToPlayOnce(&this->skin.skelAnime, &gYoungGanondorfKneelLookSidewaysAnim, -5.0f);
+      |                                                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                      |
+      |                                                                      const char (*)[64]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1339:71: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[64]'
+ 1339 | void Animation_MorphToPlayOnce(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c: In function 'EnViewer_Ganondorf3OverrideLimbDraw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:501:24: warning: assignment to 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  501 |                 *dList = gYoungGanondorfOpenLeftHandDL;
+      |                        ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:507:24: warning: assignment to 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  507 |                 *dList = gYoungGanondorfOpenLeftHandDL;
+      |                        ^
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:10:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c: In function 'EnViewer_Ganondorf9PostLimbDraw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:519:62: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  519 |         gSPDisplayList(POLY_XLU_DISP++, SEGMENTED_TO_VIRTUAL(gGanondorfEyesDL));
+      |                                                              ^~~~~~~~~~~~~~~~
+      |                                                              |
+      |                                                              const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c: In function 'EnViewer_DrawGanondorf':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:545:68: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  545 |             gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(&gYoungGanondorfEyeOpenTex));
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    const char (*)[53]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char (*)[53]'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:546:68: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  546 |             gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(&gYoungGanondorfEyeOpenTex));
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    const char (*)[53]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char (*)[53]'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:549:68: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  549 |             gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(&gYoungGanondorfEyeHalfTex));
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    const char (*)[53]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char (*)[53]'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:550:68: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  550 |             gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(&gYoungGanondorfEyeHalfTex));
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    const char (*)[53]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char (*)[53]'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:553:68: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  553 |             gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(&gYoungGanondorfEyeClosedTex));
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    const char (*)[55]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char (*)[55]'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:554:68: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  554 |             gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(&gYoungGanondorfEyeClosedTex));
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    const char (*)[55]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char (*)[55]'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:557:68: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  557 |             gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(&gYoungGanondorfEyeLookingDownTex));
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    const char (*)[60]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char (*)[60]'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:558:68: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  558 |             gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(&gYoungGanondorfEyeLookingDownTex));
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    const char (*)[60]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char (*)[60]'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:561:64: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  561 |         gSPSegment(POLY_XLU_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(&gGanondorfCrazedEyeTex));
+      |                                                                ^~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                |
+      |                                                                const char (*)[51]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char (*)[51]'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c: In function 'EnViewer_ZeldaOverrideLimbDraw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:590:20: warning: assignment to 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  590 |             *dList = gChildZeldaCutsceneDressDL;
+      |                    ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c: In function 'EnViewer_ZeldaPostLimbDraw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:617:45: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  617 |             gSPDisplayList(POLY_OPA_DISP++, gChildZeldaOcarinaOfTimeDL);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c: In function 'EnViewer_DrawZelda':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:627:68: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  627 |             gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(gChildZeldaEyeInTex));
+      |                                                                    ^~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:628:68: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  628 |             gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(gChildZeldaEyeOutTex));
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:630:68: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  630 |             gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(gChildZeldaEyeBlinkTex));
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:631:68: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  631 |             gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(gChildZeldaEyeBlinkTex));
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:633:68: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  633 |             gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(gChildZeldaEyeShutTex));
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:634:68: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  634 |             gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(gChildZeldaEyeShutTex));
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:636:68: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  636 |             gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(gChildZeldaEyeWideTex));
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:637:68: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  637 |             gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(gChildZeldaEyeWideTex));
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:639:68: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  639 |             gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(gChildZeldaEyeBlinkTex));
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:640:68: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  640 |             gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(gChildZeldaEyeBlinkTex));
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:642:68: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  642 |             gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(gChildZeldaEyeShutTex));
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:643:68: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  643 |             gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(gChildZeldaEyeShutTex));
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:645:68: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  645 |             gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(gChildZeldaEyeInTex));
+      |                                                                    ^~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:646:68: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  646 |             gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(gChildZeldaEyeOutTex));
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:650:68: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  650 |             gSPSegment(POLY_OPA_DISP++, 0x0A, SEGMENTED_TO_VIRTUAL(gChildZeldaMouthSurprisedTex));
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:653:72: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  653 |                 gSPSegment(POLY_OPA_DISP++, 0x0A, SEGMENTED_TO_VIRTUAL(gChildZeldaMouthWorriedTex));
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                        |
+      |                                                                        const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:655:72: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  655 |                 gSPSegment(POLY_OPA_DISP++, 0x0A, SEGMENTED_TO_VIRTUAL(gChildZeldaMouthSurprisedTex));
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                        |
+      |                                                                        const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:657:72: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  657 |                 gSPSegment(POLY_OPA_DISP++, 0x0A, SEGMENTED_TO_VIRTUAL(gChildZeldaMouthWorriedTex));
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                        |
+      |                                                                        const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:661:64: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  661 |         gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(gChildZeldaEyeShutTex));
+      |                                                                ^~~~~~~~~~~~~~~~~~~~~
+      |                                                                |
+      |                                                                const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:662:64: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  662 |         gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(gChildZeldaEyeShutTex));
+      |                                                                ^~~~~~~~~~~~~~~~~~~~~
+      |                                                                |
+      |                                                                const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:663:64: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  663 |         gSPSegment(POLY_OPA_DISP++, 0x0A, SEGMENTED_TO_VIRTUAL(gChildZeldaMouthWorriedTex));
+      |                                                                ^~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                |
+      |                                                                const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c: In function 'EnViewer_ImpaOverrideLimbDraw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:672:16: warning: assignment to 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  672 |         *dList = gImpaHeadMaskedDL;
+      |                ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c: In function 'EnViewer_DrawImpa':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:679:60: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  679 |     gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(gImpaEyeOpenTex));
+      |                                                            ^~~~~~~~~~~~~~~
+      |                                                            |
+      |                                                            const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:680:60: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  680 |     gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(gImpaEyeOpenTex));
+      |                                                            ^~~~~~~~~~~~~~~
+      |                                                            |
+      |                                                            const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:682:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  682 |     gSPSegment(POLY_OPA_DISP++, 0x0C, &D_80116280[2]);
+      |                                       ^~~~~~~~~~~~~~
+      |                                       |
+      |                                       Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c: In function 'EnViewer_DrawFireEffects':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:855:20: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  855 |                    Gfx_TwoTexScrollEx(play->state.gfxCtx, 0, 0, 0, 32, 64, 1, 0,
+      |                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                    |
+      |                    Gfx *
+  856 |                                       (10 * i - 20 * play->state.frames) % 512, 32, 128, 0, 0, 0, -20));
+      |                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Viewer/z_en_viewer.c:861:41: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  861 |         gSPDisplayList(POLY_XLU_DISP++, gEffFire1DL);
+      |                                         ^~~~~~~~~~~
+      |                                         |
+      |                                         const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~

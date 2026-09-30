@@ -3,6 +3,27 @@
 
   \begin{description}
 
+  \opt{ipod6g}{
+    \item[Composite Video.]
+    Output Off/Auto/On retains the accessory safety checks. \setting{TV Screen}
+    selects Standard 4:3 or Widescreen 16:9 for every accessory. Set the
+    television itself to the matching aspect. \setting{Fit to Screen} preserves
+    video proportions and crops to fill; Off contains the image with bars.
+    \setting{TV Overscan} insets controls by 0, 3, 5 or 8 percent per edge
+    (Off, Small, Medium, Large) without cropping the movie.
+    \setting{TV Interface} chooses a proportional mirror or TV-safe reflow;
+    \setting{TV Text Size} selects Standard, Large or Extra Large without
+    replacing the saved handheld font. \setting{TV Now Playing} chooses the
+    current WPS or a separate cover-art layout.
+    \setting{Dock Remote Mode} selects Playback Only or Full UI Navigation.
+    \setting{Remote Wake} lets the first remote key wake and act; Hold remains
+    effective. The Composite Video Test Screen provides a circle, square and
+    safe frame; verify 4:3 before testing widescreen or other features.
+    iAP Remote Debug captures 64 RAM events. Local Right clears, Left toggles,
+    Center saves \fname{/.rockbox/iap-remote-trace.txt}, and Menu exits.
+    Physical geometry and Universal Dock behavior require hardware validation.
+  }
+
   \item[LCD Settings.]
     This sub menu contains settings that relate to the display of the \dap.
     \begin{description}
@@ -16,6 +37,36 @@
       \item[Backlight (While Plugged In).]
       This setting is equivalent to the \setting{Backlight} setting except it
       applies when the \dap{} is plugged into the charger.
+      \opt{ipod6g}{
+        \item[Ambient clock.]
+        Shows full-screen, randomly selected synced album covers behind a
+        glass-styled 12-hour clock with AM/PM and a weather panel
+        after two minutes without
+        input while composite output is active and music is stopped. Paused
+        media, videos and other plugins keep their screens. Home, the Music
+        and Files browsers, and the idle Desktop Mode shell support this mode.
+        Covers hold for 24 seconds, then crossfade for six seconds. The entire
+        synced album-list catalog participates, excluding the current album.
+        Choose a 1, 2, 5 or 10 minute delay, fallback colors, brightness,
+        reduced motion, and weather visibility. Fallback colors apply when
+        synced artwork is unavailable; reduced motion disables image drift.
+        \setting{Preview} also works on the local display while music is stopped.
+        Menu, Select or wheel movement dismisses the clock; Play returns to
+        playback. Normal shutdown and TV backlight settings still apply.
+
+        Weather uses the forecast synced by RockPod, including its location and
+        temperature units. It does not fetch a forecast while drawing. The RTC
+        should use the weather location's local time. Observations over three
+        hours old show their age; missing or day-old observations show
+        ``Weather unavailable''.
+
+        \item[TV Backlight Off.]
+        Enabled by default, this keeps the local backlight off while composite
+        video output is active, including after button presses. Normal
+        backlight settings resume when output stops or this option is disabled.
+        Automatic composite mode while undocked does not turn the backlight off.
+        The same toggle is available in iPodJS Quick Settings.
+      }
       \item[Backlight on Hold.]
       This setting controls the behavior of the backlight when the Hold switch
       is toggled. If set to \setting{Normal} the backlight will behave as usual.

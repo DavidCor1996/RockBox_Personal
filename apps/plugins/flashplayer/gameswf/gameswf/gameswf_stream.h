@@ -73,6 +73,11 @@ namespace gameswf
 		int	get_position();
 		void	set_position(int pos);
 		int	get_tag_end_position();
+        bool has_tag_bits(int bits)
+        {
+            int remaining=get_tag_end_position()-get_position();
+            return bits>=0 && remaining>=0 && bits<=remaining*8+m_unused_bits;
+        }
 		int	open_tag();
 		void	close_tag();
 

@@ -1,0 +1,141 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c: In function 'EnBb_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c:318:44: warning: passing argument 3 of 'SkelAnime_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  318 |     SkelAnime_Init(play, &this->skelAnime, &object_Bb_Skel_001A30, &object_Bb_Anim_000444, this->jointTable,
+      |                                            ^~~~~~~~~~~~~~~~~~~~~~
+      |                                            |
+      |                                            const char (*)[47]
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1327:75: note: expected 'SkeletonHeader *' but argument is of type 'const char (*)[47]'
+ 1327 | s32 SkelAnime_Init(PlayState* play, SkelAnime* skelAnime, SkeletonHeader* skeletonHeaderSeg,
+      |                                                           ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c:318:68: warning: passing argument 4 of 'SkelAnime_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  318 |     SkelAnime_Init(play, &this->skelAnime, &object_Bb_Skel_001A30, &object_Bb_Anim_000444, this->jointTable,
+      |                                                                    ^~~~~~~~~~~~~~~~~~~~~~
+      |                                                                    |
+      |                                                                    const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1328:37: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1328 |                    AnimationHeader* animation, Vec3s* jointTable, Vec3s* morphTable, s32 limbCount);
+      |                    ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c: In function 'EnBb_SetupBlue':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c:538:42: warning: passing argument 2 of 'Animation_PlayLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  538 |     Animation_PlayLoop(&this->skelAnime, &object_Bb_Anim_000444);
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~
+      |                                          |
+      |                                          const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1341:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1341 | void Animation_PlayLoop(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c: In function 'EnBb_Blue':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c:583:58: warning: passing argument 2 of 'Animation_PlayLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  583 |                     Animation_PlayLoop(&this->skelAnime, &object_Bb_Anim_000184);
+      |                                                          ^~~~~~~~~~~~~~~~~~~~~~
+      |                                                          |
+      |                                                          const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1341:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1341 | void Animation_PlayLoop(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c:590:54: warning: passing argument 2 of 'Animation_PlayLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  590 |                 Animation_PlayLoop(&this->skelAnime, &object_Bb_Anim_000444);
+      |                                                      ^~~~~~~~~~~~~~~~~~~~~~
+      |                                                      |
+      |                                                      const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1341:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1341 | void Animation_PlayLoop(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c:598:54: warning: passing argument 2 of 'Animation_PlayLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  598 |                 Animation_PlayLoop(&this->skelAnime, &object_Bb_Anim_000184);
+      |                                                      ^~~~~~~~~~~~~~~~~~~~~~
+      |                                                      |
+      |                                                      const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1341:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1341 | void Animation_PlayLoop(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c: In function 'EnBb_SetupDown':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c:676:42: warning: passing argument 2 of 'Animation_PlayLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  676 |     Animation_PlayLoop(&this->skelAnime, &object_Bb_Anim_000444);
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~
+      |                                          |
+      |                                          const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1341:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1341 | void Animation_PlayLoop(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c: In function 'EnBb_SetupRed':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c:754:42: warning: passing argument 2 of 'Animation_PlayLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  754 |     Animation_PlayLoop(&this->skelAnime, &object_Bb_Anim_000184);
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~
+      |                                          |
+      |                                          const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1341:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1341 | void Animation_PlayLoop(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c: In function 'EnBb_SetupWhite':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c:881:42: warning: passing argument 2 of 'Animation_PlayLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  881 |     Animation_PlayLoop(&this->skelAnime, &object_Bb_Anim_000444);
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~
+      |                                          |
+      |                                          const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1341:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1341 | void Animation_PlayLoop(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c: In function 'EnBb_White':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c:912:54: warning: passing argument 2 of 'Animation_PlayLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  912 |                 Animation_PlayLoop(&this->skelAnime, &object_Bb_Anim_000184);
+      |                                                      ^~~~~~~~~~~~~~~~~~~~~~
+      |                                                      |
+      |                                                      const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1341:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1341 | void Animation_PlayLoop(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c:916:58: warning: passing argument 2 of 'Animation_PlayLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  916 |                     Animation_PlayLoop(&this->skelAnime, &object_Bb_Anim_000444);
+      |                                                          ^~~~~~~~~~~~~~~~~~~~~~
+      |                                                          |
+      |                                                          const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1341:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1341 | void Animation_PlayLoop(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c: In function 'EnBb_InitGreen':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c:949:42: warning: passing argument 2 of 'Animation_PlayLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  949 |     Animation_PlayLoop(&this->skelAnime, &object_Bb_Anim_000444);
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~
+      |                                          |
+      |                                          const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1341:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1341 | void Animation_PlayLoop(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c: In function 'EnBb_SetupGreen':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c:972:42: warning: passing argument 2 of 'Animation_PlayLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  972 |     Animation_PlayLoop(&this->skelAnime, &object_Bb_Anim_000444);
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~
+      |                                          |
+      |                                          const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1341:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1341 | void Animation_PlayLoop(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c: In function 'EnBb_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c:1329:24: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1329 |                        Gfx_TwoTexScrollEx(play->state.gfxCtx, 0, 0, 0, 0x20, 0x40, 1, 0,
+      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                        |
+      |                        Gfx *
+ 1330 |                                           ((play->gameplayFrames + (this->flameScrollMod * 10)) *
+      |                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 1331 |                                            (-20 - (this->flameScrollMod * -2))) %
+      |                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 1332 |                                               0x200,
+      |                                               ~~~~~~
+ 1333 |                                           0x20, 0x80, 0, 0, 0, (-20 - (this->flameScrollMod * -2))));
+      |                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bb/z_en_bb.c:1341:45: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1341 |             gSPDisplayList(POLY_XLU_DISP++, gEffFire1DL);
+      |                                             ^~~~~~~~~~~
+      |                                             |
+      |                                             const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~

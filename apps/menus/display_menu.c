@@ -19,10 +19,17 @@
  *
  ****************************************************************************/
 
+#include "ambient_clock.h"
+#include "misc.h"
+#include "root_menu.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <limits.h>
 #include "config.h"
+#include "gui/tv_ui.h"
+#ifdef IPOD_ACCESSORY_PROTOCOL
+#include "iap/iap-remote-debug.h"
+#endif
 #include "appevents.h"
 #include "lang.h"
 #include "action.h"
@@ -181,9 +188,13 @@ MENUITEM_SETTING(lcd_sleep_after_backlight_off,
 #ifdef HAVE_BACKLIGHT_BRIGHTNESS
 MENUITEM_SETTING(brightness_item, &global_settings.brightness, NULL);
 #endif
-#if defined(IPOD_6G) && !defined(SIMULATOR)
+#if (defined(IPOD_6G) || defined(IPOD_VIDEO)) && !defined(SIMULATOR)
 MENUITEM_SETTING(composite_video_output,
                  &global_settings.composite_video_output, NULL);
+#endif
+#ifdef HAVE_VIDEOOUT_BACKLIGHT_OFF
+MENUITEM_SETTING(videoout_backlight_off,
+                 &global_settings.videoout_backlight_off, NULL);
 #endif
 #endif /* HAVE_BACKLIGHT */
 #ifdef HAVE_LCD_CONTRAST
@@ -195,9 +206,65 @@ MENUITEM_SETTING(invert, &global_settings.invert, NULL);
 #ifdef HAVE_LCD_FLIP
 MENUITEM_SETTING(flip_display, &global_settings.flip_display, flipdisplay_callback);
 #endif
+#ifdef HAVE_DOCKED_AMBIENT_CLOCK
+MENUITEM_SETTING(ambient_enabled, &global_settings.ambient_clock, NULL);
+MENUITEM_SETTING(ambient_delay, &global_settings.ambient_delay, NULL);
+MENUITEM_SETTING(ambient_colors, &global_settings.ambient_colors, NULL);
+MENUITEM_SETTING(ambient_brightness, &global_settings.ambient_brightness, NULL);
+MENUITEM_SETTING(ambient_motion, &global_settings.ambient_reduced_motion, NULL);
+MENUITEM_SETTING(ambient_weather, &global_settings.ambient_weather, NULL);
+static int ambient_preview(void)
+{
+    int action = ambient_clock_run(true);
+    if (IS_SYSEVENT(action))
+        default_event_handler(action);
+    return action == ACTION_TREE_WPS ? GO_TO_WPS : 0;
+}
+MENUITEM_FUNCTION(ambient_preview_item, MENU_FUNC_CHECK_RETVAL, ID2P(LANG_AMBIENT_PREVIEW),
+                  ambient_preview, NULL, Icon_Menu_functioncall);
+MAKE_MENU(ambient_menu, ID2P(LANG_AMBIENT_CLOCK), NULL, Icon_Display_menu,
+          &ambient_enabled, &ambient_delay, &ambient_colors,
+          &ambient_brightness, &ambient_motion, &ambient_weather,
+          &ambient_preview_item);
+#endif
+#if defined(HAVE_COMPOSITE_VIDEO_OUT) && !defined(SIMULATOR)
+MENUITEM_SETTING(tv_screen, &global_settings.tv_screen, NULL);
+MENUITEM_SETTING(tv_fit, &global_settings.tv_fit, NULL);
+MENUITEM_SETTING(tv_overscan, &global_settings.tv_overscan, NULL);
+MENUITEM_SETTING(tv_ui_sounds, &global_settings.tv_ui_sounds, NULL);
+MENUITEM_SETTING(tv_interface, &global_settings.tv_interface, NULL);
+MENUITEM_SETTING(tv_text_size, &global_settings.tv_text_size, NULL);
+MENUITEM_SETTING(tv_now_playing, &global_settings.tv_now_playing, NULL);
+MENUITEM_FUNCTION(tv_test, 0, ID2P(LANG_TV_TEST), tv_test_screen,
+                  NULL, Icon_Menu_functioncall);
+#endif
+#ifdef IPOD_ACCESSORY_PROTOCOL
+MENUITEM_SETTING(dock_remote_mode, &global_settings.dock_remote_mode, NULL);
+MENUITEM_SETTING(remote_wake, &global_settings.remote_wake, NULL);
+MENUITEM_FUNCTION(remote_debug, 0, ID2P(LANG_IAP_REMOTE_DEBUG),
+                  iap_remote_debug_screen, NULL, Icon_Menu_functioncall);
+#endif
+#if (defined(IPOD_6G) || defined(IPOD_VIDEO)) && !defined(SIMULATOR)
+MAKE_MENU(composite_menu, ID2P(LANG_COMPOSITE_VIDEO), NULL, Icon_Display_menu,
+          &composite_video_output
+#ifdef HAVE_COMPOSITE_VIDEO_OUT
+          , &tv_screen, &tv_fit, &tv_overscan, &tv_interface,
+          &tv_text_size, &tv_now_playing, &tv_ui_sounds, &tv_test
+#endif
+#ifdef HAVE_VIDEOOUT_BACKLIGHT_OFF
+          , &videoout_backlight_off
+#endif
+#ifdef IPOD_ACCESSORY_PROTOCOL
+          , &dock_remote_mode, &remote_wake, &remote_debug
+#endif
+          );
+#endif
 /* now the actual menu */
 MAKE_MENU(lcd_settings,ID2P(LANG_LCD_MENU),
             NULL, Icon_Display_menu
+#ifdef HAVE_DOCKED_AMBIENT_CLOCK
+            ,&ambient_menu
+#endif
 #ifdef HAVE_BACKLIGHT
             ,&backlight_timeout
 # if CONFIG_CHARGING
@@ -218,9 +285,8 @@ MAKE_MENU(lcd_settings,ID2P(LANG_LCD_MENU),
             ,&brightness_item
 # endif
 #endif /* HAVE_BACKLIGHT */
-#if defined(IPOD_6G) && !defined(SIMULATOR)
-            ,&composite_video_output
-#endif
+
+
 #ifdef HAVE_LCD_CONTRAST
             ,&contrast
 #endif
@@ -619,6 +685,9 @@ MENUITEM_SETTING(codepage_setting, &global_settings.default_codepage, codepage_c
 MAKE_MENU(display_menu, ID2P(LANG_DISPLAY),
             NULL, Icon_Display_menu,
             &lcd_settings,
+#if (defined(IPOD_6G) || defined(IPOD_VIDEO)) && !defined(SIMULATOR)
+            &composite_menu,
+#endif
 #ifdef HAVE_REMOTE_LCD
             &lcd_remote_settings,
 #endif

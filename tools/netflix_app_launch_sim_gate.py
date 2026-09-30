@@ -13,6 +13,8 @@ import tempfile
 import time
 from pathlib import Path
 
+from PIL import Image
+
 from rockachievements_ui_sim_gate import (
     capture,
     changed_pixels,
@@ -64,8 +66,7 @@ def prepare_root(repo: Path, build_dir: Path, root: Path) -> None:
     netflix = repo / "assets" / "ipodjs" / "rockbox" / "netflix"
     for required in (
         build_dir / "rockboxui",
-        source / "Videos",
-        netflix / "launch" / "intro-106x60.nfr",
+        netflix / "launch" / "intro-320x180.rgb565",
         netflix / "launch" / "intro-20000-mono.mulaw",
     ):
         if not required.exists():
@@ -76,19 +77,55 @@ def prepare_root(repo: Path, build_dir: Path, root: Path) -> None:
         if (rockbox_source / name).is_dir():
             shutil.copytree(rockbox_source / name, rockbox / name)
     shutil.copytree(netflix, rockbox / "ipodjs" / "netflix")
-    os.symlink(source / "Videos", root / "Videos")
+    video = root / VIDEO_PATH.lstrip("/")
+    video.parent.mkdir(parents=True)
+    video.write_bytes(b"netflix-layout-gate")
     videolist = rockbox / "videolist"
     videolist.mkdir(exist_ok=True)
+    banner_id = "simulator-feature"
+    banner_dir = videolist / "netflix-banner"
+    banner_dir.mkdir()
+    with Image.open(
+        repo / "rockpod/assets/imdb_video_artwork/recess-banner.jpg"
+    ) as source_banner:
+        source_banner.convert("RGB").resize(
+            (320, 180), Image.Resampling.LANCZOS
+        ).save(banner_dir / f"{banner_id}.bmp", "BMP")
+    with Image.open(
+        repo / "rockpod/assets/imdb_video_artwork/recess-show.jpg"
+    ) as source_poster:
+        poster = source_poster.convert("RGB")
+        for folder, size in (
+            ("netflix-landing", (72, 108)),
+            ("netflix-detail", (96, 144)),
+            ("netflix", (28, 42)),
+        ):
+            target_dir = videolist / folder
+            target_dir.mkdir()
+            poster.resize(size, Image.Resampling.LANCZOS).save(
+                target_dir / "segtest.bmp", "BMP"
+            )
+    columns = (
+        "video_id", "thumb", "preview", "title", "kind", "group_key",
+        "device_path", "show", "season", "episode", "duration", "locked",
+        "year", "genre", "rating", "plot_short", "plot_long",
+        "content_rating", "netflix_poster", "netflix_detail", "show_art_id",
+        "season_art_id", "show_plot", "intro_start", "intro_end",
+        "credits_start", "credits_duration", "external_rating_tenths",
+        "external_rating_votes", "banner_art_id",
+    )
+    row = (
+        "segtest", "", "", "Simulator Feature", "movie", "segtest",
+        "Videos/Downloaded/segtest.rvp", "", "", "", "20", "0", "2008",
+        "Drama", "4", "Simulator feature.", "Simulator feature.", "PG",
+        "", "", "", "", "Simulator feature.", "", "", "", "", "",
+        "", banner_id,
+    )
+    assert len(columns) == len(row) == 30
     (videolist / "index.tsv").write_text(
-        "# rockpod videolist v5\n"
-        "video_id\tthumb\tpreview\ttitle\tkind\tgroup_key\tdevice_path"
-        "\tshow\tseason\tepisode\tduration\tlocked\tyear\tgenre\trating"
-        "\tplot_short\tplot_long\tcontent_rating\tnetflix_poster"
-        "\tnetflix_detail\tshow_art_id\tseason_art_id\n"
-        "segtest\t\t\tSimulator Feature\tmovie\tsegtest"
-        "\tVideos/Downloaded/segtest.rvp\t\t\t\t20\t0\t2008"
-        "\tDrama\t4\tSimulator feature.\tSimulator feature."
-        "\tPG\t\t\t\t\n",
+        "# rockpod videolist v8\n"
+        + "\t".join(columns) + "\n"
+        + "\t".join(row) + "\n",
         encoding="utf-8",
     )
     (rockbox / "config.cfg").write_text(
@@ -120,13 +157,13 @@ def wait_for_launch(frame: Path, timeout: float = 8.0) -> None:
         center = pixel_rgb(frame, 160, 120)
         if (
             top and bottom and center
-            and top[0] > 40 and top[0] > top[1] * 2
-            and bottom[0] > 40 and bottom[0] > bottom[1] * 2
+            and max(top) < 8
+            and max(bottom) < 8
             and max(center) > 30
         ):
             return
         time.sleep(0.04)
-    raise SystemExit("full-screen modern Netflix app launch frame did not appear")
+    raise SystemExit("aspect-fit modern Netflix app launch frame did not appear")
 
 
 def wait_for_landing(frame: Path, timeout: float = 8.0) -> None:
@@ -134,18 +171,23 @@ def wait_for_landing(frame: Path, timeout: float = 8.0) -> None:
     while time.monotonic() < deadline:
         header_left = pixel_rgb(frame, 105, 5)
         header_right = pixel_rgb(frame, 310, 5)
-        body = pixel_rgb(frame, 100, 80)
+        footer = pixel_rgb(frame, 2, 234)
         if (
-            header_left and header_right and body
+            header_left and header_right and footer
             and header_left[0] > 100
             and header_left[0] > header_left[1] * 3
             and header_right[0] > 100
             and header_right[0] > header_right[1] * 3
-            and max(body) < 40
+            and max(footer) < 60
         ):
             return
         time.sleep(0.08)
-    raise SystemExit("Netflix landing screen did not follow launch ident")
+    raise SystemExit(
+        "Netflix landing screen did not follow launch ident: "
+        f"header_left={pixel_rgb(frame, 105, 5)} "
+        f"header_right={pixel_rgb(frame, 310, 5)} "
+        f"footer={pixel_rgb(frame, 2, 234)}"
+    )
 
 
 def main() -> int:
@@ -197,12 +239,12 @@ def main() -> int:
             capture(frame, early)
             time.sleep(0.7)
             capture(frame, late)
-            if changed_pixels(early, late) < 1_000:
+            if changed_pixels(early, late) < 100:
                 raise SystemExit("modern Netflix app launch animation did not advance")
             wait_for_landing(frame)
             landing = args.output / "netflix-landing.png"
             capture(frame, landing)
-            if changed_pixels(late, landing) < 10_000:
+            if changed_pixels(late, landing) < 2_000:
                 raise SystemExit("Netflix launch did not hand off to its main menu")
             expected = pixel_rgb(
                 netflix / "categories" / "movies.96x144x24.bmp", 48, 72
@@ -225,7 +267,7 @@ def main() -> int:
             capture(frame, second_early)
             time.sleep(0.7)
             capture(frame, second_late)
-            if changed_pixels(second_early, second_late) < 1_000:
+            if changed_pixels(second_early, second_late) < 100:
                 raise SystemExit("second Netflix launch froze on the boot frame")
             wait_for_landing(frame)
             second_landing = args.output / "netflix-second-landing.png"
@@ -265,14 +307,27 @@ def main() -> int:
                     "wheel did not move focus to Play From Beginning"
                 )
 
-            # One more step leaves the card for the first category, and the
-            # watched title inside it must carry its checkmark badge.
+            # One more step leaves the card for the first category. Select
+            # browses immediately, and the movie rail must remain poster-first.
             tap(process.pid, "KP_2")
             time.sleep(0.6)
             tap(process.pid, "KP_5")
             time.sleep(1.5)
-            movies = args.output / "netflix-movies-watched.png"
+            movies = args.output / "netflix-movies-cover-art.png"
             capture(frame, movies)
+            expected_poster = pixel_rgb(
+                root / ".rockbox/videolist/netflix-detail/segtest.bmp",
+                48, 72,
+            )
+            actual_poster = pixel_rgb(movies, 160, 122)
+            if (
+                not expected_poster or not actual_poster or
+                max(abs(expected_poster[i] - actual_poster[i])
+                    for i in range(3)) > 45
+            ):
+                raise SystemExit(
+                    "movie rail did not use its synced photographic cover art"
+                )
             badge = pixel_rgb(movies, 197, 61)
             badge_field = pixel_rgb(movies, 193, 57)
             if (
@@ -282,6 +337,64 @@ def main() -> int:
                 raise SystemExit("watched badge did not appear on the poster")
             if not badge or min(badge) < 180:
                 raise SystemExit("watched badge check glyph was not drawn")
+
+            # Select opens the episode/movie Details screen. Only there may
+            # the verified 16:9 banner occupy x=0..319, y=32..211.
+            tap(process.pid, "KP_5")
+            time.sleep(0.8)
+            detail = args.output / "netflix-banner-details.png"
+            capture(frame, detail)
+            banner_path = (
+                root / ".rockbox/videolist/netflix-banner"
+                / "simulator-feature.bmp"
+            )
+            with (
+                Image.open(banner_path).convert("RGB") as expected_banner,
+                Image.open(detail).convert("RGB") as detail_frame,
+            ):
+                rendered_banner = detail_frame.crop((0, 32, 320, 212))
+                mismatches = sum(
+                    1
+                    for expected, actual in zip(
+                        expected_banner.get_flattened_data(),
+                        rendered_banner.get_flattened_data(),
+                    )
+                    if max(abs(expected[i] - actual[i]) for i in range(3)) > 24
+                )
+                if mismatches > 300:
+                    raise SystemExit(
+                        "Netflix banner was cropped, overlaid, or misplaced: "
+                        f"{mismatches} mismatched pixels"
+                    )
+                if detail_frame.getpixel((2, 212))[0] > 40:
+                    raise SystemExit(
+                        "Netflix banner overlapped its separate footer row"
+                    )
+
+            # This title has resume state. The compact action bar must start
+            # on Resume, then move to Play From Beginning with one wheel step.
+            resume_underline = pixel_rgb(detail, 30, 237)
+            restart_underline = pixel_rgb(detail, 200, 237)
+            if (
+                not resume_underline or resume_underline[0] < 120 or
+                resume_underline[0] < resume_underline[1] * 3 or
+                not restart_underline or max(restart_underline) > 70
+            ):
+                raise SystemExit("Details did not focus its Resume action")
+            tap(process.pid, "KP_2")
+            time.sleep(0.4)
+            restart = args.output / "netflix-details-play-from-beginning.png"
+            capture(frame, restart)
+            resume_underline = pixel_rgb(restart, 30, 237)
+            restart_underline = pixel_rgb(restart, 200, 237)
+            if (
+                not restart_underline or restart_underline[0] < 120 or
+                restart_underline[0] < restart_underline[1] * 3 or
+                not resume_underline or max(resume_underline) > 70
+            ):
+                raise SystemExit(
+                    "Details did not focus Play From Beginning"
+                )
         finally:
             if process.poll() is None:
                 process.terminate()
@@ -297,7 +410,9 @@ def main() -> int:
             raise SystemExit("Netflix simulator audio output was silent")
     print(
         "Netflix app launch simulator gate passed twice with fixed category "
-        f"art and last-played Resume; captures: {args.output}"
+        "art, cover-art browsing, a Details-only 320x180 banner, and "
+        "Resume / Play From Beginning actions; "
+        f"captures: {args.output}"
     )
     return 0
 

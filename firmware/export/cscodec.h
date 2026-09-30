@@ -25,3 +25,8 @@ void cscodec_power(bool state);
 void cscodec_clock(bool state);
 void cscodec_reset(bool state);
 
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+bool cscodec_read_checked(int reg, unsigned char *data);
+bool cscodec_write_checked(int reg, unsigned char data);
+#endif

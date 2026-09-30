@@ -1,0 +1,30 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bird/z_en_bird.c: In function 'EnBird_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bird/z_en_bird.c:48:44: warning: passing argument 3 of 'SkelAnime_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+   48 |     SkelAnime_Init(play, &this->skelAnime, &gBirdSkel, &gBirdFlyAnim, NULL, NULL, 0);
+      |                                            ^~~~~~~~~~
+      |                                            |
+      |                                            const char (*)[37]
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bird/z_en_bird.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bird/z_en_bird.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1327:75: note: expected 'SkeletonHeader *' but argument is of type 'const char (*)[37]'
+ 1327 | s32 SkelAnime_Init(PlayState* play, SkelAnime* skelAnime, SkeletonHeader* skeletonHeaderSeg,
+      |                                                           ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bird/z_en_bird.c:48:56: warning: passing argument 4 of 'SkelAnime_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+   48 |     SkelAnime_Init(play, &this->skelAnime, &gBirdSkel, &gBirdFlyAnim, NULL, NULL, 0);
+      |                                                        ^~~~~~~~~~~~~
+      |                                                        |
+      |                                                        const char (*)[40]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1328:37: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[40]'
+ 1328 |                    AnimationHeader* animation, Vec3s* jointTable, Vec3s* morphTable, s32 limbCount);
+      |                    ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bird/z_en_bird.c: In function 'EnBird_SetupIdle':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bird/z_en_bird.c:68:45: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+   68 |     f32 frameCount = Animation_GetLastFrame(&gBirdFlyAnim);
+      |                                             ^~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[40]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Bird/z_en_bird.c:70:29: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[40]' [-Wincompatible-pointer-types]
+   70 |     AnimationHeader* anim = &gBirdFlyAnim;
+      |                             ^

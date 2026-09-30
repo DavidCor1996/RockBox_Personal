@@ -57,7 +57,8 @@ class FakeSync:
 
 
 class FakeScheduler:
-    def __init__(self, lineup, shows, ads):
+    def __init__(self, lineup, shows, ads, split_media=True):
+        assert not split_media
         self.config = lineup.channels[0]._config
 
     def build(self):

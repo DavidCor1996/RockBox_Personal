@@ -1,0 +1,99 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Firefly/z_en_firefly.c: In function 'EnFirefly_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Firefly/z_en_firefly.c:148:44: warning: passing argument 3 of 'SkelAnime_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  148 |     SkelAnime_Init(play, &this->skelAnime, &gKeeseSkeleton, &gKeeseFlyAnim, this->jointTable, this->morphTable, 28);
+      |                                            ^~~~~~~~~~~~~~~
+      |                                            |
+      |                                            const char (*)[45]
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Firefly/z_en_firefly.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Firefly/z_en_firefly.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1327:75: note: expected 'SkeletonHeader *' but argument is of type 'const char (*)[45]'
+ 1327 | s32 SkelAnime_Init(PlayState* play, SkelAnime* skelAnime, SkeletonHeader* skeletonHeaderSeg,
+      |                                                           ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Firefly/z_en_firefly.c:148:61: warning: passing argument 4 of 'SkelAnime_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  148 |     SkelAnime_Init(play, &this->skelAnime, &gKeeseSkeleton, &gKeeseFlyAnim, this->jointTable, this->morphTable, 28);
+      |                                                             ^~~~~~~~~~~~~~
+      |                                                             |
+      |                                                             const char (*)[44]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1328:37: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[44]'
+ 1328 |                    AnimationHeader* animation, Vec3s* jointTable, Vec3s* morphTable, s32 limbCount);
+      |                    ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Firefly/z_en_firefly.c: In function 'EnFirefly_SetupFall':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Firefly/z_en_firefly.c:217:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  217 |     Animation_Change(&this->skelAnime, &gKeeseFlyAnim, 0.5f, 0.0f, 0.0f, ANIMMODE_LOOP_INTERP, -3.0f);
+      |                                        ^~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[44]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[44]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Firefly/z_en_firefly.c: In function 'EnFirefly_PostLimbDraw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Firefly/z_en_firefly.c:762:34: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  762 |         gSPDisplayList((*gfx)++, gKeeseEyesDL);
+      |                                  ^~~~~~~~~~~~
+      |                                  |
+      |                                  const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Firefly/z_en_firefly.c: In function 'EnFirefly_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Firefly/z_en_firefly.c:842:69: warning: passing argument 3 of 'SkelAnime_DrawSkeleton2' from incompatible pointer type [-Wincompatible-pointer-types]
+  842 |     POLY_OPA_DISP = SkelAnime_DrawSkeleton2(play, &this->skelAnime, EnFirefly_OverrideLimbDraw, EnFirefly_PostLimbDraw,
+      |                                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                     |
+      |                                                                     s32 (*)(PlayState *, s32,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **) {aka long int (*)(PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **)}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1271:89: note: expected 'OverrideLimbDrawOpa' {aka 'long int (*)(struct PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *)'} but argument is of type 's32 (*)(PlayState *, s32,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **)' {aka 'long int (*)(PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **)'}
+ 1271 | Gfx* SkelAnime_DrawSkeleton2(PlayState* play, SkelAnime* skelAnime, OverrideLimbDrawOpa overrideLimbDraw,
+      |                                                                     ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Firefly/z_en_firefly.c:728:5: note: 'EnFirefly_OverrideLimbDraw' declared here
+  728 | s32 EnFirefly_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, void* thisx,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64actor.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64.h:10,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:4:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64animation.h:114:15: note: 'OverrideLimbDrawOpa' declared here
+  114 | typedef s32 (*OverrideLimbDrawOpa)(struct PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot,
+      |               ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Firefly/z_en_firefly.c:842:97: warning: passing argument 4 of 'SkelAnime_DrawSkeleton2' from incompatible pointer type [-Wincompatible-pointer-types]
+  842 |     POLY_OPA_DISP = SkelAnime_DrawSkeleton2(play, &this->skelAnime, EnFirefly_OverrideLimbDraw, EnFirefly_PostLimbDraw,
+      |                                                                                                 ^~~~~~~~~~~~~~~~~~~~~~
+      |                                                                                                 |
+      |                                                                                                 void (*)(PlayState *, s32,  Gfx **, Vec3s *, void *, Gfx **) {aka void (*)(PlayState *, long int,  Gfx **, Vec3s *, void *, Gfx **)}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1272:49: note: expected 'PostLimbDrawOpa' {aka 'void (*)(struct PlayState *, long int,  Gfx **, Vec3s *, void *)'} but argument is of type 'void (*)(PlayState *, s32,  Gfx **, Vec3s *, void *, Gfx **)' {aka 'void (*)(PlayState *, long int,  Gfx **, Vec3s *, void *, Gfx **)'}
+ 1272 |                                 PostLimbDrawOpa postLimbDraw, void* arg, Gfx* gfx);
+      |                                 ~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Firefly/z_en_firefly.c:740:6: note: 'EnFirefly_PostLimbDraw' declared here
+  740 | void EnFirefly_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, void* thisx, Gfx** gfx) {
+      |      ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64animation.h:117:16: note: 'PostLimbDrawOpa' declared here
+  117 | typedef void (*PostLimbDrawOpa)(struct PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, void*);
+      |                ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Firefly/z_en_firefly.c: In function 'EnFirefly_DrawInvisible':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Firefly/z_en_firefly.c:860:69: warning: passing argument 3 of 'SkelAnime_DrawSkeleton2' from incompatible pointer type [-Wincompatible-pointer-types]
+  860 |     POLY_XLU_DISP = SkelAnime_DrawSkeleton2(play, &this->skelAnime, EnFirefly_OverrideLimbDraw, EnFirefly_PostLimbDraw,
+      |                                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                     |
+      |                                                                     s32 (*)(PlayState *, s32,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **) {aka long int (*)(PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **)}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1271:89: note: expected 'OverrideLimbDrawOpa' {aka 'long int (*)(struct PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *)'} but argument is of type 's32 (*)(PlayState *, s32,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **)' {aka 'long int (*)(PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **)'}
+ 1271 | Gfx* SkelAnime_DrawSkeleton2(PlayState* play, SkelAnime* skelAnime, OverrideLimbDrawOpa overrideLimbDraw,
+      |                                                                     ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Firefly/z_en_firefly.c:728:5: note: 'EnFirefly_OverrideLimbDraw' declared here
+  728 | s32 EnFirefly_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, void* thisx,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64animation.h:114:15: note: 'OverrideLimbDrawOpa' declared here
+  114 | typedef s32 (*OverrideLimbDrawOpa)(struct PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot,
+      |               ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Firefly/z_en_firefly.c:860:97: warning: passing argument 4 of 'SkelAnime_DrawSkeleton2' from incompatible pointer type [-Wincompatible-pointer-types]
+  860 |     POLY_XLU_DISP = SkelAnime_DrawSkeleton2(play, &this->skelAnime, EnFirefly_OverrideLimbDraw, EnFirefly_PostLimbDraw,
+      |                                                                                                 ^~~~~~~~~~~~~~~~~~~~~~
+      |                                                                                                 |
+      |                                                                                                 void (*)(PlayState *, s32,  Gfx **, Vec3s *, void *, Gfx **) {aka void (*)(PlayState *, long int,  Gfx **, Vec3s *, void *, Gfx **)}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1272:49: note: expected 'PostLimbDrawOpa' {aka 'void (*)(struct PlayState *, long int,  Gfx **, Vec3s *, void *)'} but argument is of type 'void (*)(PlayState *, s32,  Gfx **, Vec3s *, void *, Gfx **)' {aka 'void (*)(PlayState *, long int,  Gfx **, Vec3s *, void *, Gfx **)'}
+ 1272 |                                 PostLimbDrawOpa postLimbDraw, void* arg, Gfx* gfx);
+      |                                 ~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Firefly/z_en_firefly.c:740:6: note: 'EnFirefly_PostLimbDraw' declared here
+  740 | void EnFirefly_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, void* thisx, Gfx** gfx) {
+      |      ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64animation.h:117:16: note: 'PostLimbDrawOpa' declared here
+  117 | typedef void (*PostLimbDrawOpa)(struct PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, void*);
+      |                ^~~~~~~~~~~~~~~

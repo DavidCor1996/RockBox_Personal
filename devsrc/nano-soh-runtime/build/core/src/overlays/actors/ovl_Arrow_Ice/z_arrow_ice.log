@@ -1,0 +1,35 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Arrow_Ice/z_arrow_ice.c: In function 'ArrowIce_Destroy':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:135:40: warning: passing argument 2 of 'LogUtils_LogThreadId' makes integer from pointer without a cast [-Wint-conversion]
+  135 |         LogUtils_LogThreadId(__FILE__, __FILE__);           \
+      |                                        ^~~~~~~~
+      |                                        |
+      |                                        char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:143:28: note: in expansion of macro 'LOG'
+  143 | #define LOG_STRING(string) LOG(#string, string, "%s")
+      |                            ^~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Arrow_Ice/z_arrow_ice.c:60:5: note: in expansion of macro 'LOG_STRING'
+   60 |     LOG_STRING("消滅"); // "Disappearance"
+      |     ^~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Arrow_Ice/z_arrow_ice.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Arrow_Ice/z_arrow_ice.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:94:49: note: expected 's32' {aka 'long int'} but argument is of type 'char *'
+   94 | void LogUtils_LogThreadId(const char* name, s32 line);
+      |                                             ~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Arrow_Ice/z_arrow_ice.c: In function 'ArrowIce_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Arrow_Ice/z_arrow_ice.c:242:41: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  242 |         gSPDisplayList(POLY_XLU_DISP++, sMaterialDL);
+      |                                         ^~~~~~~~~~~
+      |                                         |
+      |                                         const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Arrow_Ice/z_arrow_ice.c:246:41: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  246 |         gSPDisplayList(POLY_XLU_DISP++, sModelDL);
+      |                                         ^~~~~~~~
+      |                                         |
+      |                                         const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~

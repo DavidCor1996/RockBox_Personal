@@ -170,13 +170,13 @@ static const hid_key_mapping_t *hid_key_mappings[] =
 
 extern int usb_keypad_mode;
 
-int get_hid_usb_action(void)
+int get_hid_usb_action(int timeout)
 {
     int action, step;
     const hid_key_mapping_t *key_mapping = hid_key_mappings[usb_keypad_mode];
 
     step = -1;
-    action = get_action(key_mapping->context, HZ/4);
+    action = get_action(key_mapping->context, timeout);
     switch (action)
     {
         case ACTION_USB_HID_MODE_SWITCH_NEXT:

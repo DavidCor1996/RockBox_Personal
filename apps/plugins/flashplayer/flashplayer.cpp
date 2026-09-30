@@ -40,6 +40,7 @@ enum flash_input_profile {
     FLASH_INPUT_PROFILE_DEFAULT,
     FLASH_INPUT_PROFILE_STICKRPG,
     FLASH_INPUT_PROFILE_ANTCITY,
+    FLASH_INPUT_PROFILE_SKULLKID,
 };
 
 #define FLASH_BITMAP_TEXT_MAX_SPANS 192
@@ -61,6 +62,8 @@ static FlashBitmapTextSpan g_bitmap_text_spans[FLASH_BITMAP_TEXT_MAX_SPANS];
 static int g_bitmap_text_span_count;
 static int g_bitmap_text_current = -1;
 static bool g_bitmap_text_enabled;
+static bool g_skullkid;
+extern "C" bool flashplayer_is_skullkid() {return g_skullkid;}
 
 image::rgb *flashplayer_decode_jpeg_rgb(unsigned char *data, unsigned long len)
 {
@@ -222,6 +225,10 @@ struct RockboxBitmapInfo : public gameswf::bitmap_info {
     virtual int get_bpp() const { return bpp; }
 };
 
+#include "skullkid_shapes.h"
+#include "skullkid_blit.h"
+#include "../lib/newgrounds_font.h"
+
 struct RockboxRenderHandler : public gameswf::render_handler {
     struct FillState {
         gameswf::rgba color;
@@ -239,6 +246,7 @@ struct RockboxRenderHandler : public gameswf::render_handler {
         }
     };
 
+    SkullBlitCache skull_blit;
     fb_data *framebuf;
     unsigned char *maskbuf;
     gameswf::matrix mat;
@@ -392,6 +400,7 @@ struct RockboxRenderHandler : public gameswf::render_handler {
         sy = sh != 0.0f ? viewport_height / sh : 1.0f;
         tx = viewport_x0 - x0 * sx;
         ty = viewport_y0 - y0 * sy;
+        if (g_skullkid) {sy=sx;ty=(LCD_HEIGHT-sh*sy)/2.0f-y0*sy;}
         display_x0 = x0 < x1 ? x0 : x1;
         display_x1 = x0 < x1 ? x1 : x0;
         display_y0 = y0 < y1 ? y0 : y1;
@@ -429,8 +438,15 @@ struct RockboxRenderHandler : public gameswf::render_handler {
         rb->lcd_set_viewport(NULL);
         if (discard_render)
             return;
-        if (framebuf)
+        if (framebuf) {
+            if (g_skullkid) {
+                for(int y=0;y<4;y++) for(int x=0;x<LCD_WIDTH;x++) {
+                    framebuf[y*LCD_WIDTH+x]=LCD_RGBPACK(0,0,0);
+                    framebuf[(LCD_HEIGHT-y-1)*LCD_WIDTH+x]=LCD_RGBPACK(0,0,0);
+                }
+            }
             rb->lcd_bitmap(framebuf, 0, 0, LCD_WIDTH, LCD_HEIGHT);
+        }
 #ifdef SIMULATOR
         maybe_dump_framebuffer_ppm();
 #endif
@@ -784,6 +800,85 @@ struct RockboxRenderHandler : public gameswf::render_handler {
         return (px - ax) * (by - ay) - (py - ay) * (bx - ax);
     }
 
+    void fill_screen_triangle_fixed(float fx0, float fy0, float fx1,
+                                    float fy1, float fx2, float fy2)
+    {
+        int x0=(int)(fx0*256), y0=(int)(fy0*256);
+        int x1=(int)(fx1*256), y1=(int)(fy1*256);
+        int x2=(int)(fx2*256), y2=(int)(fy2*256);
+        int left=MAX(0,(MIN(x0,MIN(x1,x2))>>8)-1);
+        int right=MIN(LCD_WIDTH-1,(MAX(x0,MAX(x1,x2))>>8)+1);
+        int top=MAX(0,(MIN(y0,MIN(y1,y2))>>8)-1);
+        int bottom=MIN(LCD_HEIGHT-1,(MAX(y0,MAX(y1,y2))>>8)+1);
+        if (left>right || top>bottom) return;
+        int dx[3]={x1-x0,x2-x1,x0-x2};
+        int dy[3]={y1-y0,y2-y1,y0-y2};
+        int vx[3]={x0,x1,x2}, vy[3]={y0,y1,y2};
+        long long row[3], step_x[3], step_y[3];
+        for (int i=0;i<3;i++) {
+            row[i]=(long long)(left*256+128-vx[i])*dy[i]
+                  -(long long)(top*256+128-vy[i])*dx[i];
+            step_x[i]=(long long)dy[i]*256;
+            step_y[i]=(long long)dx[i]*256;
+        }
+        gameswf::rgba solid=cx.transform(fill_color);
+        RockboxBitmapInfo *bi=(RockboxBitmapInfo *)fill_bitmap;
+        bool textured=fill_is_bitmap && bi && bi->data && bi->w>0 && bi->h>0;
+        int row_u=0, row_v=0, du=0, dv=0, eu=0, ev=0;
+        int cm[4], ca[4];
+        if (textured) {
+            /* Compose the two inverse transforms once per triangle. The ARM
+             * has no FPU: neither inverse belongs in the pixel loop. */
+            gameswf::point uv[3], local;
+            for (int i=0;i<3;i++) {
+                gameswf::point stage((left+0.5f+(i==1)-tx)/sx,
+                                    (top+0.5f+(i==2)-ty)/sy);
+                mat.transform_by_inverse(&local,stage);
+                fill_bitmap_matrix.transform_by_inverse(&uv[i],local);
+            }
+            row_u=(int)(uv[0].m_x*65536)+32768;
+            row_v=(int)(uv[0].m_y*65536)+32768;
+            du=(int)((uv[1].m_x-uv[0].m_x)*65536);
+            dv=(int)((uv[1].m_y-uv[0].m_y)*65536);
+            eu=(int)((uv[2].m_x-uv[0].m_x)*65536);
+            ev=(int)((uv[2].m_y-uv[0].m_y)*65536);
+            for (int k=0;k<4;k++) {
+                cm[k]=(int)(fill_bitmap_cx.m_[k][0]*256);
+                ca[k]=(int)fill_bitmap_cx.m_[k][1];
+            }
+        }
+        for (int y=top;y<=bottom;y++) {
+            long long e0=row[0], e1=row[1], e2=row[2];
+            int u=row_u, v=row_v;
+            for (int x=left;x<=right;x++,u+=du,v+=dv) {
+                if (!((e0<0||e1<0||e2<0)&&(e0>0||e1>0||e2>0))) {
+                    gameswf::rgba c=solid;
+                    if (textured) {
+                        int xx=u>>16, yy=v>>16;
+                        if (fill_bitmap_wrap==WRAP_REPEAT) {
+                            xx%=bi->w; yy%=bi->h;
+                            if (xx<0) xx+=bi->w;
+                            if (yy<0) yy+=bi->h;
+                        } else {
+                            xx=MAX(0,MIN(bi->w-1,xx));
+                            yy=MAX(0,MIN(bi->h-1,yy));
+                        }
+                        const unsigned char *p=bi->data+yy*bi->pitch+xx*bi->bpp;
+                        int channels[4]={p[0],bi->bpp>=3?p[1]:p[0],
+                            bi->bpp>=3?p[2]:p[0],bi->bpp>=4?p[3]:255};
+                        for (int k=0;k<4;k++)
+                            channels[k]=MAX(0,MIN(255,((channels[k]*cm[k])>>8)+ca[k]));
+                        c=gameswf::rgba(channels[0],channels[1],channels[2],channels[3]);
+                    }
+                    draw_pixel_rgba(x,y,c);
+                }
+                e0+=step_x[0]; e1+=step_x[1]; e2+=step_x[2];
+            }
+            for (int i=0;i<3;i++) row[i]-=step_y[i];
+            row_u+=eu; row_v+=ev;
+        }
+    }
+
     void fill_screen_triangle_float(float x0, float y0, float x1, float y1,
                                     float x2, float y2, bool allow_fallback)
     {
@@ -955,6 +1050,83 @@ struct RockboxRenderHandler : public gameswf::render_handler {
         }
     }
 
+    bool draw_original_shape(int id,const gameswf::matrix &world,const gameswf::cxform &color)
+    {
+        if(!g_skullkid || id<0 || id>=1100 || !skull_shapes[id].pixels) return false;
+        if(discard_render) return true;
+        const SkullShape &shape=skull_shapes[id];
+        gameswf::point origin,px,py;
+        world.transform(&origin,gameswf::point((float)shape.left,(float)shape.top));
+        world.transform(&px,gameswf::point((float)shape.left+20.0f*shape.source_width/shape.width,(float)shape.top));
+        world.transform(&py,gameswf::point((float)shape.left,(float)shape.top+20.0f*shape.source_height/shape.height));
+        float ox=origin.m_x*sx+tx,oy=origin.m_y*sy+ty;
+        float ax=world.m_[0][0]*20.0f*shape.source_width/shape.width*sx;
+        float ay=world.m_[1][0]*20.0f*shape.source_width/shape.width*sy;
+        float bx=world.m_[0][1]*20.0f*shape.source_height/shape.height*sx;
+        float by=world.m_[1][1]*20.0f*shape.source_height/shape.height*sy;
+        float determinant=ax*by-ay*bx;
+        if(determinant>-0.000001f && determinant<0.000001f) return true;
+        float x1=ox+ax*shape.width,x2=ox+bx*shape.height,x3=x1+bx*shape.height;
+        float y1=oy+ay*shape.width,y2=oy+by*shape.height,y3=y1+by*shape.height;
+        int left=MAX(0,(int)MIN(MIN(ox,x1),MIN(x2,x3))-1);
+        int right=MIN(LCD_WIDTH-1,(int)MAX(MAX(ox,x1),MAX(x2,x3))+1);
+        int top=MAX(0,(int)MIN(MIN(oy,y1),MIN(y2,y3))-1);
+        int bottom=MIN(LCD_HEIGHT-1,(int)MAX(MAX(oy,y1),MAX(y2,y3))+1);
+        if(left>right || top>bottom)return true;
+        if(skull_blit.draw(id,shape,ox,oy,ax,ay,bx,by,color,framebuf,
+                           maskbuf,mask_active,mask_submitting)) {
+            bitmaps++;
+            return true;
+        }
+        /* Inverse affine steps avoid per-pixel floating point on ARM. */
+        int du=(int)(by/determinant*65536),dv=(int)(-ay/determinant*65536);
+        int eu=(int)(-bx/determinant*65536),ev=(int)(ax/determinant*65536);
+        int start_u=(int)(((left+0.5f-ox)*by-(top+0.5f-oy)*bx)/determinant*65536)-32768;
+        int start_v=(int)(((top+0.5f-oy)*ax-(left+0.5f-ox)*ay)/determinant*65536)-32768;
+        int cm[4],ca[4];
+        bool identity=true;
+        for(int k=0;k<4;k++) {
+            cm[k]=(int)(color.m_[k][0]*256);ca[k]=(int)color.m_[k][1];
+            if(cm[k]!=256 || ca[k]!=0) identity=false;
+        }
+        for(int y=top;y<=bottom;y++) {
+            int u=start_u,v=start_v;
+            for(int x=left;x<=right;x++,u+=du,v+=dv) {
+                int ix=u>>16,iy=v>>16,fx=(u&65535)>>8,fy=(v&65535)>>8;
+                unsigned int sum_a=0,sum_r=0,sum_g=0,sum_b=0;
+                for(int j=0;j<2;j++) for(int i=0;i<2;i++) {
+                    int xx=ix+i,yy=iy+j;
+                    if(xx<0 || yy<0 || xx>=shape.width || yy>=shape.height) continue;
+                    const unsigned char *p=shape.pixels+(yy*shape.width+xx)*4;
+                    unsigned int a=p[3]*(i?fx:256-fx)*(j?fy:256-fy);
+                    sum_a+=a;sum_r+=p[0]*a/256;sum_g+=p[1]*a/256;sum_b+=p[2]*a/256;
+                }
+                if(sum_a>=65536) {
+                    int alpha=sum_a>>16;
+                    if(identity && framebuf) {
+                        if(mask_submitting) {if(maskbuf) maskbuf[y*LCD_WIDTH+x]=1;continue;}
+                        if(mask_active && (!maskbuf || !maskbuf[y*LCD_WIDTH+x])) continue;
+                        fb_data *dst=framebuf+y*LCD_WIDTH+x;
+                        /* Premultiplied interpolation: no per-pixel float or
+                         * variable divide on the ARM software-FP target. */
+                        int inv=255-alpha;
+                        int rr=(sum_r + ((unsigned int)RGB_UNPACK_RED(*dst)*inv<<8)+32768)>>16;
+                        int gg=(sum_g + ((unsigned int)RGB_UNPACK_GREEN(*dst)*inv<<8)+32768)>>16;
+                        int bb=(sum_b + ((unsigned int)RGB_UNPACK_BLUE(*dst)*inv<<8)+32768)>>16;
+                        *dst=LCD_RGBPACK(MIN(255,rr),MIN(255,gg),MIN(255,bb));
+                    } else {
+                        int channels[4]={(int)(sum_r*256/sum_a),(int)(sum_g*256/sum_a),(int)(sum_b*256/sum_a),alpha};
+                        for(int k=0;k<4;k++) channels[k]=MAX(0,MIN(255,((channels[k]*cm[k])>>8)+ca[k]));
+                        draw_pixel_rgba(x,y,gameswf::rgba(channels[0],channels[1],channels[2],channels[3]));
+                    }
+                }
+            }
+            start_u+=eu;start_v+=ev;
+        }
+        bitmaps++;
+        return true;
+    }
+
     void draw_triangle(float ax, float ay, float bx, float by, float cxp, float cyp)
     {
         int x0, y0, x1, y1, x2, y2;
@@ -970,6 +1142,18 @@ struct RockboxRenderHandler : public gameswf::render_handler {
 
         if (discard_render) {
             triangles++;
+            return;
+        }
+
+        if (g_skullkid) {
+            float fx0, fy0, fx1, fy1, fx2, fy2;
+            transform_point_screen(ax, ay, &fx0, &fy0);
+            transform_point_screen(bx, by, &fx1, &fy1);
+            transform_point_screen(cxp, cyp, &fx2, &fy2);
+            triangles++;
+            if (triangles <= FLASH_TRIANGLE_BUDGET) {
+                fill_screen_triangle_fixed(fx0,fy0,fx1,fy1,fx2,fy2);
+            }
             return;
         }
 
@@ -1178,6 +1362,38 @@ struct RockboxRenderHandler : public gameswf::render_handler {
         if (y0 < 0) y0 = 0;
         if (x1 >= LCD_WIDTH) x1 = LCD_WIDTH - 1;
         if (y1 >= LCD_HEIGHT) y1 = LCD_HEIGHT - 1;
+
+        if (g_skullkid) {
+            int first_u=(int)(uv_coords.m_x_min*rbi->w*65536);
+            int first_v=(int)(uv_coords.m_y_min*rbi->h*65536);
+            int du=x1==x0?0:(int)(uv_coords.width()*rbi->w*65536/(x1-x0));
+            int dv=y1==y0?0:(int)(uv_coords.height()*rbi->h*65536/(y1-y0));
+            int cm[4], ca[4];
+            for (int k=0;k<4;k++) {
+                cm[k]=(int)(cx.m_[k][0]*256);
+                ca[k]=(int)cx.m_[k][1];
+            }
+            for (y=y0;y<=y1;y++,first_v+=dv) {
+                int sample_y=MAX(0,MIN(rbi->h-1,first_v>>16));
+                int u=first_u;
+                for (x=x0;x<=x1;x++,u+=du) {
+                    int sample_x=MAX(0,MIN(rbi->w-1,u>>16));
+                    const unsigned char *p=rbi->data+sample_y*rbi->pitch+sample_x*rbi->bpp;
+                    int channels[4];
+                    if (rbi->bpp>=3) {
+                        channels[0]=p[0]; channels[1]=p[1]; channels[2]=p[2];
+                        channels[3]=rbi->bpp>=4?p[3]:color.m_a;
+                    } else {
+                        channels[0]=color.m_r; channels[1]=color.m_g;
+                        channels[2]=color.m_b; channels[3]=p[0];
+                    }
+                    for (int k=0;k<4;k++)
+                        channels[k]=MAX(0,MIN(255,((channels[k]*cm[k])>>8)+ca[k]));
+                    draw_pixel_rgba(x,y,gameswf::rgba(channels[0],channels[1],channels[2],channels[3]));
+                }
+            }
+            return;
+        }
 
         for (y = y0; y <= y1; y++) {
             for (x = x0; x <= x1; x++) {
@@ -1412,6 +1628,8 @@ struct FlashState {
 
 static FlashState g;
 static RockboxRenderHandler *g_renderer;
+extern "C" bool flashplayer_draw_original_shape(int id,const gameswf::matrix *mat,const gameswf::cxform *cx)
+{return g_renderer && g_renderer->draw_original_shape(id,*mat,*cx);}
 static gameswf::player *g_player;
 static gameswf::gc_ptr<gameswf::root> *g_root_ref;
 static gameswf::gc_ptr<gameswf::sprite_instance> g_stickrpg_clock_ref;
@@ -1541,7 +1759,14 @@ private:
     int next_id;
 };
 
+#include "skullkid_sound.h"
 static SilentSoundHandler *g_sound_handler;
+extern "C" int flashplayer_create_predecoded_sound(int character_id)
+{
+    if (g_skullkid && g_sound_handler)
+        return static_cast<SkullKidSoundHandler *>(g_sound_handler)->load_event(character_id);
+    return -1;
+}
 
 #define FLASH_MIN_CXX_HEAP     (512 * 1024)
 
@@ -2168,10 +2393,11 @@ static bool load_loading_bitmap(void)
     {
         int rc;
 
-        if (!rb->file_exists(paths[i]))
+        const char *bitmap_path = g_skullkid ? ROCKBOX_DIR "/ipodjs/newgrounds/loading.bmp" : paths[i];
+        if (!rb->file_exists(bitmap_path))
             continue;
 
-        rc = rb->read_bmp_file(paths[i], &g.loading_bmp,
+        rc = rb->read_bmp_file(bitmap_path, &g.loading_bmp,
                                g.loading_bmp_size, FORMAT_NATIVE, NULL);
         if (rc >= 0 && g.loading_bmp.width == LCD_WIDTH &&
             g.loading_bmp.height == LCD_HEIGHT)
@@ -2275,6 +2501,18 @@ static void show_load_status_progress(const char *status, int progress)
     if (!flash_progress_checkpoint(g.status, g.load_progress))
         return;
 
+    if (g_skullkid) {
+        rb->lcd_set_viewport(NULL);
+        rb->lcd_set_background(LCD_RGBPACK(0,0,0));
+        rb->lcd_clear_display();
+        if (load_loading_bitmap())
+            rb->lcd_bitmap((fb_data *)g.loading_bmp.data,0,0,LCD_WIDTH,LCD_HEIGHT);
+        rb->lcd_set_foreground(LCD_RGBPACK(255,255,255));
+        rb->lcd_putsxy(126,185,"Loading...");
+        rb->lcd_drawrect(60,211,200,5);
+        rb->lcd_fillrect(61,212,198*g.load_progress/100,3);
+        rb->lcd_update(); rb->yield(); return;
+    }
     if (load_loading_bitmap())
     {
         rb->lcd_set_viewport(NULL);
@@ -3018,6 +3256,9 @@ static flash_input_profile detect_input_profile(const char *path)
     if (!path)
         return FLASH_INPUT_PROFILE_DEFAULT;
 
+    if (rb->strstr(path, "skullkid") != NULL)
+        return FLASH_INPUT_PROFILE_SKULLKID;
+
     if (rb->strstr(path, "stickrpg") != NULL)
         return FLASH_INPUT_PROFILE_STICKRPG;
 
@@ -3055,6 +3296,7 @@ static bool load_swf(const char *path)
     g.runtime_loaded = false;
     g.runtime_frame = -1;
     g.input_profile = detect_input_profile(path);
+    g_skullkid = g.input_profile == FLASH_INPUT_PROFILE_SKULLKID;
     g_bitmap_text_enabled = g.input_profile == FLASH_INPUT_PROFILE_STICKRPG;
     g_bitmap_text_span_count = 0;
     g_bitmap_text_current = -1;
@@ -3560,7 +3802,13 @@ static void probe_gameswf_runtime(void)
     g_player->set_force_realtime_framerate(false);
 
     delete g_sound_handler;
-    g_sound_handler = new SilentSoundHandler;
+    if (!load_skull_shapes()) {
+        rb->snprintf(g.status,sizeof(g.status),"Skull Kid artwork cache unavailable");
+        flash_logf("skull cache unavailable free=%luK",(unsigned long)(plugin_cxx_available()/1024));
+        rb->splash(3*HZ,"Skull Kid artwork needs reinstalling");
+        return;
+    }
+    g_sound_handler = g_skullkid ? new SkullKidSoundHandler : new SilentSoundHandler;
     gameswf::set_sound_handler(g_sound_handler);
 
     g.load_stage_base = 38;
@@ -3633,7 +3881,7 @@ static void probe_gameswf_runtime(void)
     }
 
     show_load_status_progress("gameswf: root ready", 74);
-    flash_root()->set_display_viewport(0, 0, LCD_WIDTH, LCD_HEIGHT);
+    flash_root()->set_display_viewport(0, g_skullkid ? 4 : 0, LCD_WIDTH, g_skullkid ? 232 : LCD_HEIGHT);
 #ifdef SIMULATOR
     write_gameswf_cache_if_requested();
 #endif
@@ -3748,6 +3996,7 @@ static void redraw(void)
 
 static void draw_runtime_cursor(void)
 {
+    if (g_skullkid) return;
     int x = g.cursor_x;
     int y = g.cursor_y;
 
@@ -3951,7 +4200,7 @@ static void runtime_mouse_stage(int *x, int *y)
     int sh = g.info.stage_h > 0 ? g.info.stage_h : LCD_HEIGHT;
 
     *x = g.cursor_x * sw / LCD_WIDTH;
-    *y = g.cursor_y * sh / LCD_HEIGHT;
+    *y = g_skullkid ? (int)((g.cursor_y-(LCD_HEIGHT-(float)sh*LCD_WIDTH/sw)/2)*sw/LCD_WIDTH) : g.cursor_y * sh / LCD_HEIGHT;
 }
 
 struct FlashMouseTarget
@@ -4654,10 +4903,193 @@ static void log_stickrpg_root_layers(gameswf::sprite_instance *root_sprite)
     }
 }
 
+static void skull_collect_key_clips(gameswf::character *character,
+        array<gameswf::gc_ptr<gameswf::character> >& clips,int depth)
+{
+    if(!character || depth>64 || clips.size()>4096) return;
+    gameswf::sprite_instance *sprite=gameswf::cast_to<gameswf::sprite_instance>(character);
+    if(!sprite) return;
+    clips.push_back(character);
+    for(int i=0;sprite->get_character(i);i++)
+        skull_collect_key_clips(sprite->get_character(i),clips,depth+1);
+}
+
 static void flash_key_notify(gameswf::key::code key, bool down)
 {
-    if (g_player && flash_root())
-        g_player->notify_key_event(key, down);
+    if(!g_player) return;
+    g_player->notify_key_event(key,down);
+    if(g_skullkid && flash_root()) {
+        // onClipEvent(keyDown/keyUp) broadcasts to active movie clips, separate
+        // from explicit Key.addListener handlers. Snapshot before callbacks:
+        // authored handlers can replace their own timeline/display objects.
+        array<gameswf::gc_ptr<gameswf::character> > clips;
+        skull_collect_key_clips(flash_root()->get_root_movie(),clips,0);
+        for(int i=0;i<clips.size();i++) {
+            clips[i]->on_event(gameswf::event_id(down ? gameswf::event_id::KEY_DOWN : gameswf::event_id::KEY_UP));
+        }
+    }
+}
+
+static int skull_menu_target(int frame)
+{
+    switch(frame) {
+    case 2: case 5: case 8: return 3;
+    case 12: return 6;
+    case 9: return 10;
+    default: return -1;
+    }
+}
+static int skull_native_screen=-1;
+static void skull_draw_native_menu(int frame)
+{
+    if(skull_native_screen==frame)return;
+    skull_native_screen=frame;
+    /* The new floor's menu must not inherit held gameplay keys. Update the
+     * VM key map without broadcasting keyUp into the newly loaded scene. */
+    const gameswf::key::code keys[]={gameswf::key::LEFT,gameswf::key::RIGHT,
+        gameswf::key::DOWN,gameswf::key::SPACE,gameswf::key::UP};
+    for(unsigned int i=0;i<sizeof(keys)/sizeof(keys[0]);i++)
+        g_player->notify_key_object(keys[i],false);
+    g.key_left_down=g.key_right_down=g.key_down_down=false;
+    g.key_confirm_down=g.key_up_down=false;
+    rb->lcd_set_viewport(NULL);
+    rb->lcd_set_background(LCD_RGBPACK(24,24,24));
+    rb->lcd_clear_display();
+    rb->lcd_set_drawmode(DRMODE_FG);
+    rb->lcd_set_foreground(LCD_RGBPACK(255,176,30));ng_bold=true;
+    ng_putsxy(12,12,"Newgrounds");
+    rb->lcd_hline(0,319,34);
+    rb->lcd_set_foreground(LCD_RGBPACK(255,255,255));
+    ng_putsxy(12,48,"The Skull Kid");ng_bold=false;
+    ng_putsxy(12,76,frame==9?"Floor 2":frame==12?"Floor 3":frame==8?"Complete":"Floor 1");
+    ng_putsxy(12,102,"Wheel sides / Prev / Next: Walk");
+    ng_putsxy(12,124,frame==9?"Center: Fire":"Center: Chainsaw");
+    ng_putsxy(12,146,"Play / Pause: Duck");
+    rb->lcd_set_foreground(LCD_RGBPACK(255,176,30));rb->lcd_fillrect(7,176,306,28);
+    rb->lcd_set_foreground(LCD_RGBPACK(0,0,0));ng_bold=true;
+    ng_putsxy(15,184,frame==8?"Center - Play Again":"Center - Play");
+    ng_bold=false;rb->lcd_set_foreground(LCD_RGBPACK(180,180,180));
+    ng_putsxy(12,220,"Menu: Return to Newgrounds");rb->lcd_update();
+}
+static bool skull_handle_button(int button)
+{
+    int bare=button & ~(BUTTON_REPEAT|BUTTON_REL);
+    int target=skull_menu_target(flash_root()->get_current_frame());
+    if(target>=0) {
+        if(bare==BUTTON_MENU && !(button & BUTTON_REL))return true;
+        if(bare==BUTTON_SELECT && !(button & (BUTTON_REL|BUTTON_REPEAT))) {
+#ifdef SIMULATOR
+            const char *test_floor=getenv("SKULL_TEST_FLOOR");
+            if(test_floor)target=rb->atoi(test_floor);
+#endif
+            flash_root()->goto_frame(target);
+            skull_native_screen=-1;
+            ipod_engine_frame_clock_reset(&g.frame_clock,g.info.fps_x100);
+        }
+        return false;
+    }
+            bool down = !(button & BUTTON_REL);
+            if (bare == BUTTON_MENU && down) return true;
+            if ((bare & BUTTON_LEFT) && down!=g.key_left_down) {
+                flash_key_notify(gameswf::key::LEFT, down);
+                g.key_left_down=down;
+            }
+            if ((bare & BUTTON_RIGHT) && down!=g.key_right_down) {
+                flash_key_notify(gameswf::key::RIGHT, down);
+                g.key_right_down=down;
+            }
+            if ((bare & BUTTON_PLAY) && down!=g.key_down_down) {
+                flash_key_notify(gameswf::key::DOWN, down); g.key_down_down=down;
+            }
+            if ((bare & BUTTON_SELECT) && !(button & BUTTON_REPEAT) && down!=(g.key_confirm_down||g.key_up_down)) {
+                int movie_frame=flash_root()->get_current_frame();
+                bool shooting=movie_frame==10;
+                if(down) {
+                    flash_key_notify(shooting ? gameswf::key::UP : gameswf::key::SPACE,true);
+                    g.key_confirm_down=!shooting;g.key_up_down=shooting;
+                } else {
+                    if(g.key_confirm_down) flash_key_notify(gameswf::key::SPACE,false);
+                    if(g.key_up_down) flash_key_notify(gameswf::key::UP,false);
+                    g.key_confirm_down=false;g.key_up_down=false;
+                    if(g.key_right_down)flash_key_notify(gameswf::key::RIGHT,true);
+                    else if(g.key_left_down)flash_key_notify(gameswf::key::LEFT,true);
+                }
+            }
+    return false;
+}
+
+static void skull_poll_buttons(void)
+{
+#ifdef SIMULATOR
+    if(getenv("FLASHPLAYER_SKULL_BUTTONS"))return;
+#endif
+    if(!g_skullkid || !flash_root() ||
+       skull_menu_target(flash_root()->get_current_frame())>=0)return;
+    int held=rb->button_status();
+#ifdef HAVE_WHEEL_POSITION
+    int wheel=rb->wheel_status();
+    if(!(held&(BUTTON_LEFT|BUTTON_RIGHT))) {
+        if(wheel>=12 && wheel<=36)held|=BUTTON_RIGHT;
+        else if(wheel>=60 && wheel<=84)held|=BUTTON_LEFT;
+    }
+#endif
+    int previous=(g.key_left_down?BUTTON_LEFT:0)|(g.key_right_down?BUTTON_RIGHT:0)|
+        (g.key_down_down?BUTTON_PLAY:0)|((g.key_confirm_down||g.key_up_down)?BUTTON_SELECT:0);
+    int mask=BUTTON_LEFT|BUTTON_RIGHT|BUTTON_PLAY|BUTTON_SELECT;
+    held&=mask;
+    int released=previous&~held,pressed=held&~previous;
+    if(released)skull_handle_button(released|BUTTON_REL);
+    if(pressed)skull_handle_button(held);
+    if(pressed||released)flash_logf("skull physical held=%x press=%x release=%x attack=%d",held,pressed,released,g.key_confirm_down);
+}
+
+static gameswf::character *skull_child(gameswf::character *parent,const char *name)
+{
+    gameswf::as_value value;
+    return parent && parent->get_member(name,&value) ? gameswf::cast_to<gameswf::character>(value.to_object()) : NULL;
+}
+static void skull_shift(gameswf::character *clip,float twips)
+{
+    if(!clip)return;
+    gameswf::matrix m=clip->get_matrix();m.m_[0][2]+=twips;clip->set_matrix(m);
+}
+/* Called once per authored movie tick, including clock catch-up ticks. Walking
+ * and chainsaw have exclusive timelines in the SWF; retain its collision
+ * controller and 5.5px step while the attack timeline owns the character. */
+extern "C" void flashplayer_skull_movie_tick()
+{
+    if(!g_skullkid || !g.key_confirm_down || !flash_root())return;
+    int level=flash_root()->get_current_frame();
+    if(level!=3 && level!=6)return;
+    gameswf::character *root=flash_root()->get_root_movie();
+    gameswf::character *group=level==6?skull_child(root,"skullkid3"):root;
+    gameswf::character *kid=skull_child(group,level==6?"skullkid3":"skullkid");
+    if(!kid)return;
+    int frame=kid->get_current_frame();
+    if(frame!=3 && frame<8) {
+        flash_key_notify(gameswf::key::SPACE,true);
+        frame=kid->get_current_frame();
+    }
+    if(frame!=3 || g.key_left_down==g.key_right_down)return;
+    gameswf::character *controls=skull_child(root,level==6?"controls3":"controls");
+    gameswf::character *direction=skull_child(controls,g.key_right_down?"right":"left");
+    if(!direction)return;
+    int movement=direction->get_current_frame();
+    float step=g.key_right_down?110.0f:-110.0f;
+    if(level==6) {
+        if(movement<2) {
+            skull_shift(skull_child(root,"background3"),-step);
+            skull_shift(skull_child(group,"shadowspots"),-step);
+        }
+        return;
+    }
+    if(movement==0)skull_shift(kid,step);
+    else if(movement==1) {
+        gameswf::as_value blocked;
+        if(root->get_member("objcol",&blocked) && blocked.to_bool())return;
+        skull_shift(skull_child(root,"background"),-step);
+        skull_shift(skull_child(root,"upperobjects"),-step);
+    }
 }
 
 enum
@@ -4757,7 +5189,7 @@ static void release_runtime_keys(void)
         g.key_right_down = false;
     }
     if (g.key_confirm_down) {
-        flash_key_notify(gameswf::key::ENTER, false);
+        flash_key_notify(g_skullkid ? gameswf::key::SPACE : gameswf::key::ENTER, false);
         g.key_confirm_down = false;
     }
     if (g.key_up_down) {
@@ -4859,16 +5291,58 @@ static void render_runtime_frame(float dt)
     if (!g.runtime_loaded || !flash_root())
         return;
 
+#ifdef SIMULATOR
+    if(g_skullkid && getenv("SKULL_TEST_FAST"))dt=1.0f/18.0f;
+#endif
     first_runtime_frame = g.rendered_frames == 0;
     if (first_runtime_frame)
         flash_progress_checkpoint("first advance begin", 95);
 
 #ifdef SIMULATOR
+    if(g_skullkid) {
+        if(getenv("SKULL_TEST_ELEVATOR") && g.rendered_frames==60) {
+            gameswf::character *root=flash_root()->get_root_movie();
+            gameswf::character *bg=skull_child(root,"background");
+            gameswf::character *fg=skull_child(root,"upperobjects");
+            gameswf::character *kid=skull_child(root,"skullkid");
+            if(bg)skull_shift(bg,-50529-bg->get_matrix().m_[0][2]);
+            if(fg)skull_shift(fg,-50529-fg->get_matrix().m_[0][2]);
+            if(kid)skull_shift(kid,7046-kid->get_matrix().m_[0][2]);
+            flash_logf("elevator regression positioned at entrance");
+        }
+        const char *events=getenv("FLASHPLAYER_SKULL_BUTTONS");
+        while(events && *events) {
+            int frame=rb->atoi(events);const char *colon=rb->strchr(events,':');
+            if(!colon)break;
+            if(frame==g.rendered_frames) {
+                char c=colon[1];int key=0;
+                if(c=='s'||c=='S')key=BUTTON_SELECT;
+                if(c=='b')key=BUTTON_RIGHT|BUTTON_SELECT;
+                if(c=='a')key=BUTTON_LEFT|BUTTON_SELECT;
+                if(c=='r'||c=='R'||c=='t')key=BUTTON_RIGHT;
+                if(c=='l'||c=='L')key=BUTTON_LEFT;
+                if(c=='p'||c=='P')key=BUTTON_PLAY;
+                if(c>='A'&&c<='Z')key|=BUTTON_REL;
+                if(c=='t')key|=BUTTON_REPEAT;
+                skull_handle_button(key);
+                flash_logf("skull test button=%c frame=%d",c,frame);
+            }
+            events=rb->strchr(colon,',');if(events)events++;
+        }
+    }
     run_autorun_click_script();
     run_autorun_save_call();
     if (g.autorun_select_frame > 0 &&
         g.rendered_frames == g.autorun_select_frame)
         dispatch_runtime_mouse_click();
+    if (g_skullkid) {
+        const char *attack_down=getenv("FLASHPLAYER_SKULL_ATTACK_DOWN_FRAME");
+        const char *attack_up=getenv("FLASHPLAYER_SKULL_ATTACK_UP_FRAME");
+        if(attack_down && g.rendered_frames==rb->atoi(attack_down))
+            flash_key_notify(gameswf::key::SPACE,true);
+        if(attack_up && g.rendered_frames==rb->atoi(attack_up))
+            flash_key_notify(gameswf::key::SPACE,false);
+    }
     if (g.right_down_frame > 0 &&
         g.rendered_frames == g.right_down_frame &&
         !g.key_right_down) {
@@ -4892,10 +5366,19 @@ static void render_runtime_frame(float dt)
         (g.rendered_frames % g.fast_draw_interval) != 0)
         skip_draw = true;
 #endif
+    if(g_skullkid && skull_menu_target(flash_root()->get_current_frame())>=0) {
+        g.runtime_frame=flash_root()->get_current_frame();
+        skull_draw_native_menu(g.runtime_frame);
+        g.rendered_frames++;
+        return;
+    }
+    skull_poll_buttons();
+    long skull_begin=*rb->current_tick;
     runtime_mouse_stage(&mx, &my);
     poll_stickrpg_direction_controls();
     flash_root()->notify_mouse_state(mx, my, g.mouse_down ? 1 : 0);
     flash_root()->advance(dt);
+    long skull_vm_ticks=*rb->current_tick-skull_begin;
     if (first_runtime_frame)
         flash_progress_checkpoint("first advance complete", 96);
     finalize_stickrpg_host_intro();
@@ -4904,7 +5387,7 @@ static void render_runtime_frame(float dt)
      * first advance perform its normal one-frame load initialization before
      * enabling catch-up; otherwise realtime mode would execute ~35 startup
      * frames in one hardware iteration. */
-    if (g.input_profile == FLASH_INPUT_PROFILE_STICKRPG &&
+    if ((g.input_profile == FLASH_INPUT_PROFILE_STICKRPG || g_skullkid) &&
         !g.stickrpg_realtime_clock_enabled && g_player) {
         g_player->set_force_realtime_framerate(true);
         g.stickrpg_realtime_clock_enabled = true;
@@ -5005,7 +5488,12 @@ static void render_runtime_frame(float dt)
     prepare_stickrpg_person();
     if (first_runtime_frame)
         flash_progress_checkpoint("first display begin", 97);
-    flash_root()->display();
+    if(g_skullkid && skull_menu_target(flash_root()->get_current_frame())>=0)
+        skull_draw_native_menu(flash_root()->get_current_frame());
+    else {
+        skull_native_screen=-1;
+        flash_root()->display();
+    }
     if (first_runtime_frame)
         flash_progress_checkpoint("first display complete", 98);
     rb->yield();
@@ -5051,6 +5539,21 @@ static void render_runtime_frame(float dt)
     if (g_renderer &&
         ((g.rendered_frames % 35) == 1 || g.mouse_down ||
          g_renderer->triangle_budget_hit)) {
+        if(g_skullkid) {
+            gameswf::character *root=flash_root()->get_root_movie();
+            gameswf::character *kid=skull_child(root,g.runtime_frame==10?"skullkid2":g.runtime_frame==6?"skullkid3":"skullkid");
+            if(g.runtime_frame==6)kid=skull_child(kid,"skullkid3");
+            gameswf::character *bg=skull_child(root,g.runtime_frame==10?"background02":g.runtime_frame==6?"background3":"background");
+            flash_logf("skull scene root=%d bg_x=%d fire=%d duck=%d",g.runtime_frame,bg?(int)bg->get_matrix().m_[0][2]:0,g.key_up_down,g.key_down_down);
+#ifdef SIMULATOR
+            gameswf::character *elevator=skull_child(bg,"elevator");
+            gameswf::character *front=skull_child(skull_child(root,"upperobjects"),"elevator");
+            gameswf::character *controls=skull_child(root,"controls");
+            flash_logf("skull elevator rootplay=%d back=%d/%d front=%d/%d controls=%d",root->get_play_state(),elevator?elevator->get_current_frame():-1,elevator?elevator->get_play_state():-1,front?front->get_current_frame():-1,front?front->get_play_state():-1,controls?controls->get_current_frame():-1);
+#endif
+            flash_logf("skull cache hits=%u misses=%u pixels=%u",g_renderer->skull_blit.hits,g_renderer->skull_blit.misses,g_renderer->skull_blit.pixels);
+            flash_logf("skull timing total=%ld vm=%ld draw=%ld attack=%d kid=%d x=%d",*rb->current_tick-skull_begin,skull_vm_ticks,*rb->current_tick-skull_begin-skull_vm_ticks,g.key_confirm_down,kid?kid->get_current_frame():-1,kid?(int)kid->get_matrix().m_[0][2]:0);
+        }
         gameswf::character *person = stickrpg_person();
         const gameswf::matrix *person_matrix =
             person ? &person->get_matrix() : NULL;
@@ -5283,6 +5786,15 @@ static bool start_runtime(void)
     if (g.runtime_ready && flash_root()) {
         g.runtime_frame = flash_root()->get_current_frame();
         g.runtime_loaded = true;
+        if(g_skullkid && g_renderer &&
+           !(g.fws>=g.raw && g.fws<g.raw+g.buffer_size) &&
+           !(g.cxx_heap>=g.raw && g.cxx_heap<g.raw+g.buffer_size)) {
+            g_renderer->skull_blit.init(g.raw,g.buffer_size);
+            flash_logf("native sprite cache plugin buffer=%luK",(unsigned long)g.buffer_size/1024);
+        }
+#ifdef HAVE_ADJUSTABLE_CPU_FREQ
+        if(g_skullkid)flash_logf("skull CPU frequency=%ld boost_owned=%d",*rb->cpu_frequency,g.engine_memory.cpu_boosted);
+#endif
         ipod_engine_frame_clock_reset(&g.frame_clock, g.info.fps_x100);
         rb->snprintf(g.status, sizeof(g.status), "VM running: frame %d",
                      g.runtime_frame);
@@ -5293,7 +5805,9 @@ static bool start_runtime(void)
                    (unsigned long)(plugin_cxx_available() / 1024));
         prime_stickrpg_filmscreen();
         if (!g.stickrpg_fast_load) {
-            flash_root()->display();
+            if(g_skullkid && skull_menu_target(flash_root()->get_current_frame())>=0)
+                skull_draw_native_menu(flash_root()->get_current_frame());
+            else flash_root()->display();
             rb->yield();
             draw_runtime_cursor();
             rb->lcd_update();
@@ -5381,6 +5895,8 @@ static void init_runtime_heap(void)
 static void shutdown_runtime(void)
 {
     release_runtime_keys();
+    if (g_skullkid && g_sound_handler)
+        static_cast<SkullKidSoundHandler *>(g_sound_handler)->close();
 
     flash_logf("shutdown loaded=%d ready=%d frame=%d rendered=%d heap_free=%luK logs=%d errors=%d last='%s'",
                g.runtime_loaded ? 1 : 0, g.runtime_ready ? 1 : 0,
@@ -5402,6 +5918,7 @@ static void shutdown_runtime(void)
     delete g_renderer;
     g_renderer = NULL;
     close_shape_def_cache_files();
+    close_skull_shapes();
 
     ipod_engine_release_memory(&g.engine_memory);
     g.raw = NULL;
@@ -5442,6 +5959,11 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
     flash_sim_trace("getting audio buffer");
     g.cxx_buf = g.engine_memory.shared;
     g.cxx_size = g.engine_memory.shared_size;
+#ifdef SIMULATOR
+    const char *heap_limit=getenv("FLASHPLAYER_AUDIO_LIMIT_KB");
+    if(heap_limit && rb->atoi(heap_limit)>0)
+        g.cxx_size=MIN(g.cxx_size,(size_t)rb->atoi(heap_limit)*1024);
+#endif
     reserve_loading_bitmap_buffer();
     flash_sim_trace("audio buffer acquired");
     rb->lcd_setfont(FONT_SYSFIXED);
@@ -5454,7 +5976,7 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
                engine_profile.target, engine_profile.model,
                engine_profile.lcd_width, engine_profile.lcd_height,
                (unsigned long)(engine_profile.plugin_buffer_min / 1024));
-    gameswf::set_curve_max_pixel_error(24.0f);
+    gameswf::set_curve_max_pixel_error(rb->strstr(path, "skullkid") ? 1.0f : 24.0f);
     flash_logf("curve max pixel error x100=%d",
                flash_log_fixed(gameswf::get_curve_max_pixel_error(), 100));
 #ifdef SIMULATOR
@@ -5584,6 +6106,9 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
     while (!quit) {
         int timeout = g.runtime_loaded ?
             ipod_engine_frame_timeout(&g.frame_clock) : HZ / 8;
+#ifdef SIMULATOR
+        if(g_skullkid && getenv("SKULL_TEST_FAST"))timeout=0;
+#endif
 #ifdef HAS_BUTTON_HOLD
         if (rb->button_hold()) {
             flash_logf("hold exit");
@@ -5613,7 +6138,7 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
          * the user only intends to scroll.  Treating that contact as a click
          * made Stick RPG's cursor jump and press arbitrary menu items.  Its
          * cursor is driven by normal wheel/button events below instead. */
-        if (g.input_profile != FLASH_INPUT_PROFILE_STICKRPG)
+        if (g.input_profile != FLASH_INPUT_PROFILE_STICKRPG && !g_skullkid)
             poll_wheel_mouse_tap();
 #endif
         if (button == SYS_USB_CONNECTED)
@@ -5648,6 +6173,23 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
         if (runtime_input_ignored()) {
             g.mouse_down = false;
             g.click_frames = 0;
+            continue;
+        }
+
+        if (g_skullkid && g.runtime_loaded) {
+            /* Drain input before painting. Rendering between queued repeats
+             * can leave a new Center press behind seconds of old directions. */
+            for(int queued=0;queued<64 && button!=BUTTON_NONE;queued++) {
+                if(button==SYS_USB_CONNECTED) {
+                    shutdown_runtime();return PLUGIN_USB_CONNECTED;
+                }
+                quit=skull_handle_button(button);
+                if(quit)break;
+                button=rb->button_get(false);
+            }
+            skull_poll_buttons();
+            if (!quit && ipod_engine_frame_timeout(&g.frame_clock)==0)
+                render_runtime_frame(ipod_engine_frame_advance(&g.frame_clock));
             continue;
         }
 
@@ -5866,7 +6408,10 @@ extern "C" enum plugin_status plugin_start(const void *parameter)
 
     {
         enum plugin_status result = g.loaded ? PLUGIN_OK : PLUGIN_ERROR;
+        bool library_return = g_skullkid && g.runtime_loaded;
         shutdown_runtime();
+        if (library_return && rb->file_exists(PLUGIN_APPS_DIR "/newgrounds.rock"))
+            return rb->plugin_open(PLUGIN_APPS_DIR "/newgrounds.rock", "skullkid");
         return result;
     }
 }

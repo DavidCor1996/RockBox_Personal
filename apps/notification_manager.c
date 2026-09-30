@@ -16,6 +16,7 @@
 #include "lcd.h"
 #include "misc.h"
 #include "notification_manager.h"
+#include "msn_notifications.h"
 #include "pathfuncs.h"
 #include "rbpaths.h"
 #include "rbunicode.h"
@@ -29,6 +30,7 @@
 #include "timefuncs.h"
 #include "viewport.h"
 #include "usb_internet.h"
+#include "gui/ipodjs_utilities.h"
 
 #define NOTIFICATION_DIR ROCKBOX_DIR "/notifications"
 #define NOTIFICATION_STATE NOTIFICATION_DIR "/state.v1.dat"
@@ -40,6 +42,25 @@
 #define NOTIFICATION_BANNER_TICKS (5 * HZ)
 #define NOTIFICATION_BANNER_HEIGHT 42
 #define NOTIFICATION_BANNER_SLIDE_TICKS MAX(1, HZ / 5)
+#define NOTIFICATION_DESKTOP_X (LCD_WIDTH - 156)
+#define NOTIFICATION_DESKTOP_Y 22
+#define NOTIFICATION_DESKTOP_W 152
+#define NOTIFICATION_DESKTOP_H 36
+#define NOTIFICATION_DESKTOP_ICON 22
+#define NOTIFICATION_DESKTOP_ICON_DIR \
+    PLUGIN_APPS_DATA_DIR "/desktop_mode_snow_leopard/320x240/icons"
+#define NOTIFICATION_DESKTOP_FINDER \
+    NOTIFICATION_DESKTOP_ICON_DIR "/finder.32x32.rga"
+#define NOTIFICATION_DESKTOP_ITUNES \
+    NOTIFICATION_DESKTOP_ICON_DIR "/itunes.32x32.rga"
+#define NOTIFICATION_DESKTOP_DASHBOARD \
+    NOTIFICATION_DESKTOP_ICON_DIR "/dashboard.32x32.rga"
+#define NOTIFICATION_DESKTOP_DISK \
+    NOTIFICATION_DESKTOP_ICON_DIR "/disk.32x32.rga"
+#define NOTIFICATION_DESKTOP_SYSTEM_PREFERENCES \
+    NOTIFICATION_DESKTOP_ICON_DIR "/system-preferences.32x32.rga"
+#define NOTIFICATION_DESKTOP_DIRECTV \
+    NOTIFICATION_DESKTOP_ICON_DIR "/directv.32x32.rga"
 #define NOTIFICATION_IOS5_DIR ROCKBOX_DIR "/ipodjs/notifications"
 #define NOTIFICATION_BANNER_ASSET NOTIFICATION_IOS5_DIR \
     "/notification-banner.ios5.320x42x24.bmp"
@@ -48,14 +69,14 @@
 #define NOTIFICATION_SITEKICK_ICON NOTIFICATION_IOS5_DIR \
     "/sitekick-icon.22x22x24.bmp"
 #define NOTIFICATION_REGULAR_FONT ROCKBOX_DIR \
-    "/ipodjs/12-Adobe-Helvetica.fnt"
+    "/ipodjs/apple/retailos-fonts/13-Helvetica-RetailOS-Apple.fnt"
 #define NOTIFICATION_BOLD_FONT ROCKBOX_DIR \
-    "/ipodjs/14-Adobe-Helvetica-Bold.fnt"
+    "/ipodjs/apple/retailos-fonts/15-Helvetica-Bold-RetailOS-Apple.fnt"
 #define NOTIFICATION_WEATHER_DIR ROCKBOX_DIR "/rockpod/weather"
 #define NOTIFICATION_WEATHER_FILE "forecast.tsv"
 #define NOTIFICATION_WEATHER_FIRST_CHECK (15 * HZ)
 #define NOTIFICATION_WEATHER_CHECK_PERIOD (30 * 60 * HZ)
-#define NOTIFICATION_WEATHER_STALE_SECONDS (36 * 60 * 60)
+#define NOTIFICATION_WEATHER_STALE_SECONDS (72 * 60 * 60)
 #define NOTIFICATION_WEATHER_EXPIRED_SECONDS (6 * 24 * 60 * 60)
 #define NOTIFICATION_BATTERY_FIRST_CHECK (20 * HZ)
 #define NOTIFICATION_BATTERY_CHECK_PERIOD (60 * HZ)
@@ -97,6 +118,10 @@ static long notification_banner_next_refresh;
 static int notification_banner_last_y;
 static bool notification_banner_active;
 static bool notification_center_active;
+static bool notification_banners_suppressed;
+static bool notification_desktop_mode;
+static bool notification_hibernate_suspended;
+static bool notification_hibernate_resume_pending;
 static bool notification_initialized;
 static bool notification_dirty;
 static fb_data notification_banner_pixels[
@@ -119,8 +144,10 @@ static long notification_battery_next_check;
 static int notification_battery_level = -1;
 static long notification_storage_next_check;
 static int notification_storage_level = -1;
+static long notification_next_periodic_tick;
 
 static long notification_now(void);
+static void notification_apply_desktop_mode(bool active);
 
 static void notification_post_simple(unsigned source, unsigned kind,
                                      uint32_t stable_id,
@@ -146,6 +173,16 @@ static uint32_t notification_music_stable_id(unsigned kind)
 
     return 0x4d000000u ^ (kind << 20) ^ now ^
            (uint32_t)current_tick ^ notification_music_sequence++;
+}
+
+static void notification_music_reset_baseline(void)
+{
+    /* Do not inspect playback from the retained power transaction. The first
+     * later periodic service pass learns the current state through the normal
+     * !notification_music_known path and deliberately posts nothing. */
+    notification_music_status = 0;
+    notification_music_known = false;
+    notification_music_path[0] = '\0';
 }
 
 static void notification_music_service(void)
@@ -412,7 +449,7 @@ static void notification_storage_service(void)
 
 static int notification_load_font(const char *path, int fallback)
 {
-    int loaded = file_exists(path) ? font_load(path) : -1;
+    int loaded = file_exists(path) ? font_load_ex(path, 0, 96) : -1;
 
     if (loaded >= 0)
     {
@@ -424,6 +461,10 @@ static int notification_load_font(const char *path, int fallback)
 
 void notification_manager_prepare_visuals(void)
 {
+    /* Font caches are prepared with the other Apple faces before playback.
+     * A late first visit must never shrink the audio buffer for typography. */
+    if (audio_status())
+        return;
     if (notification_regular_font == -2)
         notification_regular_font = notification_load_font(
             NOTIFICATION_REGULAR_FONT, FONT_UI);
@@ -434,8 +475,8 @@ void notification_manager_prepare_visuals(void)
 
 int notification_manager_visual_font(bool bold)
 {
-    notification_manager_prepare_visuals();
-    return bold ? notification_bold_font : notification_regular_font;
+    int id = bold ? notification_bold_font : notification_regular_font;
+    return id >= 0 ? id : FONT_UI;
 }
 
 static void *notification_banner_address(int x, int y)
@@ -491,6 +532,180 @@ static void notification_blend_round_rect(int x, int y, int width,
     }
 }
 
+static const char *notification_desktop_icon_path(void)
+{
+    switch (notification_banner_record.request.source)
+    {
+        case NOTIFICATION_SOURCE_MUSIC:
+            return NOTIFICATION_DESKTOP_ITUNES;
+        case NOTIFICATION_SOURCE_WEATHER:
+            return NOTIFICATION_DESKTOP_DASHBOARD;
+        case NOTIFICATION_SOURCE_STORAGE:
+            return NOTIFICATION_DESKTOP_DISK;
+        case NOTIFICATION_SOURCE_BATTERY:
+            return NOTIFICATION_DESKTOP_SYSTEM_PREFERENCES;
+        case NOTIFICATION_SOURCE_LIVETV:
+            return NOTIFICATION_DESKTOP_DIRECTV;
+        default:
+            return NOTIFICATION_DESKTOP_FINDER;
+    }
+}
+
+/* Downsample one real 32x32 Snow Leopard RGA icon into the existing 22x22
+ * notification scratch buffer. RGA is streamed once at banner preparation;
+ * the LCD overlay hook itself remains allocation- and I/O-free. */
+static bool notification_load_desktop_icon(void)
+{
+    const int icon_pixels = NOTIFICATION_DESKTOP_ICON *
+                            NOTIFICATION_DESKTOP_ICON;
+    const int coverage_offset = icon_pixels * 2;
+    unsigned char header[8];
+    unsigned char triple[3];
+    int fd;
+    int source_y;
+
+    if (coverage_offset + icon_pixels >
+        (int)sizeof(notification_banner_icon_data))
+        return false;
+    fd = open(notification_desktop_icon_path(), O_RDONLY);
+    if (fd < 0)
+        return false;
+    if (read(fd, header, sizeof(header)) != (ssize_t)sizeof(header) ||
+        memcmp(header, "RGA1", 4) ||
+        (header[4] | (header[5] << 8)) != 32 ||
+        (header[6] | (header[7] << 8)) != 32)
+    {
+        close(fd);
+        return false;
+    }
+    memset(notification_banner_icon_data, 0,
+           sizeof(notification_banner_icon_data));
+    for (source_y = 0; source_y < 32; source_y++)
+    {
+        int dest_y = -1;
+        int candidate;
+        int source_x;
+        int dest_x = 0;
+
+        for (candidate = 0; candidate < NOTIFICATION_DESKTOP_ICON;
+             candidate++)
+        {
+            if (((candidate * 2 + 1) * 32) /
+                (NOTIFICATION_DESKTOP_ICON * 2) == source_y)
+            {
+                dest_y = candidate;
+                break;
+            }
+        }
+        for (source_x = 0; source_x < 32; source_x++)
+        {
+            if (read(fd, triple, sizeof(triple)) !=
+                (ssize_t)sizeof(triple))
+            {
+                close(fd);
+                return false;
+            }
+            if (dest_y < 0 || dest_x >= NOTIFICATION_DESKTOP_ICON ||
+                ((dest_x * 2 + 1) * 32) /
+                (NOTIFICATION_DESKTOP_ICON * 2) != source_x)
+                continue;
+            candidate = dest_y * NOTIFICATION_DESKTOP_ICON + dest_x;
+            notification_banner_icon_data[candidate * 2] = triple[0];
+            notification_banner_icon_data[candidate * 2 + 1] = triple[1];
+            notification_banner_icon_data[coverage_offset + candidate] =
+                triple[2];
+            dest_x++;
+        }
+    }
+    close(fd);
+    return true;
+}
+
+static void notification_draw_desktop_icon(int x, int y)
+{
+    const int icon_pixels = NOTIFICATION_DESKTOP_ICON *
+                            NOTIFICATION_DESKTOP_ICON;
+    const int coverage_offset = icon_pixels * 2;
+    int row;
+
+    if (!notification_load_desktop_icon())
+        return;
+    for (row = 0; row < NOTIFICATION_DESKTOP_ICON; row++)
+    {
+        int column;
+
+        for (column = 0; column < NOTIFICATION_DESKTOP_ICON; column++)
+        {
+            int index = row * NOTIFICATION_DESKTOP_ICON + column;
+            unsigned alpha =
+                notification_banner_icon_data[coverage_offset + index];
+            fb_data color = (fb_data)(
+                notification_banner_icon_data[index * 2] |
+                (notification_banner_icon_data[index * 2 + 1] << 8));
+            fb_data *target = notification_banner_pixels +
+                (y + row) * LCD_WIDTH + x + column;
+
+            if (alpha)
+                *target = notification_blend_pixel(*target, color, alpha);
+        }
+    }
+}
+
+static void notification_draw_desktop_source_icon(int x, int y)
+{
+    const char *path = NULL;
+
+    if (notification_banner_record.request.source ==
+        NOTIFICATION_SOURCE_ACHIEVEMENTS)
+        path = NOTIFICATION_ACHIEVEMENT_ICON;
+    else if (notification_banner_record.request.source ==
+             NOTIFICATION_SOURCE_SITEKICK)
+        path = NOTIFICATION_SITEKICK_ICON;
+    if (path && file_exists(path))
+    {
+        memset(&notification_banner_icon, 0,
+               sizeof(notification_banner_icon));
+        notification_banner_icon.width = NOTIFICATION_DESKTOP_ICON;
+        notification_banner_icon.height = NOTIFICATION_DESKTOP_ICON;
+        notification_banner_icon.format = FORMAT_NATIVE;
+        notification_banner_icon.data = notification_banner_icon_data;
+        if (read_bmp_file(path, &notification_banner_icon,
+                sizeof(notification_banner_icon_data),
+                FORMAT_NATIVE | FORMAT_DITHER | FORMAT_TRANSPARENT,
+                NULL) >= 0)
+        {
+            lcd_bmp(&notification_banner_icon, x, y);
+            return;
+        }
+    }
+    notification_draw_desktop_icon(x, y);
+}
+
+static int notification_desktop_display_x(void)
+{
+    long elapsed = current_tick - notification_banner_start;
+    long remaining = notification_banner_deadline - current_tick;
+    int travel = LCD_WIDTH - NOTIFICATION_DESKTOP_X;
+
+    if (elapsed < NOTIFICATION_BANNER_SLIDE_TICKS)
+        return LCD_WIDTH - elapsed * travel /
+               NOTIFICATION_BANNER_SLIDE_TICKS;
+    if (remaining < NOTIFICATION_BANNER_SLIDE_TICKS)
+        return NOTIFICATION_DESKTOP_X +
+               (NOTIFICATION_BANNER_SLIDE_TICKS - remaining) * travel /
+               NOTIFICATION_BANNER_SLIDE_TICKS;
+    return NOTIFICATION_DESKTOP_X;
+}
+
+static void notification_update_overlay(void)
+{
+    if (notification_desktop_mode)
+        lcd_update_rect(0, NOTIFICATION_DESKTOP_Y, LCD_WIDTH,
+                        NOTIFICATION_DESKTOP_H);
+    else
+        lcd_update_rect(0, 0, LCD_WIDTH, NOTIFICATION_BANNER_HEIGHT);
+}
+
 static int notification_banner_display_y(void)
 {
     long elapsed = current_tick - notification_banner_start;
@@ -514,8 +729,40 @@ static bool notification_overlay_row(int y, int x, int width,
     int source_y;
 
     if (!notification_banner_active || notification_center_active ||
+        notification_banners_suppressed ||
         y < 0 || x < 0 || x + width > LCD_WIDTH)
         return false;
+    if (notification_desktop_mode)
+    {
+        extern struct frame_buffer_t lcd_framebuffer_default;
+        struct frame_buffer_t *screen_buffer = &lcd_framebuffer_default;
+        int source_y = y - NOTIFICATION_DESKTOP_Y;
+        int display_x;
+        int left;
+        int right;
+        int source_x;
+
+        if (source_y < 0 || source_y >= NOTIFICATION_DESKTOP_H)
+            return false;
+        memcpy(output, FBADDRBUF(screen_buffer, x, y),
+               width * sizeof(*output));
+        display_x = notification_desktop_display_x();
+        left = MAX(x, display_x +
+                   notification_round_inset(
+                       source_y, NOTIFICATION_DESKTOP_H));
+        right = MIN(x + width,
+                    display_x + NOTIFICATION_DESKTOP_W -
+                    notification_round_inset(
+                        source_y, NOTIFICATION_DESKTOP_H));
+        if (left >= right)
+            return true;
+        source_x = NOTIFICATION_DESKTOP_X + left - display_x;
+        memcpy(output + left - x,
+               notification_banner_pixels + source_y * LCD_WIDTH +
+               source_x,
+               (right - left) * sizeof(*output));
+        return true;
+    }
     display_y = notification_banner_display_y();
     source_y = y - display_y;
     if (source_y < 0 || source_y >= NOTIFICATION_BANNER_HEIGHT)
@@ -564,28 +811,56 @@ static void notification_render_banner(void)
     const char *icon_path = NULL;
     int bold_font;
     int regular_font;
+    int render_height;
+    int screen_y;
     int row;
 
     notification_manager_prepare_visuals();
     bold_font = notification_manager_visual_font(true);
     regular_font = notification_manager_visual_font(false);
 
-    for (row = 0; row < NOTIFICATION_BANNER_HEIGHT; ++row)
+    render_height = notification_desktop_mode ?
+                    NOTIFICATION_DESKTOP_H :
+                    NOTIFICATION_BANNER_HEIGHT;
+    screen_y = notification_desktop_mode ? NOTIFICATION_DESKTOP_Y : 0;
+    for (row = 0; row < render_height; ++row)
         memcpy(notification_banner_pixels + row * LCD_WIDTH,
-               FBADDRBUF(screen_buffer, 0, row),
+               FBADDRBUF(screen_buffer, 0, screen_y + row),
                LCD_WIDTH * sizeof(notification_banner_pixels[0]));
 
-    notification_blend_round_rect(5, 5, LCD_WIDTH - 10, 35,
-                                  FB_RGBPACK(0, 0, 0), 62);
-    notification_blend_round_rect(5, 3, LCD_WIDTH - 10, 36,
-                                  FB_RGBPACK(154, 156, 160), 220);
-    notification_blend_round_rect(6, 4, LCD_WIDTH - 12, 34,
-                                  FB_RGBPACK(249, 250, 252), 250);
+    if (notification_desktop_mode)
+    {
+        /* Mountain Lion's banner was a thin gray bubble below the menu bar,
+         * not the full-width iOS sheet. These dimensions are the 320x240
+         * equivalent of its upper-right desktop placement. */
+        notification_blend_round_rect(
+            NOTIFICATION_DESKTOP_X, 1,
+            NOTIFICATION_DESKTOP_W, NOTIFICATION_DESKTOP_H - 1,
+            FB_RGBPACK(79, 79, 82), 255);
+        notification_blend_round_rect(
+            NOTIFICATION_DESKTOP_X + 1, 1,
+            NOTIFICATION_DESKTOP_W - 2, NOTIFICATION_DESKTOP_H - 2,
+            FB_RGBPACK(225, 226, 228), 255);
+        notification_blend_round_rect(
+            NOTIFICATION_DESKTOP_X + 2, 2,
+            NOTIFICATION_DESKTOP_W - 4,
+            (NOTIFICATION_DESKTOP_H - 4) / 2,
+            FB_RGBPACK(247, 248, 249), 150);
+    }
+    else
+    {
+        notification_blend_round_rect(5, 5, LCD_WIDTH - 10, 35,
+                                      FB_RGBPACK(0, 0, 0), 62);
+        notification_blend_round_rect(5, 3, LCD_WIDTH - 10, 36,
+                                      FB_RGBPACK(154, 156, 160), 220);
+        notification_blend_round_rect(6, 4, LCD_WIDTH - 12, 34,
+                                      FB_RGBPACK(249, 250, 252), 250);
+    }
 
     memset(&notification_banner_viewport, 0,
            sizeof(notification_banner_viewport));
     notification_banner_viewport.width = LCD_WIDTH;
-    notification_banner_viewport.height = NOTIFICATION_BANNER_HEIGHT;
+    notification_banner_viewport.height = render_height;
     notification_banner_viewport.font = regular_font;
     notification_banner_viewport.drawmode = DRMODE_FG;
     notification_banner_viewport.fg_pattern = LCD_WHITE;
@@ -601,12 +876,33 @@ static void notification_render_banner(void)
                         &notification_banner_framebuffer, SCREEN_MAIN);
     old_viewport = lcd_set_viewport(&notification_banner_viewport);
 
+    if (notification_desktop_mode)
+    {
+        notification_draw_desktop_source_icon(
+            NOTIFICATION_DESKTOP_X + 7, 7);
+        lcd_set_drawmode(DRMODE_FG);
+        lcd_set_foreground(LCD_RGBPACK(30, 30, 32));
+        notification_puts_fit(
+            NOTIFICATION_DESKTOP_X + 35, 4,
+            NOTIFICATION_DESKTOP_W - 42,
+            notification_banner_record.request.title, bold_font);
+        lcd_set_foreground(LCD_RGBPACK(67, 67, 70));
+        notification_puts_fit(
+            NOTIFICATION_DESKTOP_X + 35, 20,
+            NOTIFICATION_DESKTOP_W - 42,
+            notification_banner_record.request.body, regular_font);
+        lcd_set_viewport(old_viewport);
+        return;
+    }
+
     if (notification_banner_record.request.source ==
             NOTIFICATION_SOURCE_ACHIEVEMENTS)
         icon_path = NOTIFICATION_ACHIEVEMENT_ICON;
     else if (notification_banner_record.request.source ==
              NOTIFICATION_SOURCE_SITEKICK)
         icon_path = NOTIFICATION_SITEKICK_ICON;
+    else if (notification_banner_record.request.source == NOTIFICATION_SOURCE_MSN)
+        icon_path = ROCKBOX_DIR "/ipodjs/msn/notification.bmp";
     if (icon_path && file_exists(icon_path))
     {
         memset(&notification_banner_icon, 0,
@@ -888,6 +1184,52 @@ void notification_manager_flush(void)
         notification_dirty = false;
 }
 
+void notification_manager_hibernate_prepare(void)
+{
+    bool redraw;
+
+    notification_manager_init();
+
+    /* RetailOS quiesces its UI services before issuing media opcode 8.  This
+     * Rockbox-only service must not be allowed to enqueue storage, overlay,
+     * or beep work across the retained boundary.  History is preserved; only
+     * transient presentations are discarded. */
+    notification_manager_flush();
+    notification_hibernate_suspended = true;
+    notification_hibernate_resume_pending = false;
+    redraw = notification_banner_active;
+    notification_banner_active = false;
+    notification_banner_queue_count = 0;
+    beep_play(0, 0, 0);
+    msn_notification_sound_stop();
+    notification_music_reset_baseline();
+    if (redraw)
+        notification_update_overlay();
+}
+
+void notification_manager_hibernate_resume(void)
+{
+    /* Opcode 9 returns with the pre-sleep transport state intact. Invalidate
+     * the notification baseline without querying playback here; a later
+     * periodic pass relearns it without manufacturing Paused/Resumed/Now
+     * Playing events. */
+    notification_music_reset_baseline();
+    notification_next_periodic_tick = current_tick + HZ / 5;
+    notification_hibernate_suspended = true;
+    notification_hibernate_resume_pending = true;
+}
+
+void notification_manager_hibernate_abort(void)
+{
+    /* Retained entry can refuse after this service has quiesced. Rockbox's
+     * subsequent shutdown is cancelable, so restore a live notification
+     * epoch immediately instead of carrying the suspend latch into the UI. */
+    notification_music_reset_baseline();
+    notification_next_periodic_tick = current_tick + HZ / 5;
+    notification_hibernate_resume_pending = false;
+    notification_hibernate_suspended = false;
+}
+
 static void notification_queue_banner(
     const struct notification_record *record)
 {
@@ -904,6 +1246,8 @@ bool notification_post(const struct notification_request *request)
     int index;
 
     notification_manager_init();
+    if (notification_hibernate_suspended)
+        return false;
     if (!request || request->source >= NOTIFICATION_SOURCE_COUNT ||
         !request->title[0] || !notification_source_enabled(request->source))
         return false;
@@ -998,6 +1342,21 @@ void notification_manager_service(void)
 
     notification_manager_init();
 
+    if (notification_hibernate_suspended)
+    {
+        /* sys_poweroff_handle_request() returns through get_action(), which
+         * calls this service once before exposing that action to its caller.
+         * Consume that entire first pass without storage, overlay, scheduled
+         * notification, USB relay, or beep work, then reopen for the next
+         * ordinary UI turn. */
+        if (notification_hibernate_resume_pending)
+        {
+            notification_hibernate_resume_pending = false;
+            notification_hibernate_suspended = false;
+        }
+        return;
+    }
+
     /* The USB relay is pumped every call: it is cheap when no packet is
      * queued, and the companion stalls if it is not answered promptly. */
     usb_internet_service();
@@ -1007,14 +1366,14 @@ void notification_manager_service(void)
      * no longer blocks indefinitely), and running that I/O at wake rate
      * starves the audio thread.  Hold them near their previous cadence; the
      * banner work below still runs every call so animation stays smooth. */
-    static long next_periodic_tick;
-    if (!TIME_BEFORE(current_tick, next_periodic_tick))
+    if (!TIME_BEFORE(current_tick, notification_next_periodic_tick))
     {
-        next_periodic_tick = current_tick + HZ / 5;
+        notification_next_periodic_tick = current_tick + HZ / 5;
         notification_music_service();
         notification_weather_service();
         notification_battery_service();
         notification_storage_service();
+        msn_notifications_service();
     }
     now = notification_now();
     while (index < notification_schedule_count)
@@ -1040,9 +1399,10 @@ void notification_manager_service(void)
         !TIME_BEFORE(current_tick, notification_banner_deadline))
     {
         notification_banner_active = false;
-        lcd_update_rect(0, 0, LCD_WIDTH, NOTIFICATION_BANNER_HEIGHT);
+        notification_update_overlay();
     }
     if (!notification_banner_active && !notification_center_active &&
+        !notification_banners_suppressed &&
         notification_banner_queue_count > 0)
     {
         notification_banner_record = notification_banner_queue[0];
@@ -1054,27 +1414,39 @@ void notification_manager_service(void)
         notification_banner_deadline = current_tick +
                                        NOTIFICATION_BANNER_TICKS;
         notification_banner_next_refresh = current_tick;
-        notification_banner_last_y = -NOTIFICATION_BANNER_HEIGHT;
+        notification_banner_last_y = notification_desktop_mode ?
+                                     LCD_WIDTH :
+                                     -NOTIFICATION_BANNER_HEIGHT;
         notification_render_banner();
         notification_banner_active = true;
         if (global_settings.notification_sound)
-            beep_play(1800, 70, 2500);
-        lcd_update_rect(0, 0, LCD_WIDTH, NOTIFICATION_BANNER_HEIGHT);
+        {
+            if (notification_banner_record.request.source == NOTIFICATION_SOURCE_MSN)
+                msn_notification_sound();
+            else
+                beep_play(1800, 70, 2500);
+        }
+        notification_update_overlay();
     }
     else if (notification_banner_active)
     {
-        int display_y = notification_banner_display_y();
+        int display_position = notification_desktop_mode ?
+                               notification_desktop_display_x() :
+                               notification_banner_display_y();
 
-        if (display_y != notification_banner_last_y ||
+        if (display_position != notification_banner_last_y ||
             !TIME_BEFORE(current_tick, notification_banner_next_refresh))
         {
-            notification_banner_last_y = display_y;
+            notification_banner_last_y = display_position;
             notification_banner_next_refresh = current_tick +
                 MAX(1, HZ / 5);
-            lcd_update_rect(0, 0, LCD_WIDTH,
-                            NOTIFICATION_BANNER_HEIGHT);
+            notification_update_overlay();
         }
     }
+    /* Clock timers and supported RTC alarms are state services, not screen
+     * loops.  They use fixed memory and perform storage writes only when a
+     * due transition is committed. */
+    ipodjs_utilities_service();
     if (notification_dirty)
         notification_manager_flush();
 }
@@ -1176,6 +1548,40 @@ void notification_manager_set_center_active(bool active)
     if (active)
     {
         notification_banner_active = false;
-        lcd_update_rect(0, 0, LCD_WIDTH, NOTIFICATION_BANNER_HEIGHT);
+        notification_update_overlay();
     }
+}
+
+bool notification_manager_banners_suppressed(void)
+{
+    return notification_banners_suppressed;
+}
+
+void notification_manager_set_banners_suppressed(bool suppressed)
+{
+    if (notification_banners_suppressed == suppressed)
+        return;
+    notification_banners_suppressed = suppressed;
+    notification_update_overlay();
+}
+
+static void notification_apply_desktop_mode(bool active)
+{
+    if (notification_desktop_mode == active)
+        return;
+    notification_update_overlay();
+    notification_desktop_mode = active;
+    if (notification_banner_active)
+    {
+        notification_render_banner();
+        notification_banner_last_y = active ?
+                                     LCD_WIDTH :
+                                     -NOTIFICATION_BANNER_HEIGHT;
+    }
+    notification_update_overlay();
+}
+
+void notification_manager_set_desktop_mode(bool active)
+{
+    notification_apply_desktop_mode(active);
 }

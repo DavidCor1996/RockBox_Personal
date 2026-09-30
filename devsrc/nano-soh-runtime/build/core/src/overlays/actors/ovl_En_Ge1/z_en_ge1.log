@@ -1,0 +1,184 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:81:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   81 |     gGerudoWhiteHairstyleBobDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:81:5: note: (near initialization for 'sHairstyleDLists[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:82:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   82 |     gGerudoWhiteHairstyleStraightFringeDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:82:5: note: (near initialization for 'sHairstyleDLists[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:83:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   83 |     gGerudoWhiteHairstyleSpikyDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:83:5: note: (near initialization for 'sHairstyleDLists[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:89:5: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   89 |     gGerudoWhiteEyeOpenTex,
+      |     ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:90:5: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   90 |     gGerudoWhiteEyeHalfTex,
+      |     ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:91:5: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   91 |     gGerudoWhiteEyeClosedTex,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c: In function 'EnGe1_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:99:48: warning: passing argument 3 of 'SkelAnime_InitFlex' from incompatible pointer type [-Wincompatible-pointer-types]
+   99 |     SkelAnime_InitFlex(play, &this->skelAnime, &gGerudoWhiteSkel, &gGerudoWhiteIdleAnim, this->jointTable,
+      |                                                ^~~~~~~~~~~~~~~~~
+      |                                                |
+      |                                                const char (*)[43]
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1329:83: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[43]'
+ 1329 | s32 SkelAnime_InitFlex(PlayState* play, SkelAnime* skelAnime, FlexSkeletonHeader* skeletonHeaderSeg,
+      |                                                               ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:99:67: warning: passing argument 4 of 'SkelAnime_InitFlex' from incompatible pointer type [-Wincompatible-pointer-types]
+   99 |     SkelAnime_InitFlex(play, &this->skelAnime, &gGerudoWhiteSkel, &gGerudoWhiteIdleAnim, this->jointTable,
+      |                                                                   ^~~~~~~~~~~~~~~~~~~~~
+      |                                                                   |
+      |                                                                   const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1330:41: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1330 |                        AnimationHeader* animation, Vec3s* jointTable, Vec3s* morphTable, s32 limbCount);
+      |                        ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:101:42: warning: passing argument 2 of 'Animation_PlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+  101 |     Animation_PlayOnce(&this->skelAnime, &gGerudoWhiteIdleAnim);
+      |                                          ^~~~~~~~~~~~~~~~~~~~~
+      |                                          |
+      |                                          const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1338:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1338 | void Animation_PlayOnce(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:105:21: warning: assignment to 'AnimationHeader *' from incompatible pointer type 'const char (*)[47]' [-Wincompatible-pointer-types]
+  105 |     this->animation = &gGerudoWhiteIdleAnim;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c: In function 'EnGe1_SetTalkAction':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:195:25: warning: assignment to 'AnimationHeader *' from incompatible pointer type 'const char (*)[47]' [-Wincompatible-pointer-types]
+  195 |         this->animation = &gGerudoWhiteIdleAnim;
+      |                         ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:197:49: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  197 |                          Animation_GetLastFrame(&gGerudoWhiteIdleAnim), ANIMMODE_ONCE, -8.0f);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[47]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:196:44: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  196 |         Animation_Change(&this->skelAnime, &gGerudoWhiteIdleAnim, 1.0f, 0.0f,
+      |                                            ^~~~~~~~~~~~~~~~~~~~~
+      |                                            |
+      |                                            const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c: In function 'EnGe1_SetAnimationIdle':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:211:93: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  211 |     Animation_Change(&this->skelAnime, &gGerudoWhiteIdleAnim, -1.0f, Animation_GetLastFrame(&gGerudoWhiteIdleAnim),
+      |                                                                                             ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[47]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:211:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  211 |     Animation_Change(&this->skelAnime, &gGerudoWhiteIdleAnim, -1.0f, Animation_GetLastFrame(&gGerudoWhiteIdleAnim),
+      |                                        ^~~~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:213:21: warning: assignment to 'AnimationHeader *' from incompatible pointer type 'const char (*)[47]' [-Wincompatible-pointer-types]
+  213 |     this->animation = &gGerudoWhiteIdleAnim;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c: In function 'EnGe1_SetupOpen_GTGGuard':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:356:49: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  356 |                          Animation_GetLastFrame(&gGerudoWhiteClapAnim), ANIMMODE_ONCE, -3.0f);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[47]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:355:44: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  355 |         Animation_Change(&this->skelAnime, &gGerudoWhiteClapAnim, 1.0f, 0.0f,
+      |                                            ^~~~~~~~~~~~~~~~~~~~~
+      |                                            |
+      |                                            const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:357:25: warning: assignment to 'AnimationHeader *' from incompatible pointer type 'const char (*)[47]' [-Wincompatible-pointer-types]
+  357 |         this->animation = &gGerudoWhiteClapAnim;
+      |                         ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c: In function 'EnGe1_SetupOpenGate_GateOp':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:451:49: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  451 |                          Animation_GetLastFrame(&gGerudoWhiteClapAnim), ANIMMODE_ONCE, -3.0f);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[47]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:450:44: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  450 |         Animation_Change(&this->skelAnime, &gGerudoWhiteClapAnim, 1.0f, 0.0f,
+      |                                            ^~~~~~~~~~~~~~~~~~~~~
+      |                                            |
+      |                                            const char (*)[47]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[47]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:452:25: warning: assignment to 'AnimationHeader *' from incompatible pointer type 'const char (*)[47]' [-Wincompatible-pointer-types]
+  452 |         this->animation = &gGerudoWhiteClapAnim;
+      |                         ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c: In function 'EnGe1_GetReaction_GateGuard':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:488:25: warning: assignment to 'AnimationHeader *' from incompatible pointer type 'const char (*)[53]' [-Wincompatible-pointer-types]
+  488 |         this->animation = &gGerudoWhiteDismissiveAnim;
+      |                         ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:490:49: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  490 |                          Animation_GetLastFrame(&gGerudoWhiteDismissiveAnim), ANIMMODE_ONCE, -8.0f);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[53]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:489:44: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  489 |         Animation_Change(&this->skelAnime, &gGerudoWhiteDismissiveAnim, 1.0f, 0.0f,
+      |                                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                            |
+      |                                            const char (*)[53]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[53]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c: In function 'EnGe1_TalkAfterGame_Archery':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:135:40: warning: passing argument 2 of 'LogUtils_LogThreadId' makes integer from pointer without a cast [-Wint-conversion]
+  135 |         LogUtils_LogThreadId(__FILE__, __FILE__);           \
+      |                                        ^~~~~~~~
+      |                                        |
+      |                                        char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:146:29: note: in expansion of macro 'LOG'
+  146 | #define LOG_NUM(exp, value) LOG(exp, value, "%d")
+      |                             ^~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:650:5: note: in expansion of macro 'LOG_NUM'
+  650 |     LOG_NUM("z_common_data.yabusame_total", gSaveContext.minigameScore);
+      |     ^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:94:49: note: expected 's32' {aka 'long int'} but argument is of type 'char *'
+   94 | void LogUtils_LogThreadId(const char* name, s32 line);
+      |                                             ~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:135:40: warning: passing argument 2 of 'LogUtils_LogThreadId' makes integer from pointer without a cast [-Wint-conversion]
+  135 |         LogUtils_LogThreadId(__FILE__, __FILE__);           \
+      |                                        ^~~~~~~~
+      |                                        |
+      |                                        char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:146:29: note: in expansion of macro 'LOG'
+  146 | #define LOG_NUM(exp, value) LOG(exp, value, "%d")
+      |                             ^~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:651:5: note: in expansion of macro 'LOG_NUM'
+  651 |     LOG_NUM("z_common_data.memory.information.room_inf[127][ 0 ]", HIGH_SCORE(HS_HBA));
+      |     ^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:94:49: note: expected 's32' {aka 'long int'} but argument is of type 'char *'
+   94 | void LogUtils_LogThreadId(const char* name, s32 line);
+      |                                             ~~~~^~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:10:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c: In function 'EnGe1_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ge1/z_en_ge1.c:828:72: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  828 |     gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(sEyeTextures[this->eyeIndex]));
+      |                                                            ~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+      |                                                                        |
+      |                                                                        void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~

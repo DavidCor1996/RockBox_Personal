@@ -30,6 +30,7 @@
 #include "debug.h"
 #include "font.h"
 #include "lcd.h"
+#include "videoout.h"
 #ifdef IPOD_6G
 #include "pmu-target.h"
 #endif
@@ -856,6 +857,7 @@ void lcd_prepare_for_pio_trace(void)
     if (type >= 2)
     {
         s5l_lcd_write_config(LCD_MODE_P18);
+#ifdef S5L_LCD_WITH_CMDSET16
         s5l_lcd_write_reg(R_HORIZ_ADDR_START_POS, 0);
         s5l_lcd_write_reg(R_HORIZ_ADDR_END_POS, LCD_WIDTH - 1);
         s5l_lcd_write_reg(R_VERT_ADDR_START_POS, 0);
@@ -863,6 +865,32 @@ void lcd_prepare_for_pio_trace(void)
         s5l_lcd_write_reg(R_HORIZ_GRAM_ADDR_SET, 0);
         s5l_lcd_write_reg(R_VERT_GRAM_ADDR_SET, 0);
         s5l_lcd_write_cmd(R_WRITE_DATA_TO_GRAM);
+#else
+        /*
+         * NANO3G_PIO_TRACE_8BIT_PORT
+         *
+         * Nano 3G uses the 8-bit LCD command set.  Select the
+         * complete 320x240 GRAM window using the same command path
+         * as the normal Rockbox Nano 3G display driver.
+         */
+        uint8_t col[] =
+        {
+            0, 0,
+            (LCD_WIDTH - 1) >> 8,
+            (LCD_WIDTH - 1) & 0xff
+        };
+
+        uint8_t row[] =
+        {
+            0, 0,
+            (LCD_HEIGHT - 1) >> 8,
+            (LCD_HEIGHT - 1) & 0xff
+        };
+
+        s5l_lcd_send_cmd8(R_COLUMN_ADDR_SET, 4, col);
+        s5l_lcd_send_cmd8(R_ROW_ADDR_SET, 4, row);
+        s5l_lcd_write_cmd(R_MEMORY_WRITE);
+#endif
     }
     else
     {
@@ -930,6 +958,9 @@ void lcd_wait_for_dma(void)
 void lcd_update_rect(int, int, int, int) ICODE_ATTR;
 void lcd_update_rect(int x, int y, int width, int height)
 {
+    if (lcd_boot_frame_held())
+        return;
+
     int pixels = width * height;
     int original_height = height;
     fb_data* p = FBADDR(x,y);
@@ -991,13 +1022,18 @@ extern void lcd_write_yuv420_lines(unsigned char const * const src[3],
                                    int stride);
 
 /* Blit a YUV bitmap directly to the LCD */
-void lcd_blit_yuv(unsigned char * const src[3],
+static void lcd_blit_yuv_frame(unsigned char * const src[3],
                   int src_x, int src_y, int stride,
-                  int x, int y, int width, int height) ICODE_ATTR;
-void lcd_blit_yuv(unsigned char * const src[3],
+                  int x, int y, int width, int height,
+                  const struct videoout_frame *frame) ICODE_ATTR;
+static void lcd_blit_yuv_frame(unsigned char * const src[3],
                   int src_x, int src_y, int stride,
-                  int x, int y, int width, int height)
+                  int x, int y, int width, int height,
+                  const struct videoout_frame *frame)
 {
+#if !defined(HAVE_VIDEOOUT_NATIVE_YUV) || defined(BOOTLOADER)
+    (void)frame;
+#endif
     unsigned int z;
     unsigned char const * yuv_src[3];
 
@@ -1033,6 +1069,11 @@ void lcd_blit_yuv(unsigned char * const src[3],
         /* The external VP already consumes native planar YUV420.  Preserve
          * decoded bytes directly instead of converting YUV -> RGB565 here
          * and RGB565 -> YUV again in the composite mirror. */
+#ifdef HAVE_VIDEOOUT_NATIVE_YUV
+        if (frame != NULL)
+            videoout_yuv_mirrored = ipod6g_videoout_native_yuv(frame, src);
+        if (!videoout_yuv_mirrored)
+#endif
         videoout_yuv_mirrored = ipod6g_videoout_mirror_yuv420(
             yuv_src[0], yuv_src[1], yuv_src[2], 0, 0, stride,
             x, y, width, height);
@@ -1099,6 +1140,22 @@ void lcd_blit_yuv(unsigned char * const src[3],
             displaylcd_dma(pixels);
     }
     mutex_unlock(&lcd_mutex);
+}
+
+#if defined(HAVE_VIDEOOUT_NATIVE_YUV) && !defined(BOOTLOADER)
+void videoout_blit_yuv(const struct videoout_frame *frame,
+                      unsigned char * const lcd_planes[3])
+{
+    lcd_blit_yuv_frame(lcd_planes, 0, 0, LCD_WIDTH, 0, 0,
+                      LCD_WIDTH, LCD_HEIGHT, frame);
+}
+#endif
+
+void lcd_blit_yuv(unsigned char * const src[3],
+                  int src_x, int src_y, int stride,
+                  int x, int y, int width, int height)
+{
+    lcd_blit_yuv_frame(src, src_x, src_y, stride, x, y, width, height, NULL);
 }
 
 #if defined(IPOD_6G) && !defined(BOOTLOADER)
@@ -1619,3 +1676,73 @@ void lcd_init_device(void)
     nano3g_boottrace_log("lcd_init_device done");
 #endif
 }
+
+#if defined(VIDEOOUT_ENHANCED_TEST) && defined(HAVE_COMPOSITE_VIDEO_OUT)
+/* Keep cache publication and scanout composition under the same lock. */
+bool videoout_art_write(unsigned offset, const void *data, unsigned size)
+{
+    mutex_lock(&lcd_mutex);
+    bool ok = ipod6g_videoout_art_write(offset, data, size);
+    mutex_unlock(&lcd_mutex);
+    return ok;
+}
+bool videoout_art_finish(void)
+{
+    mutex_lock(&lcd_mutex);
+    bool ok = ipod6g_videoout_art_finish();
+    mutex_unlock(&lcd_mutex);
+    return ok;
+}
+void videoout_art_clear(void)
+{
+    mutex_lock(&lcd_mutex);
+    ipod6g_videoout_art_clear();
+    mutex_unlock(&lcd_mutex);
+}
+bool videoout_art_bind(const uint16_t *source, int stride, int x, int y)
+{
+    mutex_lock(&lcd_mutex);
+    bool ok = ipod6g_videoout_art_bind(source, stride, x, y);
+    mutex_unlock(&lcd_mutex);
+    return ok;
+}
+#endif
+
+#if defined(HAVE_COMPOSITE_VIDEO_OUT) && !defined(BOOTLOADER)
+void videoout_ui_owner(bool enabled)
+{
+    mutex_lock(&lcd_mutex);
+    ipod6g_videoout_ui_owner(enabled);
+    mutex_unlock(&lcd_mutex);
+}
+void videoout_ui_batch(bool enabled)
+{
+    mutex_lock(&lcd_mutex);
+    ipod6g_videoout_ui_batch(enabled);
+    mutex_unlock(&lcd_mutex);
+}
+void videoout_set_preferences(int screen, int overscan)
+{
+    mutex_lock(&lcd_mutex);
+    ipod6g_videoout_set_preferences(screen, overscan);
+    mutex_unlock(&lcd_mutex);
+}
+void videoout_prepare_frame(const struct videoout_tv_frame *frame)
+{
+    mutex_lock(&lcd_mutex);
+    ipod6g_videoout_prepare_frame(frame);
+    mutex_unlock(&lcd_mutex);
+}
+void videoout_set_video(bool tv_canvas)
+{
+    mutex_lock(&lcd_mutex);
+    ipod6g_videoout_set_video(tv_canvas);
+    mutex_unlock(&lcd_mutex);
+}
+void videoout_present_ui(const uint16_t *p, int w, int h)
+{
+    mutex_lock(&lcd_mutex);
+    ipod6g_videoout_present_ui(p, w, h);
+    mutex_unlock(&lcd_mutex);
+}
+#endif

@@ -10,6 +10,7 @@ build_info="${build_dir}/rockbox-info.txt"
 installed_info="${mount_path}/.rockbox/rockbox-info.txt"
 desktop_portable_bundle="${DESKTOP_MODE_PORTABLE_BUNDLE:-${repo_root}/.rockpod-private/desktop-mode-portable}"
 backup_dir=""
+package_stage=""
 had_database=0
 transaction_artifacts=()
 mount_source=""
@@ -27,6 +28,9 @@ cleanup()
 {
     if [ -n "${backup_dir}" ] && [ -d "${backup_dir}" ]; then
         rm -rf "${backup_dir}"
+    fi
+    if [ -n "${package_stage}" ] && [ -d "${package_stage}" ]; then
+        rm -rf "${package_stage}"
     fi
 }
 
@@ -114,12 +118,11 @@ verify_database_unchanged()
 install_recovery_snapshot()
 {
     local snapshot="${mount_path}/.rockbox/tagcache_backup"
-    local staging="${mount_path}/.rockbox/.tagcache_backup.new"
+    local staging
     local original
     local name
 
-    rm -rf "${staging}"
-    mkdir "${staging}"
+    staging="$(mktemp -d "${mount_path}/.rockbox/.tagcache_backup.XXXXXX")"
     for original in "${backup_dir}"/*.tcd; do
         cp -a "${original}" "${staging}/"
     done
@@ -169,6 +172,21 @@ if [ "${disk_size}" -lt $((32 * 1024 * 1024 * 1024)) ]; then
     exit 1
 fi
 echo "hardware guard: target ${mount_source} on /dev/${parent_disk}, ${disk_size} bytes, serial ${disk_serial}"
+
+# Multiple desktop tasks can package independently, but only one writer may
+# update a physical volume. Keep the descriptor open until process exit.
+exec {deploy_lock_fd}>"/tmp/rockbox-ipod6g-deploy-${UID}-${parent_disk}.lock"
+if ! flock -n "${deploy_lock_fd}"; then
+    echo "deploy guard: another deployment owns /dev/${parent_disk}" >&2
+    exit 1
+fi
+mount_options="$(findmnt -rn -o OPTIONS --target "${mount_path}")"
+case ",${mount_options}," in
+    *,ro,*)
+        echo "deploy guard: filesystem is read-only; refusing writes" >&2
+        exit 1
+        ;;
+esac
 
 if [ ! -s "${firmware}" ] || [ ! -s "${package}" ]; then
     echo "missing iPod 6G hardware build outputs in ${build_dir}" >&2
@@ -225,7 +243,16 @@ if [ "${#transaction_artifacts[@]}" -gt 0 ]; then
     echo "database guard: quarantined ${#transaction_artifacts[@]} transient transaction artifact(s)"
 fi
 
-unzip -oq "${package}" -d "${mount_path}"
+# Expanding 8,000+ entries directly onto a flush-mounted FAT iFlash volume can
+# take long enough for an interactive deploy session to be interrupted. Stage
+# locally, then checksum-copy only changed entries. Excluding tagcache here is
+# an additional guard; the verified backup is still restored below.
+package_stage="$(mktemp -d)"
+unzip -oq "${package}" -d "${package_stage}"
+rsync -rt --checksum --modify-window=2 \
+    --exclude='.rockbox/database*.tcd' \
+    --exclude='.rockbox/tagcache*.tcd' \
+    "${package_stage}/" "${mount_path}/"
 
 if [ "${had_database}" -eq 1 ]; then
     for path in "${backup_dir}"/*.tcd; do
@@ -249,6 +276,8 @@ cp "${firmware}" "${mount_path}/.rockbox/rockbox.ipod"
 
 cmp -s "${firmware}" "${mount_path}/rockbox.ipod"
 cmp -s "${firmware}" "${mount_path}/.rockbox/rockbox.ipod"
+python3 "${repo_root}/tools/write_ipod6g_video_capabilities.py" \
+    "${build_dir}" "${mount_path}"
 verify_database
 
 # A release/developer bundle may carry native macOS and Windows simulator
@@ -267,6 +296,10 @@ else
     echo "portable Desktop Mode: no complete host-runtime bundle at ${desktop_portable_bundle}; skipped"
 fi
 
+# Measure after all app/package writes so per-app sizes describe the installed
+# files, not pre-deployment binaries. This never edits the music database.
+python3 "${repo_root}/tools/ipodjs_about_inventory.py" "${mount_path}" \
+    "${mount_path}/.rockbox/ipodjs/about.tsv"
 sha256sum "${firmware}" \
     "${mount_path}/rockbox.ipod" \
     "${mount_path}/.rockbox/rockbox.ipod"

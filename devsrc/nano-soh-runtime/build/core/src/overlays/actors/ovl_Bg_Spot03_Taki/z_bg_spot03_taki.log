@@ -1,0 +1,84 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot03_Taki/z_bg_spot03_taki.c: In function 'BgSpot03Taki_ApplyOpeningAlpha':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot03_Taki/z_bg_spot03_taki.c:39:16: warning: initialization of 'Vtx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   39 |     Vtx* vtx = (bufferIndex == 0) ? SEGMENTED_TO_VIRTUAL(object_spot03_object_Vtx_000800)
+      |                ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot03_Taki/z_bg_spot03_taki.c:42:37: warning: passing argument 1 of 'ResourceMgr_LoadVtxByName' from incompatible pointer type [-Wincompatible-pointer-types]
+   42 |     vtx = ResourceMgr_LoadVtxByName(vtx);
+      |                                     ^~~
+      |                                     |
+      |                                     Vtx *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot03_Taki/z_bg_spot03_taki.c:9:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:59:38: note: expected 'char *' but argument is of type 'Vtx *'
+   59 | Vtx* ResourceMgr_LoadVtxByName(char* path);
+      |                                ~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot03_Taki/z_bg_spot03_taki.c: In function 'BgSpot03Taki_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot03_Taki/z_bg_spot03_taki.c:56:32: warning: passing argument 1 of 'CollisionHeader_GetVirtual' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+   56 |     CollisionHeader_GetVirtual(&object_spot03_object_Col_000C98, &colHeader);
+      |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot03_Taki/z_bg_spot03_taki.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot03_Taki/z_bg_spot03_taki.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:673:39: note: expected 'void *' but argument is of type 'const char (*)[68]'
+  673 | void CollisionHeader_GetVirtual(void* colHeader, CollisionHeader** dest);
+      |                                 ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot03_Taki/z_bg_spot03_taki.c: In function 'BgSpot03Taki_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot03_Taki/z_bg_spot03_taki.c:134:16: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  134 |                Gfx_TwoTexScrollEx(play->state.gfxCtx, 0, 0, gameplayFrames * 5, 64, 64, 1, 0, gameplayFrames * 5, 64,
+      |                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                |
+      |                Gfx *
+  135 |                                   64, 0, 5, 0, 5));
+      |                                   ~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot03_Taki/z_bg_spot03_taki.c:137:37: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  137 |     gSPDisplayList(POLY_XLU_DISP++, object_spot03_object_DL_000B20);
+      |                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                     |
+      |                                     const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot03_Taki/z_bg_spot03_taki.c:140:36: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+  140 |         gSPVertex(POLY_XLU_DISP++, object_spot03_object_Vtx_000800, 25, 0);
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                    |
+      |                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot03_Taki/z_bg_spot03_taki.c:142:36: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+  142 |         gSPVertex(POLY_XLU_DISP++, object_spot03_object_Vtx_000990, 25, 0);
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                    |
+      |                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot03_Taki/z_bg_spot03_taki.c:145:37: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  145 |     gSPDisplayList(POLY_XLU_DISP++, object_spot03_object_DL_000BC0);
+      |                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                     |
+      |                                     const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot03_Taki/z_bg_spot03_taki.c:148:16: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  148 |                Gfx_TwoTexScrollEx(play->state.gfxCtx, 0, gameplayFrames * 1, gameplayFrames * 3, 64, 64, 1,
+      |                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                |
+      |                Gfx *
+  149 |                                   -gameplayFrames, gameplayFrames * 3, 64, 64, 1, 3, -1, 3));
+      |                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot03_Taki/z_bg_spot03_taki.c:151:37: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  151 |     gSPDisplayList(POLY_XLU_DISP++, object_spot03_object_DL_001580);
+      |                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                     |
+      |                                     const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~

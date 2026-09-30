@@ -1,0 +1,7 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/gu_pc.c: In function 'guMtxF2L':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/gu_pc.c:9:15: warning: initialization of 's32 *' {aka 'long int *'} from incompatible pointer type 'int *' [-Wincompatible-pointer-types]
+    9 |     s32* m1 = &m->m[0][0];
+      |               ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/gu_pc.c:10:15: warning: initialization of 's32 *' {aka 'long int *'} from incompatible pointer type 'int *' [-Wincompatible-pointer-types]
+   10 |     s32* m2 = &m->m[2][0];
+      |               ^

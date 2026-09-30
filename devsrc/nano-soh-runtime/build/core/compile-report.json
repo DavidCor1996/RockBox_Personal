@@ -1,0 +1,4902 @@
+[
+  {
+    "source": "soh/gu_pc.c",
+    "object": "build/core/soh/gu_pc.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "957be789b7a05d0f7752f7bf882ec168f5e5612e65ce8ef03ec558034babfaf3"
+  },
+  {
+    "source": "soh/mixer.c",
+    "object": "build/core/soh/mixer.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "535617681d64ec1c9a170096ac8f5b43dc1e70ce89367070363a82e764f8d2b8"
+  },
+  {
+    "source": "soh/stubs.c",
+    "object": "build/core/soh/stubs.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "040c87ffb480285573e105838f2370145eb77e47f19f81f9ffbe112e32af91bc"
+  },
+  {
+    "source": "src/boot/boot_main.c",
+    "object": "build/core/src/boot/boot_main.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "9227a58b3b5a4e640f1e95177322bf30d412fa98c7f27cdb99807e00c626c2c3"
+  },
+  {
+    "source": "src/boot/idle.c",
+    "object": "build/core/src/boot/idle.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "5f2b3fc338255681eceebfdffa962f3ad348f8aa93d2a97458ae27763afd962b"
+  },
+  {
+    "source": "src/boot/is_debug.c",
+    "object": "build/core/src/boot/is_debug.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "fd90b38307f7a8a263ecb0ce267c5d853901909d6c5796069cd479d400d27944"
+  },
+  {
+    "source": "src/boot/logutils.c",
+    "object": "build/core/src/boot/logutils.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ea85bf28a1339ce90411f9ee31090d8900e9bf5c29f03d1a399f74b73deb572e"
+  },
+  {
+    "source": "src/boot/stackcheck.c",
+    "object": "build/core/src/boot/stackcheck.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "115f48ab1159a9d0201159a731622c3f7c895e94a0b356631b6a5f4f51535bc0"
+  },
+  {
+    "source": "src/boot/viconfig.c",
+    "object": "build/core/src/boot/viconfig.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e6706d7e673e34618d998cf60d52f62454b0fe40eeefb23b7689e7e902036fa4"
+  },
+  {
+    "source": "src/boot/yaz0.c",
+    "object": "build/core/src/boot/yaz0.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "358ea832fda8171d8b4b4a6ee9c067e0444b3015ff414ae04e49c36fb42db00e"
+  },
+  {
+    "source": "src/boot/z_locale.c",
+    "object": "build/core/src/boot/z_locale.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "901817075778be20ce33e65577b332360539fc4bbe07dc436a5bbbc287068c6a"
+  },
+  {
+    "source": "src/boot/z_std_dma.c",
+    "object": "build/core/src/boot/z_std_dma.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "eac9a365a50c7a52ad3019e68cc04ab6341bd276db7bacadef6cfa38e5d06bb2"
+  },
+  {
+    "source": "src/buffers/gfxbuffers.c",
+    "object": "build/core/src/buffers/gfxbuffers.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "450a41e69251f432f81d112aa57b248fead8aca718e5d166ff894f7306149266"
+  },
+  {
+    "source": "src/buffers/heaps.c",
+    "object": "build/core/src/buffers/heaps.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "198dd0bfe7f47fd35ea23c37867767a67a5af094699d5c0ae48514339063fb45"
+  },
+  {
+    "source": "src/buffers/zbuffer.c",
+    "object": "build/core/src/buffers/zbuffer.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "c154dd656d8f5536e1b62b0c9af08d8be0adfae894ae2e5c53fe4aeb1742889e"
+  },
+  {
+    "source": "src/code/PreRender.c",
+    "object": "build/core/src/code/PreRender.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "cf8e75d2cd455d43d534c6bb4b719fe6a1a3fa67abd91cee9eabaed0d55bbdc4"
+  },
+  {
+    "source": "src/code/TwoHeadArena.c",
+    "object": "build/core/src/code/TwoHeadArena.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "f8d62f2b834209c802632635d1b6bead5e37c9b62d0ed5ef9e51bea6600682c7"
+  },
+  {
+    "source": "src/code/__osMalloc.c",
+    "object": "build/core/src/code/__osMalloc.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "543a292be78cd7e46fef3f7b5649db0e26c005d94c9f5337fbe2b0bccb5b7b3e"
+  },
+  {
+    "source": "src/code/audioMgr.c",
+    "object": "build/core/src/code/audioMgr.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "9b90fcc7982ccc4a99763112ba224fb8b961a6606b20770f4b485537384c5b4c"
+  },
+  {
+    "source": "src/code/audio_data.c",
+    "object": "build/core/src/code/audio_data.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1473abd1bbfa92766bc8b2e63cfbbb131ead33cde1b8027040df54a89ada5c87"
+  },
+  {
+    "source": "src/code/audio_effects.c",
+    "object": "build/core/src/code/audio_effects.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "90bf019fc73aca7e0561ca34402b5e13b30cb2227f02cb1ebda34e171ff6f3ff"
+  },
+  {
+    "source": "src/code/audio_heap.c",
+    "object": "build/core/src/code/audio_heap.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "646f90888fc9000ea5b53f68de579adf1d6c11a635afc58d4151b68994332712"
+  },
+  {
+    "source": "src/code/audio_init_params.c",
+    "object": "build/core/src/code/audio_init_params.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "cb17cdcd9c75be85d09ed017dc8869576883e97123082ece95d567de3729b68e"
+  },
+  {
+    "source": "src/code/audio_load.c",
+    "object": "build/core/src/code/audio_load.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4c99c27204f2526c9df949ea72e9679d62b65b4f8ab39c372f8229d03ea690fc"
+  },
+  {
+    "source": "src/code/audio_playback.c",
+    "object": "build/core/src/code/audio_playback.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "3c8f7d7b7e86b0d15cb62f0d68b6b997b2140f7edf826095d7c1be00e26fd5fa"
+  },
+  {
+    "source": "src/code/audio_seqplayer.c",
+    "object": "build/core/src/code/audio_seqplayer.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "16103fbdd0d0a6eb750ea1032000d834e7cc65267b3f243da6b6775df9a7d124"
+  },
+  {
+    "source": "src/code/audio_sound_params.c",
+    "object": "build/core/src/code/audio_sound_params.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "c934b51969c9a4ec7bf2c10690f18d10d1f14c7c3e1fe22ce774ff69a7ac881a"
+  },
+  {
+    "source": "src/code/audio_synthesis.c",
+    "object": "build/core/src/code/audio_synthesis.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "dc038baddb62a17cbbdc74018afc1759321605cb6af47bf549c8c3068aea3b75"
+  },
+  {
+    "source": "src/code/code_800430A0.c",
+    "object": "build/core/src/code/code_800430A0.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4a4411e74e87a1c601d44e18a70e9ec49f95ba175fc407f7e14f19c523ddc209"
+  },
+  {
+    "source": "src/code/code_8006C3A0.c",
+    "object": "build/core/src/code/code_8006C3A0.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1eb73ab5d8945ade95f935d67f4508a2d678001d855a1fc264cf260d1d07d94a"
+  },
+  {
+    "source": "src/code/code_8006C510.c",
+    "object": "build/core/src/code/code_8006C510.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "27108fb86503238765ae1d74ba40363f7637aecb9f1057bff1d7324d8d1a7b4a"
+  },
+  {
+    "source": "src/code/code_800A9F30.c",
+    "object": "build/core/src/code/code_800A9F30.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "611ed1b972bf8f7451279e94af45545aac5760485c237c1d54bdeaee2e5218b8"
+  },
+  {
+    "source": "src/code/code_800BB0A0.c",
+    "object": "build/core/src/code/code_800BB0A0.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b5f2996b39269841b60d26ca2dea2dc4e49d039fa3e7fbb6b03ed883bf9a4790"
+  },
+  {
+    "source": "src/code/code_800C3C20.c",
+    "object": "build/core/src/code/code_800C3C20.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b1399172f4fc82e784a859ca027910569eb1ec7a349728d63e7d3d16b5c9472c"
+  },
+  {
+    "source": "src/code/code_800D2E30.c",
+    "object": "build/core/src/code/code_800D2E30.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ef19406c1607d2acbb81d7b1889da8669c449ed0aeb7ef6ec6c4ab6f4e449b14"
+  },
+  {
+    "source": "src/code/code_800D31A0.c",
+    "object": "build/core/src/code/code_800D31A0.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "72b9e6010081313e09e769ade11544478516fb3e1623795104d93f8b71b95f6f"
+  },
+  {
+    "source": "src/code/code_800E4FE0.c",
+    "object": "build/core/src/code/code_800E4FE0.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "2da23221f604ae0bcd83702d5023196d519c98b6adb1b3e4a6b4cdaef67519b3"
+  },
+  {
+    "source": "src/code/code_800E6840.c",
+    "object": "build/core/src/code/code_800E6840.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "79725b5127c418eba82cf82aa5ce9f8ab30c6aa07c85e9fdbdceb584d89762b8"
+  },
+  {
+    "source": "src/code/code_800EC960.c",
+    "object": "build/core/src/code/code_800EC960.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "9de671542b6b62e510404ea26455eca8ec8ae093a701d28ea46beb867c771348"
+  },
+  {
+    "source": "src/code/code_800F7260.c",
+    "object": "build/core/src/code/code_800F7260.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4dc31792179eca4ac883ecf5293cd211146118e0f538919a07f82d82a952a4f7"
+  },
+  {
+    "source": "src/code/code_800F9280.c",
+    "object": "build/core/src/code/code_800F9280.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "fc792f8166502ae20886bff864095bc24fd99d6fc03a6136ff282553c2ac033b"
+  },
+  {
+    "source": "src/code/code_800FBCE0.c",
+    "object": "build/core/src/code/code_800FBCE0.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "2e4704f003c30c8fd820634fca0b3a145e0f5d421f6025f0f6a5effa8650108f"
+  },
+  {
+    "source": "src/code/code_800FC620.c",
+    "object": "build/core/src/code/code_800FC620.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a30544a34b5ed808962d052f71225bf7bff6b17fe428169a1f317195bfeb7d47"
+  },
+  {
+    "source": "src/code/code_800FCE80.c",
+    "object": "build/core/src/code/code_800FCE80.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "fe33326a0b6788f5d9156023ad45d58f30c95e1d5fb33d5b6b6154eb8ab5ed4a"
+  },
+  {
+    "source": "src/code/code_800FD970.c",
+    "object": "build/core/src/code/code_800FD970.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "bedcab59eaedee00345875a1ed5885dc39891ba33490e2d57a8fd3a5128b9389"
+  },
+  {
+    "source": "src/code/code_801067F0.c",
+    "object": "build/core/src/code/code_801067F0.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "291c87f5b9de013f238b96e59e156d9e1dbdbd8c785b48754cdfe1968a5c9b32"
+  },
+  {
+    "source": "src/code/code_801068B0.c",
+    "object": "build/core/src/code/code_801068B0.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b0a3ec6ec62d02eb58371e747a53777dad1b90d3ad45efdc5167e2d3a794910b"
+  },
+  {
+    "source": "src/code/db_camera.c",
+    "object": "build/core/src/code/db_camera.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "bf4d06fd085a8d4e0ee955b035c3f219787c0da45ae8e548849fd3316089b721"
+  },
+  {
+    "source": "src/code/debug_malloc.c",
+    "object": "build/core/src/code/debug_malloc.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "dd801f458704abd146cb2ab56e9e32ac936897c449df9207f649fe0ba28ba239"
+  },
+  {
+    "source": "src/code/fault.c",
+    "object": "build/core/src/code/fault.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "2efa7e3d32758bc0b631a8a182de4434fe4b22252c570bbf63c784a7072a5a68"
+  },
+  {
+    "source": "src/code/fault_drawer.c",
+    "object": "build/core/src/code/fault_drawer.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "9a51d8f2cab3e5e863a0e99e7468f991bd12755e514099e04c861d9641466dd1"
+  },
+  {
+    "source": "src/code/flg_set.c",
+    "object": "build/core/src/code/flg_set.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e3c788a996c70f5497f32777f8400fba99f1bc99066f6cdf82391a5de4cd96f7"
+  },
+  {
+    "source": "src/code/game.c",
+    "object": "build/core/src/code/game.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "9a78493868da4d371880048a7ad9de0ef10570b1126146540a6e7c7eae431466"
+  },
+  {
+    "source": "src/code/gamealloc.c",
+    "object": "build/core/src/code/gamealloc.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "cdbb186ea53098da812b2de4833e5e18f698785833a5cb3b0d776a218c703074"
+  },
+  {
+    "source": "src/code/gfxprint.c",
+    "object": "build/core/src/code/gfxprint.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "7712bdd4f2b04d06b1735c514f5b6da2f448db7af4c5cbea72c44710528d9ec8"
+  },
+  {
+    "source": "src/code/graph.c",
+    "object": "build/core/src/code/graph.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ef39247153d1e33bf3498c2630c85fa73590db37b023a8849dd87fe743e0147c"
+  },
+  {
+    "source": "src/code/irqmgr.c",
+    "object": "build/core/src/code/irqmgr.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "93d85ee942a70250f15cd3d04e9bd6fef81c4c00a1e9685774c94ce20de1fe1e"
+  },
+  {
+    "source": "src/code/jpegdecoder.c",
+    "object": "build/core/src/code/jpegdecoder.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "f1fcffb28a19111f2d6c7e9f2cbba6dd6538c0957571b181a2ad15f8d577f793"
+  },
+  {
+    "source": "src/code/jpegutils.c",
+    "object": "build/core/src/code/jpegutils.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ac9db70e4f53d4f76381a6398ea64017c8bb618b1d4320015b3ef01684c8e0f8"
+  },
+  {
+    "source": "src/code/listalloc.c",
+    "object": "build/core/src/code/listalloc.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "7d3f916bea034ebae9e14e29ef1d3ccb2f1117f74875c2893765e9e3f08cc2a9"
+  },
+  {
+    "source": "src/code/loadfragment2.c",
+    "object": "build/core/src/code/loadfragment2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "cb068227c5db04cb85eccedf963d500fa443c34fa4f66c535cce79fec65c662c"
+  },
+  {
+    "source": "src/code/logseverity.c",
+    "object": "build/core/src/code/logseverity.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a7345694605e789db32b3867aaca4870cd67970331c5bec6ca5d04ec1ca1dc16"
+  },
+  {
+    "source": "src/code/main.c",
+    "object": "build/core/src/code/main.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a32a76f7487ce76748b929dca70e78844ce27c83db9612c974fc5067c5705898"
+  },
+  {
+    "source": "src/code/mempak.c",
+    "object": "build/core/src/code/mempak.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "eb60fc27e87b9e788359c0d1bbddd5d14a84c22954f8c414d0586cff92530507"
+  },
+  {
+    "source": "src/code/mtxuty-cvt.c",
+    "object": "build/core/src/code/mtxuty-cvt.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "63305eee6696cbe1b1105f566d76faf69ca3b02b9ca3ce97873b7c1480a715f9"
+  },
+  {
+    "source": "src/code/padmgr.c",
+    "object": "build/core/src/code/padmgr.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "938451924a559940c2644c459756951074fca2bd6cf7a2a599eb9a9ae8c7d348"
+  },
+  {
+    "source": "src/code/padsetup.c",
+    "object": "build/core/src/code/padsetup.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "144b0d77384705b719712e20ed0472076bd8fbcadc42c25962fef8205362b06b"
+  },
+  {
+    "source": "src/code/padutils.c",
+    "object": "build/core/src/code/padutils.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d29286a82f17bd69e15f348b6c6faded39f3abd02634bc8793bf255bd25b8de2"
+  },
+  {
+    "source": "src/code/printutils.c",
+    "object": "build/core/src/code/printutils.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a29007ca4951ebf06e89c15bfa6a66e50e9563a816e05034e272a0b56ac1b842"
+  },
+  {
+    "source": "src/code/relocation.c",
+    "object": "build/core/src/code/relocation.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "07a4282f280c82190c348ec84d9412dbfd5e56a70134b11a14aa874adcc965fe"
+  },
+  {
+    "source": "src/code/sched.c",
+    "object": "build/core/src/code/sched.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e670dc730ecfc3db9ce908b552365b5957e92655164f96a646472ff679ea2c60"
+  },
+  {
+    "source": "src/code/shrink_window.c",
+    "object": "build/core/src/code/shrink_window.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b49600a8537cb65e8f9d4623209de573cd8d24a0a62d64eafc3cf1be4e636f5b"
+  },
+  {
+    "source": "src/code/sleep.c",
+    "object": "build/core/src/code/sleep.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4434f1258665c71515206bdb43fdc173ade2997e1e811a1d07e0e701a570386d"
+  },
+  {
+    "source": "src/code/speed_meter.c",
+    "object": "build/core/src/code/speed_meter.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "25b3c21418a4af4518fc858526182809831aca1fdbad3f4948cc6ef85eb3d8a8"
+  },
+  {
+    "source": "src/code/sys_cfb.c",
+    "object": "build/core/src/code/sys_cfb.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "61f6ad1d535cd98d49e02ea064234a59b6160550fe3ee17fc601996a74ef6443"
+  },
+  {
+    "source": "src/code/sys_math.c",
+    "object": "build/core/src/code/sys_math.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "8fb291fc3900238da03bc5a666ca3049d2379362e7801126e5f2734fb9b0aaa8"
+  },
+  {
+    "source": "src/code/sys_math3d.c",
+    "object": "build/core/src/code/sys_math3d.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4cb4718303215d7645871c42961ddc8cbb474aa405a935500790167e41974b57"
+  },
+  {
+    "source": "src/code/sys_math_atan.c",
+    "object": "build/core/src/code/sys_math_atan.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "c8e94d17a67cd4edfa06f071ed8b514795ab47551f9c4bd3b86876743d06fc86"
+  },
+  {
+    "source": "src/code/sys_matrix.c",
+    "object": "build/core/src/code/sys_matrix.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "f07431fce3136f538f98e1988688491ad18ba128b4d7c931d81c3e7503ed87a4"
+  },
+  {
+    "source": "src/code/sys_ucode.c",
+    "object": "build/core/src/code/sys_ucode.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d5161b19c728f34997f2478adb25c025560ae4529b08094eda60b64458c8a052"
+  },
+  {
+    "source": "src/code/system_malloc.c",
+    "object": "build/core/src/code/system_malloc.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "08a5335ef467a06027a836237b3845dd067627f2571665811c048721866d92dd"
+  },
+  {
+    "source": "src/code/title_setup.c",
+    "object": "build/core/src/code/title_setup.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e1ee5bbb241fc96450892ce2ae5fb160fdf39e06faf4a89e59991b98144176a6"
+  },
+  {
+    "source": "src/code/ucode_disas.c",
+    "object": "build/core/src/code/ucode_disas.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "925069605114337ab669936618da70686dbbc368abc093943237016b1d177589"
+  },
+  {
+    "source": "src/code/z_DLF.c",
+    "object": "build/core/src/code/z_DLF.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e8ff0e50b2f906c12dd5e36e6e753a2ae24f2be5981db86ce197807ad0c94355"
+  },
+  {
+    "source": "src/code/z_actor.c",
+    "object": "build/core/src/code/z_actor.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "0da73aa868b555e9183cbee67ed43584b128facbfa4784e6b6a7625e1b5b99e7"
+  },
+  {
+    "source": "src/code/z_bg_item.c",
+    "object": "build/core/src/code/z_bg_item.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "fed53362911063ad4aafd9c3b9ef07d92c3f0375d3e64d05ca9981cfc626aae1"
+  },
+  {
+    "source": "src/code/z_bgcheck.c",
+    "object": "build/core/src/code/z_bgcheck.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ade71723e6186d868780ff102f24fca9b48e372fe021fd061b15230803e59aee"
+  },
+  {
+    "source": "src/code/z_camera.c",
+    "object": "build/core/src/code/z_camera.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "9007f2a881cbc357134dc3a07f98fdb6c8b9281fb38c2d523427697bb370ea9d"
+  },
+  {
+    "source": "src/code/z_cheap_proc.c",
+    "object": "build/core/src/code/z_cheap_proc.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ef985ece2e123697e4eeb2eece648f195f8f19338220fddc1c7824f7bf33b7e2"
+  },
+  {
+    "source": "src/code/z_collision_btltbls.c",
+    "object": "build/core/src/code/z_collision_btltbls.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "0860624c2420c5e325ba81ac058a293d39800fbb64238a5da1dffdd83b4df27e"
+  },
+  {
+    "source": "src/code/z_collision_check.c",
+    "object": "build/core/src/code/z_collision_check.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "7aab09a0a2166fdbd2ebae2feda56b31509acf4a172683ac98d9b83555ef6dda"
+  },
+  {
+    "source": "src/code/z_common_data.c",
+    "object": "build/core/src/code/z_common_data.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "669c81a4f0dedd6d45b064050ca7c8bf67cf1c7c3064fbeaae9cf77ef013e406"
+  },
+  {
+    "source": "src/code/z_construct.c",
+    "object": "build/core/src/code/z_construct.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b9757aa99dea5564db61bcbe898d8569fb3ec7421b1e0d669796a3a36348a83c"
+  },
+  {
+    "source": "src/code/z_debug.c",
+    "object": "build/core/src/code/z_debug.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "3c26fe32caff21c388314f32e23eead0ddec1b78a0e36e720a68f3cc3ce6b461"
+  },
+  {
+    "source": "src/code/z_debug_display.c",
+    "object": "build/core/src/code/z_debug_display.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "8f8537c43df169344a08e8c706b4b7429a065c995a791d0a17a898edb7f20b72"
+  },
+  {
+    "source": "src/code/z_demo.c",
+    "object": "build/core/src/code/z_demo.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "457e1b7573ff78b8db1fd671cf8fd15b03a826870a75f52de25075a7ce4748bf"
+  },
+  {
+    "source": "src/code/z_draw.c",
+    "object": "build/core/src/code/z_draw.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "c7fffcc1252433ae71438275446501aae1336660a45dd251932f56bea2a7ed08"
+  },
+  {
+    "source": "src/code/z_eff_blure.c",
+    "object": "build/core/src/code/z_eff_blure.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d28554a2afa67a7f6c2c0a5f7c90bf0cb3d69af6207cf8285345b79baa47969b"
+  },
+  {
+    "source": "src/code/z_eff_shield_particle.c",
+    "object": "build/core/src/code/z_eff_shield_particle.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "6bd4024ba340937deb9c1ac07d22f638a125a05746b9e0b24b850ee86b469338"
+  },
+  {
+    "source": "src/code/z_eff_spark.c",
+    "object": "build/core/src/code/z_eff_spark.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "690f43e0d8037315cb55ea3b8098417b131192fc4b0e40d10180a21b93db9028"
+  },
+  {
+    "source": "src/code/z_eff_ss_dead.c",
+    "object": "build/core/src/code/z_eff_ss_dead.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "8ce060a02f77fd0d4247dd51fbf0439c61b2fac049286ef78d4db2a3257c5123"
+  },
+  {
+    "source": "src/code/z_effect.c",
+    "object": "build/core/src/code/z_effect.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e570dfa8f1897b3f14a1eb1cdc14c67d87cd35872319b94068f96bc8fcf2d448"
+  },
+  {
+    "source": "src/code/z_effect_soft_sprite.c",
+    "object": "build/core/src/code/z_effect_soft_sprite.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "714cf3b2c1760842630e56c09a0ad938c6897407229dccae5597beac4c59f2b7"
+  },
+  {
+    "source": "src/code/z_effect_soft_sprite_dlftbls.c",
+    "object": "build/core/src/code/z_effect_soft_sprite_dlftbls.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "777c7d2a241ae974232f71057b29524362cedad77e67c4126c4ad8bd6d514e9b"
+  },
+  {
+    "source": "src/code/z_effect_soft_sprite_old_init.c",
+    "object": "build/core/src/code/z_effect_soft_sprite_old_init.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "2d46e711201bc4d8b84312430fd9d28f070a26bd92d45b684dbfe8afa248d031"
+  },
+  {
+    "source": "src/code/z_elf_message.c",
+    "object": "build/core/src/code/z_elf_message.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "f8ba0c554da603feb02c71897f29c9fa3bbffcc8405c53d5164f21d5a6768306"
+  },
+  {
+    "source": "src/code/z_en_a_keep.c",
+    "object": "build/core/src/code/z_en_a_keep.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "de8ec5814539fa33575dfedf60b0beb4d2e42109f598c7b907d3d6de9efaa797"
+  },
+  {
+    "source": "src/code/z_en_item00.c",
+    "object": "build/core/src/code/z_en_item00.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4aa1c03e19a0f42425d5745264fd0d123503ce0a7b3a7071a4b5a374c9c00366"
+  },
+  {
+    "source": "src/code/z_face_reaction.c",
+    "object": "build/core/src/code/z_face_reaction.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "848f5e08f0f0a0e818986affc7bc2a0cd2dbc9fd94060ded620738852f9ca8a6"
+  },
+  {
+    "source": "src/code/z_fbdemo.c",
+    "object": "build/core/src/code/z_fbdemo.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1058aa5d0d9309c89eff225fb560375e2f3a5ce6d1cc661be0bba0a4b8f2b908"
+  },
+  {
+    "source": "src/code/z_fbdemo_circle.c",
+    "object": "build/core/src/code/z_fbdemo_circle.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1c5f55bd4deec42dc0c9b5d79bcb60081e071c0462a52706cce91d84f659f8ea"
+  },
+  {
+    "source": "src/code/z_fbdemo_fade.c",
+    "object": "build/core/src/code/z_fbdemo_fade.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d655dbe27ba80911e754326b164816e21a939752cd547e6e6462af9af1807b5c"
+  },
+  {
+    "source": "src/code/z_fbdemo_triforce.c",
+    "object": "build/core/src/code/z_fbdemo_triforce.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "86d7120af496059eaa5a7b909fb0a7dcba396eb3af90ffff7e1f29b933891245"
+  },
+  {
+    "source": "src/code/z_fbdemo_wipe1.c",
+    "object": "build/core/src/code/z_fbdemo_wipe1.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "260e323f01e76ce83a0b27b76bfe8a1cd653f3c18884c8c239d33ea55b10aa1b"
+  },
+  {
+    "source": "src/code/z_fcurve_data_skelanime.c",
+    "object": "build/core/src/code/z_fcurve_data_skelanime.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "f3151957a00e6173166e02a93b06238af4442a376c49ae2ab02d3789d2d1090c"
+  },
+  {
+    "source": "src/code/z_frame_advance.c",
+    "object": "build/core/src/code/z_frame_advance.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "23a07000a1ebf703f4dfd6f7bc591b667cc4a3aa7be4c1896323cb59e753dbb4"
+  },
+  {
+    "source": "src/code/z_game_dlftbls.c",
+    "object": "build/core/src/code/z_game_dlftbls.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "255af4622608ef075498d402d2f328069fbc7641ccf6387278e645b9f7331d9b"
+  },
+  {
+    "source": "src/code/z_game_over.c",
+    "object": "build/core/src/code/z_game_over.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ae75b4703308657dd8712cd2ca5c433416e46914fffa5c7d922efded39ab0b9b"
+  },
+  {
+    "source": "src/code/z_horse.c",
+    "object": "build/core/src/code/z_horse.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "fc4f40f65a24abc18d6d7261638d60c383f5820b28a22c111bb52d190a89da0f"
+  },
+  {
+    "source": "src/code/z_inventory.c",
+    "object": "build/core/src/code/z_inventory.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "88b9ba3b3bb9bf79cc138f96975e523e77572b7d39b54dffbe0977c684e43557"
+  },
+  {
+    "source": "src/code/z_jpeg.c",
+    "object": "build/core/src/code/z_jpeg.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "5dafe753fd41def0533fe1c07fee610a5adcb72120d508b0f3cbfe923b79c6ad"
+  },
+  {
+    "source": "src/code/z_kaleido_manager.c",
+    "object": "build/core/src/code/z_kaleido_manager.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "bcded04aa60d553082523223768f7f17e8c60bf7808e8071813bd996eb72b414"
+  },
+  {
+    "source": "src/code/z_kaleido_scope_call.c",
+    "object": "build/core/src/code/z_kaleido_scope_call.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a76cfa7a663019b24970520171013e00b174759c0e2e847ecd6dc0ad779f6fef"
+  },
+  {
+    "source": "src/code/z_kaleido_setup.c",
+    "object": "build/core/src/code/z_kaleido_setup.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d3226bc70620e25e9d5a2c521ae9e39993f14d92a8b8ba446f1aea0df38035f9"
+  },
+  {
+    "source": "src/code/z_kanfont.c",
+    "object": "build/core/src/code/z_kanfont.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "73ba108082d7020c09ab80e7a146a594165fc1eb3367052b614125cb42694bb3"
+  },
+  {
+    "source": "src/code/z_kanji.c",
+    "object": "build/core/src/code/z_kanji.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "c84e0a48cd55c4c968692f5399f7409e1b104795bc4b1ec62430e69b02ddf0cd"
+  },
+  {
+    "source": "src/code/z_kankyo.c",
+    "object": "build/core/src/code/z_kankyo.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "fe3596fc4672d72780f3c33be83d332d6f04cfbed14210e5106dad1382189bf6"
+  },
+  {
+    "source": "src/code/z_lib.c",
+    "object": "build/core/src/code/z_lib.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "dc6713e59aacde501a434f12ed0a08ad00edf5a2dd5cd0d3dfecf24e0d7a7a5d"
+  },
+  {
+    "source": "src/code/z_lifemeter.c",
+    "object": "build/core/src/code/z_lifemeter.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "f7d9eb56bf9fd95c168b87b0b76b73cbd72ee5b9dcbadc4e09ea2f519fcf8496"
+  },
+  {
+    "source": "src/code/z_lights.c",
+    "object": "build/core/src/code/z_lights.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "23896a8dce4332ddc5a0bd3fe114337f420534bd79132e0ca332ae130ff9a11b"
+  },
+  {
+    "source": "src/code/z_malloc.c",
+    "object": "build/core/src/code/z_malloc.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b6e8a5225a8043efe776915097563856a0c20660aaf4138e5235677e12f1a47e"
+  },
+  {
+    "source": "src/code/z_map_data.c",
+    "object": "build/core/src/code/z_map_data.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b574611a759d2bf4330830891bb264ce815b5d13f14edcfe94eac8b64b9161c4"
+  },
+  {
+    "source": "src/code/z_map_exp.c",
+    "object": "build/core/src/code/z_map_exp.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "827ca947a1cca485e7b980fff01f52866c8f094a3ee31e3e8a51704a45216a0b"
+  },
+  {
+    "source": "src/code/z_map_mark.c",
+    "object": "build/core/src/code/z_map_mark.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4d7542f219d353b5c71d17972c770dab3a167ac13a0754b6aafe8add2c95d683"
+  },
+  {
+    "source": "src/code/z_message_PAL.c",
+    "object": "build/core/src/code/z_message_PAL.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "bf3679c2929990d4241a884353c7c6df27e6c6e8c080e94fa3a052d9ee3dcc54"
+  },
+  {
+    "source": "src/code/z_moji.c",
+    "object": "build/core/src/code/z_moji.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e40e074483b79f57f5f6a96b70142c38e6e806ab8081d21092ee548c20803943"
+  },
+  {
+    "source": "src/code/z_msgevent.c",
+    "object": "build/core/src/code/z_msgevent.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "17408a084b0aaa46510d57c03123687a57c84b804c88c585a341c7cb7cd77288"
+  },
+  {
+    "source": "src/code/z_olib.c",
+    "object": "build/core/src/code/z_olib.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "bb7c5fdf8b4152f69edf19d1d7559f6c8eaa88dc2c0931de8e37bc2c567cec8e"
+  },
+  {
+    "source": "src/code/z_onepointdemo.c",
+    "object": "build/core/src/code/z_onepointdemo.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a03fd1c4f4bd3692a1db5d77142ed8e4eb6f3052671fe52bf6e2c26bf847648b"
+  },
+  {
+    "source": "src/code/z_parameter.c",
+    "object": "build/core/src/code/z_parameter.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "2b98b0d5ea31c7bdadac69702575935141220ec441ba302eb3be5ddb9166cd51"
+  },
+  {
+    "source": "src/code/z_path.c",
+    "object": "build/core/src/code/z_path.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b7fe8138251419ddca357909f9d1c174c94b0aed5f767f8421fd5ebaf8a56af9"
+  },
+  {
+    "source": "src/code/z_play.c",
+    "object": "build/core/src/code/z_play.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a937b487b6aa84071ad3cf0361ee852ca212e989b5c49bcbd09a958cfbee2826"
+  },
+  {
+    "source": "src/code/z_player_call.c",
+    "object": "build/core/src/code/z_player_call.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "54ea06c45b1de85ca7b7398ccf7c55548edf1ea7a4b53dfb0445d28cb363da7e"
+  },
+  {
+    "source": "src/code/z_player_lib.c",
+    "object": "build/core/src/code/z_player_lib.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "951c4a4dff0ca714b6a68ca023fb24a78ff3566c23a2770be91d3a4b8d6883e4"
+  },
+  {
+    "source": "src/code/z_prenmi.c",
+    "object": "build/core/src/code/z_prenmi.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "078deb8515e55f3e3ca48bb0fa4ee1311151c75f91309dd3d433dc03455ad8eb"
+  },
+  {
+    "source": "src/code/z_prenmi_buff.c",
+    "object": "build/core/src/code/z_prenmi_buff.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "77337d909ebdca401bd26697cdb1c6e5f782a885d0bf14476f03290be44f9e2a"
+  },
+  {
+    "source": "src/code/z_quake.c",
+    "object": "build/core/src/code/z_quake.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1ad5681b01c6a2250b679424a3b7a45a789ea5d21bacbd5944fbd11f48e72fb2"
+  },
+  {
+    "source": "src/code/z_rcp.c",
+    "object": "build/core/src/code/z_rcp.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "87d401e2894f3fb5e8fd63588b8a7e06158ddeee29fbd419be8668b9aa2391ac"
+  },
+  {
+    "source": "src/code/z_room.c",
+    "object": "build/core/src/code/z_room.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "6e67139ea9c4a5d0b0b50e4380150efb9641728ae1975c8a005deadec8662dc0"
+  },
+  {
+    "source": "src/code/z_sample.c",
+    "object": "build/core/src/code/z_sample.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ba79c1fcb14078970e239ad4620a223a87ee416256590da3c28c089c70a1c67b"
+  },
+  {
+    "source": "src/code/z_scene.c",
+    "object": "build/core/src/code/z_scene.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "93ba27a35cc0e5960e76d2fc6a991c03ea68a5000dbbd7e03b7aa7fdf2d07d92"
+  },
+  {
+    "source": "src/code/z_scene_table.c",
+    "object": "build/core/src/code/z_scene_table.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "fd2fa72125ffd0f4b96203d890d6f5416cc4815db89205ec43b9f1e82aa967e7"
+  },
+  {
+    "source": "src/code/z_skelanime.c",
+    "object": "build/core/src/code/z_skelanime.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "2ea50529af38d8857c3a79f3cfacb8483c185ab97cdfccdef858a787b6c4f2be"
+  },
+  {
+    "source": "src/code/z_skin.c",
+    "object": "build/core/src/code/z_skin.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "2ab8991fe672528a906f30816f9c68628428d33e188f759f70fb3ade57354393"
+  },
+  {
+    "source": "src/code/z_skin_awb.c",
+    "object": "build/core/src/code/z_skin_awb.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "40f58162be6b459f3f2de8aad5bbadcb3ca5f1cc0b64bd1510d7887379365477"
+  },
+  {
+    "source": "src/code/z_skin_matrix.c",
+    "object": "build/core/src/code/z_skin_matrix.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "fa60d3835e2b18f5a18548bcf9c8f67dbdd54b3402072510c4337b65fbcaee5e"
+  },
+  {
+    "source": "src/code/z_sound_source.c",
+    "object": "build/core/src/code/z_sound_source.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "132cbc1102de997b81f060248d5f51f705f392664bbead0d7fb29b857703a55e"
+  },
+  {
+    "source": "src/code/z_sram.c",
+    "object": "build/core/src/code/z_sram.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a8e36045a97b71d7a6b8a8bec677100ac8df4ebaee859f52c8a39c13725c4cd3"
+  },
+  {
+    "source": "src/code/z_ss_sram.c",
+    "object": "build/core/src/code/z_ss_sram.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e5e9128bd47198f9d6f486fac8bd6a794fd15c6a7e1b22cb65a4322e19435e61"
+  },
+  {
+    "source": "src/code/z_view.c",
+    "object": "build/core/src/code/z_view.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "115128502f076918c5043f04ba5e3520762b6dcc170b62210261e89a9faa2459"
+  },
+  {
+    "source": "src/code/z_vimode.c",
+    "object": "build/core/src/code/z_vimode.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "2829419ae2336401f2c00fa2df591c21596d52a30b3da75ef636b4e7019b6af6"
+  },
+  {
+    "source": "src/code/z_viscvg.c",
+    "object": "build/core/src/code/z_viscvg.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "21baac37a1986cfce1e92741eebc271e166dda5989b64bb35a730ee4917bdcd3"
+  },
+  {
+    "source": "src/code/z_vismono.c",
+    "object": "build/core/src/code/z_vismono.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "f4ca9c755f7c0e95d3f2a81a6d08465d1c5d2894c5c1925cf8fa9f9e25513338"
+  },
+  {
+    "source": "src/code/z_viszbuf.c",
+    "object": "build/core/src/code/z_viszbuf.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "61f4a3b2c8978c575aa65cfef846d8e3b58f686be8354a2f3549c6ee61459a15"
+  },
+  {
+    "source": "src/code/z_vr_box.c",
+    "object": "build/core/src/code/z_vr_box.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "0e714d66199b3fc3786103c09293f4a42054a072421ad0b53b4133e2a862c322"
+  },
+  {
+    "source": "src/code/z_vr_box_draw.c",
+    "object": "build/core/src/code/z_vr_box_draw.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "8d5762a07aed250b8399675976afe25b02125f0e7ee6ee18d0235f00ec26544a"
+  },
+  {
+    "source": "src/libultra/gu/coss.c",
+    "object": "build/core/src/libultra/gu/coss.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "24b722b2daf89938a3e74b04ebe0e4fa7c5ad6352d8305aa2a7793e57dbe2c1a"
+  },
+  {
+    "source": "src/libultra/gu/guLookAt.c",
+    "object": "build/core/src/libultra/gu/guLookAt.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d886b24ffbfad017910ed16565de855f98b4b7c5403730919d1be6c8b0cc7368"
+  },
+  {
+    "source": "src/libultra/gu/guLookAtHilite.c",
+    "object": "build/core/src/libultra/gu/guLookAtHilite.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b5a9b391964572eb3b3fadfb57e7fc27040ea65f8bbd2744ea586564588356fc"
+  },
+  {
+    "source": "src/libultra/gu/guPerspectiveF.c",
+    "object": "build/core/src/libultra/gu/guPerspectiveF.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "bab010aa3d346884ed6642c5a0c054a9dc58c84bc6a88129f86d81db8bee8ef8"
+  },
+  {
+    "source": "src/libultra/gu/guPosition.c",
+    "object": "build/core/src/libultra/gu/guPosition.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ea36f826b1056551d0fab1e0cd1afb96592129fa3796bd5847993e5361fa9108"
+  },
+  {
+    "source": "src/libultra/gu/guS2DInitBg.c",
+    "object": "build/core/src/libultra/gu/guS2DInitBg.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "abc08980b2d3576d17489c23f2c11cc4ba18cef4c33ec76d30d3cbfc487b6a37"
+  },
+  {
+    "source": "src/libultra/gu/ortho.c",
+    "object": "build/core/src/libultra/gu/ortho.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "3dbd54a3d06599f3535e18ff45b1a93aecae96690a3b020ef9e366b0f67cb472"
+  },
+  {
+    "source": "src/libultra/gu/rotate.c",
+    "object": "build/core/src/libultra/gu/rotate.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4d42c135c05f44a435b76ac87fdd22a01ff9881f781d3fc531a2cccb2b6da9eb"
+  },
+  {
+    "source": "src/libultra/gu/sins.c",
+    "object": "build/core/src/libultra/gu/sins.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "236af468652542f57d9797e3d69aac19f32d5a234ffcfa79c0163ecaa71be991"
+  },
+  {
+    "source": "src/libultra/gu/sintable.c",
+    "object": "build/core/src/libultra/gu/sintable.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "81f7d1c657fe17f704175e42d8cc3ade4b02b3d7037d0ec5a770a97f6ca5545a"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Arms_Hook/z_arms_hook.c",
+    "object": "build/core/src/overlays/actors/ovl_Arms_Hook/z_arms_hook.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "afff4d5db51039513f2784cc976f7b518d1d09753897a6eb868c986ea7d8f9cd"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Arrow_Fire/z_arrow_fire.c",
+    "object": "build/core/src/overlays/actors/ovl_Arrow_Fire/z_arrow_fire.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "0177723a5283fec1744620c10e04ca146d465d7808980454bc7b39b3da96259b"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Arrow_Ice/z_arrow_ice.c",
+    "object": "build/core/src/overlays/actors/ovl_Arrow_Ice/z_arrow_ice.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "329a108d90fd51dad163c4604d6f8e6c1a4d6b76868f4cae7dfbd22638c2b041"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Arrow_Light/z_arrow_light.c",
+    "object": "build/core/src/overlays/actors/ovl_Arrow_Light/z_arrow_light.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "38e15eeb2ad8d334fce441764209c4e7d8fe30ee7a9a32a9432caa838abdd836"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Bdan_Objects/z_bg_bdan_objects.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Bdan_Objects/z_bg_bdan_objects.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "53879840af88ee90b4936bd3f928d115d2e35a7002c8fff61affeab5af1da52a"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Bdan_Switch/z_bg_bdan_switch.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Bdan_Switch/z_bg_bdan_switch.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1e75f9df1de4a226843ed8baf2dd6d28850754baeb941d70ed31b8a2f8aa7eea"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Bom_Guard/z_bg_bom_guard.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Bom_Guard/z_bg_bom_guard.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e3cbd136bc58a98236e76cd5bc6a5596d2a162c01e45664269059cf415713bc3"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Bombwall/z_bg_bombwall.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Bombwall/z_bg_bombwall.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1a6caf4d148779412f988f040b7269b5743d056c7bb2c5088d666acd652291e4"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Bowl_Wall/z_bg_bowl_wall.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Bowl_Wall/z_bg_bowl_wall.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "7504a1cff6e7dcefc5b1bd96bf11e0693f2ddba20c280f33c7408fdfd8bbbc81"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Breakwall/z_bg_breakwall.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Breakwall/z_bg_breakwall.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ff4b3ba06e1a67aa4c7d2f9794e50cb2c80d3c44f267832117387de38e4c826d"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Ddan_Jd/z_bg_ddan_jd.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Ddan_Jd/z_bg_ddan_jd.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "052c2d8b78c82da34963c56eec4b4189ebaa4174ea96adef1be5cd06aca3a8df"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Ddan_Kd/z_bg_ddan_kd.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Ddan_Kd/z_bg_ddan_kd.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "61e859d3edcad7910c71e2cfaa362cfc19dd33cc5e042e2c98861487befb2056"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Dodoago/z_bg_dodoago.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Dodoago/z_bg_dodoago.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e5cb93b875a10e72c9fb44a5b4465d3cf9d36cc34308f3b7bb2a98a22b2a1fbc"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Dy_Yoseizo/z_bg_dy_yoseizo.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Dy_Yoseizo/z_bg_dy_yoseizo.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "6bded2f2ed9024cb003e2d7682d9a03b26b860420e59937baacd1723d8cfd1df"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Ganon_Otyuka/z_bg_ganon_otyuka.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Ganon_Otyuka/z_bg_ganon_otyuka.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "98d5865f8726f54e482a014204d8efdbe07d40d5c2c5a625f26a0d64023812f2"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Gate_Shutter/z_bg_gate_shutter.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Gate_Shutter/z_bg_gate_shutter.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "dd6ce9ee596c683ec1b172ed4e9a263663ad7edcf4ed0fb3a4f7ab67332d7520"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Gjyo_Bridge/z_bg_gjyo_bridge.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Gjyo_Bridge/z_bg_gjyo_bridge.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "2057c338d97951d0159908baf0e099de89aa581abccba28986dc9b7b8718c101"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Gnd_Darkmeiro/z_bg_gnd_darkmeiro.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Gnd_Darkmeiro/z_bg_gnd_darkmeiro.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "2499a08735d35e37b88372af15c1e6d32787b4dc95a00251bb4827ea01baa290"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Gnd_Firemeiro/z_bg_gnd_firemeiro.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Gnd_Firemeiro/z_bg_gnd_firemeiro.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "3bf47e20444790643a1b8fab56fa0d770f83eee84cf259f26405d113ab93fa25"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Gnd_Iceblock/z_bg_gnd_iceblock.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Gnd_Iceblock/z_bg_gnd_iceblock.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "5ff0ce4ec5141358ceb759c22e548a14ff3b81fcf18d75f34813afe9b7950ecb"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Gnd_Nisekabe/z_bg_gnd_nisekabe.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Gnd_Nisekabe/z_bg_gnd_nisekabe.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1b1802d80a945f46834de3863dbc26a2bfac59e2e1e33dd11f08c3bd34b6aa7d"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Gnd_Soulmeiro/z_bg_gnd_soulmeiro.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Gnd_Soulmeiro/z_bg_gnd_soulmeiro.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "f4f580b08075fa0e19f834f8f986baccdab3b6baa673124ed1e16b1bcbd06a4a"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Haka/z_bg_haka.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Haka/z_bg_haka.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "9eaa8962093b79f6c8c0b16189260eeb21cc6d959747614f584a34bdf29c4410"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Haka_Gate/z_bg_haka_gate.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Haka_Gate/z_bg_haka_gate.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ecd82e5ecfd5441ac34e6d5e96617ebb003d57cc411240fc13aaaccbf8a51aa2"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Haka_Huta/z_bg_haka_huta.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Haka_Huta/z_bg_haka_huta.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "49a91202d3c67fdbbad4ad922e6000daf6153b5bd1e48769e486a949ac6284e1"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "71d507e991749675287b7a7c6fc08deeeb5056fc2061d2bd5f0bc7094e449cdb"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Haka_MeganeBG/z_bg_haka_meganebg.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Haka_MeganeBG/z_bg_haka_meganebg.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e7eae351822d06b81cde4e626ebed9d57311486c360eee082bff558f69e7d938"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Haka_Sgami/z_bg_haka_sgami.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Haka_Sgami/z_bg_haka_sgami.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ebe2871593115a4a3812b6ed06293d1d096258009af0600a580cecf7266f1afb"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Haka_Ship/z_bg_haka_ship.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Haka_Ship/z_bg_haka_ship.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "abc98231d2670b9277efaaf2b558b28420f072225db39b21cb48c2f4778d13cd"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Haka_Trap/z_bg_haka_trap.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Haka_Trap/z_bg_haka_trap.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "3f69854fc8a71454ae7870bcce1a056f189059676e08c7bb7e0961f9feedc430"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Haka_Tubo/z_bg_haka_tubo.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Haka_Tubo/z_bg_haka_tubo.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ae2f0efeba7a64a9b47a11572acf2e11a47ef5164f155bb42ed6b109fd8d7ff4"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Haka_Water/z_bg_haka_water.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Haka_Water/z_bg_haka_water.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e254fa25bd6d3a58c54a0b63f5de0eff960206ca1d528b9da82bfe25e624a3ca"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Haka_Zou/z_bg_haka_zou.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Haka_Zou/z_bg_haka_zou.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "511001d0e5a90f0a2782f503d998d25f2ded205e736e4af912707e5efafc650e"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Heavy_Block/z_bg_heavy_block.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Heavy_Block/z_bg_heavy_block.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "10ec3816dc3afc07a00926dac485b063544631d1891708839955446b9a1a8047"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Hidan_Curtain/z_bg_hidan_curtain.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Hidan_Curtain/z_bg_hidan_curtain.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "251b621514bc5ab6c22e1921dabed9ea60925a5656691b87defd541e829ab397"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Hidan_Dalm/z_bg_hidan_dalm.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Hidan_Dalm/z_bg_hidan_dalm.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "85634aff843fa51e07ce8f4217e0fbeefa5b5afc8156b0fd24f6cc40770abaa8"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Hidan_Firewall/z_bg_hidan_firewall.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Hidan_Firewall/z_bg_hidan_firewall.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a1fbd9aee4dba07d42e24e2a1af7e673cf45e15b4d50b28d7b8eeda5555a9dc3"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Hidan_Fslift/z_bg_hidan_fslift.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Hidan_Fslift/z_bg_hidan_fslift.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "f01ba68f6913402e5c610bcba2311d445140e34ae7f74bfbd011c603126893e1"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Hidan_Fwbig/z_bg_hidan_fwbig.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Hidan_Fwbig/z_bg_hidan_fwbig.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "7670bc557a5d6daffb0717e2c919277ccfa3df58de75279bf965845fef914153"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Hidan_Hamstep/z_bg_hidan_hamstep.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Hidan_Hamstep/z_bg_hidan_hamstep.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d32fbcc25c95054abf798617f3c288372c740ea729260c03949d9efe4d99ea3d"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Hidan_Hrock/z_bg_hidan_hrock.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Hidan_Hrock/z_bg_hidan_hrock.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "7201be0a4b8acadb5afac5cb16d41f63396ab212a3c1cd8e2cad2ba9e53bfcff"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Hidan_Kousi/z_bg_hidan_kousi.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Hidan_Kousi/z_bg_hidan_kousi.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "7979ab9b0f9cc9fef42ae3009facc6b7d45ed87dbcc6630980cabfb50cd35a38"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Hidan_Kowarerukabe/z_bg_hidan_kowarerukabe.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Hidan_Kowarerukabe/z_bg_hidan_kowarerukabe.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "adecdde311af5fac19d6226fbda0d69b30940679178dba1fc812a88f22b1d640"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Hidan_Rock/z_bg_hidan_rock.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Hidan_Rock/z_bg_hidan_rock.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "85095881388e6a1b1d29846eaa23e5141d10d9baccb0a9b46cc2de60a5edaf4b"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Hidan_Rsekizou/z_bg_hidan_rsekizou.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Hidan_Rsekizou/z_bg_hidan_rsekizou.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "716a2778f378b7750b6b94b18f4fa6d2c28d6cc76ebcbe9bf16c373593289894"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Hidan_Sekizou/z_bg_hidan_sekizou.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Hidan_Sekizou/z_bg_hidan_sekizou.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "06d85fa13dcb8b8eb042239dcb83198f37f8abaea7f5266e032426d53ede5e84"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Hidan_Sima/z_bg_hidan_sima.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Hidan_Sima/z_bg_hidan_sima.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "c72cd6a5ba3164f7f2ad16486bbe8a8558fe211a8dbcfc103c729e58b5c348e4"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Hidan_Syoku/z_bg_hidan_syoku.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Hidan_Syoku/z_bg_hidan_syoku.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "8e9fdc79f5779e6ccf93f65fdf02ba1ab3128f41bf9c305259306f2a58632eff"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Ice_Objects/z_bg_ice_objects.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Ice_Objects/z_bg_ice_objects.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "9036874cf415b146342be6ab650cc04c1e0b9d8ca73291fc7bb84d7b260be529"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Ice_Shelter/z_bg_ice_shelter.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Ice_Shelter/z_bg_ice_shelter.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4cd8602c3c06f75b7832f0ed91145ebfb9ada1ed8e5d61e0985749b9b68499cc"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Ice_Shutter/z_bg_ice_shutter.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Ice_Shutter/z_bg_ice_shutter.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1fa6d6aa9b0717521f85cc533e3e99024dff84b6a9acea1ae01aec08e7e5ab91"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Ice_Turara/z_bg_ice_turara.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Ice_Turara/z_bg_ice_turara.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "eef8d6dfea6aab967d111fc0f156c82c8cfc03bda49ad0a3388eea2fed247add"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Ingate/z_bg_ingate.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Ingate/z_bg_ingate.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "6a2ad14a331aebdfe83269494e461af694d8e97d6a0971e73773c6e692ba665b"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Jya_1flift/z_bg_jya_1flift.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Jya_1flift/z_bg_jya_1flift.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "74a331fcce97f49d205e93e2a7613ed577f782b55150a7b47e39de82615a94c4"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Jya_Amishutter/z_bg_jya_amishutter.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Jya_Amishutter/z_bg_jya_amishutter.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b35d73038c74a5a51000825f927cdd53ff8b6525f3551a8ada1f4fa1886fbd71"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Jya_Bigmirror/z_bg_jya_bigmirror.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Jya_Bigmirror/z_bg_jya_bigmirror.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "bbce4fa95dae58205667318b4e631479c0cd83ca2644983e3df27f20ee420693"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Jya_Block/z_bg_jya_block.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Jya_Block/z_bg_jya_block.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "dd50b22a1c5c973e39461bbe0c20aaa04f423a27ef31cb7de0ddc5f622b4912d"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Jya_Bombchuiwa/z_bg_jya_bombchuiwa.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Jya_Bombchuiwa/z_bg_jya_bombchuiwa.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "77c83f19f1ca1e9c0e3b1e5f04e03a59de2a06dca125bfa0ba65bdc6680f6f1b"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Jya_Bombiwa/z_bg_jya_bombiwa.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Jya_Bombiwa/z_bg_jya_bombiwa.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1fff37a84b1cdd23e6be77140a381a0c074040ab88ee9546c1a68ebfe4ea05f3"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Jya_Cobra/z_bg_jya_cobra.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Jya_Cobra/z_bg_jya_cobra.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "954e9eab32974ef1682e59252ea51e0c38e6a342955e25ffb38e89281b5f4d27"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Jya_Goroiwa/z_bg_jya_goroiwa.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Jya_Goroiwa/z_bg_jya_goroiwa.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "9c8623c793ee6fc0694b2d706e6af0630ba49cf35036b7e3da2ff0f2b53807a9"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Jya_Haheniron/z_bg_jya_haheniron.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Jya_Haheniron/z_bg_jya_haheniron.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "542f002c003fc833cbd1f90ae4b5d83cb4841d23a4291ff26f01f9f157952126"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Jya_Ironobj/z_bg_jya_ironobj.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Jya_Ironobj/z_bg_jya_ironobj.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "36d6f10680b4edae8d2f920feceba27838b90878f4babef91ed81a11c00f4037"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Jya_Kanaami/z_bg_jya_kanaami.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Jya_Kanaami/z_bg_jya_kanaami.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a1256b5132b9d8d9290e63ce6e16531d2e8215154c01d5563d0ec175e703ca78"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Jya_Lift/z_bg_jya_lift.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Jya_Lift/z_bg_jya_lift.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "18280a93e4f92d6778c8ef6ab88b230058f2749e6828dd54190092cb578ec343"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Jya_Megami/z_bg_jya_megami.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Jya_Megami/z_bg_jya_megami.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ff26532f2a2a0ec8e4143c6dbaf4c15c312031c4b972438b92cd5ed0216d9958"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Jya_Zurerukabe/z_bg_jya_zurerukabe.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Jya_Zurerukabe/z_bg_jya_zurerukabe.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4a16107e60064147b38a5f9424a268dbf707083b36ee3d9bed632887fb9a02a0"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Menkuri_Eye/z_bg_menkuri_eye.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Menkuri_Eye/z_bg_menkuri_eye.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "270f315d78727df4054adff28c609e2054ca84e225dfa313d81e50270decd4b2"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Menkuri_Kaiten/z_bg_menkuri_kaiten.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Menkuri_Kaiten/z_bg_menkuri_kaiten.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "7ed000acd598d443ff9948bd0819aebad52e95d0193571b9ce687b36b76d0255"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Menkuri_Nisekabe/z_bg_menkuri_nisekabe.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Menkuri_Nisekabe/z_bg_menkuri_nisekabe.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a9bad1d012b7c4d085804e9d9643c9e4ab609c7937d147d4bb4bb23855950651"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Mizu_Bwall/z_bg_mizu_bwall.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Mizu_Bwall/z_bg_mizu_bwall.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "7f51c4e81980dc09d1e318e9cda764cde007a4fd4e759c51ea6daa7a71261eea"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Mizu_Movebg/z_bg_mizu_movebg.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Mizu_Movebg/z_bg_mizu_movebg.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "f4c2105a523ce9e59588f890f8cc0ae895fe87bc7f75485082d9687d61bf3f6c"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Mizu_Shutter/z_bg_mizu_shutter.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Mizu_Shutter/z_bg_mizu_shutter.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ca12522108df8f5b2a3053949fbcf086ff3d1fa421206f03762c94cb1880425e"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Mizu_Uzu/z_bg_mizu_uzu.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Mizu_Uzu/z_bg_mizu_uzu.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "58a7cec97117668047b21da26c10747cc5c142f1662971bf0389633eea19d052"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Mizu_Water/z_bg_mizu_water.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Mizu_Water/z_bg_mizu_water.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "9935cee425b356e2016543cb0a343825a7fcbae74a3e58271bf27161e38457ee"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Mjin/z_bg_mjin.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Mjin/z_bg_mjin.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "05d00b555d0ff2f56ce2c11919c0178c4c60234b4b4543b18adbc615b909db5f"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Mori_Bigst/z_bg_mori_bigst.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Mori_Bigst/z_bg_mori_bigst.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ffb2a0dd50cc3fd6a773438a21f80510a126002f533f9a9ba730437eff19d21f"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Mori_Elevator/z_bg_mori_elevator.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Mori_Elevator/z_bg_mori_elevator.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "244575b16cdece43f1613b5b0833d84469dde6ef3eb5c8aa8bd6025ef2c83f44"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Mori_Hashigo/z_bg_mori_hashigo.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Mori_Hashigo/z_bg_mori_hashigo.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "6fc38cd2c66996224cd505e8448413da1bf3ba08f065300ad65a451f855bc242"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Mori_Hashira4/z_bg_mori_hashira4.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Mori_Hashira4/z_bg_mori_hashira4.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d5b67ab906e6286670925a529321fb93c67215668757258e5fc53bdf09fc5b92"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Mori_Hineri/z_bg_mori_hineri.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Mori_Hineri/z_bg_mori_hineri.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "84ba06b51db7da922bff92e10a238627776330880814b9c9d0442eaccdfdb454"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Mori_Idomizu/z_bg_mori_idomizu.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Mori_Idomizu/z_bg_mori_idomizu.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "748ff2c59d4cdc4f8a13e5c0fdfdf58966b0cb6ed31260a6d2f9bfdedef4a140"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Mori_Kaitenkabe/z_bg_mori_kaitenkabe.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Mori_Kaitenkabe/z_bg_mori_kaitenkabe.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "f885bbba0fd7c49266f51b82f5fe6d6e19c18ad1228ab957dbe1170c622075cd"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Mori_Rakkatenjo/z_bg_mori_rakkatenjo.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Mori_Rakkatenjo/z_bg_mori_rakkatenjo.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "930cc2ad18eefc203cc9ac232956b2d44e9acb0d88fbf426cda0d900224ae45a"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Po_Event/z_bg_po_event.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Po_Event/z_bg_po_event.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "5b75728f2a0df7bbcfb0c298d2f33dcabef5546c342dccbe58a0230b6f914d1f"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Po_Syokudai/z_bg_po_syokudai.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Po_Syokudai/z_bg_po_syokudai.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "40f8f99761a2aca56f207438c89e50befe2ff9d90085e3a2d88a61d2e70d85f4"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Pushbox/z_bg_pushbox.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Pushbox/z_bg_pushbox.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "6fe59b19dc4af3ae4ce7c021ac507a0a6042849cb6825f0f7c5d05af417615e7"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Relay_Objects/z_bg_relay_objects.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Relay_Objects/z_bg_relay_objects.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "5c3ebed4ca69995cca914dabce9d35a16b7bc4527fa75c4e4ec18255ca1eeaaf"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot00_Break/z_bg_spot00_break.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot00_Break/z_bg_spot00_break.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4c9fc744b68d37f12e3100f09c44c5ef9fd5286d35ba49e4b2822a6e6da19870"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot00_Hanebasi/z_bg_spot00_hanebasi.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot00_Hanebasi/z_bg_spot00_hanebasi.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a821b1b0d419114f1cf528280502061fea6cef1306a57e2e960c52d43e2b29ea"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot01_Fusya/z_bg_spot01_fusya.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot01_Fusya/z_bg_spot01_fusya.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "56000e9c06deeb5c68510583d66012d9f5c420ecd82493eee91e3668f4a9aa85"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot01_Idohashira/z_bg_spot01_idohashira.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot01_Idohashira/z_bg_spot01_idohashira.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "fd686875db9b3f7b8e86e2e1fc94576dd584277f55dae71885d3de39d7442e95"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot01_Idomizu/z_bg_spot01_idomizu.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot01_Idomizu/z_bg_spot01_idomizu.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "03bb805361e4d6db2598b395d636bd0488e5b4a09b69bb57796ffa942c85f1fb"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot01_Idosoko/z_bg_spot01_idosoko.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot01_Idosoko/z_bg_spot01_idosoko.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a8ad7156c40bc6d9b5b61c4bbd72bcc645469b1efbb69c15bcc00df80bc4d8b6"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot01_Objects2/z_bg_spot01_objects2.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot01_Objects2/z_bg_spot01_objects2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1ed38a848b402db31702b1489f41938d3a54b7530d14e2897036f6ce3b92a065"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot02_Objects/z_bg_spot02_objects.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot02_Objects/z_bg_spot02_objects.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "2f91bb57db2b52e416e7e41d0e71c5cee8070133651933ebd8167a9b6cd59f45"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot03_Taki/z_bg_spot03_taki.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot03_Taki/z_bg_spot03_taki.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b59c82c086d9012bbe0b5044245bae8666e115786db9200a39a95762c0bfd135"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot05_Soko/z_bg_spot05_soko.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot05_Soko/z_bg_spot05_soko.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "67fbac1da437415dfed8cdc45584017c05e793ce3e45a9e2b59335ce82b784fc"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot06_Objects/z_bg_spot06_objects.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot06_Objects/z_bg_spot06_objects.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "36ddbc648ec5b3f3c279ddc593dacce76d308d34a1365d953a7ad7ec1e5dfae6"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot07_Taki/z_bg_spot07_taki.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot07_Taki/z_bg_spot07_taki.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1562a70b6fcc02114f0ce924b7f766d578ada9fce60719def9456bd5c72185a8"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot08_Bakudankabe/z_bg_spot08_bakudankabe.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot08_Bakudankabe/z_bg_spot08_bakudankabe.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "84029f92f85603189dd445f374b917e3ce74659094e5882ca4bee525c689e3bc"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot08_Iceblock/z_bg_spot08_iceblock.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot08_Iceblock/z_bg_spot08_iceblock.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1eb156080be5d39cb266a8543ae6897fd4889a452d11048dc4bd0956952ff888"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot09_Obj/z_bg_spot09_obj.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot09_Obj/z_bg_spot09_obj.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "7560f859159a8f45cad58b0563c7de7e7febea4c2cacb0f9e497d24250e1cb68"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot11_Bakudankabe/z_bg_spot11_bakudankabe.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot11_Bakudankabe/z_bg_spot11_bakudankabe.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a4712b27f27b7cce6b2923af7603893b8fd1398325b76ac6880f8a0ac79decb7"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot11_Oasis/z_bg_spot11_oasis.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot11_Oasis/z_bg_spot11_oasis.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "8e2d61798018a875ed874a84c806e850b239d23dfc073b337c27e3eb062f87ea"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot12_Gate/z_bg_spot12_gate.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot12_Gate/z_bg_spot12_gate.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "aa4536b962d96f73acfa3a5906a1ee0481d53ff007e8f457991f122aa5b271ce"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot12_Saku/z_bg_spot12_saku.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot12_Saku/z_bg_spot12_saku.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "92fac35ebd9668eb84599fedd375849de22865a75ad73d12e3118557c7078af0"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot15_Rrbox/z_bg_spot15_rrbox.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot15_Rrbox/z_bg_spot15_rrbox.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b2d15bfa878d8d95d72dce9c826203a8f2c3b9c1196567af3483978facd6bf0f"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot15_Saku/z_bg_spot15_saku.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot15_Saku/z_bg_spot15_saku.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a3dc75e23eeb2d8938e345be344b1d0fc45c9f4db8d761341ca4957144afe2c8"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot16_Bombstone/z_bg_spot16_bombstone.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot16_Bombstone/z_bg_spot16_bombstone.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "91730205515b1287778202a6a1188d2f03dfffc6aa63bda1d24120f15993ad0f"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot16_Doughnut/z_bg_spot16_doughnut.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot16_Doughnut/z_bg_spot16_doughnut.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d667bfbfc5f957b9da0d91db6fa620dc7e03d196fdc5e5ad7d7501e27bd08f18"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot17_Bakudankabe/z_bg_spot17_bakudankabe.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot17_Bakudankabe/z_bg_spot17_bakudankabe.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "48718120a694f9ca256da65a351eb76b8810899dd652614c3a0265937f237472"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot17_Funen/z_bg_spot17_funen.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot17_Funen/z_bg_spot17_funen.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "93bcb99a5bc1b2cc1a665fb86baf52e89a31319fa6d206e8dba134bf9d86b90f"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot18_Basket/z_bg_spot18_basket.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot18_Basket/z_bg_spot18_basket.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "eba86b62e31b1aa8a9ced1d2b2c0d23572ec51ee6c22d027e17fa3791f3cef9a"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot18_Futa/z_bg_spot18_futa.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot18_Futa/z_bg_spot18_futa.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "6dd275a7472e4cfaf08c666f1e03799cea1ec4d77959dbbd3e72d1df68ac2c80"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot18_Obj/z_bg_spot18_obj.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot18_Obj/z_bg_spot18_obj.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "57c137b90b5df40fd6379267e8420d3b80f58548b8f73e73614853a220cdafb9"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Spot18_Shutter/z_bg_spot18_shutter.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Spot18_Shutter/z_bg_spot18_shutter.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "37eeac6155a579074b13b685ea8faa440903f5d4bd0808994e133b6b6f85c55f"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Sst_Floor/z_bg_sst_floor.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Sst_Floor/z_bg_sst_floor.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "5659f1ec6d660f5d2eff9aab5599581fe451a836bd9f532d543401d7178114b1"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Toki_Hikari/z_bg_toki_hikari.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Toki_Hikari/z_bg_toki_hikari.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "bbb44a6cd84885572f53fee1df3f7c205879332a0411bef40939b969ef152e28"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Toki_Swd/z_bg_toki_swd.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Toki_Swd/z_bg_toki_swd.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "cac238f886d291513c8943efbf7d1906f7b5a373918f22ff04f8a2f38328126f"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Toki_Swd/z_bg_toki_swd_cutscene_data_1.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Toki_Swd/z_bg_toki_swd_cutscene_data_1.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e22214a78918bbe57dc7d6f1b671802183b73a3979ea93098d788c2508f4af26"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Toki_Swd/z_bg_toki_swd_cutscene_data_2.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Toki_Swd/z_bg_toki_swd_cutscene_data_2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4acb5de680f74e0b04d23fcee88cfb9533f2ee47e5839b7ea7f0c87b8908c806"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Toki_Swd/z_bg_toki_swd_cutscene_data_3.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Toki_Swd/z_bg_toki_swd_cutscene_data_3.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "13a63ae186eca3b690e4467be47e68c280be8307fd748535e9d1ab795c519fe4"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Treemouth/z_bg_treemouth.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Treemouth/z_bg_treemouth.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d45f40a9c9cce9e97fa77fb94bf0fa5f7ab3cfd7ff218e38a4724b49e189272a"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Treemouth/z_bg_treemouth_cutscene_data.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Treemouth/z_bg_treemouth_cutscene_data.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1c7acfaf4a60581a001e435b22df6bf7928af593ac69868d0ff34ad489a4b5cf"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Umajump/z_bg_umajump.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Umajump/z_bg_umajump.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1ba4fdfda0c003bde07c62d9d627c05862b06a9d72bc1e8a3b7debc201295e5c"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Vb_Sima/z_bg_vb_sima.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Vb_Sima/z_bg_vb_sima.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "42ecd1af41d9e15232e51e23054bd14b0f8e65521c9ca99a39e369696f1aa24f"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Ydan_Hasi/z_bg_ydan_hasi.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Ydan_Hasi/z_bg_ydan_hasi.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "59b58fcb297536a897c93771807b9edf9fd7a5edec63cebe07bb133828eab126"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Ydan_Maruta/z_bg_ydan_maruta.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Ydan_Maruta/z_bg_ydan_maruta.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e1a3b2032580c9d98e6203ec7f2b88372a19416a93f8f48a8ed382bbc0726507"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Ydan_Sp/z_bg_ydan_sp.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Ydan_Sp/z_bg_ydan_sp.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "29e4c812d8f029cf725cd68069b0dcd914db8d9d49b49988732072e14d04ff13"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Bg_Zg/z_bg_zg.c",
+    "object": "build/core/src/overlays/actors/ovl_Bg_Zg/z_bg_zg.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "300e4a690574376666b9971ee3e5fcea3942bc6da9d35f824fdbb275137e7387"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Boss_Dodongo/z_boss_dodongo.c",
+    "object": "build/core/src/overlays/actors/ovl_Boss_Dodongo/z_boss_dodongo.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "842f1f4391b779db7421b19b36a9934931ce4792a7c92229772048ee625f90d7"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Boss_Dodongo/z_boss_dodongo_data.c",
+    "object": "build/core/src/overlays/actors/ovl_Boss_Dodongo/z_boss_dodongo_data.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "0cf7d961b9e85f688902e8320db7be958937c324d8e8a93d27dd6612c8ded408"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Boss_Fd/z_boss_fd.c",
+    "object": "build/core/src/overlays/actors/ovl_Boss_Fd/z_boss_fd.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "87f47ddeb5fcac2b81e9a42c0c7b7389c0e17a713967f669ffab74262708510f"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Boss_Fd/z_boss_fd_colchk.c",
+    "object": "build/core/src/overlays/actors/ovl_Boss_Fd/z_boss_fd_colchk.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4e7de3e09f0e67a09e6d9d67e6635e31119baff8a05e7056d1029f7dedb5a47a"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Boss_Fd2/z_boss_fd2.c",
+    "object": "build/core/src/overlays/actors/ovl_Boss_Fd2/z_boss_fd2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a73609e54261fb9e061edf1699154ad9ae6631164c0f9d04122249e55002c640"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Boss_Fd2/z_boss_fd2_colchk.c",
+    "object": "build/core/src/overlays/actors/ovl_Boss_Fd2/z_boss_fd2_colchk.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "96fbf20313d91e06a2d840b4715f3d4de8d9447a84829bf89a4e4ba96cdba0e3"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Boss_Ganon/z_boss_ganon.c",
+    "object": "build/core/src/overlays/actors/ovl_Boss_Ganon/z_boss_ganon.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "96c56339f6daa6f5a6374a82828a76f2fe6c293e127e63b485ce193c5398a27e"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Boss_Ganon2/z_boss_ganon2.c",
+    "object": "build/core/src/overlays/actors/ovl_Boss_Ganon2/z_boss_ganon2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "7b86336ad1373f3c6c784c32bc6aa2737b9da0586d523ae726e2357d082d35a0"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Boss_Ganon2/z_boss_ganon2_data.c",
+    "object": "build/core/src/overlays/actors/ovl_Boss_Ganon2/z_boss_ganon2_data.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "295b00452a5acd9372004528bb6395c9e7c6a446226b922403119def090e468e"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Boss_Ganondrof/z_boss_ganondrof.c",
+    "object": "build/core/src/overlays/actors/ovl_Boss_Ganondrof/z_boss_ganondrof.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a9dc771a5865ecc388307183599b47511583cb76f63f8e6b41336fec0b00f945"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Boss_Goma/z_boss_goma.c",
+    "object": "build/core/src/overlays/actors/ovl_Boss_Goma/z_boss_goma.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "bde099fb17962fdbd1be9ce9dd008bf233105df50716a30322190b3649ed7e32"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Boss_Mo/z_boss_mo.c",
+    "object": "build/core/src/overlays/actors/ovl_Boss_Mo/z_boss_mo.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1cb473eddac75b1cb1b6d78f647f76a7c81916cc548e56d1c2d7000e790d3ca1"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Boss_Mo/z_boss_mo_colchk.c",
+    "object": "build/core/src/overlays/actors/ovl_Boss_Mo/z_boss_mo_colchk.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "6401263cf1e04d806060a32bcf308a91c3914dc221789036ae3e5c888d566615"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Boss_Sst/z_boss_sst.c",
+    "object": "build/core/src/overlays/actors/ovl_Boss_Sst/z_boss_sst.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4014cd8fc6f1ef57601da019f03a518c30732cd95d422a0a64a543e3cb594751"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Boss_Sst/z_boss_sst_colchk.c",
+    "object": "build/core/src/overlays/actors/ovl_Boss_Sst/z_boss_sst_colchk.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "033c6613714e82654a018e86316ae553f8c0cb856d6cd69a4d23f9d490c92b05"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Boss_Tw/z_boss_tw.c",
+    "object": "build/core/src/overlays/actors/ovl_Boss_Tw/z_boss_tw.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "67ef0f32d929141b9a8933238cee9bc3bb86f8daae663ce8a83bc1345c4a8117"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Boss_Va/z_boss_va.c",
+    "object": "build/core/src/overlays/actors/ovl_Boss_Va/z_boss_va.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "420a2424ee092ffee6c21925f5c43cfb81c21402892193ba32076b7efc4da7ec"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_6K/z_demo_6k.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_6K/z_demo_6k.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "63f5a2047b2a3cb2411c5895816e8db5df48eb9c9675f327eff7b6333247c8f0"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Du/z_demo_du.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Du/z_demo_du.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "2fdce982445e520a0b98a1dd83f32a29ea005218681f4caae60354a82b24053a"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Du/z_demo_du_cutscene_data.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Du/z_demo_du_cutscene_data.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d4f4b40faf5d548daa8d6f37491b6108c3b79e0c54f94579932b161249f14b22"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "6119ea58176259c7e0a45e97cc16afe112eb6f7f5bcfd69afaff04bcdaebcb85"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Effect/z_demo_effect.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Effect/z_demo_effect.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d3772aac82d52e2979afffccff7e244afa5c996c0dcfb6c5fc7811c7ed95d838"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Ext/z_demo_ext.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Ext/z_demo_ext.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4b38f419466aad020ff2950d1d05405c120385fade118540e954320b7b54987c"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Geff/z_demo_geff.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Geff/z_demo_geff.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "39b6885fc360adc758e9fc57941adef4d7a1f977f3d2da6f0439a8a92f344846"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "29118e3f9b326d59a4b0ecd16e4de7a1b4e10991860b78924973084d27004c96"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Go/z_demo_go.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Go/z_demo_go.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "99f6044d4d7b2163a1622323fb5d7e9069b073331719c51f31189be65bcd3b38"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Gt/z_demo_gt.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Gt/z_demo_gt.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e34dd833397586a0049d2cfb8fa02727660bd9c5118ab64184017c54cc7e91f7"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Ik/z_demo_ik.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Ik/z_demo_ik.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "8126915b4d1f5ae78af5d3086975a7d9124ffa58c03bfcd387f9ea0476dd07c5"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Im/z_demo_im.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Im/z_demo_im.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "5e4e266a129cdb788698628d239754237371117d27ffe093bc9c9510f6f82c2c"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Im/z_demo_im_cutscene_data.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Im/z_demo_im_cutscene_data.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "74b2bdda8a153bd28620304da6c49e2913c847d4d1e61ba850c74bde0a0df867"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Kankyo/z_demo_kankyo.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Kankyo/z_demo_kankyo.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "34040dbc9e585ef7e429e4cdc1ecbf3b3de31948719760142fa0fbbdae5c63a8"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Kankyo/z_demo_kankyo_cutscene_data1.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Kankyo/z_demo_kankyo_cutscene_data1.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "08e0830fb370deba1c95cead56184ee07484af2e9361446adc6900e735958e56"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Kankyo/z_demo_kankyo_cutscene_data2.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Kankyo/z_demo_kankyo_cutscene_data2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "52f633e345d39b8e02fa9e3ba2a15b0d25b8bec130e0a1556faf5a5c46cd0e19"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Kankyo/z_demo_kankyo_cutscene_data3.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Kankyo/z_demo_kankyo_cutscene_data3.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a568686486cc8b337d0b38a202d0a9d451145d0870915dc6bc264f1d797024ec"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Kankyo/z_demo_kankyo_cutscene_data4.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Kankyo/z_demo_kankyo_cutscene_data4.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1744a9aa8431c2cc880f5dfea460835b53468fe0344dbea9e8dc74271a4aaa66"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Kankyo/z_demo_kankyo_cutscene_data5.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Kankyo/z_demo_kankyo_cutscene_data5.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "88158c92027b7bbeeb176ed4849c2c913adca2920fb961611b549a8757f6b40a"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Kankyo/z_demo_kankyo_cutscene_data6.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Kankyo/z_demo_kankyo_cutscene_data6.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ed2d0c800dd38f06c7468ef8e15bfdb4f043ab8068dc1fafc493527a2b594040"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Kankyo/z_demo_kankyo_cutscene_data7.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Kankyo/z_demo_kankyo_cutscene_data7.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "44cb15579460e5063db8cafa4a2bae24b2183907bba695fe06fa8b67b8d8d7d8"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Kankyo/z_demo_kankyo_cutscene_data8.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Kankyo/z_demo_kankyo_cutscene_data8.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "7b960b4bbf68bd804e768fb905ce9fc9d7e12a2a68dfb567ed3c2dbbfed22942"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Kekkai/z_demo_kekkai.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Kekkai/z_demo_kekkai.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b16288d29411c4cb8a44d61a250cb6d37fea0db67a290e5a0e7b4c9232235517"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Sa/z_demo_sa.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Sa/z_demo_sa.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "aaa1cc42b25c051604d154147330c73a93c656ba4f2c8006debd84763ca6ab57"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Sa/z_demo_sa_cutscene_data.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Sa/z_demo_sa_cutscene_data.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d4a9f110944c4492b561d239bc0e7fdd7aeac0e6b47a0331359409e378f41bf1"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Shd/z_demo_shd.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Shd/z_demo_shd.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "17e6efc1f41d025d5a47d018788e2e2ff9c69b904e52d8fe394b75124b2aa9b0"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Demo_Tre_Lgt/z_demo_tre_lgt.c",
+    "object": "build/core/src/overlays/actors/ovl_Demo_Tre_Lgt/z_demo_tre_lgt.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "7289fa18a684b9b3c5f5b88d8be5563a3797f7c5818ad3a3d69bd85bcd9d9f21"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Door_Ana/z_door_ana.c",
+    "object": "build/core/src/overlays/actors/ovl_Door_Ana/z_door_ana.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "5b64dfbe1aa6b348f329cb4748b249762f491e694f5dab5f4591e07050902e79"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Door_Gerudo/z_door_gerudo.c",
+    "object": "build/core/src/overlays/actors/ovl_Door_Gerudo/z_door_gerudo.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "34acf66e3f4b48c200362eedce01ec0529c51436c557aae99f5caf41041c7176"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Door_Killer/z_door_killer.c",
+    "object": "build/core/src/overlays/actors/ovl_Door_Killer/z_door_killer.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d7aec5fda16edd24071e0d0fee95b8ac7298825064995128d78b8d90d11e3a4f"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c",
+    "object": "build/core/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "bfe80a290982db02459b5952e1a57ce4242e45aec54e766884ba04e5bbaab970"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Door_Toki/z_door_toki.c",
+    "object": "build/core/src/overlays/actors/ovl_Door_Toki/z_door_toki.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "15a27fe83f8e71032df88aa58223dd1c506cc3937f1d7b8617dacc0bef0cdfef"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Door_Warp1/z_door_warp1.c",
+    "object": "build/core/src/overlays/actors/ovl_Door_Warp1/z_door_warp1.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "024bb8a2daaff66eb33f9d07828b60a5962329cd206f46d000abc6ac378b09b8"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Efc_Erupc/z_efc_erupc.c",
+    "object": "build/core/src/overlays/actors/ovl_Efc_Erupc/z_efc_erupc.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d02127d4613e218033887bfd30b56ecd74af109a388791ff7b010f57e3514b15"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Eff_Dust/z_eff_dust.c",
+    "object": "build/core/src/overlays/actors/ovl_Eff_Dust/z_eff_dust.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "9c1c9457f97cb4456defa0a8d8dab4d365465fb7457b7f29547e1f21a4173cd8"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Elf_Msg/z_elf_msg.c",
+    "object": "build/core/src/overlays/actors/ovl_Elf_Msg/z_elf_msg.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "24a10384b0f41aff1b2bc18abed9848e4d5c291e718df3ecaa5ce6e77f9c0805"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Elf_Msg2/z_elf_msg2.c",
+    "object": "build/core/src/overlays/actors/ovl_Elf_Msg2/z_elf_msg2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d63118fd7c5d3ca6655b67d442f523619fd910d2e7b0c325cf3906cd76ae1b92"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Am/z_en_am.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Am/z_en_am.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b2be96ca3181861bd31408a3b013f5495ccfaaf4e847de7034ade5d2cebbc08f"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ani/z_en_ani.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ani/z_en_ani.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "c960309ab5a8e7b8fead0d8de69eccf9d339fc436e5e5aa4661b5adaeaf7c4dd"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Anubice/z_en_anubice.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Anubice/z_en_anubice.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1e553774084d1c74701b0577f07ab80d88dd6f13389e498c1f1690871727f544"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Anubice_Fire/z_en_anubice_fire.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Anubice_Fire/z_en_anubice_fire.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "14fd498f55274d51a4f3bf61ec8b772d5e34158f998998d1817fea2d769be2d2"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Anubice_Tag/z_en_anubice_tag.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Anubice_Tag/z_en_anubice_tag.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "c2e3b7ae4f94f8a2274c8cdd96bb4f9cedd769defc67447c46094ca4c9b2ea2c"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Arow_Trap/z_en_arow_trap.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Arow_Trap/z_en_arow_trap.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "372e1451ba80eb0a5009aed70e29431f8e608eb7cb66ca7c378de56de336b2e9"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Arrow/z_en_arrow.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Arrow/z_en_arrow.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e8bee6e552077ad12b1b49f9a5e2d4a99b9bb0c8b817a19f487356d38447089a"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Attack_Niw/z_en_attack_niw.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Attack_Niw/z_en_attack_niw.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "7b1cb79306286d232225809689ae1e09b3517d90bdd3423fb9cf49436cf426e8"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ba/z_en_ba.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ba/z_en_ba.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4e930a233c7811403f0ca29c7a87c50ac1ed502bc224fbe59e3bc91eaeb49ae8"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Bb/z_en_bb.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Bb/z_en_bb.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b2131057328a607a3a88935d89065beba0e6acdb0de86d0e31c5c419616dd962"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Bdfire/z_en_bdfire.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Bdfire/z_en_bdfire.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "9bd3f35e6ea634bd077a48e32f8ab92424cbeaada92a4996929cceaedb7308c8"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Bigokuta/z_en_bigokuta.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Bigokuta/z_en_bigokuta.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "0ae301132bf6bf86396be6f41ee9bb6b4660fdd79b44ed6da2127cbbe49a6abe"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Bili/z_en_bili.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Bili/z_en_bili.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "6885a6547969e03b1a3bd36ce5e374944cda761fc68ba2669d7f8440909c0ab8"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Bird/z_en_bird.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Bird/z_en_bird.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "53816c77c0b599addc181f3be62e5fe0345c3de93a57ec1189127f49dd9eeb46"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Blkobj/z_en_blkobj.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Blkobj/z_en_blkobj.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4874c30f256f21beb34b60f30f684c3d2b6b616eb1de164cb140b535c2a26026"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Bom/z_en_bom.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Bom/z_en_bom.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "9462d89b3ef6489742dc76eb565fb10c97b52f7374f3fb5d0468ce36b0fd1371"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Bom_Bowl_Man/z_en_bom_bowl_man.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Bom_Bowl_Man/z_en_bom_bowl_man.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "487c7ab7e5f49fdeb3e626e43b3a6b5f08310eef346709283d5d5cac1fe97d53"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Bom_Bowl_Pit/z_en_bom_bowl_pit.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Bom_Bowl_Pit/z_en_bom_bowl_pit.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "2dc989576c2596a68e581c2c6f1d59d092e316c0fadef7c7372e838fa9980c34"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Bom_Chu/z_en_bom_chu.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Bom_Chu/z_en_bom_chu.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "7e7cad91ae9d91bc6a0aabbde025cce78bc5237635a51a6e5daa2871ff41cf8e"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Bombf/z_en_bombf.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Bombf/z_en_bombf.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e4bfe6ef3a5d3d2da45d67fecf47c140fe07cb32a0b3e7857897be212f196cfe"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Boom/z_en_boom.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Boom/z_en_boom.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "8c550e90e23daae814664bc545b53db947aa0cee4c8ed8e018f5b8b889c8d0af"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Box/z_en_box.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Box/z_en_box.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ec0895e523624d9579cac5cf10ed0efb9e04917db190707ab1e2963b04b43c51"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Brob/z_en_brob.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Brob/z_en_brob.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "139df0820c05d0fe0b8f2d82698b2eea655860f359df46ed7483eb9b2e27017d"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Bubble/z_en_bubble.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Bubble/z_en_bubble.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "8dff0f8724b048e607462ee5091febe5251fe5bfd1028b3fe1ab9eb0bc6412e3"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Butte/z_en_butte.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Butte/z_en_butte.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "443d0fa10cf623a833ecf61bd262dd65940f29a75d817cb5767097b38332e8e3"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Bw/z_en_bw.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Bw/z_en_bw.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "c337908235a73bd11a1eaac07019b07dc5d1f0ba544505604cfb24d3e5c238bc"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Bx/z_en_bx.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Bx/z_en_bx.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "feab1267f80d5c2651629f5b9d139009a2491e3770b5570bf69afc0834ccdf88"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Changer/z_en_changer.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Changer/z_en_changer.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "3e1b5f3550e7b5748a5f6358ef9b71f8b74bd8386f6f50c10b0be24a8d6e131d"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Clear_Tag/z_en_clear_tag.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Clear_Tag/z_en_clear_tag.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "06146f7004ff56c60078bfffc8934e7db318f3da34d57bd7be089c0855abf273"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Cow/z_en_cow.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Cow/z_en_cow.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "6e208ec7f55f77c9dbc8010e6c05ea16dae55b7b616f01cbc03c896c0a62aab2"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Crow/z_en_crow.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Crow/z_en_crow.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "482d4af5e92a17620752d24e245c988062e3d0a5aa89ef893b95d35908801548"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Cs/z_en_cs.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Cs/z_en_cs.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "6d130c481fbbaf2de59646297dc5ce62aac904d3ea5e97ce9652e62474793e2d"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Daiku/z_en_daiku.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Daiku/z_en_daiku.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "9fd3989d8c8f2cf0efdf5e40a2f1840230432f1e82a1456c17471c116c58f3ec"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Daiku_Kakariko/z_en_daiku_kakariko.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Daiku_Kakariko/z_en_daiku_kakariko.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "f6638b6ac10b9d5f32fe9650a334f540ed29fa2b7f25dfbf8d2d293f55cce873"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Dekubaba/z_en_dekubaba.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Dekubaba/z_en_dekubaba.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a54d11d4cb5dab247ea9c9fee50f2589d71f4167f65f70b6a086a77f25e90b8d"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Dekunuts/z_en_dekunuts.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Dekunuts/z_en_dekunuts.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1e16cae9a36f2b757b05381909d6ab624d2019e58b46e6fe6b8d11dcf0a30746"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Dh/z_en_dh.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Dh/z_en_dh.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "c7252d8b628a7d4725f9f759eab07712418e42a469a32aad3199a6840c63da5b"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Dha/z_en_dha.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Dha/z_en_dha.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b217aa0a4507f634b802484818372058f40f4621129d9124971fe0ba30c090c8"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Diving_Game/z_en_diving_game.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Diving_Game/z_en_diving_game.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "cff4c4eeadce5c3e812dfe42b236295436b7194edbd213e730ba4dd057745a8d"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Dns/z_en_dns.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Dns/z_en_dns.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "2087f54bf11b5aa1fbbf687c700c2b20304c9e87b0dd423c94742805966e6ac0"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Dnt_Demo/z_en_dnt_demo.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Dnt_Demo/z_en_dnt_demo.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "54f4c4ced8aa152a49899b877e17d112d62b28421f8456b09e233326a7df99b5"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Dnt_Jiji/z_en_dnt_jiji.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Dnt_Jiji/z_en_dnt_jiji.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "8a0768dea481e31e9f4f7b7b0f87a9464e11325971d7a5b878a0fe505a8bcddb"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Dnt_Nomal/z_en_dnt_nomal.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Dnt_Nomal/z_en_dnt_nomal.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "2c05d5ed11af4ce15c1631008a7b372a9e1f58b0e83c57677fbea7d4859f8edf"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Dodojr/z_en_dodojr.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Dodojr/z_en_dodojr.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "f3b29f55b4ff22f396bd5ad59a3fc9c05ac1ce1ad4638ec01543dc03df26188d"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Dodongo/z_en_dodongo.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Dodongo/z_en_dodongo.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e9e082e583c54ce9554b847c70d08e223ae1e07181a0e9de743ebf6a058932b4"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Dog/z_en_dog.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Dog/z_en_dog.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "3d052f0f31a7d5135b37f5e31bdc29f6da28eff67764127c1c3f1c4644864646"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Door/z_en_door.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Door/z_en_door.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b9feb587a7c02720aa32bfda1122a98a17b359287789dda4aa1f668522c6b5c6"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ds/z_en_ds.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ds/z_en_ds.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "42c2b86ed52511ac9b1ae4be7ce19c24b0cc182b03aa654357c3d5b3c5e739af"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Du/z_en_du.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Du/z_en_du.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "06423d3979023e81fce8813c4c300b6aadf5cec51b2d997072c5663e6792a86a"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Dy_Extra/z_en_dy_extra.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Dy_Extra/z_en_dy_extra.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "29a60ceeba4961f75cc322db0543cd50533485a2694299514c54699a7b569a28"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Eg/z_en_eg.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Eg/z_en_eg.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "496f43850711f26aaad32ff239c6217cb9acf263cafcf3b326af0b452e6cf9a1"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Eiyer/z_en_eiyer.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4c61346ef8e6aef33cec42316baa7d94fcda6e811cf4affe2dedaa7058c51032"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Elf/z_en_elf.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Elf/z_en_elf.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "0e6daf2c9007dd39c3f67d0ed5a15aa8d7c86c2933efcb7fc368841f06d1be16"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Encount1/z_en_encount1.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Encount1/z_en_encount1.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "f87f49bbd59c76429134792236c9ac967203e3217f6ce4322bc1aba719c2e0a9"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Encount2/z_en_encount2.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Encount2/z_en_encount2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "edebfb27b3df686ff8fd0d3674ab64a224e623aaf417e953d16d6d2b8bd94710"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ex_Item/z_en_ex_item.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ex_Item/z_en_ex_item.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "773dc449751992d9eb359375a4565483c2f35d293edb1dae1126a2bbb94d1eb8"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ex_Ruppy/z_en_ex_ruppy.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ex_Ruppy/z_en_ex_ruppy.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "8ccfd49f2d7f7c54681ea021e7314f98cac464b4a50ed6c4a50fc8a04e954f50"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Fd/z_en_fd.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Fd/z_en_fd.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4900e8b39595e54cadd8dc3969080cec0e3c719859e764c034728e1378bcfe3d"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Fd_Fire/z_en_fd_fire.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Fd_Fire/z_en_fd_fire.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "7f830b04bd8b8a99f34fa814d3ba89e515cb135f1263e6ad54e161f1bc715d97"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Fhg_Fire/z_en_fhg_fire.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Fhg_Fire/z_en_fhg_fire.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "bb60974a055ac6538ec058216d73bdd4b8f412076b892abf233608468fe7794c"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Fire_Rock/z_en_fire_rock.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Fire_Rock/z_en_fire_rock.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1a576d2d4346ae9b7334feb15a8f072cf10d9ff700989236e6a4a83479f4778d"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Firefly/z_en_firefly.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Firefly/z_en_firefly.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "2c05521ad04a7e9defb7611d779abf0372a977354c1d5fb1731766245d07b1e7"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Fish/z_en_fish.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Fish/z_en_fish.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "6b16edac2ddf79a0a8583d9234eb56c315675e06ccdca65a55667d45995b88ca"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Floormas/z_en_floormas.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Floormas/z_en_floormas.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "467aa9d42f488ab4a8a2ed2b228c62d4a9ae1af172542062400d58a40b23f1f5"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Fr/z_en_fr.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Fr/z_en_fr.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4be9f8a09db2bb42ab8a04d6e445ee5be4abb0ec42b30967c1ccdb491ecbe52b"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Fu/z_en_fu.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Fu/z_en_fu.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "72d12fa6dbec81b7206ab94c2d53cf0d3c09d793b508a65a6b4b3a149e6a7b51"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Fw/z_en_fw.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Fw/z_en_fw.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "9ea79e22ba20e3c14a8df8b990760965182f923d771fa6482834e953cb955dc5"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Fz/z_en_fz.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Fz/z_en_fz.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "fdafe861f44aa1d380234d46f2cd0482acb3a68119b9740d39cee4423343d33b"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_G_Switch/z_en_g_switch.c",
+    "object": "build/core/src/overlays/actors/ovl_En_G_Switch/z_en_g_switch.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ff535ab442bf1e7b49ba1da4894af799a6766eaf73b0566272d0b250c1356486"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ganon_Mant/z_en_ganon_mant.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ganon_Mant/z_en_ganon_mant.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "2d32cdfb39f0e414b49dd46804b510921bb90ecee35424bc00ca1cbb0aea1f46"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ganon_Organ/z_en_ganon_organ.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ganon_Organ/z_en_ganon_organ.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "0a8c6e5a85254e1b96dca02e5f2676c3082414a82f40d9719f84285af05adc1a"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Gb/z_en_gb.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Gb/z_en_gb.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "0ac0c0ac2acbc7e47d6d8ad32cac92dd73d2043f605ade8f2d29c1837c31aac0"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ge1/z_en_ge1.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ge1/z_en_ge1.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "9abfe4a4099117070ffbaf17f8b662a52ff9a07a79fad479c59efb24c040dd5e"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ge2/z_en_ge2.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ge2/z_en_ge2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "f78b45c4ee3b1d6a25ea2654618a336db6f18257fd15e71029976eff7423cab9"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ge3/z_en_ge3.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ge3/z_en_ge3.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "2646b950e2fc75e38373f8050396375956957aac946707c0047f8794a28d8d11"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_GeldB/z_en_geldb.c",
+    "object": "build/core/src/overlays/actors/ovl_En_GeldB/z_en_geldb.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4a75ec946f4f97ef0102f1c02b307fcdd0db66c65bc9aa930ddc5dace49c94b2"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_GirlA/z_en_girla.c",
+    "object": "build/core/src/overlays/actors/ovl_En_GirlA/z_en_girla.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "6c6ddd180be1998fd1c0180948b68f03211e9510201597d1b30ebf026b7e977b"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Gm/z_en_gm.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Gm/z_en_gm.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "26d5c021a27e971a9a96d58ed4fb3bf60c2f1f55b350d00eb4fd226ebcab59c8"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Go/z_en_go.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Go/z_en_go.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "db6eb5181ec6893f7361befb7cb54286ff32c10d1a2656cfc61b8a1c83a8b41d"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Go2/z_en_go2.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Go2/z_en_go2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ea7ae3e382389fbc179d9fc48436c64180c6d4af9b96c6b4604a042f73900f45"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Goma/z_en_goma.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Goma/z_en_goma.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d8e3fcb090dfa717e25a8ba44d92dab61ddc3c7cddde1ff1d443bd9611d771d6"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Goroiwa/z_en_goroiwa.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Goroiwa/z_en_goroiwa.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4baf73a08c47b1397e358f8032ace9d2756388349487ce8d189cea8ffbfe1afd"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Gs/z_en_gs.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Gs/z_en_gs.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "325f0521a79888f025738021e3abff1a17106bef0d56f627b95e6ce044270392"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Guest/z_en_guest.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Guest/z_en_guest.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "92c96f0594b5a914eb00e27c28dbc42cbf44f9c5206a5801f76f42060480d91a"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Hata/z_en_hata.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Hata/z_en_hata.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "aa4f1e112f1e2f8193c12579ad7ef108e81013ced4fb32481540600e5324fece"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Heishi1/z_en_heishi1.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Heishi1/z_en_heishi1.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "7fbb2a308a0c89be75502bbc8f20b7cd46ae5692fb2a1b84eb8f4ca69f9b975c"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Heishi2/z_en_heishi2.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Heishi2/z_en_heishi2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "cddbb3a7e34b16f5edf7ba48f51e8b1d817c55570749f68f46ce3553069361a6"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Heishi3/z_en_heishi3.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Heishi3/z_en_heishi3.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "7e27baa293996a254e0653422bbf2d3595174cad8c0d92cfaeedb197308e3a52"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Heishi4/z_en_heishi4.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Heishi4/z_en_heishi4.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "de791b0cb0e44d8d07873a1da792d018673a2c2416419fcd618c218978c32749"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Hintnuts/z_en_hintnuts.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Hintnuts/z_en_hintnuts.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b038dda5b3a2b328f86c186d2f73a35cf6db76cd6146e1a5cfe06ada4384120e"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Holl/z_en_holl.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Holl/z_en_holl.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "3c424c02b3561231610439dbf777de570d654f8b5d3544bd75b759b05a610eed"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Honotrap/z_en_honotrap.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Honotrap/z_en_honotrap.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "fa14ab3a5091f38093a6a33e363b68e0989f31c10fc42548074f70872521f009"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Horse/z_en_horse.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Horse/z_en_horse.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ee278f884dd9042242e36d45f81430eedea8725a0b796a7b87a94208e0175910"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Horse_Game_Check/z_en_horse_game_check.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Horse_Game_Check/z_en_horse_game_check.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "690ac2a58018b5636b8c0077f45c02564366fa2135a42893be9d659e15b5a8dc"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Horse_Ganon/z_en_horse_ganon.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Horse_Ganon/z_en_horse_ganon.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b41d431ef7de6257410b6e39070df7d3e9d068f91d6795747aa21f99cbd344ee"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Horse_Link_Child/z_en_horse_link_child.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Horse_Link_Child/z_en_horse_link_child.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ec2320de7e2994b9855cf3b0b7844831767ecad1c0604a9f7f38868d47a85f71"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "5e58f17abba7f59e5d8c13cc5433d55338b30cc1feb62e0443f0f983187f1b48"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Horse_Zelda/z_en_horse_zelda.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Horse_Zelda/z_en_horse_zelda.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "cbe13e0aa54f825481a0db3a9d07b6328178aad37f03152f83d7fac057aa35c1"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Hs/z_en_hs.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Hs/z_en_hs.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ccc2f4b605259aa3ed9d6f454a2c3809e8845abea4f13d9be59937edd765c982"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Hs2/z_en_hs2.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Hs2/z_en_hs2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "0fdc42884f6c7412801f406e0602dd450d682c46c47dba2797dfbac120c56aff"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Hy/z_en_hy.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Hy/z_en_hy.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "c39532832f9d15b70c3b32006abc693a387d971bdb86a42a81b6cf74e903e115"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ice_Hono/z_en_ice_hono.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ice_Hono/z_en_ice_hono.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "fddd6ac94b0cc6d5d10e672a8721e68db019ef5e6135d02f963c8d31572a8f16"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ik/z_en_ik.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ik/z_en_ik.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b48c0120a885cb0b3f5b0bf1178aa4c507b1b3af38639952ef7d208bc6df8e75"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_In/z_en_in.c",
+    "object": "build/core/src/overlays/actors/ovl_En_In/z_en_in.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b804fc216780b9d5269356f1c5bf9bba1604a9720a66ed8696cc6f2d2ad5cc33"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Insect/z_en_insect.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Insect/z_en_insect.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ed0de311722b05f0d91b96474a98e30b4112c1c930ed25a3249416948ce036ee"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ishi/z_en_ishi.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ishi/z_en_ishi.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e9a9ed3ad5f4e30d34de5a59c051ee9059f313b2056114c2c38f3e27881fd096"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_It/z_en_it.c",
+    "object": "build/core/src/overlays/actors/ovl_En_It/z_en_it.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "949766fb709f6bb5eec76958ef1499da10322396cfb274fbf3051b9b35b23eac"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Jj/z_en_jj.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Jj/z_en_jj.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "76db0578038e629db3b75d880f2af21e4166723526e8a804cf9276e59ddb5d80"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Jj/z_en_jj_cutscene_data.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Jj/z_en_jj_cutscene_data.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "7505e6d6ef78e0f6a8241dc6ebc00a3dc0fc6fb7201673a4208b502d8802d6b4"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Js/z_en_js.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Js/z_en_js.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "db43ebb680f76deb6b9965bd83e9caf2dd9d37599a2b1307467bbc45b25ca46d"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "570e01510d959bd580becf0b4e08392623d981c3666755aed19b0a9818225d28"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Kakasi/z_en_kakasi.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Kakasi/z_en_kakasi.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "6c3e16acdb2b32ac152f0f28cea9b428bbceba18c893c28dc9db30634152a751"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Kakasi2/z_en_kakasi2.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Kakasi2/z_en_kakasi2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "daf34b7731000505310223dee04bc189d0f80b50942caad166fe63a04ed0631f"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Kakasi3/z_en_kakasi3.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Kakasi3/z_en_kakasi3.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a51b23dd850fa0c2cfb542ca285aa8c963afc8acd98b0c8edcbfcbd2d596b707"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Kanban/z_en_kanban.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Kanban/z_en_kanban.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "83143e0c59f0c417fb200bbcb42a65b9e06ebb3ce1324d4f98442ed900e35b3b"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Kanban/z_en_kanban_gfx.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Kanban/z_en_kanban_gfx.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "c5d2f26984c3b9d7cd20b0e486284ffcc4572b9bc96651c8eaeb83cc025f248f"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Karebaba/z_en_karebaba.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Karebaba/z_en_karebaba.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "88280e512804f2976b0037ee158c657ad7c1849a3ad6f42b8518cbffb951e057"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ko/z_en_ko.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ko/z_en_ko.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b47e35bfa89ea32c26316f85b79b3e90d3152858495d0c477a5015f1d1f6a0c3"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Kusa/z_en_kusa.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Kusa/z_en_kusa.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "0b87a5949bc73dbe213b102db84dc00d6a77a7c40786729af38a1824386efc8c"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Kz/z_en_kz.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Kz/z_en_kz.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "c3f2c7dcaf9b0353dfd921a53f800d759ef4572119facbe1ba9b94bfe54635d4"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Light/z_en_light.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Light/z_en_light.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e9629f625eea66cd4c59e89bc46f3a9479a3195155279ae8231f57cd320e84b7"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Lightbox/z_en_lightbox.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Lightbox/z_en_lightbox.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ff5b9a709226ea416f593d35ea0d8a4983fbd0368bbaa97e94ef7b5467ae7e44"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_M_Fire1/z_en_m_fire1.c",
+    "object": "build/core/src/overlays/actors/ovl_En_M_Fire1/z_en_m_fire1.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "db0749fe3fbf126b7ec957a909b132003029dd699f43c5f84c3a95f9a01096fd"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_M_Thunder/z_en_m_thunder.c",
+    "object": "build/core/src/overlays/actors/ovl_En_M_Thunder/z_en_m_thunder.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "05dadbaaa70480eaf147ba34bd1adb6467fa46c66501b8ee9e835f2c956225d7"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ma1/z_en_ma1.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ma1/z_en_ma1.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d9d995b4fef9fc0edcc469d18f80a24eff1e40416d5ecceca22c34aef9fc2932"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ma2/z_en_ma2.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ma2/z_en_ma2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "f7998fb258f44e2f0f10a6eb5682e309faf8caa028a8d66ec98ca67b2c7aa243"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ma3/z_en_ma3.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ma3/z_en_ma3.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "8d8ddb99007b04a14ccd3bbcde13e9cc252d28ec45698e163dadacd1d96f09a9"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Mag/z_en_mag.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Mag/z_en_mag.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a4766b9fa8ffac5d36e1f716a905f971e62e82a6fbea37d38948b4268c787a60"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Mb/z_en_mb.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Mb/z_en_mb.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "35ea9adc845c7afc01de4d7c06c4f1d4692ac4d0bc44dec3cc52bb1f255bb2fa"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Md/z_en_md.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Md/z_en_md.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "55a251abeea87779db994481bdc04c1055ea6889d99139c321b6ea488463b58a"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Mk/z_en_mk.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Mk/z_en_mk.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "bb566b1a52caa2e5de0211d2cab1bba41b1d8117d9da80ff169a0745e3498a29"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Mm/z_en_mm.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Mm/z_en_mm.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "61dc4429fd5bfa5ed09488e486fdd938dc35c3f361fd7e8afa988424a21f759f"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Mm2/z_en_mm2.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Mm2/z_en_mm2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "38a0472fb515425cb88915f42ea36b2e77b961c94140ce45c5bf428e77b0a342"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ms/z_en_ms.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ms/z_en_ms.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "51d1eae0cbb11323d4450335ec8f06413fc299fe5a5774e7aece72c92ae65319"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Mu/z_en_mu.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Mu/z_en_mu.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "053e1f36d6c5bdfb19b4f83c0f37bba2d003ded3d561feeb051423c20f47a2ee"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Nb/z_en_nb.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Nb/z_en_nb.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "83e606868d4eb48cffa6aa7655a3e9889ccb195deb3b8f12bb42ce250738edb9"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Nb/z_en_nb_cutscene_data.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Nb/z_en_nb_cutscene_data.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d9b35b14d3d499cd571288d7bcf04bfe24b2a5e7954f6bffa45dd6fa369e4b30"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Niw/z_en_niw.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Niw/z_en_niw.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b9905502f3e658a3cf724b69215f72f66cd39310fb95a80270a47399532c0d74"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Niw_Girl/z_en_niw_girl.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Niw_Girl/z_en_niw_girl.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "6f747c7abcb1664bf84ecb5f7618799993410ce76e68a7c79781ffabee04b12c"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Niw_Lady/z_en_niw_lady.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Niw_Lady/z_en_niw_lady.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a303580138feebd6c49994d1462767b9489a7434fd2d391195d75004f8a7446c"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Nutsball/z_en_nutsball.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Nutsball/z_en_nutsball.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "cf2f4a674e065b5318691371a99f38978d5b549759f2d11c8e00d1ce8075277e"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Nwc/z_en_nwc.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Nwc/z_en_nwc.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1adc6edb7811923749006f7d29b3319670f320df6e61ab9a628ea0bb91645c47"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ny/z_en_ny.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ny/z_en_ny.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e235cd3c57c9f104f1151e5eb99e1daa8fa67e0833b2d2a68d282ce22be39f0f"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_OE2/z_en_oe2.c",
+    "object": "build/core/src/overlays/actors/ovl_En_OE2/z_en_oe2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "715a7bee0bd7a70598dd6ae140ddc7693ea6258bfe0ac20186eaa29a54efb218"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Okarina_Effect/z_en_okarina_effect.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Okarina_Effect/z_en_okarina_effect.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ca0f772004f464df991a83ac324643c2eb2d541f40372e25c8d6c3241ac7023b"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Okarina_Tag/z_en_okarina_tag.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Okarina_Tag/z_en_okarina_tag.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "c5a82e992e755ed9d19322bc3bc166e7111f91b201955e09ff2690118a5a7e78"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Okarina_Tag/z_en_okarina_tag_cutscene_data.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Okarina_Tag/z_en_okarina_tag_cutscene_data.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "bcfe9c7704d56de540030e7527f5c702c01f066381be72973b2273e2b325dd1e"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Okuta/z_en_okuta.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Okuta/z_en_okuta.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "08294d11c1bce4fc1477890cfd96dbc96f3675348437d172aa44e866eeb852a2"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ossan/z_en_ossan.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ossan/z_en_ossan.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b4f4e07194e5543f733c58ca4ecccade618adb693ad1452b4d6a55a4bbf391b6"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Owl/z_en_owl.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Owl/z_en_owl.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "cde726f441dad6682f1745c163c4a657b48549e11d037923cbcdab0f2d976252"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Part/z_en_part.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Part/z_en_part.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "23d542fee628106536970df71aee7e78849dc8786172ef03cb7095fab8735981"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Partner/z_en_partner.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Partner/z_en_partner.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "49d4f117fff619f951b4de0682234a0526b697d78b5781b21752347f5a881fe3"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Peehat/z_en_peehat.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Peehat/z_en_peehat.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "139491fef321e5bf93857125cdb43e45a672abbb21f9fa61c67187e0730e8c22"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Po_Desert/z_en_po_desert.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Po_Desert/z_en_po_desert.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "74c98bad66d880ba8ae794b0cb19287ebaca73a5a65cc9456fbaedf568e173a9"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Po_Field/z_en_po_field.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Po_Field/z_en_po_field.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "8f27e63baec62be4f920d34896d2b110f26afb2044258d0bcffa91fb4fd83814"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Po_Relay/z_en_po_relay.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Po_Relay/z_en_po_relay.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "03ff24970dfe8a270d0ade480c610d94b39f2e8bcd73d5c9f9b6d98cdd9e5319"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "697013e1d59e608b5149cbc91492447acec0f234dfef47eb324d1d1a4d6226cf"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Poh/z_en_poh.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Poh/z_en_poh.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "86ef7206ee8523949b8d2f29ae7ae9480aaba5a1f7247b49a83750597e6513d0"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Pu_box/z_en_pu_box.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Pu_box/z_en_pu_box.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "024e3e18be7edd9069b2ebef6e33f8a73789860957df284f89a76f67ea29951f"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Rd/z_en_rd.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Rd/z_en_rd.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b5d5414c5611bb983f3e6dabee489b13439ff47f911710d7fd947e47a9b0391c"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Reeba/z_en_reeba.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Reeba/z_en_reeba.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "fdd9e7b13673a6dc7053529d0b3af7d455e90f2dfc0e94c364dcec4aa0343888"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_River_Sound/z_en_river_sound.c",
+    "object": "build/core/src/overlays/actors/ovl_En_River_Sound/z_en_river_sound.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "bd545ce8324c4156c6021246f84eed7372e1a832bba5924a2b5a670de19c077d"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Rl/z_en_rl.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Rl/z_en_rl.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d0ed86f4cb9fa235ae159484494da5d5b86c658678d3f220c272776a1446d4d7"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Rr/z_en_rr.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Rr/z_en_rr.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "43490756245db36a43f4f6145d167474cc70069b57cd62ea265ab7ea5accf7a7"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ru1/z_en_ru1.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ru1/z_en_ru1.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a666bbcde49878bf4cadc45c12fb36e5ba92aa62a255401140f8c59e492535a2"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ru1/z_en_ru1_cutscene_data.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ru1/z_en_ru1_cutscene_data.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "c5d63f3597d37706443be3d9c1c0c8bac1a8cfedd9a58fc30e15c64fe2e66605"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ru2/z_en_ru2.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ru2/z_en_ru2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "aafbd97ac7d77e64dedc73e1412051cfe646ee1beedb148a59a5cca4d950d677"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ru2/z_en_ru2_cutscene_data.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ru2/z_en_ru2_cutscene_data.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "2d959cf3962978f864308d2443d6f7af1f728e1a9f4ab33e5cdc0c2b0065a2c2"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Sa/z_en_sa.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Sa/z_en_sa.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d3d07b6288043c1c8f3b1a8ce02dbaf615da8183de4e0edb20d3dd41fc07b1ee"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Sb/z_en_sb.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Sb/z_en_sb.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4d53fcea90be32266c62529560a0b405f2ba1f4ed3b948d0d7b9c3af90347445"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Scene_Change/z_en_scene_change.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Scene_Change/z_en_scene_change.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "0c6800799936a870891de878b24f75de40db12ee74af726ec03e41a36e95694f"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Sda/z_en_sda.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Sda/z_en_sda.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "0f30d90b96b11e3835ae344c24f73c4edf63617353342a47feec735d229b0713"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Shopnuts/z_en_shopnuts.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Shopnuts/z_en_shopnuts.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "2bb39fa2ce1d46c43527ea7b2ce5dce346352b8c8135397220e0e68beed16f4a"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Si/z_en_si.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Si/z_en_si.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "faacded5f370a0d350847c3a5c0a8af3c95c93b2984f3b1162f7f1cf9ac2f73a"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Siofuki/z_en_siofuki.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Siofuki/z_en_siofuki.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "c23ec5dbfd82f1e098fdd309d5849bf76db512d0b86d043f64a5fa63957ebe9a"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Skb/z_en_skb.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Skb/z_en_skb.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "cb45dbfcb6487fdf5ec352f97d3cac5aea94952db9f833dda87d37183d9e846f"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Skj/z_en_skj.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Skj/z_en_skj.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "eee757947759583734a798fdc2b4b3a02f6062a483561b09fc2af952dc4b61ea"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Skjneedle/z_en_skjneedle.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Skjneedle/z_en_skjneedle.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "65314c5e4a442c90b693ce463ffa7ae07c035c6e6b2fc6b5557c26846efb8903"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ssh/z_en_ssh.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ssh/z_en_ssh.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "40e20e9b715d2be2aef5b94c28d24f353d3a332f8b2d5352407e32a5913ddbde"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_St/z_en_st.c",
+    "object": "build/core/src/overlays/actors/ovl_En_St/z_en_st.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a680faf57f68010912d233c98c4b3c326c3dd2c409efbdc1428235249c32e1b2"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Sth/z_en_sth.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Sth/z_en_sth.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "db959dae057fbf37cc8b5eb65e75d1f5472cbaabdc380cd21c6fe328eaf37f09"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Stream/z_en_stream.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Stream/z_en_stream.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "93717dd9f564f5b7f6daf4e76e26e9606ec831e4cb2a30718c6fda8a7b3e8017"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Sw/z_en_sw.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Sw/z_en_sw.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "7b12214e16d667d0b297b758dbad72048cb6e4a88cd487c75c296053f4fc498f"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Syateki_Itm/z_en_syateki_itm.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Syateki_Itm/z_en_syateki_itm.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "121a4346e2b3da6ff59b0df3eb60eb1c9b5f14d3e62b0c365ad5681c8176614d"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Syateki_Man/z_en_syateki_man.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Syateki_Man/z_en_syateki_man.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "352afd717b4b8996e328c30118ecac12ca5fe9a7145400bc9c83b2febea35b77"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Syateki_Niw/z_en_syateki_niw.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Syateki_Niw/z_en_syateki_niw.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "68737b65b4cb37f2a31c9ba661848aef72824527880a94896ea9897fcbe706c9"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Ta/z_en_ta.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Ta/z_en_ta.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "5705913940fbbd3325ba6711db28ba26ae6c331087bffa7a464fe33b1d42790b"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Takara_Man/z_en_takara_man.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Takara_Man/z_en_takara_man.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "cbc002ed1ca067c512b14391213ed34ce7b777563b40356d2eb1c47c9cab7cd4"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Tana/z_en_tana.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Tana/z_en_tana.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "8bd54f5f227f99e0cd91f044bf5a6f10ee37a2496a0aeae8e6d587e96d93b8c5"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Test/z_en_test.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Test/z_en_test.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e5f07d33f23f26484f5723c3ccbb5750fafc5ce3b4229311ac8a937a89f4ec74"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Tg/z_en_tg.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Tg/z_en_tg.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "2c0ba3419687997ab6e1f90a656ea909c26a80dcd57dd3d6962288fd0aecc52a"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Tite/z_en_tite.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Tite/z_en_tite.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "70408e0d9ee69d9f86b9d5dfba6197c01fdb5fb4173ceb5086beaf1478f2c058"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Tk/z_en_tk.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Tk/z_en_tk.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "dafd0a5f76ee7ca7afc34bb6fdd7cc1ba7ef34a7d45cc68cbbbd5ceb496572ed"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Torch/z_en_torch.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Torch/z_en_torch.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d6bf260586e4d7f6ba58dda1dc439aa079211c6422741061ee51b5ae1ce517c5"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Torch2/z_en_torch2.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Torch2/z_en_torch2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d33ed9587c5abcde714fc8f7b57a29314ae6511fb8b76aae108ac599ee4f5d43"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Toryo/z_en_toryo.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Toryo/z_en_toryo.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "93510c51f196e2efb37c8a5dbc1dfafa29335724deb2a0c53d33abaffca4ab71"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Tp/z_en_tp.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Tp/z_en_tp.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "86f68cfce2c52624dc3b2b20590edbe3d816a775d24a4b4e56113341a4f731e2"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Tr/z_en_tr.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Tr/z_en_tr.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b62309efcf6d1476487145dc6088ec0ed69836aefb1999916516db476950a05a"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Trap/z_en_trap.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Trap/z_en_trap.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "34a21e6aa4c80c5325bfdede930842116d796b4ec26c9deafa8df5b15681020f"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Tubo_Trap/z_en_tubo_trap.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Tubo_Trap/z_en_tubo_trap.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4f9459e5a5307d742fb10f3a64d2ee700a1353bdf16db5070c18cfff60bd6867"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Vali/z_en_vali.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Vali/z_en_vali.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e614ff549b9f9716dacb962173c105e753c3df8aac19f9f0f437c7ce0750ebc8"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Vase/z_en_vase.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Vase/z_en_vase.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "5b2014bf09c37aea02c1609ee67651c33fa4dc30251678042cfc5b3d5f71ba8e"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Vb_Ball/z_en_vb_ball.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Vb_Ball/z_en_vb_ball.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d1aba31995abb20133438f0a80dc89754ff4180ecd280d2ede85a217aa57d574"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Viewer/z_en_viewer.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Viewer/z_en_viewer.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a86f28c2fee0b6330fea9f7ea6c95bf0be03e5159f60f6612c3a8369df792f32"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Vm/z_en_vm.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Vm/z_en_vm.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "95fb8f7ab72041bf59eff4f99374b1a989fa57c327b4b29c4e67bd8d09a62e8b"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Wall_Tubo/z_en_wall_tubo.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Wall_Tubo/z_en_wall_tubo.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "52bc2d39163d792e97b8d8b081807d2f3850bdc8d9dbd3c574c64a0e79cb45aa"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Wallmas/z_en_wallmas.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Wallmas/z_en_wallmas.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "cfd9e2041821b2053d27b3804fa4d6a3b59cab7e3790f7d75c84a072665b49d0"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Weather_Tag/z_en_weather_tag.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Weather_Tag/z_en_weather_tag.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "f11b4fd6c11a3d21302b3b3d687f108a2a6e1b3eb8fb2af4b029e35bb4d5c207"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Weiyer/z_en_weiyer.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Weiyer/z_en_weiyer.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1ee1d41606dd91f7ac34b3b32bc9f65c74193b18887fec0f2ac892ff50a90d8a"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Wf/z_en_wf.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Wf/z_en_wf.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d151386b817be43732b48941ae4f478d44c89c09c5477903a031d4c394c3beed"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Wonder_Item/z_en_wonder_item.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Wonder_Item/z_en_wonder_item.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "bb9fe4b5fa63dfea1f4c7bf520e7557ed569cebcb7ddd8e0e8eed37696809ccd"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Wonder_Talk/z_en_wonder_talk.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Wonder_Talk/z_en_wonder_talk.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "80a56130128153ab07c0dac8161db773428afd6e1664fdade5c4c2e79893a21d"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Wonder_Talk2/z_en_wonder_talk2.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Wonder_Talk2/z_en_wonder_talk2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "7b6d9fa540f2d1f2bf3fd6eb8b3856b8bbf92e66b6ad11cf7afee6d38038f093"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Wood02/z_en_wood02.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Wood02/z_en_wood02.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "9a59471f53c4bbded27179e207a6b3d0e0554a3d0ad0abf5c22a8bf59c591d17"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Xc/z_en_xc.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Xc/z_en_xc.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1148b57ed27f205753ed4c6e525553bee27483f0b76efde0911ab550ab74b975"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Yabusame_Mark/z_en_yabusame_mark.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Yabusame_Mark/z_en_yabusame_mark.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "8de17fdd696d2d95fabccbcd2d109c478f0951cbc2b731e6b1d3c30225e510f8"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Yukabyun/z_en_yukabyun.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Yukabyun/z_en_yukabyun.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "68131eb4a45ac99c1876dea40826633a63c47b1112dff6aa3f568cb2084615cb"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Zf/z_en_zf.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Zf/z_en_zf.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "9a4f455fd532960a17dfe5ea875ed5250c4d92c5f516befb1eb383cad2f721da"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Zl1/z_en_zl1.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Zl1/z_en_zl1.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "807ce468336b264dcaa8e8011ac0a3a0e57ed919f449788a98f9107031a25454"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Zl1/z_en_zl1_camera_data.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Zl1/z_en_zl1_camera_data.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "111f078de50304a65927355cac424be46bda70a77c55d318100c461dfcfc9516"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Zl1/z_en_zl1_cutscene_data.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Zl1/z_en_zl1_cutscene_data.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "bf36fb9456f3f458b8b9f78a9680c0494518369f308dc2dd636956bb3ae6d2dd"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Zl2/z_en_zl2.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Zl2/z_en_zl2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "725f3331ac18684da82d6bf3c69a44683221ef5ed2195f64a218f7605644cee9"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Zl3/z_en_zl3.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Zl3/z_en_zl3.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "3ffab4f35d633562c44e2e798b1009dd978b7860f536e277cb4b69267c18e22e"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Zl4/z_en_zl4.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Zl4/z_en_zl4.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4e00c117b9659f7fde652175599ea3a48c2de86f4ef74175d6356c4a36508318"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Zl4/z_en_zl4_cutscene_data.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Zl4/z_en_zl4_cutscene_data.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "61553f1e0be46bdeb51ad85f49bf9c8b61fbcacb4cbbfdc161ff1c90e4aad75e"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_Zo/z_en_zo.c",
+    "object": "build/core/src/overlays/actors/ovl_En_Zo/z_en_zo.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4aa5a5a70b62910d79dea6fc5b842656aaa2b9eb44280a0c7aca88dda9b3ade4"
+  },
+  {
+    "source": "src/overlays/actors/ovl_En_fHG/z_en_fhg.c",
+    "object": "build/core/src/overlays/actors/ovl_En_fHG/z_en_fhg.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "bbd8497ea136339be7dabc170f7df78e01438d0873b703d8a3426953017dff3f"
+  },
+  {
+    "source": "src/overlays/actors/ovl_End_Title/z_end_title.c",
+    "object": "build/core/src/overlays/actors/ovl_End_Title/z_end_title.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "811204a0fd616b579d8c0433fd06e318d604138254ebcfcd483ff3018867f08e"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Fishing/z_fishing.c",
+    "object": "build/core/src/overlays/actors/ovl_Fishing/z_fishing.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "74620abac58b4daf4fc191d570e391f7cd7560537624dd6d410508e376e03faf"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Item_B_Heart/z_item_b_heart.c",
+    "object": "build/core/src/overlays/actors/ovl_Item_B_Heart/z_item_b_heart.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1bd16263c90716903a9fe8ac40397d259fd779c6a18504defbaf957bda39c57d"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Item_Etcetera/z_item_etcetera.c",
+    "object": "build/core/src/overlays/actors/ovl_Item_Etcetera/z_item_etcetera.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "c62f144ba75c24fbe380779549c0fcb73a642c5b6fac806a1746fd2027b9fb22"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Item_Inbox/z_item_inbox.c",
+    "object": "build/core/src/overlays/actors/ovl_Item_Inbox/z_item_inbox.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "00f0e8ab2a4f0dbcc7fbeb82b966ce29fcdc90802fd4d4d163c27ccbd68ad470"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Item_Ocarina/z_item_ocarina.c",
+    "object": "build/core/src/overlays/actors/ovl_Item_Ocarina/z_item_ocarina.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ec6514636f402843c0ba01356ede3aeecdd8431fb2bf75b55389338f6b607fd1"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Item_Shield/z_item_shield.c",
+    "object": "build/core/src/overlays/actors/ovl_Item_Shield/z_item_shield.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d321ed8eeef0997f0c3db2ab3b6ba38e93fd7a9f39f6c46e1da07b3e27b27a6f"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Magic_Dark/z_magic_dark.c",
+    "object": "build/core/src/overlays/actors/ovl_Magic_Dark/z_magic_dark.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "0e56d8f56e12158bb38b785485439ce6f3278f59a272dae087ec297dee055389"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Magic_Fire/z_magic_fire.c",
+    "object": "build/core/src/overlays/actors/ovl_Magic_Fire/z_magic_fire.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "306adbb94bee3e5b0933c8e3453817cd31ea3fcff639ae59ba723b737eb770d7"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Magic_Wind/z_magic_wind.c",
+    "object": "build/core/src/overlays/actors/ovl_Magic_Wind/z_magic_wind.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ed4ff7e34d7b440a6d527afd36c2a0cd1ac982ef4d169699d123f1850ba8d839"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Mir_Ray/z_mir_ray.c",
+    "object": "build/core/src/overlays/actors/ovl_Mir_Ray/z_mir_ray.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "62cfaa8f5a4134a4b68465a121b29da4cc087a60a9b3a76dbf817eda43754828"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Bean/z_obj_bean.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Bean/z_obj_bean.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ed9ef4c37ff2b371116b3df50e560e8590533879fa6b2d6353a11078165fafb9"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Blockstop/z_obj_blockstop.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Blockstop/z_obj_blockstop.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "52714a2e2c488a1a74dcf8a3cbcdfbf0180ce817814cb7a1d92864fe4ade32cb"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Bombiwa/z_obj_bombiwa.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Bombiwa/z_obj_bombiwa.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "828a2993e544edc3dd19e7fea4526b1fdf07def93bc9132b1b77590debe8989e"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Comb/z_obj_comb.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Comb/z_obj_comb.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "47b845e826864c894088e1b99847dc56bcdd42c5de16fb5614ec22cac39df0d6"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Dekujr/z_obj_dekujr.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Dekujr/z_obj_dekujr.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "58f3f9654cb625f57adb4005a0435c35b7bb23ea0d1b57a07b737c262bb54bc6"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Elevator/z_obj_elevator.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Elevator/z_obj_elevator.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "fddcb15cd3e096240f21b865f5c33252e0294c30784a44cd3e8bcdd06f55885c"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Hamishi/z_obj_hamishi.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Hamishi/z_obj_hamishi.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "3d7c9cef322abd0a993e025c039090ecde7d1011ec5b14b91e5e7ef8b0f94294"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Hana/z_obj_hana.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Hana/z_obj_hana.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "5e4e838bfb0677cc4e0627fcc7643c0a8f7514ad769994aef49d7a16d9b33ee5"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Hsblock/z_obj_hsblock.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Hsblock/z_obj_hsblock.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "5f78623d3a964cf90f1a1821d0d42ad4bd71f7194d993da9b27852ac501f3412"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Ice_Poly/z_obj_ice_poly.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Ice_Poly/z_obj_ice_poly.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a58a238bfd167e377bff546ed3d0f33c691da75d473b05d06d81b513a9baed27"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Kibako/z_obj_kibako.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Kibako/z_obj_kibako.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "93dfc5506fe3a1aa4dc81ff96ffc6f78e9e92ac531dc9dc0070c01e982417d2c"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Kibako2/z_obj_kibako2.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Kibako2/z_obj_kibako2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "8e8db7c86df4fa47e22cede501ef9d19eadfe295b2d072a24e70f9ed9d1c3fda"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Lift/z_obj_lift.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Lift/z_obj_lift.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "41894ea266ae4b9e3c3ee82820a828457f6eb2976c2d25b958cb9e9859855832"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Lightswitch/z_obj_lightswitch.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Lightswitch/z_obj_lightswitch.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ff206f1b5d7578b62186b0dfa5361fc204a33f8d8e7566ce8d8e0d4c131f6eee"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Makekinsuta/z_obj_makekinsuta.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Makekinsuta/z_obj_makekinsuta.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "0f3c0c1e4e193b87c282c0cb035fda672ea0e960ff69ee6857727ef27b9acf4e"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Makeoshihiki/z_obj_makeoshihiki.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Makeoshihiki/z_obj_makeoshihiki.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "70d40478aa1f361b78687c4813ec9fd3d287c30db322d492c7e70c6098df017c"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Mure/z_obj_mure.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Mure/z_obj_mure.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "321aebbf22a3a0e64c13f92331d295b3f8599627a3ae45c832e18bd51ee215fb"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Mure2/z_obj_mure2.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Mure2/z_obj_mure2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "faa00563092bce2032e123e6a1036ddb67c048addc8618d90f59757322923994"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Mure3/z_obj_mure3.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Mure3/z_obj_mure3.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ac73c22c49caebb677a9c789117c1afbce1e6815b5e67d56601336469cff130e"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Oshihiki/z_obj_oshihiki.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Oshihiki/z_obj_oshihiki.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "c7f37a3acc15103fb6fd61e5d739b24896585474db9986d65600095d5e28ab69"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Roomtimer/z_obj_roomtimer.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Roomtimer/z_obj_roomtimer.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "8bf7eb58458b93a318358e3e1997107dc9d9bd3b6bccbfb5f270f04629506dfd"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Switch/z_obj_switch.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Switch/z_obj_switch.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "3b31efe49c47fa5b42361215b69c89101eaf5d28bd7e3c1d1624acc002fdfb94"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Syokudai/z_obj_syokudai.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Syokudai/z_obj_syokudai.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "ffe172d660bed38ef605e91541743d957c28816f555d29476a5b889029229114"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Timeblock/z_obj_timeblock.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Timeblock/z_obj_timeblock.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "bcc3c67ea64bcea23b12e39b4f899e8242f9a2e05fbf36930c9f9cfb1de52862"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Tsubo/z_obj_tsubo.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Tsubo/z_obj_tsubo.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "094c32bbdf2ce5c0000d9ea04558c5cea5645b71d6026ae77fb52b7b32928760"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Obj_Warp2block/z_obj_warp2block.c",
+    "object": "build/core/src/overlays/actors/ovl_Obj_Warp2block/z_obj_warp2block.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "0f39ab0db30f7db74c80c3ebf90b09dc2cdfe4d9396073f5551e95d3940e52b4"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Object_Kankyo/z_object_kankyo.c",
+    "object": "build/core/src/overlays/actors/ovl_Object_Kankyo/z_object_kankyo.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "0f452c948fba74d20dc8c19f960484ca960463146778d5569a6ad7f8b159ecb9"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Oceff_Spot/z_oceff_spot.c",
+    "object": "build/core/src/overlays/actors/ovl_Oceff_Spot/z_oceff_spot.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "0c47d689d8b925a6b4ae3aa5adf9b588080e226d802565fad111453575487603"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Oceff_Storm/z_oceff_storm.c",
+    "object": "build/core/src/overlays/actors/ovl_Oceff_Storm/z_oceff_storm.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "7fdc24506654cb75e0bdf33a816938a9f08c575e57b5adb931dae6d8601975f5"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Oceff_Wipe/z_oceff_wipe.c",
+    "object": "build/core/src/overlays/actors/ovl_Oceff_Wipe/z_oceff_wipe.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "0cefe8a22a4332735474fc603fcefd50445cc2afe504267141639e94ae1de749"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Oceff_Wipe2/z_oceff_wipe2.c",
+    "object": "build/core/src/overlays/actors/ovl_Oceff_Wipe2/z_oceff_wipe2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "aba2c27abaa0f10aca2a030a9eeea34177f7b711fc482f669432bd2a47a9529d"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Oceff_Wipe3/z_oceff_wipe3.c",
+    "object": "build/core/src/overlays/actors/ovl_Oceff_Wipe3/z_oceff_wipe3.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "c6fd078976958f5d210da641746dfc36cc08b78c2ab39f3e753f2f95eb3e0a21"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Oceff_Wipe4/z_oceff_wipe4.c",
+    "object": "build/core/src/overlays/actors/ovl_Oceff_Wipe4/z_oceff_wipe4.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "0154a67d57a857819ae27774fe1e9ab9bfc31a0dbcd7404c94b6a9b6ec5a66e3"
+  },
+  {
+    "source": "src/overlays/actors/ovl_Shot_Sun/z_shot_sun.c",
+    "object": "build/core/src/overlays/actors/ovl_Shot_Sun/z_shot_sun.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "91dca061ec125ddd0e0ef32a3a5c827c2c44b45f92437378fb4114377fcab317"
+  },
+  {
+    "source": "src/overlays/actors/ovl_player_actor/z_player.c",
+    "object": "build/core/src/overlays/actors/ovl_player_actor/z_player.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "68aafac451b297652a4e1cdb9b9a6d5cc5c2246fdab43bccd464129722330a10"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_Blast/z_eff_ss_blast.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_Blast/z_eff_ss_blast.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "c4efca72e78ead53122d845dfbb50f299bac2024eba8ac5f4e21d7f231c216ec"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_Bomb/z_eff_ss_bomb.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_Bomb/z_eff_ss_bomb.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "da242f85f667112d2362ff369e6f4d1706145feb0759174b14f08dd5e0560c8f"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_Bomb2/z_eff_ss_bomb2.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_Bomb2/z_eff_ss_bomb2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4312bb07c7f6015e16f236286feae90f38f3d54691c66b112dcc668efd492ca3"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_Bubble/z_eff_ss_bubble.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_Bubble/z_eff_ss_bubble.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "16b028f7d75412102a9e7a0f514b28a8dce02a9a8990a461605401766494aadc"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_D_Fire/z_eff_ss_d_fire.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_D_Fire/z_eff_ss_d_fire.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "0e4ffee703c6483c03a7bdea30e5f5aa4f7c76197be1355ba9f57715c712a34b"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_Dead_Db/z_eff_ss_dead_db.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_Dead_Db/z_eff_ss_dead_db.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "731a37e4738939d0145e9bd3ec1ae5fa0060980be06d2c71eeab870a8fc80858"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_Dead_Dd/z_eff_ss_dead_dd.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_Dead_Dd/z_eff_ss_dead_dd.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "dff2b3866aec37a7de26b3239b6068258e25f049b1aaabc9ac56711f8d9569eb"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_Dead_Ds/z_eff_ss_dead_ds.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_Dead_Ds/z_eff_ss_dead_ds.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a33ad7f8ef8ae7c4e50138d30a2164656ac4e305705688c3e931f2c2f799fb50"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_Dead_Sound/z_eff_ss_dead_sound.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_Dead_Sound/z_eff_ss_dead_sound.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "669b2df035712add6a629a34c9d89a05056d85cf3cffa1047303f9f081e981a0"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_Dt_Bubble/z_eff_ss_dt_bubble.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_Dt_Bubble/z_eff_ss_dt_bubble.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "dc736fc71afd2dbd7dd6f8c0bbc4f299722f42ba6993cb7b177041303685858c"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_Dust/z_eff_ss_dust.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_Dust/z_eff_ss_dust.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "2cb906a49b3e71516e12ee25d267322c5537c48c59e03a151f4838b4dfe009b2"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_En_Fire/z_eff_ss_en_fire.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_En_Fire/z_eff_ss_en_fire.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e7441ab7d23b61825e7bab1bba58001ab2f8282ec3519c9b50186ac8f973deae"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_En_Ice/z_eff_ss_en_ice.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_En_Ice/z_eff_ss_en_ice.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "f4a7c6a217e7a9d90d9c3e9503826c5943e0ba03f230893532b666df36c4e6df"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_Extra/z_eff_ss_extra.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_Extra/z_eff_ss_extra.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b70043190500d304a4c918ce7b6e740f60023ad36efa170c07893549ab4a210c"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_Fcircle/z_eff_ss_fcircle.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_Fcircle/z_eff_ss_fcircle.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "f1385fe79c563b81ba0a7f1c9ea1486a4ec8fee22af3c7744f92e2fd96b7a096"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_Fhg_Flash/z_eff_ss_fhg_flash.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_Fhg_Flash/z_eff_ss_fhg_flash.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "0d7e8c6c33838314135db7bd9743d6a93c83ac95f6728165f0aea4f6df807941"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_Fire_Tail/z_eff_ss_fire_tail.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_Fire_Tail/z_eff_ss_fire_tail.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b2a6a1e29478656207f9d7a58c5d2a32c0b357c1770f6b3625b42b3e01e7a6a8"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_G_Fire/z_eff_ss_g_fire.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_G_Fire/z_eff_ss_g_fire.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b0eaa038eaaff018616d9eb34f5c9d798ebedeaf79eb1694620e0fee53d0a1f2"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_G_Magma/z_eff_ss_g_magma.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_G_Magma/z_eff_ss_g_magma.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "5c582afec38549e24d19f5eeac1342b7800ce85cb1e6cbaf3e5cbf55e493a371"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_G_Magma2/z_eff_ss_g_magma2.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_G_Magma2/z_eff_ss_g_magma2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "886ef25d0a0311d8cc9eb45a47f2763b8b7a75fe5917155fe5b03dc7171c83a7"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_G_Ripple/z_eff_ss_g_ripple.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_G_Ripple/z_eff_ss_g_ripple.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "aa79c790aaae644a8a0d1f1954795381f7b3429ce83a242d9cef31a06bd7f8fc"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_G_Spk/z_eff_ss_g_spk.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_G_Spk/z_eff_ss_g_spk.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "c4a5fca5390d5e037a7c9110017664f5fe874fd8cee2bb7d6d88cfff65aaa569"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_G_Splash/z_eff_ss_g_splash.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_G_Splash/z_eff_ss_g_splash.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a6ea861ca5e46c384043eccc2560230133b78871640a04e41816ef9802887379"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_Hahen/z_eff_ss_hahen.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_Hahen/z_eff_ss_hahen.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "4eda241673acf39139f5d9b0ddbd852064822a46daca5f6f8c12b26f6f25d929"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_HitMark/z_eff_ss_hitmark.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_HitMark/z_eff_ss_hitmark.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1e5cb126feffe23cb3734844247c3e34200fe318332197648a19d2b382297878"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_Ice_Piece/z_eff_ss_ice_piece.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_Ice_Piece/z_eff_ss_ice_piece.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "24a40890817d2ba8764f75dfba1403622136a2696a15ce6f3ea486ac95f9bd0b"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_Ice_Smoke/z_eff_ss_ice_smoke.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_Ice_Smoke/z_eff_ss_ice_smoke.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "c265024d73159f87bba4c0ee4f5d885f8beab868fd8964f5c381c288275c4308"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_K_Fire/z_eff_ss_k_fire.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_K_Fire/z_eff_ss_k_fire.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "a789630b164bdc309cadf132902fb5e75a6f71fe30b55556e7f4b499429f392d"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_Kakera/z_eff_ss_kakera.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_Kakera/z_eff_ss_kakera.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d242a1311fe5d63ec793a50b0748c078170c176908247b04dc4052f5335ad3ae"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_KiraKira/z_eff_ss_kirakira.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_KiraKira/z_eff_ss_kirakira.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "0b33ea6f4e58b91c8cc89a782ded6989c090dfb848a823f903ae288e1295fdbe"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_Lightning/z_eff_ss_lightning.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_Lightning/z_eff_ss_lightning.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "df94ee4d379d4f4d130a194f641242b661a7247d196ab4a1dc589d9e0dc86a15"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_Sibuki/z_eff_ss_sibuki.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_Sibuki/z_eff_ss_sibuki.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "05b129f2e6d1ecf7a625000d259a4126af073b45cc62f8eb43a1108885055ed4"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_Sibuki2/z_eff_ss_sibuki2.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_Sibuki2/z_eff_ss_sibuki2.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "aeffdec63a50e87aebe466c2b86cff1a719fd819b69ca6058cff7a8ee6a79497"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_Solder_Srch_Ball/z_eff_ss_solder_srch_ball.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_Solder_Srch_Ball/z_eff_ss_solder_srch_ball.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "3bca8ce7e751eb311b3c05790e03d24e606a1d472276df794be0efff4543a3a5"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_Stick/z_eff_ss_stick.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_Stick/z_eff_ss_stick.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "65d72e431b1486af632a31b50cb018e8faab82b508e847ebb7d2b5e92293a9cd"
+  },
+  {
+    "source": "src/overlays/effects/ovl_Effect_Ss_Stone1/z_eff_ss_stone1.c",
+    "object": "build/core/src/overlays/effects/ovl_Effect_Ss_Stone1/z_eff_ss_stone1.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "0150dd8fc16b25530f6dbf094debf1a93c3613a18f5763929d4cf3203c3b0bf5"
+  },
+  {
+    "source": "src/overlays/gamestates/ovl_file_choose/z_file_choose.c",
+    "object": "build/core/src/overlays/gamestates/ovl_file_choose/z_file_choose.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "e9db01e8236a80489a1e54774a7eb9eb0f48f3bc3525582b6042ba9ca374bfb3"
+  },
+  {
+    "source": "src/overlays/gamestates/ovl_file_choose/z_file_copy_erase.c",
+    "object": "build/core/src/overlays/gamestates/ovl_file_choose/z_file_copy_erase.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "218f8e6f4b58ca0543e3fe2ce2d2243b19c9d6890788781271665cba56688207"
+  },
+  {
+    "source": "src/overlays/gamestates/ovl_file_choose/z_file_nameset_NES.c",
+    "object": "build/core/src/overlays/gamestates/ovl_file_choose/z_file_nameset_NES.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "6efbed7533353a18b3f45e4e6d7b5d8a00a2a351f0116c5527b353b1460355ec"
+  },
+  {
+    "source": "src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c",
+    "object": "build/core/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "7d09fa8b351dec5c8b576b476ab483dcfc8318252f77324c3cefec921e0e44c0"
+  },
+  {
+    "source": "src/overlays/gamestates/ovl_file_choose/z_file_nameset_data.c",
+    "object": "build/core/src/overlays/gamestates/ovl_file_choose/z_file_nameset_data.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "8575e528514eaab96f258fa0923fb14725953d142c79eca61b910b5a4a20cb98"
+  },
+  {
+    "source": "src/overlays/gamestates/ovl_opening/z_opening.c",
+    "object": "build/core/src/overlays/gamestates/ovl_opening/z_opening.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1175238fad766711343c70a2fe7991f7247533f7023307eda4bd2990c4666317"
+  },
+  {
+    "source": "src/overlays/gamestates/ovl_select/z_select.c",
+    "object": "build/core/src/overlays/gamestates/ovl_select/z_select.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "91fedeb6cf1b48989d7d8a2d1cde6af5be1f8502e7106aec897f4c48225a188b"
+  },
+  {
+    "source": "src/overlays/gamestates/ovl_title/z_title.c",
+    "object": "build/core/src/overlays/gamestates/ovl_title/z_title.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "47adc6665fc2031048677a418ea734dd992ae6b4e7ef0e080f1f4aea52246909"
+  },
+  {
+    "source": "src/overlays/misc/ovl_kaleido_scope/z_kaleido_collect.c",
+    "object": "build/core/src/overlays/misc/ovl_kaleido_scope/z_kaleido_collect.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "6dcf0a62aedab6751c86baf57054ed827e62d0dddb7bd751c84364cb0956aca6"
+  },
+  {
+    "source": "src/overlays/misc/ovl_kaleido_scope/z_kaleido_debug.c",
+    "object": "build/core/src/overlays/misc/ovl_kaleido_scope/z_kaleido_debug.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "6f060ad8c713bd96d97ff5ac1b38c020dff5070372beac9db900dcf1ac0f23ea"
+  },
+  {
+    "source": "src/overlays/misc/ovl_kaleido_scope/z_kaleido_equipment.c",
+    "object": "build/core/src/overlays/misc/ovl_kaleido_scope/z_kaleido_equipment.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "b17a5833747132cff872c56d9e0247122190648d957dfa3e6c020d26a839bc07"
+  },
+  {
+    "source": "src/overlays/misc/ovl_kaleido_scope/z_kaleido_item.c",
+    "object": "build/core/src/overlays/misc/ovl_kaleido_scope/z_kaleido_item.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d7335514c6986ad688f151a75ba78fa872f6832f8803eb956b0aea1739756d4a"
+  },
+  {
+    "source": "src/overlays/misc/ovl_kaleido_scope/z_kaleido_map_PAL.c",
+    "object": "build/core/src/overlays/misc/ovl_kaleido_scope/z_kaleido_map_PAL.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "bb18eacdd407f8b4bf78f59130ae0bc8cadabfafb40205779815aafb5db2f9aa"
+  },
+  {
+    "source": "src/overlays/misc/ovl_kaleido_scope/z_kaleido_prompt.c",
+    "object": "build/core/src/overlays/misc/ovl_kaleido_scope/z_kaleido_prompt.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "58b677cb1e9ee7b382b042e1c0df9fd228ea2aa9a3e328b2bc1fcdbbac3cabd5"
+  },
+  {
+    "source": "src/overlays/misc/ovl_kaleido_scope/z_kaleido_scope_PAL.c",
+    "object": "build/core/src/overlays/misc/ovl_kaleido_scope/z_kaleido_scope_PAL.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "9192346e92231d2c1847dceca1188f218a134cbd39b2fed4bf4f0a19c898fe22"
+  },
+  {
+    "source": "src/overlays/misc/ovl_kaleido_scope/z_lmap_mark.c",
+    "object": "build/core/src/overlays/misc/ovl_kaleido_scope/z_lmap_mark.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "3ebc64f542977967906ff1317ed805166dee9bf1fc2231a448b71fe71d8e702e"
+  },
+  {
+    "source": "src/overlays/misc/ovl_kaleido_scope/z_lmap_mark_data.c",
+    "object": "build/core/src/overlays/misc/ovl_kaleido_scope/z_lmap_mark_data.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "5c4c6356e9f73b176781d7229164b31d200b9cfcd07d37c360bdb08fd126de75"
+  },
+  {
+    "source": "src/overlays/misc/ovl_map_mark_data/z_map_mark_data.c",
+    "object": "build/core/src/overlays/misc/ovl_map_mark_data/z_map_mark_data.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "fb1d3cb2bc895ca1db05bde0920a5c779f1a4dffa80295851939f2adf53a714b"
+  },
+  {
+    "source": "platform/nano_actor_db.c",
+    "object": "build/core/platform/nano_actor_db.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "3d4fc82a9f9590ff270f84f10b53aba39e55f17ecf652d959e40af35d4877414"
+  },
+  {
+    "source": "platform/nano_assets.c",
+    "object": "build/core/platform/nano_assets.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "93158b70935f2bca46b986dc31e8faf5f51a430c7143f13625791445e1def25d"
+  },
+  {
+    "source": "platform/nano_audio_memory.c",
+    "object": "build/core/platform/nano_audio_memory.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "153c30748eca530a26b222b6fb507721cc04ca15dd11da26df9a8da76311d7ef"
+  },
+  {
+    "source": "platform/nano_combiner.c",
+    "object": "build/core/platform/nano_combiner.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "d264177cf58efdbc0e13a4e60a34378d9eb6f5b649871ecd75f476fcea4f3371"
+  },
+  {
+    "source": "platform/nano_gbi.c",
+    "object": "build/core/platform/nano_gbi.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "1c079e1a3ff97affe06e04ce617f1c558b033c2c76162bfaf075f3d42d5f8081"
+  },
+  {
+    "source": "platform/nano_gles.c",
+    "object": "build/core/platform/nano_gles.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "acf9ede8362896f907129f22053b19d01de6c37502012489f07e5b1b2696e02a"
+  },
+  {
+    "source": "platform/nano_memory.c",
+    "object": "build/core/platform/nano_memory.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "758486b3fa152c4b5be3f3f4e76f2388f0f1354369393e40d6ab7bb1ce039ed9"
+  },
+  {
+    "source": "platform/nano_os_mesg.c",
+    "object": "build/core/platform/nano_os_mesg.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "5a46927f1c0161116f7feb16f910ad446c20870318f3d44225b93cd389fff114"
+  },
+  {
+    "source": "platform/nano_pack.c",
+    "object": "build/core/platform/nano_pack.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "3d92488cacbb28dbe62bda57e77e01cc5db2fb45e3b7236515a0929b049ed109"
+  },
+  {
+    "source": "platform/nano_renderer.c",
+    "object": "build/core/platform/nano_renderer.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "c71c7cd807783f0a13ad792bcfa3046025e4bcef713ee234e8af8249db106e47"
+  },
+  {
+    "source": "platform/nano_resource_bridge.c",
+    "object": "build/core/platform/nano_resource_bridge.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "c6b2fafd1192ae4c9653b44d7ffafe1ef0b6b43ccb9f7662764ec0ef33a6cabb"
+  },
+  {
+    "source": "platform/nano_scene.c",
+    "object": "build/core/platform/nano_scene.o",
+    "ok": true,
+    "errors": [],
+    "sha256": "849763d2f672129713057849e8ea3ebd778471b57454e442330c210da2588e22"
+  }
+]

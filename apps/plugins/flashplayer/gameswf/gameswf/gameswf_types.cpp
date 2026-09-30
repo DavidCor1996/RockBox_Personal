@@ -157,7 +157,7 @@ namespace gameswf
 		{
 			int	scale_nbits = in->read_uint(5);
 			if (scale_nbits < 0 || scale_nbits > 31 ||
-				in->get_position() + ((scale_nbits * 2 + 7) >> 3) > tag_end)
+				!in->has_tag_bits(scale_nbits * 2))
 			{
 				in->set_position(tag_end);
 				return;
@@ -165,14 +165,14 @@ namespace gameswf
 			m_[0][0] = in->read_sint(scale_nbits) / 65536.0f;
 			m_[1][1] = in->read_sint(scale_nbits) / 65536.0f;
 		}
-		if (in->get_position() >= tag_end)
+		if (!in->has_tag_bits(1))
 			return;
 		int	has_rotate = in->read_uint(1);
 		if (has_rotate)
 		{
 			int	rotate_nbits = in->read_uint(5);
 			if (rotate_nbits < 0 || rotate_nbits > 31 ||
-				in->get_position() + ((rotate_nbits * 2 + 7) >> 3) > tag_end)
+				!in->has_tag_bits(rotate_nbits * 2))
 			{
 				in->set_position(tag_end);
 				return;
@@ -180,12 +180,12 @@ namespace gameswf
 			m_[1][0] = in->read_sint(rotate_nbits) / 65536.0f;
 			m_[0][1] = in->read_sint(rotate_nbits) / 65536.0f;
 		}
-		if (in->get_position() >= tag_end)
+		if (!in->has_tag_bits(5))
 			return;
 
 		int	translate_nbits = in->read_uint(5);
 		if (translate_nbits > 31 ||
-			in->get_position() + ((translate_nbits * 2 + 7) >> 3) > tag_end)
+			!in->has_tag_bits(translate_nbits * 2))
 		{
 			in->set_position(tag_end);
 			return;

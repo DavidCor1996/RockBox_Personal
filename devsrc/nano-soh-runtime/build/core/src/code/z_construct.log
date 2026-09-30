@@ -1,0 +1,10 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_construct.c: In function 'func_801109B0':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_construct.c:53:38: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   53 |     interfaceCtx->doActionSegment[0] = gAttackDoActionENGTex;
+      |                                      ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_construct.c:54:38: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   54 |     interfaceCtx->doActionSegment[1] = gCheckDoActionENGTex;
+      |                                      ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_construct.c:55:38: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   55 |     interfaceCtx->doActionSegment[2] = gReturnDoActionENGTex;
+      |                                      ^

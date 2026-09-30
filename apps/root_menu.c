@@ -24,6 +24,9 @@
 #include <ctype.h>
 #include "string-extra.h"
 #include "config.h"
+#include "gui/videoout_art.h"
+#include "gui/tv_ui.h"
+#include "ambient_clock.h"
 #include "appevents.h"
 #include "menu.h"
 #include "root_menu.h"
@@ -80,6 +83,18 @@
 #include "skin_engine/skin_engine.h"
 #include "skin_engine/wps_internals.h"
 #include "gui/ipodjs_ui.h"
+#if defined(HAVE_IPODJS_UI) && defined(HAVE_LCD_COLOR)
+#include "bitmaps/ipodjs_app_weather.h"
+#include "bitmaps/ipodjs_app_youtube.h"
+#include "bitmaps/ipodjs_app_maps.h"
+#include "bitmaps/ipodjs_app_clock.h"
+#include "bitmaps/ipodjs_app_instagram.h"
+#include "bitmaps/ipodjs_app_pocket_sky.h"
+#endif
+
+#include "gui/ipodjs_wps_text.h"
+#include "gui/ipodjs_settings.h"
+#include "gui/ipodjs_utilities.h"
 #include "gui/ipodjs_trace.h"
 #ifdef HAVE_IPODJS_UI
 #include "gui/qrcode/qrcodegen.h"
@@ -105,9 +120,19 @@
 #include "language.h"
 #include "plugin.h"
 #include "rockachievements_telemetry.h"
-#ifdef HAVE_IPODJS_UI
 #include "notification_manager.h"
 #include "usb_internet.h"
+
+static bool root_menu_usb_internet_connected(void)
+{
+#if defined(USB_ENABLE_ETHERNET) || defined(USB_ENABLE_IPHETH_HOST) || \
+    defined(SIMULATOR)
+    return usb_internet_connected();
+#else
+    return false;
+#endif
+}
+#ifdef HAVE_IPODJS_UI
 #if defined(USB_ENABLE_IPHETH_HOST) && !defined(SIMULATOR)
 #include "usb_iphone_network.h"
 #include "usb_iphone_preflight.h"
@@ -121,6 +146,7 @@
 #include "mv.h"
 #include "dir.h"
 #include "crc32.h"
+#include "video_library_state.h"
 #include "general.h"
 #if defined(IPOD_NANO2G) || defined(IPOD_VIDEO) || defined(IPOD_6G) || \
     defined(IPOD_NANO3G)
@@ -146,6 +172,10 @@ static void root_menu_video_prepare_netflix_browser_logo(void);
 static struct bitmap *root_menu_video_netflix_logo_small_cached(void);
 static void root_menu_video_prepare_netflix_watched_badge(void);
 static struct bitmap *root_menu_video_netflix_watched_cached(void);
+static void root_menu_video_prepare_wps_assets(void);
+static void root_menu_video_storage_info(char *buf, size_t buf_size,
+                                         int *used_pctp, bool allow_refresh);
+static void root_menu_video_stop_wps_title_scroll(void);
 static int ipodjs_video_wps(void);
 static bool ipodjs_video_wps_empty(const char *title, const char *message,
                                    bool allow_replay);
@@ -527,9 +557,9 @@ static int browser(void* param)
  * spurious checkmark, which is the cheapest possible failure here. */
 #define VIDEO_LIST_WATCHED_MAX 256
 #define VIDEO_LIST_MPEG_RESUME \
-    ROCKBOX_DIR "/rocks/apps/mpegplayer.cfg"
+    VIEWERS_DATA_DIR "/mpegplayer.cfg"
 #define VIDEO_LIST_RVP_RESUME \
-    ROCKBOX_DIR "/rocks/apps/openh264-resume-%08lx.dat"
+    PLUGIN_APPS_DATA_DIR "/openh264-resume-%08lx.dat"
 #define VIDEO_LIST_RVP_RESUME_MAGIC 0x52565031u
 #define VIDEO_LIST_MPEG_TS_SECOND 45000
 #define VIDEO_LIST_THUMB_SIZE 32
@@ -539,6 +569,15 @@ static int browser(void* param)
 #define VIDEO_LIST_NETFLIX_LANDING_H 108
 #define VIDEO_LIST_NETFLIX_DETAIL_W 96
 #define VIDEO_LIST_NETFLIX_DETAIL_H 144
+#define VIDEO_LIST_NETFLIX_BAR_H 32
+#define VIDEO_LIST_NETFLIX_BANNER_W 320
+#define VIDEO_LIST_NETFLIX_BANNER_H 180
+#define VIDEO_LIST_NETFLIX_BANNER_Y VIDEO_LIST_NETFLIX_BAR_H
+#define VIDEO_LIST_NETFLIX_FOOTER_Y \
+    (VIDEO_LIST_NETFLIX_BANNER_Y + VIDEO_LIST_NETFLIX_BANNER_H)
+#define VIDEO_LIST_NETFLIX_FOOTER_H \
+    (LCD_HEIGHT - VIDEO_LIST_NETFLIX_FOOTER_Y)
+#define VIDEO_LIST_NETFLIX_BANNER_DIR VIDEO_LIST_ROOT "/netflix-banner"
 #define VIDEO_LIST_NETFLIX_LANDING_CACHE 3
 #define VIDEO_LIST_NETFLIX_WATCHED_SIZE 16
 /* Netflix brand red and a single derived gradient/shade family, reused
@@ -562,21 +601,6 @@ static int browser(void* param)
 #define VIDEO_LIST_LOOKUP_CACHE 16
 #define VIDEO_LIST_BITMAP_CACHE 8
 #define VIDEO_LIST_PATH_LEN MAX_PATH
-#ifdef HAVE_IPODJS_UI
-#define VIDEO_PIN_PANEL_ASSET \
-    ROCKBOX_DIR "/ipodjs/apple/fast-scroll-blank.apple.95x82x32.bmp"
-#define VIDEO_PIN_FIELD_ASSET \
-    ROCKBOX_DIR "/ipodjs/apple/search-field.apple.97x32x24.bmp"
-#define VIDEO_PIN_SELECTED_ASSET \
-    ROCKBOX_DIR "/ipodjs/apple/search-selected.apple.97x32x24.bmp"
-#define VIDEO_PIN_PANEL_W 95
-#define VIDEO_PIN_PANEL_H 82
-#define VIDEO_PIN_SURFACE_W 97
-#define VIDEO_PIN_SURFACE_H 32
-#define VIDEO_PIN_PANEL_ALPHA_BYTES \
-    (((VIDEO_PIN_PANEL_W + 1) / 2) * VIDEO_PIN_PANEL_H)
-#endif
-
 struct video_entry
 {
     char path[MAX_PATH];
@@ -642,6 +666,7 @@ enum root_menu_video_preview_source {
     IPODJS_PREVIEW_ONLYFANS,
     IPODJS_PREVIEW_INSTAGRAM,
     IPODJS_PREVIEW_REDDIT,
+    IPODJS_PREVIEW_APPLICATIONS,
     IPODJS_PREVIEW_AVATAR,
 };
 
@@ -684,10 +709,15 @@ static unsigned long video_netflix_landing_tick;
 
 #ifdef HAVE_IPODJS_UI
 struct video_netflix_detail {
+    bool subtitles;
     char genre[48];
     char content_rating[16];
     char plot[192];
-    int rating;
+    int year;
+    int user_rating;
+    int external_rating_tenths;
+    int external_rating_votes;
+    char banner_art_id[VIDEO_LIST_ART_ID_LEN];
 };
 
 static struct bitmap video_netflix_detail_bm;
@@ -696,31 +726,23 @@ static unsigned char video_netflix_detail_data[
             FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
 static bool video_netflix_detail_valid;
 static char video_netflix_detail_art_id[VIDEO_LIST_ART_ID_LEN];
+/* One complete 320x180 native banner cache.  It costs 112.5 KiB on the
+ * 16-bit iPod LCD and replaces the old cropped 240x40 strip (a 93.75 KiB BSS
+ * increase).  The Details renderer then paints only this cached bitmap;
+ * image I/O and scaling remain in RockPod sync / the bounded service point. */
+static struct bitmap video_netflix_banner_bm;
+static unsigned char video_netflix_banner_data[
+    BM_SIZE(VIDEO_LIST_NETFLIX_BANNER_W, VIDEO_LIST_NETFLIX_BANNER_H,
+            FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
+static bool video_netflix_banner_valid;
+static char video_netflix_banner_art_id[VIDEO_LIST_ART_ID_LEN];
+static char video_netflix_virtual_banner_art_id[VIDEO_LIST_ART_ID_LEN];
 /* Description shown on the landing screen for the selected row, resolved at
  * the bounded service point so the draw only reads cached text. */
 static char video_netflix_landing_plot[192];
+static bool video_tv_home_requested;
 #endif
 
-#ifdef HAVE_IPODJS_UI
-struct videos_pin_surfaces {
-    struct bitmap panel;
-    unsigned char panel_data[
-        BM_SIZE(VIDEO_PIN_PANEL_W, VIDEO_PIN_PANEL_H,
-                FORMAT_NATIVE, false) + VIDEO_PIN_PANEL_ALPHA_BYTES] IPODJS_BM_ALIGN;
-    struct bitmap field;
-    unsigned char field_data[
-        BM_SIZE(VIDEO_PIN_SURFACE_W, VIDEO_PIN_SURFACE_H,
-                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
-    struct bitmap selected;
-    unsigned char selected_data[
-        BM_SIZE(VIDEO_PIN_SURFACE_W, VIDEO_PIN_SURFACE_H,
-                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
-    bool tried;
-    bool valid;
-};
-
-static struct videos_pin_surfaces videos_pin_surfaces;
-#endif
 #endif
 
 static const char * const video_scan_roots[] = {
@@ -805,24 +827,41 @@ static bool video_parse_manifest_line_v5(const char *line, char *parsed,
     return video_split_tsv(parsed, fields, 22);
 }
 
-/* v6 appended show_plot. A device still holding a v5 manifest must keep
- * working, so fall back to the shorter split and report an empty synopsis
- * rather than losing the row's show and season art. */
-static bool video_parse_manifest_line_v6(const char *line, char *parsed,
+/* v6 appended show_plot, v7 appended playback markers, and v8 appended
+ * provider rating plus banner art. Older manifests remain valid and receive
+ * empty values for the newer fields. */
+static bool video_parse_manifest_line_v8(const char *line, char *parsed,
                                          size_t parsed_size,
-                                         char *fields[23])
+                                         char *fields[30])
 {
     static char empty_field[] = "";
+    int i;
+
+    strmemccpy(parsed, line, parsed_size);
+    if (video_split_tsv(parsed, fields, 30))
+        return true;
+
+    strmemccpy(parsed, line, parsed_size);
+    if (video_split_tsv(parsed, fields, 27))
+    {
+        for (i = 27; i < 30; i++)
+            fields[i] = empty_field;
+        return true;
+    }
 
     strmemccpy(parsed, line, parsed_size);
     if (video_split_tsv(parsed, fields, 23))
+    {
+        for (i = 23; i < 30; i++)
+            fields[i] = empty_field;
         return true;
+    }
 
     strmemccpy(parsed, line, parsed_size);
     if (!video_split_tsv(parsed, fields, 22))
         return false;
-
-    fields[22] = empty_field;
+    for (i = 22; i < 30; i++)
+        fields[i] = empty_field;
     return true;
 }
 
@@ -831,10 +870,10 @@ static void video_manifest_hierarchy_art_id(
     char *art_id, size_t art_id_size)
 {
     char parsed[VIDEO_LIST_MANIFEST_LINE_MAX];
-    char *fields[22];
+    char *fields[30];
     const char *selected = fallback;
 
-    if (video_parse_manifest_line_v5(line, parsed, sizeof(parsed), fields))
+    if (video_parse_manifest_line_v8(line, parsed, sizeof(parsed), fields))
     {
         const char *candidate = fields[season ? 21 : 20];
         if (candidate[0])
@@ -859,111 +898,6 @@ static int video_manifest_year(const char *line)
 }
 
 #ifdef HAVE_IPODJS_UI
-static bool videos_load_pin_bitmap(const char *path, struct bitmap *bitmap,
-                                   unsigned char *data, size_t data_size,
-                                   int width, int height)
-{
-    int rc;
-
-    if (!file_exists(path))
-        return false;
-    memset(bitmap, 0, sizeof(*bitmap));
-    bitmap->width = width;
-    bitmap->height = height;
-    bitmap->format = FORMAT_NATIVE;
-    bitmap->data = data;
-    rc = read_bmp_file(path, bitmap, (int)data_size,
-                       FORMAT_NATIVE | FORMAT_DITHER |
-                       FORMAT_TRANSPARENT, NULL);
-    return rc >= 0 && bitmap->width == width && bitmap->height == height;
-}
-
-static bool videos_load_pin_surfaces(void)
-{
-    if (videos_pin_surfaces.tried)
-        return videos_pin_surfaces.valid;
-
-    videos_pin_surfaces.tried = true;
-    videos_pin_surfaces.valid =
-        videos_load_pin_bitmap(
-            VIDEO_PIN_PANEL_ASSET,
-            &videos_pin_surfaces.panel, videos_pin_surfaces.panel_data,
-            sizeof(videos_pin_surfaces.panel_data),
-            VIDEO_PIN_PANEL_W, VIDEO_PIN_PANEL_H) &&
-        videos_load_pin_bitmap(
-            VIDEO_PIN_FIELD_ASSET,
-            &videos_pin_surfaces.field, videos_pin_surfaces.field_data,
-            sizeof(videos_pin_surfaces.field_data),
-            VIDEO_PIN_SURFACE_W, VIDEO_PIN_SURFACE_H) &&
-        videos_load_pin_bitmap(
-            VIDEO_PIN_SELECTED_ASSET,
-            &videos_pin_surfaces.selected,
-            videos_pin_surfaces.selected_data,
-            sizeof(videos_pin_surfaces.selected_data),
-            VIDEO_PIN_SURFACE_W, VIDEO_PIN_SURFACE_H);
-    return videos_pin_surfaces.valid;
-}
-
-static void videos_draw_tiled_pin_part(struct bitmap *bitmap,
-                                       int src_x, int src_y,
-                                       int src_w, int src_h,
-                                       int x, int y, int width, int height)
-{
-    int drawn_y = 0;
-
-    while (drawn_y < height)
-    {
-        int part_h = MIN(src_h, height - drawn_y);
-        int part_src_y = src_y + (src_h - part_h) / 2;
-        int drawn_x = 0;
-
-        while (drawn_x < width)
-        {
-            int part_w = MIN(src_w, width - drawn_x);
-            int part_src_x = src_x + (src_w - part_w) / 2;
-
-            lcd_bmp_part(bitmap, part_src_x, part_src_y,
-                         x + drawn_x, y + drawn_y, part_w, part_h);
-            drawn_x += part_w;
-        }
-        drawn_y += part_h;
-    }
-}
-
-static void videos_draw_pin_surface(struct bitmap *bitmap, int border,
-                                    int x, int y, int width, int height)
-{
-    int center_w = width - border * 2;
-    int center_h = height - border * 2;
-
-    lcd_set_drawmode(DRMODE_FG);
-    lcd_bmp_part(bitmap, 0, 0, x, y, border, border);
-    lcd_bmp_part(bitmap, bitmap->width - border, 0,
-                 x + width - border, y, border, border);
-    lcd_bmp_part(bitmap, 0, bitmap->height - border,
-                 x, y + height - border, border, border);
-    lcd_bmp_part(bitmap, bitmap->width - border,
-                 bitmap->height - border,
-                 x + width - border, y + height - border,
-                 border, border);
-    videos_draw_tiled_pin_part(bitmap, border, 0,
-        bitmap->width - border * 2, border,
-        x + border, y, center_w, border);
-    videos_draw_tiled_pin_part(bitmap, border, bitmap->height - border,
-        bitmap->width - border * 2, border,
-        x + border, y + height - border, center_w, border);
-    videos_draw_tiled_pin_part(bitmap, 0, border, border,
-        bitmap->height - border * 2,
-        x, y + border, border, center_h);
-    videos_draw_tiled_pin_part(bitmap, bitmap->width - border, border,
-        border, bitmap->height - border * 2,
-        x + width - border, y + border, border, center_h);
-    videos_draw_tiled_pin_part(bitmap, border, border,
-        bitmap->width - border * 2, bitmap->height - border * 2,
-        x + border, y + border, center_w, center_h);
-    lcd_set_drawmode(DRMODE_SOLID);
-}
-
 static void videos_draw_pin_prompt(const char *title, const char *pin,
                                    int digit)
 {
@@ -999,10 +933,12 @@ static void videos_draw_pin_prompt(const char *title, const char *pin,
     lcd_putsxy(MAX(4, (LCD_WIDTH - title_w) / 2), 38, title);
     lcd_putsxy(42, 78, "Scroll to choose, Select to enter");
 
-    videos_draw_pin_surface(&videos_pin_surfaces.panel, 16,
-                            panel_x, panel_y, panel_w, panel_h);
-    videos_draw_pin_surface(&videos_pin_surfaces.field, 6,
-                            field_x, field_y, field_w, field_h);
+    ipodjs_ui_draw_search_surface(&screens[SCREEN_MAIN],
+                                  IPODJS_UI_SEARCH_PANEL,
+                                  panel_x, panel_y, panel_w, panel_h);
+    ipodjs_ui_draw_search_surface(&screens[SCREEN_MAIN],
+                                  IPODJS_UI_SEARCH_FIELD,
+                                  field_x, field_y, field_w, field_h);
 
     for (i = 0; i < length && i < 4; i++)
         masked[i] = '*';
@@ -1029,9 +965,10 @@ static void videos_draw_pin_prompt(const char *title, const char *pin,
             int selected_w = MAX(glyph_w + 6, 16);
             int selected_x = x - (selected_w - glyph_w) / 2;
 
-            videos_draw_pin_surface(&videos_pin_surfaces.selected, 6,
-                                    selected_x, panel_y + 10,
-                                    selected_w, text_h + 3);
+            ipodjs_ui_draw_search_surface(&screens[SCREEN_MAIN],
+                                          IPODJS_UI_SEARCH_SELECTED,
+                                          selected_x, panel_y + 10,
+                                          selected_w, text_h + 3);
             lcd_set_foreground(LCD_WHITE);
         }
         else
@@ -1044,7 +981,7 @@ static void videos_draw_pin_prompt(const char *title, const char *pin,
 }
 #endif
 
-/* Keep Locked Videos code entry identical to Photos: use the same Apple
+/* Keep Locked Videos code entry identical to Photos: use the exact RetailOS
  * surfaces, turn the wheel to choose, Select to enter, Left to erase, and
  * Menu to cancel.  Assets are loaded once before the cached draw loop. */
 static int videos_prompt_pin_wheel(const char *title, char *pin,
@@ -1058,7 +995,7 @@ static int videos_prompt_pin_wheel(const char *title, char *pin,
 
     if (pin_size < 5 || global_settings.ui_engine != UI_ENGINE_IPODJS ||
         LCD_WIDTH < 220 || LCD_HEIGHT < 180 ||
-        !videos_load_pin_surfaces())
+        !ipodjs_ui_prepare_search_surfaces())
         return -1;
 
     old_backdrop = lcd_get_backdrop();
@@ -1286,7 +1223,10 @@ static bool video_manifest_path_is_descendant(const char *directory_path,
     return candidate[length] == '/';
 }
 
-static bool video_find_manifest_thumb(const char *video_path,
+/* Release the manifest's two 1 KiB line buffers before the caller decodes
+ * artwork. Inlining keeps them on the small main-thread stack during BMP I/O. */
+static bool __attribute__((noinline))
+video_find_manifest_thumb(const char *video_path,
                                       bool is_directory,
                                       char *thumb_path,
                                       size_t thumb_path_size)
@@ -1597,9 +1537,10 @@ static void videos_cache_netflix_landing_window(
 static bool videos_netflix_appearance(void)
 {
 #ifdef HAVE_IPODJS_UI
-    return global_settings.ui_engine == UI_ENGINE_IPODJS &&
-           global_settings.ui_engine_video_appearance ==
-               UI_ENGINE_VIDEO_NETFLIX;
+    return tv_ui_active() ||
+           (global_settings.ui_engine == UI_ENGINE_IPODJS &&
+            global_settings.ui_engine_video_appearance ==
+                UI_ENGINE_VIDEO_NETFLIX);
 #else
     return false;
 #endif
@@ -1695,12 +1636,22 @@ static bool is_supported_video_ext(const char *ext)
     return !strcasecmp(ext, "mpg") || !strcasecmp(ext, "mpeg")
         || !strcasecmp(ext, "mpv") || !strcasecmp(ext, "m2v")
         || !strcasecmp(ext, "h264")
-        || !strcasecmp(ext, "rvp");
+        || !strcasecmp(ext, "rvp")
+#if defined(IPOD_6G) || defined(IPOD_VIDEO)
+        || !strcasecmp(ext, "mp4") || !strcasecmp(ext, "m4v")
+        || !strcasecmp(ext, "mov")
+#endif
+        ;
 }
 
 static const char *video_plugin_for_ext(const char *ext)
 {
-    if (ext && (!strcasecmp(ext, "h264") || !strcasecmp(ext, "rvp")))
+    if (ext && (!strcasecmp(ext, "h264") || !strcasecmp(ext, "rvp")
+#if defined(IPOD_6G) || defined(IPOD_VIDEO)
+                || !strcasecmp(ext, "mp4") || !strcasecmp(ext, "m4v")
+                || !strcasecmp(ext, "mov")
+#endif
+               ))
         return "openh264_player";
 
     return "mpegplayer";
@@ -1754,7 +1705,8 @@ static int video_netflix_mpeg_resume_time(const char *path)
         char *name;
         char *value;
 
-        settings_parseline(line, &name, &value);
+        if (!settings_parseline(line, &name, &value))
+            continue;
         if (!strcmp(name, path))
         {
             int resume_time = atoi(value);
@@ -1773,7 +1725,23 @@ static bool video_netflix_resume_progress(struct video_entry *entry)
 
     if (!entry || !entry->playable)
         return false;
-    if (!strcasecmp(entry->format, "RVP"))
+    struct video_library_state shared;
+    if (video_library_load(entry->path, &shared))
+    {
+        if (shared.watched || shared.position_ms == 0) return false;
+        percent = (uint64_t)shared.position_ms * 100 / shared.duration_ms;
+        if (percent >= 95) return false;
+        entry->resume_percent = MAX(1u, MIN(percent,94u));
+        return true;
+    }
+    /* Hardware H.264 stores the same sample-index record as raw video. */
+    if (!strcasecmp(entry->format, "RVP")
+#if (defined(IPOD_6G) || defined(IPOD_VIDEO)) && !defined(SIMULATOR)
+        || !strcasecmp(entry->format, "MP4")
+        || !strcasecmp(entry->format, "M4V")
+        || !strcasecmp(entry->format, "MOV")
+#endif
+       )
     {
         struct video_rvp_resume_record record;
         uint32_t crc = crc_32(entry->path, strlen(entry->path), 0xffffffff);
@@ -1794,7 +1762,8 @@ static bool video_netflix_resume_progress(struct video_entry *entry)
         if (record.magic != VIDEO_LIST_RVP_RESUME_MAGIC ||
             record.path_crc != crc || record.frame <= 0 ||
             record.total_frames <= 0 ||
-            record.frame >= (record.total_frames * 95) / 100)
+            (uint64_t)record.frame * 100 >=
+                (uint64_t)record.total_frames * 95)
             return false;
         percent = (unsigned)
             ((uint64_t)record.frame * 100 / record.total_frames);
@@ -1824,6 +1793,10 @@ static bool video_netflix_resume_progress(struct video_entry *entry)
 }
 
 #if defined(HAVE_LCD_COLOR) && defined(HAVE_IPODJS_UI)
+#define NF_API(name) name
+#include "netflix_preferences.h"
+#undef NF_API
+
 static uint32_t video_netflix_watched_crc[VIDEO_LIST_WATCHED_MAX];
 static int video_netflix_watched_count;
 
@@ -1880,10 +1853,11 @@ static void videos_netflix_apply_watched(struct video_browser_state *state)
     {
         struct video_entry *entry = &state->entries[i];
 
-        /* Both players delete their resume record once a title is finished,
-         * so completion is only ever known from the shared watched list. */
+        /* New players share logical state; preserve legacy watched lists. */
+        struct video_library_state shared;
         entry->watched = !entry->is_directory && entry->playable &&
-                         video_netflix_path_watched(entry->path);
+            (video_library_load(entry->path,&shared) ? shared.watched :
+             video_netflix_path_watched(entry->path));
     }
 }
 #endif
@@ -1891,6 +1865,8 @@ static void videos_netflix_apply_watched(struct video_browser_state *state)
 static int video_launch_entry_at(const struct video_entry *entry,
                                  bool from_beginning)
 {
+    if (from_beginning && entry->duration_sec > 0)
+        video_library_save(entry->path,0,(uint64_t)entry->duration_sec*1000,false);
     const char *parameter = entry->path;
     int result;
 #if defined(HAVE_LCD_COLOR) && defined(HAVE_IPODJS_UI)
@@ -1928,6 +1904,75 @@ static int video_launch_entry(const struct video_entry *entry)
     return video_launch_entry_at(entry, false);
 }
 
+/* Load chapter metadata only on explicit entry, outside the artwork renderer.
+ * Fixed storage and cue bounds keep malformed sidecars out of playback memory. */
+static struct { uint32_t ms; char title[96]; } video_chapters[256];
+static const char *video_chapter_name(int selected, void *data,
+                                     char *buffer, size_t size)
+{
+    (void)data; (void)buffer; (void)size;
+    return video_chapters[selected].title;
+}
+
+static int video_chapters_for_entry(const struct video_entry *entry)
+{
+    char path[MAX_PATH], line[160];
+    int count = 0;
+    if (!entry || !entry->playable || entry->duration_sec <= 0) return 0;
+    strlcpy(path,entry->path,sizeof(path));
+    char *dot = strrchr(path,'.');
+    if (!dot) return 0;
+    strlcpy(dot,".chapters",sizeof(path)-(dot-path));
+    int fd = open(path,O_RDONLY);
+    if (fd >= 0)
+    {
+        if (read_line(fd,line,sizeof(line)) <= 0 ||
+            strcmp(line,"# Rockpod chapters v1"))
+        {
+            close(fd);
+            splash(HZ,"Unsupported chapter file");
+            return 0;
+        }
+        while (count < (int)ARRAYLEN(video_chapters) && read_line(fd,line,sizeof(line))>0)
+        {
+            char *end;
+            unsigned long ms = strtoul(line,&end,10);
+            if (*end != '\t' || ms >= (uint64_t)entry->duration_sec*1000 ||
+                (count && ms <= video_chapters[count-1].ms))
+            { count=0; break; }
+            video_chapters[count].ms=ms;
+            snprintf(video_chapters[count].title,sizeof(video_chapters[count].title),
+                     "%lu:%02lu  %s",ms/60000,ms/1000%60,end+1);
+            count++;
+        }
+        close(fd);
+    }
+    if (!count) { splash(HZ,"No chapters in this video"); return 0; }
+    struct gui_synclist list;
+    gui_synclist_init(&list,video_chapter_name,NULL,false,1,NULL);
+    gui_synclist_set_title(&list,"Chapters",Icon_NOICON);
+    gui_synclist_set_nb_items(&list,count);
+    gui_synclist_select_item(&list,0);
+    while (true)
+    {
+        gui_synclist_draw(&list);
+        int action = get_action(CONTEXT_STD,HZ/4);
+        if (action == ACTION_STD_OK)
+        {
+            int selected = gui_synclist_get_sel_pos(&list);
+            gui_synclist_scroll_stop(&list);
+            video_library_save(entry->path,video_chapters[selected].ms,
+                               (uint64_t)entry->duration_sec*1000,false);
+            return video_launch_entry(entry);
+        }
+        if (action == ACTION_STD_CANCEL || action == ACTION_STD_MENU ||
+            default_event_handler(action) == SYS_USB_CONNECTED) break;
+        gui_synclist_do_button(&list,&action);
+    }
+    gui_synclist_scroll_stop(&list);
+    return 0;
+}
+
 static bool is_known_video_ext(const char *ext)
 {
     return is_supported_video_ext(ext)
@@ -1938,6 +1983,7 @@ static bool is_known_video_ext(const char *ext)
         || !strcasecmp(ext, "rvp");
 }
 
+#include "strnatcmp.h"
 static int video_entry_type_weight(bool is_directory);
 
 /* Comparison functions for qsort */
@@ -1950,7 +1996,7 @@ static int video_compare_name_az(const void *a, const void *b)
         return video_entry_type_weight(va->is_directory) -
                video_entry_type_weight(vb->is_directory);
 
-    return strcasecmp(va->title, vb->title);
+    return strnatcasecmp(va->title, vb->title);
 }
 
 static int video_compare_name_za(const void *a, const void *b)
@@ -2588,6 +2634,18 @@ static void videos_scan_virtual_dir(struct video_browser_state *state)
         strmemccpy(state->entries[5].art_id, VIDEO_LIST_LOCK_ART_ID,
                    sizeof(state->entries[5].art_id));
 
+#if defined(HAVE_LCD_COLOR) && defined(HAVE_IPODJS_UI)
+        if (videos_netflix_appearance())
+        {
+            unsigned hidden = nf_preferences() >> 1;
+            int kept = 0;
+            for (int i = 0; i < state->count; i++)
+                if (!(hidden & (1u << i)))
+                    state->entries[kept++] = state->entries[i];
+            state->count = kept;
+        }
+#endif
+
         /* Resolve the last title while the manifest is already open. Artwork
          * decoding remains in the browser's bounded service point. */
         while (read_line(fd, line, sizeof(line)) > 0)
@@ -3025,7 +3083,8 @@ static void videos_draw_item(struct list_putlineinfo_t *list_info)
     if (global_settings.ui_engine == UI_ENGINE_IPODJS)
     {
         int row_height = list_info->linedes->height;
-        int font_height = font_get(ipodjs_ui_font())->height;
+        int font_height = font_get(videos_netflix_appearance() ?
+            ipodjs_ui_font() : ipodjs_ui_retailos_menu_font())->height;
         int text_x = 8;
         int text_y = list_info->y +
             MAX(0, (row_height - font_height) / 2);
@@ -3180,17 +3239,113 @@ bool root_menu_videos_browser_active(void)
 }
 
 #if defined(HAVE_LCD_COLOR) && defined(HAVE_IPODJS_UI)
+static void video_netflix_load_banner(const char *art_id)
+{
+    char path[MAX_PATH];
+
+    video_netflix_banner_valid = false;
+    video_netflix_banner_art_id[0] = '\0';
+    if (!art_id || !art_id[0] ||
+        !strcmp(art_id, VIDEO_LIST_LOCK_ART_ID))
+        return;
+
+    snprintf(path, sizeof(path), "%s/%s.bmp",
+             VIDEO_LIST_NETFLIX_BANNER_DIR, art_id);
+    if (!file_exists(path))
+        return;
+
+    memset(&video_netflix_banner_bm, 0, sizeof(video_netflix_banner_bm));
+    video_netflix_banner_bm.width = VIDEO_LIST_NETFLIX_BANNER_W;
+    video_netflix_banner_bm.height = VIDEO_LIST_NETFLIX_BANNER_H;
+    video_netflix_banner_bm.format = FORMAT_NATIVE;
+    video_netflix_banner_bm.data = video_netflix_banner_data;
+    video_netflix_banner_valid =
+        read_bmp_file(path, &video_netflix_banner_bm,
+                      sizeof(video_netflix_banner_data),
+                      FORMAT_NATIVE | FORMAT_DITHER, NULL) >= 0 &&
+        video_netflix_banner_bm.width == VIDEO_LIST_NETFLIX_BANNER_W &&
+        video_netflix_banner_bm.height == VIDEO_LIST_NETFLIX_BANNER_H;
+    if (video_netflix_banner_valid)
+        strmemccpy(video_netflix_banner_art_id, art_id,
+                   sizeof(video_netflix_banner_art_id));
+}
+
+static bool video_draw_netflix_banner(struct screen *display, int y)
+{
+    if (!video_netflix_banner_valid || !video_netflix_banner_art_id[0])
+        return false;
+    if (display->lcdwidth != VIDEO_LIST_NETFLIX_BANNER_W ||
+        y + VIDEO_LIST_NETFLIX_BANNER_H > display->lcdheight)
+        return false;
+
+    display->bmp_part(&video_netflix_banner_bm, 0, 0, 0, y,
+                      VIDEO_LIST_NETFLIX_BANNER_W,
+                      VIDEO_LIST_NETFLIX_BANNER_H);
+    return true;
+}
+
+/* The official cached logo is 91x42. Scale its cached pixels to 69x32 so the
+ * real asset fits wholly inside the Netflix bar instead of leaking ten rows
+ * over the selected title banner. This performs no allocation or I/O. */
+static void video_draw_netflix_bar_logo(struct screen *display,
+                                        const struct bitmap *logo)
+{
+    const int dst_x = 7;
+    const int dst_y = 0;
+    const int dst_w = 69;
+    const int dst_h = VIDEO_LIST_NETFLIX_BAR_H;
+    const fb_data *pixels;
+    unsigned long x_step;
+    unsigned long y_step;
+    unsigned long y_pos;
+    int y;
+
+    if (!logo || !logo->data || logo->width <= 0 || logo->height <= 0 ||
+        display->lcdwidth < dst_x + dst_w ||
+        display->lcdheight < dst_y + dst_h)
+        return;
+
+    pixels = (const fb_data *)logo->data;
+    x_step = ((unsigned long)logo->width << 16) / dst_w;
+    y_step = ((unsigned long)logo->height << 16) / dst_h;
+    y_pos = y_step / 2;
+
+    for (y = 0; y < dst_h; y++)
+    {
+        int src_y = MIN(logo->height - 1, (int)(y_pos >> 16));
+        const fb_data *src = pixels + src_y * logo->width;
+        fb_data *dst = FBADDR(dst_x, dst_y + y);
+        unsigned long x_pos = x_step / 2;
+        int x;
+
+        for (x = 0; x < dst_w; x++)
+        {
+            int src_x = MIN(logo->width - 1, (int)(x_pos >> 16));
+            dst[x] = src[src_x];
+            x_pos += x_step;
+        }
+        y_pos += y_step;
+    }
+}
+
 static void video_load_netflix_detail(const struct video_entry *entry,
-                                      struct video_netflix_detail *detail)
+                                      struct video_netflix_detail *detail,
+                                      bool load_banner)
 {
     char line[VIDEO_LIST_MANIFEST_LINE_MAX];
     char poster_path[MAX_PATH];
+    char banner_art_id[VIDEO_LIST_ART_ID_LEN];
     int fd;
 
     memset(detail, 0, sizeof(*detail));
+    snprintf(poster_path, sizeof(poster_path), "%s.nfs", entry->path);
+    detail->subtitles = file_exists(poster_path);
     video_netflix_detail_valid = false;
     video_netflix_detail_art_id[0] = '\0';
+    video_netflix_banner_valid = false;
+    video_netflix_banner_art_id[0] = '\0';
     poster_path[0] = '\0';
+    banner_art_id[0] = '\0';
 
     fd = open(VIDEO_LIST_INDEX, O_RDONLY);
     if (fd >= 0)
@@ -3198,13 +3353,13 @@ static void video_load_netflix_detail(const struct video_entry *entry,
         while (read_line(fd, line, sizeof(line)) > 0)
         {
             char parsed[VIDEO_LIST_MANIFEST_LINE_MAX];
-            char *fields[23];
+            char *fields[30];
             const char *device_path;
 
             video_trim_line(line);
             if (line[0] == '#' || line[0] == '\0' ||
                 strncmp(line, "video_id\t", 9) == 0 ||
-                !video_parse_manifest_line_v6(line, parsed,
+                !video_parse_manifest_line_v8(line, parsed,
                                               sizeof(parsed), fields))
                 continue;
 
@@ -3214,12 +3369,17 @@ static void video_load_netflix_detail(const struct video_entry *entry,
                 continue;
 
             strmemccpy(detail->genre, fields[13], sizeof(detail->genre));
-            detail->rating = atoi(fields[14]);
             strmemccpy(detail->plot,
                        fields[16][0] ? fields[16] : fields[15],
                        sizeof(detail->plot));
             strmemccpy(detail->content_rating, fields[17],
                        sizeof(detail->content_rating));
+            detail->user_rating = atoi(fields[14]);
+            detail->external_rating_tenths = atoi(fields[27]);
+            detail->external_rating_votes = atoi(fields[28]);
+            strmemccpy(detail->banner_art_id, fields[29],
+                       sizeof(detail->banner_art_id));
+            strmemccpy(banner_art_id, fields[29], sizeof(banner_art_id));
             /* A row with no plot of its own still describes its series, so
              * every title ends up with something to read. */
             if (!detail->plot[0])
@@ -3232,6 +3392,9 @@ static void video_load_netflix_detail(const struct video_entry *entry,
         }
         close(fd);
     }
+
+    if (load_banner)
+        video_netflix_load_banner(banner_art_id);
 
     if (!poster_path[0])
         (void)video_entry_art_path(entry, true, poster_path,
@@ -3286,17 +3449,80 @@ static void video_draw_netflix_wrapped(struct screen *display,
     }
 }
 
+static void video_draw_netflix_banner_footer(
+    struct screen *display, const struct video_entry *entry,
+    int selected_action)
+{
+    display->set_foreground(LCD_RGBPACK(13, 13, 13));
+    display->fillrect(0, VIDEO_LIST_NETFLIX_FOOTER_Y,
+                      display->lcdwidth, VIDEO_LIST_NETFLIX_FOOTER_H);
+
+    if (entry->is_resume)
+    {
+        const int tab_w = display->lcdwidth / 2;
+        const char * const labels[2] = {
+            "RESUME", "PLAY FROM BEGINNING"
+        };
+        int tab;
+
+        display->setfont(FONT_SYSFIXED);
+        display->set_background(LCD_RGBPACK(13, 13, 13));
+        for (tab = 0; tab < 2; tab++)
+        {
+            display->set_foreground(selected_action == tab ?
+                                    LCD_WHITE :
+                                    LCD_RGBPACK(145, 145, 145));
+            ipodjs_ui_puts_fit(display, tab * tab_w + 4,
+                               VIDEO_LIST_NETFLIX_FOOTER_Y + 8,
+                               tab_w - 8, labels[tab], true);
+            if (selected_action == tab)
+            {
+                display->set_foreground(VIDEO_LIST_NETFLIX_RED);
+                display->fillrect(tab * tab_w + 24,
+                                  LCD_HEIGHT - 3, tab_w - 48, 2);
+            }
+        }
+        return;
+    }
+
+    display->setfont(FONT_SYSFIXED);
+    display->set_foreground(entry->playable ?
+                            LCD_WHITE : LCD_RGBPACK(145, 145, 145));
+    display->set_background(LCD_RGBPACK(13, 13, 13));
+    ipodjs_ui_puts_fit(display, 8,
+                       VIDEO_LIST_NETFLIX_FOOTER_Y + 8,
+                       display->lcdwidth - 16,
+                       entry->playable ?
+                           "PLAY FROM BEGINNING" : "UNAVAILABLE",
+                       true);
+    if (entry->playable)
+    {
+        display->set_foreground(VIDEO_LIST_NETFLIX_RED);
+        display->fillrect(88, LCD_HEIGHT - 3,
+                          display->lcdwidth - 176, 2);
+    }
+}
+
 static void video_draw_netflix_detail(const struct video_entry *entry,
                                       const struct video_netflix_detail *detail,
                                       int selected_action)
 {
     struct screen *display = &screens[SCREEN_MAIN];
     const int poster_x = 8;
-    const int poster_y = 48;
+    const int poster_y = 76;
     const int text_x = poster_x + VIDEO_LIST_NETFLIX_DETAIL_W + 10;
     const int text_w = display->lcdwidth - text_x - 8;
     struct bitmap *logo = root_menu_video_netflix_logo_small_cached();
     char metadata[80];
+
+    tv_ui_set_brand(logo,VIDEO_LIST_NETFLIX_RED);
+    tv_detail_draw(entry->title,
+        video_netflix_detail_valid ? &video_netflix_detail_bm : NULL,
+        NULL,
+        detail->genre, detail->plot,
+        !entry->playable ? "Unavailable" : entry->is_resume ?
+        (selected_action == 0 ? "Resume" : "Play from beginning") : "Play",
+        entry->is_resume ? selected_action : -1);
 
     display->set_viewport(NULL);
     display->set_drawmode(DRMODE_SOLID);
@@ -3305,14 +3531,30 @@ static void video_draw_netflix_detail(const struct video_entry *entry,
     display->clear_display();
 
     display->set_foreground(VIDEO_LIST_NETFLIX_RED);
-    display->fillrect(0, 0, display->lcdwidth, 42);
-    if (logo)
-        display->bmp_part(logo, 0, 0, 7, 0, logo->width, logo->height);
+    display->fillrect(0, 0, display->lcdwidth,
+                      VIDEO_LIST_NETFLIX_BAR_H);
+    video_draw_netflix_bar_logo(display, logo);
     display->setfont(FONT_SYSFIXED);
     display->set_foreground(LCD_WHITE);
     display->set_background(VIDEO_LIST_NETFLIX_RED);
-    ipodjs_ui_puts_fit(display, 112, 15, display->lcdwidth - 120,
-                       "TITLE DETAILS", true);
+    ipodjs_ui_puts_fit(display, 84, 10, display->lcdwidth - (detail->subtitles ? 124 : 92),
+                       entry->title, true);
+
+    if (detail->subtitles)
+        display->putsxy(LCD_WIDTH - 26, 10, "CC");
+
+    /* A synced banner owns the complete 320x180 surface below the Netflix
+     * bar.  Its action row starts exactly where the image ends, so neither
+     * the bar nor the old poster/metadata layout can cover any of the source
+     * image.  Titles without banners retain the compact detail fallback. */
+    if (video_draw_netflix_banner(display,
+                                  VIDEO_LIST_NETFLIX_BANNER_Y))
+    {
+        video_draw_netflix_banner_footer(display, entry, selected_action);
+        ipodjs_ui_transition_present(display);
+        display->update();
+        return;
+    }
 
     if (video_netflix_detail_valid)
         display->bmp_part(&video_netflix_detail_bm, 0, 0,
@@ -3350,7 +3592,7 @@ static void video_draw_netflix_detail(const struct video_entry *entry,
     display->setfont(ipodjs_ui_font());
     display->set_foreground(LCD_WHITE);
     display->set_background(LCD_RGBPACK(13, 13, 13));
-    ipodjs_ui_puts_fit(display, text_x, 48, text_w,
+    ipodjs_ui_puts_fit(display, text_x, 78, text_w,
                        entry->title, false);
 
     if (entry->year > 0 && entry->duration_sec > 0)
@@ -3364,30 +3606,39 @@ static void video_draw_netflix_detail(const struct video_entry *entry,
     else
         metadata[0] = '\0';
 
-    if (detail->rating > 0)
+    if (detail->external_rating_tenths > 0)
     {
         size_t used = strlen(metadata);
         snprintf(metadata + used, sizeof(metadata) - used,
-                 "%s%d/5", used ? "  |  " : "", detail->rating);
+                 "%s%d.%d/10", used ? "  |  " : "",
+                 detail->external_rating_tenths / 10,
+                 detail->external_rating_tenths % 10);
+    }
+    else if (detail->user_rating > 0)
+    {
+        size_t used = strlen(metadata);
+        snprintf(metadata + used, sizeof(metadata) - used,
+                 "%sMY RATING %d/5", used ? "  |  " : "",
+                 MIN(detail->user_rating, 5));
     }
 
     display->setfont(FONT_SYSFIXED);
     display->set_foreground(LCD_RGBPACK(181, 181, 181));
-    ipodjs_ui_puts_fit(display, text_x, 73, text_w, metadata, false);
+    ipodjs_ui_puts_fit(display, text_x, 100, text_w, metadata, false);
     snprintf(metadata, sizeof(metadata), "%s%s%s",
              detail->content_rating[0] ? detail->content_rating :
                                          entry->format,
              detail->genre[0] ? "  |  " : "",
              detail->genre);
-    ipodjs_ui_puts_fit(display, text_x, 90, text_w, metadata, false);
+    ipodjs_ui_puts_fit(display, text_x, 116, text_w, metadata, false);
 
     display->set_foreground(LCD_RGBPACK(225, 225, 225));
     video_draw_netflix_wrapped(display, detail->plot,
-                               text_x, 108, text_w, 4);
+                               text_x, 132, text_w, 2);
 
     if (entry->is_resume)
     {
-        const int button_y[2] = { 163, 191 };
+        const int button_y[2] = { 158, 186 };
         const char * const button_text[2] = {
             "RESUME", "PLAY FROM BEGINNING"
         };
@@ -3417,29 +3668,6 @@ static void video_draw_netflix_detail(const struct video_entry *entry,
                                button_text[button], true);
         }
     }
-    else if (entry->playable)
-    {
-        display->set_foreground(LCD_WHITE);
-        display->fillrect(text_x, 165, text_w, 27);
-        display->setfont(ipodjs_ui_font());
-        display->set_foreground(LCD_BLACK);
-        display->set_background(LCD_WHITE);
-        ipodjs_ui_puts_fit(display, text_x + 6, 170, text_w - 12,
-                           "PLAY", true);
-    }
-    else
-    {
-        display->set_foreground(LCD_RGBPACK(49, 49, 49));
-        display->fillrect(text_x, 165, text_w, 27);
-        display->set_foreground(LCD_RGBPACK(106, 106, 106));
-        display->drawrect(text_x, 165, text_w, 27);
-        display->setfont(ipodjs_ui_font());
-        display->set_foreground(LCD_RGBPACK(150, 150, 150));
-        display->set_background(LCD_RGBPACK(49, 49, 49));
-        ipodjs_ui_puts_fit(display, text_x + 6, 170, text_w - 12,
-                           "UNSUPPORTED", true);
-    }
-
     display->setfont(FONT_SYSFIXED);
     display->set_foreground(LCD_RGBPACK(140, 140, 140));
     display->set_background(LCD_RGBPACK(13, 13, 13));
@@ -3448,20 +3676,174 @@ static void video_draw_netflix_detail(const struct video_entry *entry,
                        entry->is_resume ?
                            "SCROLL  Choose     SELECT  Play" :
                            "MENU  Back       SELECT  Play", true);
+    ipodjs_ui_transition_present(display);
     display->update();
+}
+
+struct video_tv_panel_data { struct video_entry *episode; unsigned prefs; };
+static const char *video_tv_panel_name(int row, void *data, char *buf, size_t size)
+{
+    const struct video_tv_panel_data *panel = data;
+    static const char * const labels[] = {
+        "Subtitles", "Movies", "TV Shows", "Concerts", "Music Videos", "Home Videos", "Locked"
+    };
+    if (panel->episode)
+        return row == 1 ? "Chapters" : row == 2 ? "Back" :
+            panel->episode->watched ? "Watched" : "Mark as watched";
+    snprintf(buf,size,"%s: %s",labels[row], row == 0 ?
+        (panel->prefs & NF_SUBTITLES ? "English" : "Off") :
+        (panel->prefs & (1u << row) ? "Hidden" : "Shown"));
+    return buf;
+}
+
+/* This panel uses the Quick Settings row metrics and transition cache.
+ * All storage work happens on input, never while painting. */
+static void video_netflix_panel(struct video_entry *episode)
+{
+    static const char * const labels[] = {
+        "Subtitles", "Movies", "TV Shows", "Concerts", "Music Videos",
+        "Home Videos", "Locked"
+    };
+    unsigned prefs = nf_preferences();
+    int selected = 0, top = 0;
+    int count = episode ? 3 : ARRAYLEN(labels);
+    int font = ipodjs_ui_retailos_menu_font();
+    int row_h = MAX(23, font_get(font)->height + 4);
+    int visible = MAX(1, (LCD_HEIGHT - 52) / row_h);
+    bool done = false;
+    ipodjs_ui_transition_begin(1);
+    while (!done)
+    {
+        struct screen *display = &screens[SCREEN_MAIN];
+        if (tv_ui_active())
+        {
+            struct video_tv_panel_data panel = { episode, prefs };
+            struct gui_synclist list = {
+                .title = episode ? "Episode" : "Video Settings",
+                .callback_get_item_name = video_tv_panel_name,
+                .data = &panel, .nb_items = count, .selected_item = selected
+            };
+            tv_ui_set_brand(root_menu_video_netflix_logo_small_cached(),
+                            VIDEO_LIST_NETFLIX_RED);
+            tv_list_art_draw(&list,NULL);
+        }
+        display->set_viewport(NULL);
+        display->set_drawmode(DRMODE_SOLID);
+        display->set_background(LCD_RGBPACK(13, 13, 13));
+        display->clear_display();
+        display->set_foreground(VIDEO_LIST_NETFLIX_RED);
+        display->fillrect(0, 0, LCD_WIDTH, VIDEO_LIST_NETFLIX_BAR_H);
+        video_draw_netflix_bar_logo(display,
+            root_menu_video_netflix_logo_small_cached());
+        display->setfont(font);
+        display->set_foreground(LCD_WHITE);
+        display->putsxy(88, 8, episode ? "Episode" : "Settings");
+        for (int i = top; i < MIN(count, top + visible); i++)
+        {
+            int y = VIDEO_LIST_NETFLIX_BAR_H + (i - top) * row_h;
+            unsigned bg = i == selected ? VIDEO_LIST_NETFLIX_RED :
+                                         LCD_RGBPACK(24, 24, 24);
+            const char *label = episode ?
+                (i == 0 ? (episode->watched ? "Watched" : "Mark as watched") :
+                 i == 1 ? "Chapters" : "Back") : labels[i];
+            const char *value = episode ? "" : i == 0 ?
+                (prefs & NF_SUBTITLES ? "English" : "Off") :
+                (prefs & (1u << i) ? "Hidden" : "Shown");
+            int w;
+            display->set_foreground(bg);
+            display->fillrect(0, y, LCD_WIDTH, row_h);
+            display->set_background(bg);
+            display->set_foreground(LCD_WHITE);
+            display->putsxy(10, y + 2, label);
+            display->getstringsize(value, &w, NULL);
+            display->putsxy(LCD_WIDTH - w - 10, y + 2, value);
+        }
+        ipodjs_ui_transition_present(display);
+        display->update();
+        int action = get_action(CONTEXT_STD, HZ / 4);
+        switch (action)
+        {
+            case ACTION_STD_PREV:
+            case ACTION_STD_PREVREPEAT:
+                selected = MAX(0, selected - 1); break;
+            case ACTION_STD_NEXT:
+            case ACTION_STD_NEXTREPEAT:
+                selected = MIN(count - 1, selected + 1); break;
+            case ACTION_STD_OK:
+                if (episode)
+                {
+                    if (selected == 1)
+                        video_chapters_for_entry(episode);
+                    if (selected == 0 && !episode->watched)
+                    {
+                        int fd = open(VIDEO_LIST_NETFLIX_WATCHED,
+                                      O_WRONLY | O_CREAT | O_APPEND, 0666);
+                        if (fd >= 0)
+                        {
+                            int len = strlen(episode->path);
+                            bool saved = write(fd, episode->path, len) == len &&
+                                         write(fd, "\n", 1) == 1;
+                            close(fd);
+                            if (saved)
+                            {
+                                video_library_save(episode->path, 0,
+                                    (uint64_t)episode->duration_sec*1000, true);
+                                episode->watched = true;
+                            }
+                            else splash(HZ, "Could not save watched status");
+                        }
+                        else splash(HZ, "Could not save watched status");
+                    }
+                    done = true;
+                }
+                else
+                {
+                    unsigned next = prefs ^ (1u << selected);
+                    uint32_t record[2] = { 0x3143464e, next };
+                    int fd = open(NF_PREFS_PATH ".tmp",
+                                  O_WRONLY | O_CREAT | O_TRUNC, 0666);
+                    bool saved = false;
+                    if (fd >= 0)
+                    {
+                        saved = write(fd, record, sizeof(record)) == sizeof(record);
+                        close(fd);
+                        saved = saved && rename(NF_PREFS_PATH ".tmp", NF_PREFS_PATH) == 0;
+                    }
+                    if (saved) prefs = next;
+                    else splash(HZ, "Could not save settings");
+                }
+                break;
+            case ACTION_STD_MENU:
+            case ACTION_STD_CANCEL:
+                if (tv_ui_active() && action == ACTION_STD_MENU)
+                    video_tv_home_requested = true;
+                done = true; break;
+            default:
+                if (default_event_handler(action) == SYS_USB_CONNECTED)
+                    done = true;
+                break;
+        }
+        if (selected < top) top = selected;
+        if (selected >= top + visible) top = selected - visible + 1;
+    }
+    button_clear_queue();
+    ipodjs_ui_transition_begin(-1);
 }
 
 static int video_netflix_detail_screen(struct video_entry *entry)
 {
+    struct video_entry screen_entry = *entry;
     struct video_netflix_detail detail;
     struct viewport vp;
     int selected_action = 0;
     bool repaint_pending = false;
 
+    screen_entry.is_resume =
+        video_netflix_resume_progress(&screen_entry);
     root_menu_video_prepare_netflix_browser_logo();
-    video_load_netflix_detail(entry, &detail);
+    video_load_netflix_detail(&screen_entry, &detail, !tv_ui_active());
     viewportmanager_theme_enable(SCREEN_MAIN, false, &vp);
-    video_draw_netflix_detail(entry, &detail, selected_action);
+    video_draw_netflix_detail(&screen_entry, &detail, selected_action);
     /* One update does not reliably reach the panel, which would leave the
      * previous screen showing. Repaint once more on the first idle tick;
      * everything it paints is already cached. */
@@ -3476,7 +3858,8 @@ static int video_netflix_detail_screen(struct video_entry *entry)
             if (repaint_pending)
             {
                 repaint_pending = false;
-                video_draw_netflix_detail(entry, &detail, selected_action);
+                video_draw_netflix_detail(&screen_entry, &detail,
+                                           selected_action);
             }
             continue;
         }
@@ -3485,11 +3868,11 @@ static int video_netflix_detail_screen(struct video_entry *entry)
         switch (action)
         {
             case ACTION_STD_OK:
-                if (entry->playable)
+                if (screen_entry.playable)
                 {
                     viewportmanager_theme_undo(SCREEN_MAIN, false);
-                    video_launch_entry_at(entry,
-                                          entry->is_resume &&
+                    video_launch_entry_at(&screen_entry,
+                                          !screen_entry.is_resume ||
                                           selected_action == 1);
                     return 1;
                 }
@@ -3498,15 +3881,30 @@ static int video_netflix_detail_screen(struct video_entry *entry)
             case ACTION_STD_PREVREPEAT:
             case ACTION_STD_NEXT:
             case ACTION_STD_NEXTREPEAT:
-                if (entry->is_resume)
+                if (screen_entry.is_resume)
                 {
-                    selected_action = selected_action == 0 ? 1 : 0;
-                    video_draw_netflix_detail(entry, &detail,
+                    selected_action = action == ACTION_STD_NEXT ||
+                                      action == ACTION_STD_NEXTREPEAT ? 1 : 0;
+                    video_draw_netflix_detail(&screen_entry, &detail,
                                               selected_action);
                 }
                 break;
+            case ACTION_STD_CONTEXT:
+                video_netflix_panel(&screen_entry);
+                if (video_tv_home_requested)
+                { viewportmanager_theme_undo(SCREEN_MAIN,false); return 0; }
+                video_draw_netflix_detail(&screen_entry, &detail, selected_action);
+                break;
+            case ACTION_STD_QUICKSCREEN:
+                video_netflix_panel(NULL);
+                if (video_tv_home_requested)
+                { viewportmanager_theme_undo(SCREEN_MAIN,false); return 0; }
+                video_draw_netflix_detail(&screen_entry, &detail, selected_action);
+                break;
             case ACTION_STD_CANCEL:
             case ACTION_STD_MENU:
+                if (tv_ui_active() && action == ACTION_STD_MENU)
+                    video_tv_home_requested = true;
                 viewportmanager_theme_undo(SCREEN_MAIN, false);
                 return 0;
             default:
@@ -3694,6 +4092,41 @@ static void video_draw_netflix_landing(
                         VIDEO_LIST_NETFLIX_LANDING_W - 8;
     char metadata[64];
 
+    if (tv_ui_active())
+    {
+        const struct bitmap *posters[3] = { NULL };
+        unsigned watched = 0;
+        const struct video_entry *entry = state && state->count > 0 ?
+            &state->entries[selected] : NULL;
+        if (entry)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                int row = selected + i - 1;
+                if (row >= 0 && row < state->count)
+                {
+                    /* TV uses real Netflix branding for category entries;
+                     * their old generated illustrations are handheld-only. */
+                    posters[i] = video_netflix_category_asset(
+                        state->entries[row].art_id) ? logo :
+                        video_netflix_landing_art(&state->entries[row]);
+                    if (state->entries[row].watched) watched |= 1u << i;
+                }
+            }
+            if (!video_netflix_category_asset(entry->art_id) &&
+                video_netflix_detail_valid &&
+                !strcmp(video_netflix_detail_art_id,entry->art_id))
+                posters[1] = &video_netflix_detail_bm;
+        }
+        tv_ui_set_brand(logo,VIDEO_LIST_NETFLIX_RED);
+        tv_shelf_draw(videos_netflix_rail_title(state),
+            entry ? entry->title : "No videos found", posters, NULL,
+            !entry ? "Hold Left to return" : entry->is_directory ? "Select to browse" :
+            entry->is_resume ? "Select for options" :
+            "Select for details", selected, state ? state->count : 0,
+            watched, root_menu_video_netflix_watched_cached());
+    }
+
     display->set_viewport(NULL);
     display->set_drawmode(DRMODE_SOLID);
     display->set_background(LCD_RGBPACK(11, 11, 11));
@@ -3701,14 +4134,16 @@ static void video_draw_netflix_landing(
     display->clear_display();
 
     display->set_foreground(VIDEO_LIST_NETFLIX_RED);
-    display->fillrect(0, 0, display->lcdwidth, 42);
-    if (logo)
-        display->bmp_part(logo, 0, 0, 7, 0, logo->width, logo->height);
+    display->fillrect(0, 0, display->lcdwidth,
+                      VIDEO_LIST_NETFLIX_BAR_H);
+    video_draw_netflix_bar_logo(display, logo);
     display->setfont(FONT_SYSFIXED);
     display->set_foreground(LCD_WHITE);
     display->set_background(VIDEO_LIST_NETFLIX_RED);
-    ipodjs_ui_puts_fit(display, 108, 15, display->lcdwidth - 116,
+    ipodjs_ui_puts_fit(display, 84, 10, display->lcdwidth - 92,
                        videos_netflix_rail_title(state), true);
+    /* Browse remains cover-art-first. The wide synced banner is additional
+     * title artwork reserved for the explicit Details screen. */
 
     if (!state || state->count <= 0)
     {
@@ -3723,6 +4158,7 @@ static void video_draw_netflix_landing(
         ipodjs_ui_puts_fit(display, 8, display->lcdheight - 16,
                            display->lcdwidth - 16,
                            "MENU  Back", true);
+        ipodjs_ui_transition_present(display);
         display->update();
         return;
     }
@@ -3735,6 +4171,7 @@ static void video_draw_netflix_landing(
     {
         video_draw_netflix_resume_card(display, &state->entries[selected],
                                        resume_action);
+        ipodjs_ui_transition_present(display);
         display->update();
         return;
     }
@@ -3835,10 +4272,11 @@ static void video_draw_netflix_landing(
     display->set_foreground(LCD_RGBPACK(165, 165, 165));
     ipodjs_ui_puts_fit(display, 8, 222,
                        display->lcdwidth - 16, metadata, true);
-    display->update();
+    ipodjs_ui_transition_present(display);
+        display->update();
 }
 
-/* Resolve the series synopsis for a show or season row, which has no manifest
+/* Resolve the series metadata for a show or season row, which has no manifest
  * row of its own. Runs only from the bounded service point below.
  *
  * Deliberately not inlined. Its two manifest line buffers are over 2 KB, and
@@ -3848,15 +4286,17 @@ static void video_draw_netflix_landing(
  * host stack is large enough to hide it. Kept separate, the frames are
  * sequential and the peak is one of them, not their sum. */
 static void __attribute__((noinline))
-video_netflix_load_show_plot(const struct video_entry *entry,
-                             char *plot, size_t plot_size)
+video_netflix_load_show_detail(const struct video_entry *entry,
+                               struct video_netflix_detail *detail)
 {
     char line[VIDEO_LIST_MANIFEST_LINE_MAX];
     char show_buf[128];
     const char *show_name;
+    const char *target_season = NULL;
     int fd;
 
-    plot[0] = '\0';
+    memset(detail, 0, sizeof(*detail));
+    video_netflix_virtual_banner_art_id[0] = '\0';
     if (!strncmp(entry->path, "virtual:show:", 13))
         show_name = entry->path + 13;
     else if (!strncmp(entry->path, "virtual:season:", 15))
@@ -3871,6 +4311,7 @@ video_netflix_load_show_plot(const struct video_entry *entry,
             return;
         *colon = '\0';
         show_name = show_buf;
+        target_season = colon + 1;
     }
     else
         return;
@@ -3884,27 +4325,38 @@ video_netflix_load_show_plot(const struct video_entry *entry,
     while (read_line(fd, line, sizeof(line)) > 0)
     {
         char parsed[VIDEO_LIST_MANIFEST_LINE_MAX];
-        char *fields[23];
+        char *fields[30];
 
         video_trim_line(line);
         if (line[0] == '#' || line[0] == '\0' ||
             strncmp(line, "video_id\t", 9) == 0 ||
-            !video_parse_manifest_line_v6(line, parsed, sizeof(parsed),
+            !video_parse_manifest_line_v8(line, parsed, sizeof(parsed),
                                           fields))
             continue;
         if (strcmp(fields[4], "show") || strcmp(fields[7], show_name))
             continue;
+        if (target_season &&
+            strcmp(fields[8][0] ? fields[8] : "0", target_season))
+            continue;
 
+        strmemccpy(detail->genre, fields[13], sizeof(detail->genre));
+        strmemccpy(detail->content_rating, fields[17],
+                   sizeof(detail->content_rating));
+        detail->year = atoi(fields[12]);
+        detail->user_rating = atoi(fields[14]);
+        detail->external_rating_tenths = atoi(fields[27]);
+        detail->external_rating_votes = atoi(fields[28]);
+        strmemccpy(detail->banner_art_id, fields[29],
+                   sizeof(detail->banner_art_id));
+        strmemccpy(video_netflix_virtual_banner_art_id, fields[29],
+                   sizeof(video_netflix_virtual_banner_art_id));
         /* Prefer the series blurb; fall back to an episode summary so a
          * show is never left without a description. */
-        if (fields[22][0])
-        {
-            strmemccpy(plot, fields[22], plot_size);
-            break;
-        }
-        if (!plot[0])
-            strmemccpy(plot, fields[16][0] ? fields[16] : fields[15],
-                       plot_size);
+        strmemccpy(detail->plot,
+                   fields[22][0] ? fields[22] :
+                   (fields[16][0] ? fields[16] : fields[15]),
+                   sizeof(detail->plot));
+        break;
     }
     close(fd);
 }
@@ -3919,6 +4371,8 @@ static void videos_prepare_netflix_selection(
     if (!state || state->count <= 0)
     {
         video_netflix_detail_valid = false;
+        video_netflix_banner_valid = false;
+        video_netflix_banner_art_id[0] = '\0';
         return;
     }
     selected = MAX(0, MIN(selected, state->count - 1));
@@ -3927,29 +4381,46 @@ static void videos_prepare_netflix_selection(
 
     if (entry->is_directory)
     {
+        memset(&detail, 0, sizeof(detail));
         video_netflix_detail_valid = false;
-        video_netflix_load_show_plot(entry, video_netflix_landing_plot,
-                                     sizeof(video_netflix_landing_plot));
+        video_netflix_load_show_detail(entry, &detail);
+        strmemccpy(video_netflix_landing_plot, detail.plot,
+                   sizeof(video_netflix_landing_plot));
         return;
     }
 
-    video_load_netflix_detail(entry, &detail);
+    video_load_netflix_detail(entry, &detail, false);
     strmemccpy(video_netflix_landing_plot, detail.plot,
                sizeof(video_netflix_landing_plot));
 }
 
 /* Full synopsis for a show or season row. Everything it paints is already
  * cached, so entering it performs no storage access. */
-static void video_netflix_show_info_screen(const struct video_entry *entry)
+static bool video_netflix_show_info_screen(const struct video_entry *entry)
 {
     struct screen *display = &screens[SCREEN_MAIN];
+    struct video_netflix_detail detail;
     struct bitmap *logo = root_menu_video_netflix_logo_small_cached();
     struct bitmap *art = video_netflix_landing_art(entry);
-    const int text_x = 8 + VIDEO_LIST_NETFLIX_LANDING_W + 12;
+    const int poster_y = 78;
+    const int text_x = 8 + VIDEO_LIST_NETFLIX_LANDING_W + 10;
+    const int text_w = display->lcdwidth - text_x - 8;
     struct viewport vp;
+    bool banner_drawn;
     bool repainted;
+    bool browse = false;
+    char metadata[96];
+
+    memset(&detail, 0, sizeof(detail));
+    video_netflix_load_show_detail(entry, &detail);
+    if (!tv_ui_active()) video_netflix_load_banner(detail.banner_art_id);
 
     viewportmanager_theme_enable(SCREEN_MAIN, false, &vp);
+repaint:
+    tv_ui_set_brand(logo,VIDEO_LIST_NETFLIX_RED);
+    tv_detail_draw(entry->title, art,
+        NULL,
+        detail.genre, detail.plot, "Select to browse", -1);
     display->set_viewport(NULL);
     display->set_drawmode(DRMODE_SOLID);
     display->set_background(LCD_RGBPACK(13, 13, 13));
@@ -3957,39 +4428,92 @@ static void video_netflix_show_info_screen(const struct video_entry *entry)
     display->clear_display();
 
     display->set_foreground(VIDEO_LIST_NETFLIX_RED);
-    display->fillrect(0, 0, display->lcdwidth, 42);
-    if (logo)
-        display->bmp_part(logo, 0, 0, 7, 0, logo->width, logo->height);
+    display->fillrect(0, 0, display->lcdwidth,
+                      VIDEO_LIST_NETFLIX_BAR_H);
+    video_draw_netflix_bar_logo(display, logo);
     display->setfont(FONT_SYSFIXED);
     display->set_foreground(LCD_WHITE);
     display->set_background(VIDEO_LIST_NETFLIX_RED);
-    ipodjs_ui_puts_fit(display, 112, 15, display->lcdwidth - 120,
-                       "ABOUT", true);
+    ipodjs_ui_puts_fit(display, 84, 10, display->lcdwidth - 92,
+                       entry->title, true);
+    banner_drawn = video_draw_netflix_banner(
+        display, VIDEO_LIST_NETFLIX_BANNER_Y);
 
-    if (art)
-        display->bmp_part(art, 0, 0, 8, 52, art->width, art->height);
+    if (!banner_drawn)
+    {
+        if (art)
+            display->bmp_part(art, 0, 0, 8, poster_y,
+                              art->width, art->height);
+        else
+            video_draw_netflix_cover_placeholder(
+                display, 8, poster_y, VIDEO_LIST_NETFLIX_LANDING_W,
+                VIDEO_LIST_NETFLIX_LANDING_H);
+
+        display->setfont(ipodjs_ui_font());
+        display->set_foreground(LCD_WHITE);
+        display->set_background(LCD_RGBPACK(13, 13, 13));
+        ipodjs_ui_puts_fit(display, text_x, poster_y,
+                           text_w, entry->title, false);
+
+        display->setfont(FONT_SYSFIXED);
+        display->set_foreground(LCD_RGBPACK(222, 222, 222));
+        if (detail.year > 0)
+            snprintf(metadata, sizeof(metadata), "%d", detail.year);
+        else
+            metadata[0] = '\0';
+        if (detail.content_rating[0])
+        {
+            size_t used = strlen(metadata);
+            snprintf(metadata + used, sizeof(metadata) - used,
+                     "%s%s", used ? "  |  " : "",
+                     detail.content_rating);
+        }
+        if (detail.external_rating_tenths > 0)
+        {
+            size_t used = strlen(metadata);
+            snprintf(metadata + used, sizeof(metadata) - used,
+                     "%s%d.%d/10", used ? "  |  " : "",
+                     detail.external_rating_tenths / 10,
+                     detail.external_rating_tenths % 10);
+        }
+        else if (detail.user_rating > 0)
+        {
+            size_t used = strlen(metadata);
+            snprintf(metadata + used, sizeof(metadata) - used,
+                     "%sMY RATING %d/5", used ? "  |  " : "",
+                     MIN(detail.user_rating, 5));
+        }
+        ipodjs_ui_puts_fit(display, text_x, poster_y + 22, text_w,
+                           metadata, false);
+        ipodjs_ui_puts_fit(display, text_x, poster_y + 38, text_w,
+                           detail.genre, false);
+
+        display->set_foreground(LCD_RGBPACK(222, 222, 222));
+        video_draw_netflix_wrapped(
+            display,
+            detail.plot[0] ? detail.plot : "No description available.",
+            text_x, poster_y + 54, text_w, 5);
+
+        display->set_foreground(LCD_RGBPACK(140, 140, 140));
+        ipodjs_ui_puts_fit(display, 8, display->lcdheight - 16,
+                           display->lcdwidth - 16,
+                           "MENU  Back       SELECT  Browse", true);
+    }
     else
-        video_draw_netflix_cover_placeholder(
-            display, 8, 52, VIDEO_LIST_NETFLIX_LANDING_W,
-            VIDEO_LIST_NETFLIX_LANDING_H);
-
-    display->setfont(ipodjs_ui_font());
-    display->set_foreground(LCD_WHITE);
-    display->set_background(LCD_RGBPACK(13, 13, 13));
-    ipodjs_ui_puts_fit(display, text_x, 52,
-                       display->lcdwidth - text_x - 8, entry->title, false);
-
-    display->setfont(FONT_SYSFIXED);
-    display->set_foreground(LCD_RGBPACK(222, 222, 222));
-    video_draw_netflix_wrapped(
-        display,
-        video_netflix_landing_plot[0] ? video_netflix_landing_plot :
-                                        "No description available.",
-        text_x, 78, display->lcdwidth - text_x - 8, 5);
-
-    display->set_foreground(LCD_RGBPACK(140, 140, 140));
-    ipodjs_ui_puts_fit(display, 8, display->lcdheight - 16,
-                       display->lcdwidth - 16, "MENU  Back", true);
+    {
+        display->set_foreground(LCD_RGBPACK(13, 13, 13));
+        display->fillrect(0, VIDEO_LIST_NETFLIX_FOOTER_Y,
+                          display->lcdwidth,
+                          VIDEO_LIST_NETFLIX_FOOTER_H);
+        display->setfont(FONT_SYSFIXED);
+        display->set_foreground(LCD_RGBPACK(220, 220, 220));
+        display->set_background(LCD_RGBPACK(13, 13, 13));
+        ipodjs_ui_puts_fit(display, 8,
+                           VIDEO_LIST_NETFLIX_FOOTER_Y + 9,
+                           display->lcdwidth - 16,
+                           "MENU  Back       SELECT  Browse", true);
+    }
+    ipodjs_ui_transition_present(display);
     display->update();
 
     /* As on the other Netflix screens, one update is not always enough to
@@ -4009,13 +4533,28 @@ static void video_netflix_show_info_screen(const struct video_entry *entry)
             }
             continue;
         }
-        if (action == ACTION_STD_CANCEL || action == ACTION_STD_MENU ||
-            action == ACTION_STD_OK)
+        if (action == ACTION_STD_QUICKSCREEN)
+        {
+            video_netflix_panel(NULL);
+            if (video_tv_home_requested) break;
+            goto repaint;
+        }
+        if (action == ACTION_STD_CANCEL || action == ACTION_STD_MENU)
+        {
+            if (tv_ui_active() && action == ACTION_STD_MENU)
+                video_tv_home_requested = true;
             break;
+        }
+        if (action == ACTION_STD_OK)
+        {
+            browse = true;
+            break;
+        }
         if (default_event_handler(action) == SYS_USB_CONNECTED)
             break;
     }
     viewportmanager_theme_undo(SCREEN_MAIN, false);
+    return browse;
 }
 
 static void videos_netflix_leave_level(struct video_browser_state *state)
@@ -4067,6 +4606,47 @@ static bool videos_netflix_enter_level(struct video_browser_state *state,
     return true;
 }
 
+/* A TV poster shelf follows horizontal arrows; a held Left still returns.
+ * Physical wheel navigation and handheld menus retain their existing map. */
+#ifdef BUTTON_RC_LEFT
+static const struct button_mapping videos_netflix_remote[] = {
+    { ACTION_NONE, BUTTON_RC_LEFT|BUTTON_REL, BUTTON_RC_LEFT|BUTTON_REPEAT },
+    { ACTION_STD_PREV, BUTTON_RC_LEFT|BUTTON_REL, BUTTON_RC_LEFT },
+    { ACTION_STD_CANCEL, BUTTON_RC_LEFT|BUTTON_REPEAT, BUTTON_RC_LEFT },
+    { ACTION_STD_NEXT, BUTTON_RC_RIGHT, BUTTON_NONE },
+    { ACTION_STD_NEXTREPEAT, BUTTON_RC_RIGHT|BUTTON_REPEAT, BUTTON_NONE },
+    LAST_ITEM_IN_LIST__NEXTLIST(CONTEXT_STD)
+};
+#endif
+static const struct button_mapping *videos_netflix_keymap(int context)
+{
+    context &= ~CONTEXT_PLUGIN;
+#ifdef BUTTON_RC_LEFT
+    if (tv_ui_active() && context == (CONTEXT_TREE|CONTEXT_REMOTE))
+        return videos_netflix_remote;
+#endif
+    return get_context_mapping(context);
+}
+
+/* Each TV shelf entry is one stop, including Continue Watching. Its
+ * Resume/Start Over choices live on the detail page. Handheld wheel behavior
+ * keeps the two original card actions. */
+static bool videos_netflix_move(struct video_browser_state *state, int delta,
+                                 int *resume_action)
+{
+    if (state->count <= 0) return false;
+    int previous=state->selection;
+    if (!tv_ui_active() && state->entries[state->selection].is_resume)
+    {
+        int next=*resume_action+delta;
+        if (next>=0 && next<=1) { *resume_action=next; return false; }
+    }
+    state->selection=(state->selection+state->count+delta)%state->count;
+    *resume_action=!tv_ui_active() && delta<0 &&
+        state->entries[state->selection].is_resume ? 1 : 0;
+    return state->selection != previous;
+}
+
 static int videos_netflix_browser(struct video_browser_state *state)
 {
     struct viewport vp;
@@ -4085,6 +4665,7 @@ static int videos_netflix_browser(struct video_browser_state *state)
      * artwork service point, so it costs no storage access. */
     int pending_repaints = 0;
 
+    video_tv_home_requested = false;
     state->selection = state->count > 0 ?
         MAX(0, MIN(state->selection, state->count - 1)) : 0;
     root_menu_video_prepare_netflix_browser_logo();
@@ -4105,13 +4686,14 @@ static int videos_netflix_browser(struct video_browser_state *state)
                                        resume_action);
             redraw = false;
         }
-        action = get_action(CONTEXT_TREE, HZ / 20);
+        action = get_custom_action(CONTEXT_TREE|CONTEXT_PLUGIN, HZ / 20,
+                                   videos_netflix_keymap);
         switch (action)
         {
             case ACTION_NONE:
                 if (selection_pending &&
                     TIME_AFTER(current_tick, selection_settle_tick) &&
-                    button_queue_count() == 0)
+                    !button_hold() && button_queue_count() == 0)
                 {
                     videos_prepare_netflix_selection(state,
                                                      state->selection);
@@ -4130,22 +4712,11 @@ static int videos_netflix_browser(struct video_browser_state *state)
             case ACTION_STD_PREVREPEAT:
                 if (state->count <= 0)
                     break;
-                /* Step back through the resume card's actions first. This
-                 * only moves focus, so it must not re-enter the artwork
-                 * service point. */
-                if (state->entries[state->selection].is_resume &&
-                    resume_action > 0)
+                if (videos_netflix_move(state,-1,&resume_action))
                 {
-                    resume_action--;
-                    redraw = true;
-                    break;
+                    selection_pending = true;
+                    selection_settle_tick = current_tick + MAX(1, HZ / 10);
                 }
-                state->selection =
-                    (state->selection + state->count - 1) % state->count;
-                resume_action =
-                    state->entries[state->selection].is_resume ? 1 : 0;
-                selection_pending = true;
-                selection_settle_tick = current_tick + MAX(1, HZ / 10);
                 redraw = true;
                 break;
 
@@ -4153,25 +4724,18 @@ static int videos_netflix_browser(struct video_browser_state *state)
             case ACTION_STD_NEXTREPEAT:
                 if (state->count <= 0)
                     break;
-                if (state->entries[state->selection].is_resume &&
-                    resume_action < 1)
+                if (videos_netflix_move(state,1,&resume_action))
                 {
-                    resume_action++;
-                    redraw = true;
-                    break;
+                    selection_pending = true;
+                    selection_settle_tick = current_tick + MAX(1, HZ / 10);
                 }
-                state->selection =
-                    (state->selection + 1) % state->count;
-                resume_action = 0;
-                selection_pending = true;
-                selection_settle_tick = current_tick + MAX(1, HZ / 10);
                 redraw = true;
                 break;
 
             case ACTION_STD_OK:
                 if (state->count <= 0)
                     break;
-                if (state->entries[state->selection].is_resume)
+                if (!tv_ui_active() && state->entries[state->selection].is_resume)
                 {
                     /* Play the focused action straight from the card. */
                     viewportmanager_theme_undo(SCREEN_MAIN, false);
@@ -4192,8 +4756,9 @@ static int videos_netflix_browser(struct video_browser_state *state)
                 }
                 else if (state->entries[state->selection].is_directory)
                 {
-                    if (videos_netflix_enter_level(state,
-                                                   state->selection))
+                    /* Select follows the title immediately. Long-press /
+                     * context remains the deliberate route to full info. */
+                    if (videos_netflix_enter_level(state, state->selection))
                     {
                         videos_netflix_apply_watched(state);
                         videos_prepare_netflix_selection(state,
@@ -4206,6 +4771,9 @@ static int videos_netflix_browser(struct video_browser_state *state)
                 }
                 else
                 {
+                    /* Episodes and movies open their asset-backed Details
+                     * view. Its compact footer owns Resume / Play From
+                     * Beginning; Browse itself remains poster-first. */
                     viewportmanager_theme_undo(SCREEN_MAIN, false);
                     (void)video_netflix_detail_screen(
                         &state->entries[state->selection]);
@@ -4224,10 +4792,10 @@ static int videos_netflix_browser(struct video_browser_state *state)
                     break;
                 if (state->entries[state->selection].is_directory)
                 {
-                    /* Shows and seasons have no detail screen of their own,
-                     * so this is where their full synopsis lives. */
+                    /* Shows and seasons use the same clicked-title hero as
+                     * the normal SELECT path. */
                     viewportmanager_theme_undo(SCREEN_MAIN, false);
-                    video_netflix_show_info_screen(
+                    (void)video_netflix_show_info_screen(
                         &state->entries[state->selection]);
                     viewportmanager_theme_enable(SCREEN_MAIN, false, &vp);
                     redraw = true;
@@ -4235,8 +4803,7 @@ static int videos_netflix_browser(struct video_browser_state *state)
                 else
                 {
                     viewportmanager_theme_undo(SCREEN_MAIN, false);
-                    (void)video_netflix_detail_screen(
-                        &state->entries[state->selection]);
+                    video_netflix_panel(&state->entries[state->selection]);
                     viewportmanager_theme_enable(SCREEN_MAIN, false, &vp);
                     video_netflix_load_watched();
                     videos_netflix_apply_watched(state);
@@ -4247,8 +4814,19 @@ static int videos_netflix_browser(struct video_browser_state *state)
                 }
                 break;
 
+            case ACTION_STD_QUICKSCREEN:
+                video_netflix_panel(NULL);
+                videos_scan_dir(state);
+                state->selection = state->count ? MIN(state->selection, state->count - 1) : 0;
+                videos_netflix_apply_watched(state);
+                videos_prepare_netflix_selection(state, state->selection);
+                redraw = true;
+                break;
+
             case ACTION_STD_CANCEL:
             case ACTION_STD_MENU:
+                if (tv_ui_active() && action == ACTION_STD_MENU)
+                { result = GO_TO_ROOT; goto done; }
                 if (state->depth > 0)
                 {
                     videos_netflix_leave_level(state);
@@ -4272,6 +4850,9 @@ static int videos_netflix_browser(struct video_browser_state *state)
                 break;
         }
 
+        if (video_tv_home_requested)
+        { result = GO_TO_ROOT; goto done; }
+
         /* Any action-driven repaint gets one follow-up pass; the idle branch
          * above consumes it. ACTION_NONE is excluded so this cannot re-arm
          * itself and repaint forever. */
@@ -4280,6 +4861,7 @@ static int videos_netflix_browser(struct video_browser_state *state)
     }
 
 done:
+    tv_ui_release();
     viewportmanager_theme_undo(SCREEN_MAIN, false);
     return result;
 }
@@ -4444,6 +5026,22 @@ static int video_preview_screen(void)
     }
 }
 
+static int video_context_resume(void)
+{
+    return current_preview_entry ? video_launch_entry(current_preview_entry) : 0;
+}
+static int video_context_restart(void)
+{
+    return current_preview_entry ? video_launch_entry_at(current_preview_entry,true) : 0;
+}
+static int video_context_chapters(void)
+{
+    return video_chapters_for_entry(current_preview_entry);
+}
+MENUITEM_FUNCTION(video_resume_item,0,"Resume",video_context_resume,NULL,Icon_NOICON);
+MENUITEM_FUNCTION(video_restart_item,0,"Start Over",video_context_restart,NULL,Icon_NOICON);
+MENUITEM_FUNCTION(video_chapters_item,0,"Chapters",video_context_chapters,NULL,Icon_NOICON);
+
 /* Menu items for video context menu */
 MENUITEM_FUNCTION(video_preview_item, 0, "Show Preview",
                   video_preview_screen, NULL, Icon_NOICON);
@@ -4471,6 +5069,7 @@ MAKE_MENU(video_sort_menu, "Sort By", NULL, Icon_NOICON,
           &video_sort_size_small_item);
 
 MAKE_MENU(video_context_menu_items, "Video Options", NULL, Icon_NOICON,
+          &video_resume_item, &video_restart_item, &video_chapters_item,
           &video_preview_item,
           &video_sort_menu);
 
@@ -4500,6 +5099,13 @@ static int videos_action_cb(int action, struct gui_synclist *lists)
 
     /* Set global state pointer for sort menu access */
     current_video_browser_state = state;
+
+    if (action == ACTION_STD_MENU && tv_ui_active())
+    {
+        state->next_screen = GO_TO_ROOT;
+        current_video_browser_state = NULL;
+        return ACTION_STD_CANCEL;
+    }
 
     if (action == ACTION_STD_CANCEL)
     {
@@ -4611,7 +5217,7 @@ static int videos_action_cb(int action, struct gui_synclist *lists)
     }
 
 #if defined(HAVE_LCD_COLOR) && defined(HAVE_IPODJS_UI)
-    if (videos_netflix_appearance())
+    if (!tv_ui_active() && videos_netflix_appearance())
     {
         current_preview_entry = &state->entries[selected];
         video_preview_screen();
@@ -4660,6 +5266,27 @@ static int videos_action_cb(int action, struct gui_synclist *lists)
     }
 }
 
+#if defined(HAVE_LCD_COLOR) && defined(HAVE_IPODJS_UI)
+/* One main-thread handoff, consumed by the normal Videos root screen. Keep
+ * Home's list and preview stack off the artwork decoder's call chain. */
+static char videos_featured_request[VIDEO_BROWSER_TITLE_MAX+1];
+static void videos_featured_select(struct video_browser_state *state,
+                                   const char *title, bool show)
+{
+    const char *category=show ? "virtual:shows" : "virtual:movies";
+    for (int i=0; i<state->count; i++)
+        if (!strcmp(state->entries[i].path,category))
+        {
+            if (!videos_netflix_enter_level(state,i)) return;
+            for (int j=0; j<state->count; j++)
+                if (!strcmp(state->entries[j].title,title))
+                { state->selection=j; return; }
+            return;
+        }
+}
+
+#endif
+
 static int videos_scrn(void* param)
 {
     static struct video_browser_state state;
@@ -4667,6 +5294,9 @@ static int videos_scrn(void* param)
     char *list_title = "Videos";
     bool usb;
     int ret = GO_TO_PREVIOUS;
+#if defined(HAVE_LCD_COLOR) && defined(HAVE_IPODJS_UI)
+    bool netflix_appearance;
+#endif
 
     (void)param;
 
@@ -4678,17 +5308,38 @@ static int videos_scrn(void* param)
     state.current_path[0] = '\0';
 
 #if defined(HAVE_LCD_COLOR) && defined(HAVE_IPODJS_UI)
-    if (videos_netflix_appearance() && ipodjs_ui_netflix_launch())
-        return GO_TO_ROOT;
+    tv_ui_set_section(TV_VIDEOS);
+    netflix_appearance = videos_netflix_appearance();
+    if (netflix_appearance)
+    {
+        /* Own the full panel before the launch ident begins, not merely once
+         * the browser appears, so a queued desktop alert cannot cover it. */
+        notification_manager_set_banners_suppressed(true);
+        if (!tv_ui_active() && ipodjs_ui_netflix_launch())
+        {
+            notification_manager_set_banners_suppressed(false);
+            return GO_TO_ROOT;
+        }
+    }
 #endif
     videos_scan_dir(&state);
+#if defined(HAVE_LCD_COLOR) && defined(HAVE_IPODJS_UI)
+    if (videos_featured_request[0] && tv_ui_active() && netflix_appearance)
+        videos_featured_select(&state, videos_featured_request+1,
+                              videos_featured_request[0]=='S');
+    videos_featured_request[0]=0;
+#endif
 #ifdef HAVE_LCD_COLOR
-    videos_cache_art_window(&state, 0);
+    videos_cache_art_window(&state, state.selection);
 #endif
 
     if (state.count == 0)
     {
         splash(HZ * 2, "No videos found");
+#if defined(HAVE_LCD_COLOR) && defined(HAVE_IPODJS_UI)
+        if (netflix_appearance)
+            notification_manager_set_banners_suppressed(false);
+#endif
         return GO_TO_PREVIOUS;
     }
 
@@ -4696,13 +5347,14 @@ static int videos_scrn(void* param)
         splashf(HZ, "Showing first %d videos", VIDEO_BROWSER_MAX_FILES);
 
 #if defined(HAVE_LCD_COLOR) && defined(HAVE_IPODJS_UI)
-    if (videos_netflix_appearance())
+    if (netflix_appearance)
     {
         videos_browser_screen_active = true;
         push_current_activity(ACTIVITY_FILEBROWSER);
         ret = videos_netflix_browser(&state);
         pop_current_activity();
         videos_browser_screen_active = false;
+        notification_manager_set_banners_suppressed(false);
         return ret;
     }
 #endif
@@ -5083,6 +5735,17 @@ MENUITEM_RETURNVALUE(playlists, ID2P(LANG_PLAYLISTS), GO_TO_PLAYLISTS_SCREEN,
                      NULL, Icon_Playlist);
 static int load_plugin_path_screen(const char *path, const char *param);
 
+static bool root_menu_video_desktop_mode_visible(void)
+{
+#if defined(IPOD_6G) && !defined(SIMULATOR)
+    return ipod6g_videoout_active();
+#elif defined(SIMULATOR)
+    return true;
+#else
+    return false;
+#endif
+}
+
 static int launch_photos_plugin(void *param)
 {
     int ret;
@@ -5097,15 +5760,45 @@ MENUITEM_FUNCTION(photos_item, MENU_FUNC_CHECK_RETVAL,
                   "Photos", launch_photos_plugin,
                   NULL, Icon_Folder);
 
+#define DESKTOP_MODE_VIDEOOUT_TOKEN "videoout-active"
+#define DESKTOP_MODE_SIMULATOR_TOKEN "simulator-desktop"
+
 static int launch_desktop_mode(void *param)
 {
+    int result;
+
     (void)param;
-    return load_plugin_path_screen(PLUGIN_APPS_DIR "/desktop_mode.rock", NULL);
+    if (!root_menu_video_desktop_mode_visible())
+    {
+        splash(HZ, "Video dock required");
+        return GO_TO_ROOT;
+    }
+    notification_manager_set_desktop_mode(true);
+    result = load_plugin_path_screen(PLUGIN_APPS_DIR "/desktop_mode.rock",
+#ifdef SIMULATOR
+                                   DESKTOP_MODE_SIMULATOR_TOKEN);
+#else
+                                   DESKTOP_MODE_VIDEOOUT_TOKEN);
+#endif
+    notification_manager_set_desktop_mode(false);
+    return result;
+}
+
+static int desktop_mode_item_callback(int action,
+                                      const struct menu_item_ex *this_item,
+                                      struct gui_synclist *this_list)
+{
+    (void)this_item;
+    (void)this_list;
+    if (action == ACTION_REQUEST_MENUITEM &&
+        !root_menu_video_desktop_mode_visible())
+        return ACTION_EXIT_MENUITEM;
+    return action;
 }
 
 MENUITEM_FUNCTION(desktop_mode_item, MENU_FUNC_CHECK_RETVAL,
                   "Desktop Mode", launch_desktop_mode,
-                  NULL, Icon_Rockbox);
+                  desktop_mode_item_callback, Icon_Rockbox);
 
 #if defined(IPOD_6G) && (defined(HAVE_ROLO) || defined(SIMULATOR))
 #define ROLOLAUNCHER_FIRMWARE "/rockbox-tvout-test.ipod"
@@ -5133,6 +5826,34 @@ static int launch_rolo_launcher(void *param)
 #endif
     return GO_TO_ROOT;
 }
+
+/* Reserved for official upstream nightly builds with an isolated runtime. */
+#define ROCKBOX_UPSTREAM_FIRMWARE "/rockbox-upstream.ipod"
+#define ROCKBOX_UPSTREAM_RUNTIME_DIR "/.rbupstream"
+
+static int launch_rockbox_upstream(void *param)
+{
+    (void)param;
+
+    if (!file_exists(ROCKBOX_UPSTREAM_FIRMWARE))
+    {
+        splash(HZ * 2, "Rockbox upstream firmware missing");
+        return GO_TO_ROOT;
+    }
+    if (!file_exists(ROCKBOX_UPSTREAM_RUNTIME_DIR "/rockbox-info.txt") ||
+        !dir_exists(ROCKBOX_UPSTREAM_RUNTIME_DIR "/codecs"))
+    {
+        splash(HZ * 2, "Rockbox upstream files missing");
+        return GO_TO_ROOT;
+    }
+
+#ifdef HAVE_ROLO
+    (void)rolo_load(ROCKBOX_UPSTREAM_FIRMWARE);
+#else
+    splash(HZ * 2, "RoLo requires iPod hardware");
+#endif
+    return GO_TO_ROOT;
+}
 #endif
 
 static int launch_youtube_plugin(void *param)
@@ -5143,6 +5864,16 @@ static int launch_youtube_plugin(void *param)
 
 MENUITEM_FUNCTION(youtube_item, MENU_FUNC_CHECK_RETVAL,
                   "YouTube", launch_youtube_plugin,
+                  NULL, Icon_Plugin);
+
+static int launch_twitch_plugin(void *param)
+{
+    (void)param;
+    return load_plugin_path_screen(PLUGIN_APPS_DIR "/twitch.rock", NULL);
+}
+
+MENUITEM_FUNCTION(twitch_item, MENU_FUNC_CHECK_RETVAL,
+                  "Twitch", launch_twitch_plugin,
                   NULL, Icon_Plugin);
 
 static int launch_spotify_wrapped_plugin(void *param)
@@ -5207,6 +5938,33 @@ MENUITEM_FUNCTION(reddit_item, MENU_FUNC_CHECK_RETVAL,
                   "Reddit", launch_reddit_plugin,
                   NULL, Icon_Plugin);
 
+#if defined(IPOD_6G) && !defined(ROCKPOD_IOS_EMBED)
+static int launch_newgrounds_plugin(void *param)
+{
+    return load_plugin_path_screen(PLUGIN_APPS_DIR "/newgrounds.rock", param);
+}
+MENUITEM_FUNCTION(newgrounds_item, MENU_FUNC_CHECK_RETVAL,
+                  "Newgrounds", launch_newgrounds_plugin, NULL, Icon_Plugin);
+#endif
+
+static int launch_msn_plugin(void *param)
+{
+    return load_plugin_path_screen(PLUGIN_APPS_DIR "/msn.rock", param);
+}
+MENUITEM_FUNCTION(msn_item, MENU_FUNC_CHECK_RETVAL,
+                  "MSN Messenger", launch_msn_plugin, NULL,
+                  Icon_Plugin);
+
+static int launch_twitter_plugin(void *param)
+{
+    (void)param;
+    return load_plugin_path_screen(PLUGIN_APPS_DIR "/twitter.rock", NULL);
+}
+
+MENUITEM_FUNCTION(twitter_item, MENU_FUNC_CHECK_RETVAL,
+                  "Twitter", launch_twitter_plugin,
+                  NULL, Icon_Plugin);
+
 static int launch_offlineweb_plugin(void *param)
 {
     (void)param;
@@ -5220,7 +5978,7 @@ static int internet_item_callback(int action,
 {
     (void)this_item;
     (void)this_list;
-    if (action == ACTION_REQUEST_MENUITEM && !usb_internet_connected())
+    if (action == ACTION_REQUEST_MENUITEM && !root_menu_usb_internet_connected())
         return ACTION_EXIT_MENUITEM;
     return action;
 }
@@ -5377,48 +6135,6 @@ static int launch_clock_plugin(void *param)
     return GO_TO_ROOT;
 }
 
-static int launch_stopwatch_plugin(void *param)
-{
-    (void)param;
-    char path[MAX_PATH];
-    static const char *paths[] = {
-        PLUGIN_APPS_DIR "/stopwatch.rock",
-        PLUGIN_DIR "/apps/stopwatch.rock",
-        ROCKBOX_DIR "/rocks/apps/stopwatch.rock",
-    };
-
-    for (size_t i = 0; i < sizeof(paths) / sizeof(paths[0]); i++)
-    {
-        strcpy(path, paths[i]);
-        if (file_exists(path))
-            return load_plugin_path_screen(path, NULL);
-    }
-
-    splash(HZ, "Stopwatch plugin missing\nInstall to .rockbox/rocks/apps/stopwatch.rock");
-    return GO_TO_ROOT;
-}
-
-static int launch_alarmclock_plugin(void *param)
-{
-    (void)param;
-    char path[MAX_PATH];
-    static const char *paths[] = {
-        PLUGIN_APPS_DIR "/alarmclock.rock",
-        PLUGIN_DIR "/apps/alarmclock.rock",
-        ROCKBOX_DIR "/rocks/apps/alarmclock.rock",
-    };
-
-    for (size_t i = 0; i < sizeof(paths) / sizeof(paths[0]); i++)
-    {
-        strcpy(path, paths[i]);
-        if (file_exists(path))
-            return load_plugin_path_screen(path, NULL);
-    }
-
-    splash(HZ, "Alarm Clock plugin missing\nInstall to .rockbox/rocks/apps/alarmclock.rock");
-    return GO_TO_ROOT;
-}
-
 MENUITEM_FUNCTION(clock_item, MENU_FUNC_CHECK_RETVAL,
                   "Clock", launch_clock_plugin,
                   NULL, Icon_Plugin);
@@ -5524,17 +6240,31 @@ static int launch_pokemini(void *param);
     static int root_menu_video_applications_menu(void);
     static int launch_ipodjs_applications(void *param)
     {
+        int ret;
+
         (void)param;
-        return root_menu_video_applications_menu();
+        ret = root_menu_video_applications_menu();
+
+        /* This wrapper is the Home-screen Applications item, so Menu must
+         * return Home rather than resolving GO_TO_PREVIOUS through a stale
+         * WPS origin. Extras calls the Applications screen directly and
+         * retains its ordinary one-level GO_TO_PREVIOUS unwind. */
+        return ret == GO_TO_PREVIOUS ? GO_TO_ROOT : ret;
     }
     MENUITEM_FUNCTION(ipodjs_applications_item, MENU_FUNC_CHECK_RETVAL,
                       "Applications", launch_ipodjs_applications,
                       NULL, Icon_Plugin);
 #endif
 
-    MAKE_MENU(applications_menu, "Extras", NULL, Icon_Plugin,
-          &clock_item, &desktop_mode_item, &youtube_item, &spotify_wrapped_item, &tiktok_item,
-          &onlyfans_item, &instagram_item, &reddit_item,
+    /* RockPod themes keep Rockbox's menu engine.  This is the application
+     * collection nested below their iPodJS-compatible Extras hierarchy. */
+    MAKE_MENU(rockpod_applications_menu, "Applications", NULL, Icon_Plugin,
+          &clock_item, &desktop_mode_item, &youtube_item, &twitch_item,
+          &spotify_wrapped_item, &tiktok_item,
+          &onlyfans_item, &instagram_item, &reddit_item, &twitter_item, &msn_item,
+#if defined(IPOD_6G) && !defined(ROCKPOD_IOS_EMBED)
+          &newgrounds_item,
+#endif
           &achievements_item, &livetv_item, &sitekick_item, &tamagotchi_item,
           &maps_item, &weather_item, &calm_item,
           &offlineweb_item, &magazines_item, &comics_item, &pocketsky_item,
@@ -5916,6 +6646,19 @@ MENUITEM_FUNCTION_W_PARAM(pokemini_item, MENU_FUNC_CHECK_RETVAL,
 MENUITEM_RETURNVALUE(system_menu_, ID2P(LANG_SYSTEM), GO_TO_SYSTEM_SCREEN,
                      NULL, Icon_System_menu);
 
+/* Match the iPodJS Extras information architecture while continuing to use
+ * the ordinary Rockbox list/menu renderer for RockPod-created themes. */
+MAKE_MENU(applications_menu, "Extras", NULL, Icon_Plugin,
+          &clock_item,
+#if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 220)
+          &gameboy_context_menu,
+#else
+          &gameboy_browser,
+#endif
+          &achievements_item, &rockpod_applications_menu,
+          &magazines_item, &comics_item, &file_browser,
+          &playlists, &rocks_browser, &shortcut_menu, &system_menu_);
+
 struct menu_item_ex root_menu_;
 static struct menu_callback_with_desc root_menu_desc = {
         item_callback, ID2P(LANG_ROCKBOX_TITLE), Icon_Rockbox };
@@ -5937,6 +6680,7 @@ static struct menu_table menu_table[] = {
     { "photos", &photos_item },
     { "desktop", &desktop_mode_item },
     { "youtube", &youtube_item },
+    { "twitch", &twitch_item },
     { "tiktok", &tiktok_item },
     { "games", &gameboy_browser },
     { "podemon_go", &podemon_go_item },
@@ -6022,6 +6766,9 @@ void root_menu_load_from_cfg(void* setting, char *value)
         {
             if (*start && !strcmp(start, menu_table[i].string))
             {
+                if (menu_table[i].item == &desktop_mode_item &&
+                    !root_menu_video_desktop_mode_visible())
+                    break;
                 root_menu__[menu_item_count++] = (struct menu_item_ex *)menu_table[i].item;
                 break;
             }
@@ -6099,6 +6846,7 @@ void root_menu_set_default(void* setting, void* defaultval)
 #endif
                 menu_table[i].item == &desktop_mode_item ||
                 menu_table[i].item == &youtube_item ||
+                menu_table[i].item == &twitch_item ||
                 menu_table[i].item == &tiktok_item)
                 continue;
 
@@ -6329,6 +7077,8 @@ static const char *root_menu_nano2g_label(const struct menu_item_ex *item)
         return "DIRECTV";
     if (item == &youtube_item)
         return "YouTube";
+    if (item == &twitch_item)
+        return "Twitch";
     if (item == &tiktok_item)
         return "TikTok";
 
@@ -6835,8 +7585,6 @@ static int root_menu_nano2g_dashboard(int *selectedp)
 #define IPODJS_LOCK_TOP         LCD_RGBPACK(247, 248, 249)
 #define IPODJS_LOCK_MID         LCD_RGBPACK(199, 204, 211)
 #define IPODJS_LOCK_BOTTOM      LCD_RGBPACK(116, 126, 140)
-#define IPODJS_ACTIVE_TOP       LCD_RGBPACK(107, 200, 254)
-#define IPODJS_ACTIVE_MID       LCD_RGBPACK(38, 146, 226)
 #define IPODJS_SPLIT            LCD_RGBPACK(210, 210, 210)
 #define IPODJS_BATTERY_BORDER   LCD_RGBPACK(98, 98, 98)
 #define IPODJS_BATTERY_BG       LCD_RGBPACK(84, 88, 91)
@@ -6846,7 +7594,9 @@ static int root_menu_nano2g_dashboard(int *selectedp)
 #define IPODJS_LIST_WIDTH       (LCD_WIDTH / 2)
 #define IPODJS_PREVIEW_X        IPODJS_LIST_WIDTH
 #define IPODJS_SPLIT_X          (IPODJS_LIST_WIDTH - 1)
-#define IPODJS_HEADER_HEIGHT    24
+#define IPODJS_HEADER_HEIGHT \
+    (global_settings.ui_engine_dark_mode ? IPODJS_UI_HEADER_HEIGHT : \
+                                          IPODJS_UI_RETAIL_MENU_HEADER_HEIGHT)
 #define IPODJS_MENU_BOTTOM_INSET 18
 #define IPODJS_DB_MAX_ROWS      1024
 #define IPODJS_DB_WINDOW_ROWS   96
@@ -6860,6 +7610,9 @@ static int root_menu_nano2g_dashboard(int *selectedp)
 #define IPODJS_DB_ALBUM_ROW_H   48
 #define IPODJS_DB_ART_WORK_EXTRA (44 * 1024)
 #define IPODJS_STOCK_ART_SIZE   128
+#define IPODJS_WPS_ART_X        10
+#define IPODJS_WPS_ART_Y        34
+#define IPODJS_WPS_ART_DISPLAY  136
 #define IPODJS_PREVIEW_IMAGE_WIDTH 320
 #define IPODJS_PREVIEW_IMAGE_HEIGHT 240
 #define IPODJS_PREVIEW_IMAGE_CACHE 2
@@ -6899,6 +7652,93 @@ static bool root_menu_video_native_handoff;
 static long root_menu_video_last_playpause_tick;
 static bool root_menu_video_tree_stop_pending;
 static bool root_menu_video_wps_force_full = true;
+static bool root_menu_video_wps_session;
+enum ipodjs_wps_page {
+    IPODJS_WPS_ART, IPODJS_WPS_RATING,
+    IPODJS_WPS_SCRUB, IPODJS_WPS_SHUFFLE, IPODJS_WPS_LYRICS,
+    IPODJS_WPS_INFO, IPODJS_WPS_PAGE_COUNT
+};
+static enum ipodjs_wps_page root_menu_video_wps_page;
+#ifdef IPOD_6G
+/* Opt-in hardware diagnosis. Drawing only stores bounded observations in
+ * static memory; the file is written once, on leaving the WPS lifecycle. */
+static struct {
+    long tick;
+    int event, action, raw, page;
+} ipodjs_wps_input_records[64];
+static unsigned ipodjs_wps_input_count;
+static int ipodjs_wps_input_last_raw;
+static bool ipodjs_wps_input_enabled;
+static bool ipodjs_wps_input_paint_pending;
+
+static void ipodjs_wps_input_record(int event, int action, int raw)
+{
+    if (!ipodjs_wps_input_enabled)
+        return;
+    unsigned i = ipodjs_wps_input_count++ %
+                 ARRAYLEN(ipodjs_wps_input_records);
+    ipodjs_wps_input_records[i].tick = current_tick;
+    ipodjs_wps_input_records[i].event = event;
+    ipodjs_wps_input_records[i].action = action;
+    ipodjs_wps_input_records[i].raw = raw;
+    ipodjs_wps_input_records[i].page = root_menu_video_wps_page;
+}
+
+void root_menu_ipodjs_wps_input_trace(int action, int raw)
+{
+    if (!ipodjs_wps_input_enabled ||
+        (action == ACTION_NONE && raw == ipodjs_wps_input_last_raw))
+        return;
+    ipodjs_wps_input_last_raw = raw;
+    ipodjs_wps_input_paint_pending = true;
+    ipodjs_wps_input_record(1, action, raw);
+}
+
+static void ipodjs_wps_input_paint(int reason)
+{
+    if (!ipodjs_wps_input_paint_pending)
+        return;
+    ipodjs_wps_input_paint_pending = false;
+    ipodjs_wps_input_record(3, reason, 0);
+}
+
+static void ipodjs_wps_input_save(void)
+{
+    if (!ipodjs_wps_input_enabled)
+        return;
+    int fd = open(ROCKBOX_DIR "/ipodjs-wps-input.log",
+                  O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (fd >= 0)
+    {
+        fdprintf(fd, "WPS-INPUT-20260908-1 engine=%d count=%u\n"
+                 "event: 0=enter 1=input 2=select 3=paint 4=leave\n"
+                 "paint: 0=full 1=partial 2=hold 3=lcd-off 4=idle\n"
+                 "tick event action_or_reason raw page\n",
+                 global_settings.ui_engine, ipodjs_wps_input_count);
+        unsigned first = ipodjs_wps_input_count >
+                         ARRAYLEN(ipodjs_wps_input_records) ?
+                         ipodjs_wps_input_count -
+                         ARRAYLEN(ipodjs_wps_input_records) : 0;
+        for (unsigned n = first; n < ipodjs_wps_input_count; n++)
+        {
+            unsigned i = n % ARRAYLEN(ipodjs_wps_input_records);
+            fdprintf(fd, "%ld %d %d %08x %d\n",
+                     ipodjs_wps_input_records[i].tick,
+                     ipodjs_wps_input_records[i].event,
+                     ipodjs_wps_input_records[i].action,
+                     ipodjs_wps_input_records[i].raw,
+                     ipodjs_wps_input_records[i].page);
+        }
+        close(fd);
+    }
+}
+#else
+#define ipodjs_wps_input_record(event, action, raw) do { } while (0)
+#define ipodjs_wps_input_paint(reason) do { } while (0)
+#endif
+#if defined(HAVE_LCD_SLEEP) && defined(HAVE_LCD_SLEEP_SETTING)
+static bool root_menu_video_wps_sleep_override;
+#endif
 static long root_menu_video_hold_storm_until;
 static long root_menu_video_hold_storm_window_start;
 static int root_menu_video_hold_storm_toggles;
@@ -6935,7 +7775,7 @@ static int root_menu_video_count(void)
         source_count = ARRAYLEN(root_menu_ipodjs_default_items);
     }
     for (int i = 0; i < source_count; i++)
-        if (items[i] != &offlineweb_item || usb_internet_connected())
+        if (items[i] != &offlineweb_item || root_menu_usb_internet_connected())
             count++;
     return count;
 }
@@ -6960,7 +7800,7 @@ static const struct menu_item_ex *root_menu_video_item(int index)
     }
     for (int i = 0; i < source_count; i++)
     {
-        if (items[i] == &offlineweb_item && !usb_internet_connected())
+        if (items[i] == &offlineweb_item && !root_menu_usb_internet_connected())
             continue;
         if (visible++ == index)
             return items[i];
@@ -7052,6 +7892,7 @@ static void root_menu_video_enter_native_screen(void)
 
 static int root_menu_video_finish_native_screen(int ret)
 {
+    tv_ui_release();
     if (root_menu_video_theme_depth > 0 &&
         --root_menu_video_theme_depth == 0)
     {
@@ -7072,20 +7913,59 @@ static int root_menu_video_finish_native_screen(int ret)
 
 void root_menu_ipodjs_enter_wps_frame(void)
 {
-    if (root_menu_video_enabled())
-    {
-        root_menu_video_wps_force_full = true;
-        root_menu_video_enter_native_screen();
-    }
+    if (!root_menu_video_enabled() || root_menu_video_wps_session)
+        return;
+
+    root_menu_video_wps_session = true;
+    root_menu_video_wps_page = IPODJS_WPS_ART;
+    root_menu_video_wps_force_full = true;
+#ifdef IPOD_6G
+    ipodjs_wps_input_enabled = file_exists(
+        ROCKBOX_DIR "/ipodjs-wps-input.enable");
+    ipodjs_wps_input_count = 0;
+    ipodjs_wps_input_last_raw = -1;
+    ipodjs_wps_input_paint_pending = true;
+    ipodjs_wps_input_record(0, 0, 0);
+#endif
+    root_menu_video_stop_wps_title_scroll();
+
+    /* The normal WPS remains the sole owner of playback and album-art memory.
+     * Only bounded RetailOS/UI caches are prepared here, before any draw or
+     * animation callback can run. */
+    root_menu_video_prepare_wps_assets();
+    (void)ipodjs_ui_prepare_retailos_playback();
+
+#if defined(HAVE_LCD_SLEEP) && defined(HAVE_LCD_SLEEP_SETTING)
+    /* RetailOS keeps the LCD awake after the backlight times out so its
+     * low-power Now Playing clock remains visible. */
+    lcd_set_sleep_after_backlight_off(-1);
+    root_menu_video_wps_sleep_override = true;
+#endif
 }
 
 void root_menu_ipodjs_leave_wps_frame(void)
 {
-    if (root_menu_video_enabled())
+    if (!root_menu_video_wps_session)
+        return;
+
+#ifdef IPOD_6G
+    ipodjs_wps_input_record(4, 0, 0);
+    ipodjs_wps_input_save();
+    ipodjs_wps_input_enabled = false;
+#endif
+    root_menu_video_wps_session = false;
+    root_menu_video_wps_force_full = true;
+    root_menu_video_stop_wps_title_scroll();
+    ipodjs_ui_retailos_playback_leave();
+
+#if defined(HAVE_LCD_SLEEP) && defined(HAVE_LCD_SLEEP_SETTING)
+    if (root_menu_video_wps_sleep_override)
     {
-        root_menu_video_wps_force_full = true;
-        root_menu_video_finish_native_screen(GO_TO_ROOT);
+        lcd_set_sleep_after_backlight_off(
+            global_settings.lcd_sleep_after_backlight_off);
+        root_menu_video_wps_sleep_override = false;
     }
+#endif
 }
 
 static int root_menu_video_row_height(void)
@@ -7103,6 +7983,16 @@ static int root_menu_video_visible_rows(int row_h)
 static unsigned root_menu_video_accent(void)
 {
     return ipodjs_ui_accent();
+}
+
+static unsigned root_menu_video_accent_tint(unsigned base, int alpha)
+{
+    unsigned accent = root_menu_video_accent();
+
+    return ipodjs_ui_rgb_blend(RGB_UNPACK_RED(base),
+        RGB_UNPACK_GREEN(base), RGB_UNPACK_BLUE(base),
+        RGB_UNPACK_RED(accent), RGB_UNPACK_GREEN(accent),
+        RGB_UNPACK_BLUE(accent), alpha);
 }
 
 static const char *root_menu_video_accent_name(void)
@@ -7146,6 +8036,13 @@ static unsigned root_menu_video_row_bg(void)
     return ipodjs_ui_row_bg();
 }
 
+/* RetailOS keeps the left list pane neutral in every surface style. */
+static unsigned root_menu_video_left_pane_bg(void)
+{
+    return root_menu_video_dark() ? LCD_RGBPACK(0, 0, 0) :
+                                    LCD_RGBPACK(255, 255, 255);
+}
+
 static unsigned root_menu_video_text(void)
 {
     return ipodjs_ui_text();
@@ -7168,21 +8065,30 @@ static unsigned root_menu_video_header_bg(void)
 
 static int root_menu_video_font(void)
 {
-    return ipodjs_ui_font();
+    return button_hold() ? ipodjs_ui_font() : ipodjs_ui_retailos_menu_font();
 }
+
+static int root_menu_video_wps_fonts[2] = { -1, -1 };
 
 static int root_menu_video_wps_font(bool bold)
 {
-    static int regular_font = -2;
-    static int bold_font = -2;
-    int *fontp = bold ? &bold_font : &regular_font;
+    int id = root_menu_video_wps_fonts[bold ? 1 : 0];
+
+    /* Rendering cannot load a font: a core glyph-cache allocation can evict
+     * the active codec. Preparation happens before startup playback. */
+    return id >= 0 ? id : FONT_UI;
+}
+
+static void root_menu_video_prepare_wps_font(bool bold)
+{
+    int *fontp = &root_menu_video_wps_fonts[bold ? 1 : 0];
     const char *name = bold ? "14-Adobe-Helvetica-Bold.fnt" :
                               "12-Adobe-Helvetica.fnt";
     char path[MAX_PATH];
     int loaded;
 
     if (*fontp >= 0)
-        return *fontp;
+        return;
 
     snprintf(path, sizeof(path), "%s/%s", IPODJS_ASSET_DIR, name);
     loaded = file_exists(path) ? font_load(path) : -1;
@@ -7198,7 +8104,28 @@ static int root_menu_video_wps_font(bool bold)
         *fontp = loaded;
     }
 
-    return *fontp >= 0 ? *fontp : root_menu_video_font();
+}
+
+static int root_menu_video_retail_wps_font(bool bold)
+{
+    /* The application grid deliberately keeps its existing font getter. */
+    return ipodjs_ui_retailos_font(bold);
+}
+
+void root_menu_ipodjs_prepare_wps_fonts(void)
+{
+    if (audio_status())
+        return;
+    root_menu_video_prepare_wps_font(false);
+    root_menu_video_prepare_wps_font(true);
+    ipodjs_ui_prepare_retailos_fonts();
+    ipodjs_ui_prepare_retailos_menu();
+    ipodjs_settings_prepare();
+    char storage[32];
+    root_menu_video_storage_info(storage, sizeof(storage), NULL, true);
+    /* The Home Extras pane consumes this fixed cache even before Clock is
+     * opened. Prepare it before playback, never from a preview paint. */
+    ipodjs_utilities_prepare_classic_preview();
 }
 
 static int root_menu_video_text_y_offset(void)
@@ -7299,6 +8226,8 @@ static const char *root_menu_video_label(const struct menu_item_ex *item)
         return "DIRECTV";
     if (item == &youtube_item)
         return "YouTube";
+    if (item == &twitch_item)
+        return "Twitch";
     if (item == &tiktok_item)
         return "TikTok";
     if (item == &podemon_go_item)
@@ -7447,6 +8376,13 @@ static void root_menu_video_storage_info(char *buf, size_t buf_size,
         return;
     }
 
+    if (!allow_refresh)
+    {
+        strmemccpy(buf, "Storage loading", buf_size);
+        if (used_pctp)
+            *used_pctp = 0;
+        return;
+    }
     volume_size(IF_MV(0,) &size, &free);
     if (size == 0)
     {
@@ -7475,11 +8411,6 @@ static void root_menu_video_storage_info(char *buf, size_t buf_size,
         *used_pctp = root_menu_video_storage_cached_used_pct;
 }
 
-static struct bitmap root_menu_video_apple_logo_bm;
-static unsigned char root_menu_video_apple_logo_data[
-    BM_SIZE(48, 58, FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
-static bool root_menu_video_apple_logo_tried;
-static bool root_menu_video_apple_logo_valid;
 
 static struct bitmap root_menu_video_netflix_logo_bm;
 static unsigned char root_menu_video_netflix_logo_data[
@@ -7505,7 +8436,7 @@ static bool root_menu_video_steam_logo_valid;
 
 static void root_menu_video_prepare_netflix_logo(void)
 {
-    if (global_settings.ui_engine_video_appearance !=
+    if (!tv_ui_active() && global_settings.ui_engine_video_appearance !=
         UI_ENGINE_VIDEO_NETFLIX)
         return;
 
@@ -7520,7 +8451,7 @@ static void root_menu_video_prepare_netflix_logo(void)
 
 static void root_menu_video_prepare_netflix_browser_logo(void)
 {
-    if (global_settings.ui_engine_video_appearance !=
+    if (!tv_ui_active() && global_settings.ui_engine_video_appearance !=
         UI_ENGINE_VIDEO_NETFLIX)
         return;
 
@@ -7547,7 +8478,7 @@ static struct bitmap *root_menu_video_netflix_logo_small_cached(void)
 
 static void root_menu_video_prepare_netflix_watched_badge(void)
 {
-    if (global_settings.ui_engine_video_appearance !=
+    if (!tv_ui_active() && global_settings.ui_engine_video_appearance !=
         UI_ENGINE_VIDEO_NETFLIX)
         return;
 
@@ -7589,76 +8520,22 @@ static struct bitmap *root_menu_video_steam_logo_cached(void)
            &root_menu_video_steam_logo_bm : NULL;
 }
 
-static struct bitmap *root_menu_video_apple_logo_asset(void)
-{
-    return root_menu_video_load_ui_bmp(
-        IPODJS_ASSET_DIR "/apple-logo-white.48x58x24.bmp",
-        &root_menu_video_apple_logo_bm,
-        root_menu_video_apple_logo_data,
-        sizeof(root_menu_video_apple_logo_data), 48, 58,
-        &root_menu_video_apple_logo_tried,
-        &root_menu_video_apple_logo_valid);
-}
-
-static void root_menu_video_draw_apple_mark(int cx, int y)
-{
-    struct bitmap *bm = root_menu_video_apple_logo_asset();
-
-    if (bm)
-    {
-        lcd_bmp(bm, cx - bm->width / 2, y);
-        return;
-    }
-}
-
-static void root_menu_video_draw_storage_bar(int x, int y, int w, int used_pct)
-{
-    int h = 11;
-    int fill_w;
-
-    /* Stock Classic: a dark inset capsule is the unused-space cutout and a
-     * white capsule grows from the left to show used capacity. */
-    lcd_set_foreground(LCD_RGBPACK(69, 78, 92));
-    lcd_fillrect(x + 3, y + 1, w - 6, h);
-    lcd_fillrect(x + 1, y + 3, w - 2, h - 4);
-    lcd_fillrect(x, y + 5, w, h - 8);
-
-    lcd_set_foreground(LCD_RGBPACK(105, 116, 132));
-    lcd_fillrect(x + 3, y + 2, w - 6, h - 3);
-    lcd_fillrect(x + 1, y + 4, w - 2, h - 7);
-
-    fill_w = (w - 2) * MAX(0, MIN(used_pct, 100)) / 100;
-    if (fill_w > 0)
-    {
-        /* Apple leaves even a nearly-empty device with a small white pip. */
-        fill_w = MAX(h - 2, MIN(fill_w, w - 2));
-        lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
-        lcd_fillrect(x + 4, y + 1, MAX(1, fill_w - 6), h - 2);
-        lcd_fillrect(x + 2, y + 3, MAX(1, fill_w - 2), h - 6);
-        lcd_fillrect(x + 1, y + 4, fill_w, h - 8);
-    }
-}
-
 static void root_menu_video_draw_settings_preview(int x, int y, int w, int h,
-                                                  bool refresh_storage)
+                                                  bool main_menu)
 {
     char storage[32];
     int used_pct;
-    int bar_w = w - 44;
-    int bar_x = x + (w - bar_w) / 2;
 
-    root_menu_video_preview_gradient(x, y, w, h);
-    root_menu_video_puts_fit(x + 12, y + 18, w - 24, "iPod classic", true);
-    root_menu_video_draw_apple_mark(x + w / 2, y + 62);
-    lcd_set_foreground(IPODJS_PREVIEW_TEXT);
-    lcd_set_background(root_menu_video_dark() ?
-                       LCD_RGBPACK(18, 22, 30) : IPODJS_PREVIEW_BOTTOM);
-    root_menu_video_storage_info(storage, sizeof(storage), &used_pct,
-                                 refresh_storage);
-    root_menu_video_draw_storage_bar(bar_x, y + 172, bar_w, used_pct);
-    lcd_set_foreground(LCD_RGBPACK(222, 226, 232));
-    root_menu_video_puts_fit(x + 14, y + 197, w - 28, storage, true);
-    (void)h;
+    root_menu_video_storage_info(storage, sizeof(storage), &used_pct, false);
+    if (!ipodjs_ui_draw_retailos_settings_preview(&screens[SCREEN_MAIN],
+            x, y, w, h, main_menu, main_menu ? "Main Menu" : "iPod",
+            main_menu ? "Customize" : storage, used_pct))
+    {
+        /* Missing private artwork is not replaced by a fabricated replica. */
+        lcd_set_foreground(root_menu_video_screen_bg());
+        lcd_fillrect(x, y, w, h);
+    }
+    lcd_setfont(root_menu_video_font());
 }
 
 static void root_menu_video_puts_fit(int x, int y, int width,
@@ -7675,79 +8552,20 @@ static int root_menu_video_clock_screen(void);
 static int root_menu_video_aa_slot = -1;
 #endif
 
-static struct bitmap root_menu_video_default_art_bm;
-static unsigned char root_menu_video_default_art_data[
-    BM_SCALED_SIZE(IPODJS_WPS_ART_MAX, IPODJS_WPS_ART_MAX,
-                   FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
-static bool root_menu_video_default_art_tried;
-static bool root_menu_video_default_art_valid;
 
-static struct bitmap root_menu_video_gloss_blue_bm;
-static unsigned char root_menu_video_gloss_blue_data[
-    BM_SIZE(64, 9, FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
-static bool root_menu_video_gloss_blue_tried;
-static bool root_menu_video_gloss_blue_valid;
+
 #endif
 
-struct root_menu_video_apple_slider_assets {
-    struct bitmap volume_low;
-    struct bitmap volume_high;
-    struct bitmap brightness_low;
-    struct bitmap brightness_high;
-    struct bitmap frame_light;
-    struct bitmap frame_dark;
-    struct bitmap fill;
-    struct bitmap progress_frame;
-    struct bitmap progress_fill;
-    struct bitmap progress_fill_cap;
-    unsigned char volume_low_data[
-        BM_SIZE(11, 17, FORMAT_NATIVE, false) + 11 * 17 / 2 + 1] IPODJS_BM_ALIGN;
-    unsigned char volume_high_data[
-        BM_SIZE(19, 18, FORMAT_NATIVE, false) + 19 * 18 / 2 + 1] IPODJS_BM_ALIGN;
-    unsigned char brightness_low_data[
-        BM_SIZE(20, 21, FORMAT_NATIVE, false) + 20 * 21 / 2] IPODJS_BM_ALIGN;
-    unsigned char brightness_high_data[
-        BM_SIZE(30, 31, FORMAT_NATIVE, false) + 30 * 31 / 2] IPODJS_BM_ALIGN;
-    unsigned char frame_light_data[
-        BM_SIZE(248, 20, FORMAT_NATIVE, false) + 248 * 20 / 2] IPODJS_BM_ALIGN;
-    unsigned char frame_dark_data[
-        BM_SIZE(248, 20, FORMAT_NATIVE, false) + 248 * 20 / 2] IPODJS_BM_ALIGN;
-    unsigned char fill_data[
-        BM_SIZE(316, 20, FORMAT_NATIVE, false) + 316 * 20 / 2] IPODJS_BM_ALIGN;
-    unsigned char progress_frame_data[
-        BM_SIZE(200, 22, FORMAT_NATIVE, false) + 200 * 22 / 2] IPODJS_BM_ALIGN;
-    unsigned char progress_fill_data[
-        BM_SIZE(200, 22, FORMAT_NATIVE, false) + 200 * 22 / 2] IPODJS_BM_ALIGN;
-    unsigned char progress_fill_cap_data[
-        BM_SIZE(16, 16, FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
-    bool tried[10];
-    bool valid[10];
-};
-
-static struct root_menu_video_apple_slider_assets
-    root_menu_video_apple_sliders;
 static int root_menu_video_asset_dark_state = -1;
 
 static void root_menu_video_invalidate_ui_asset_cache(void)
 {
-    root_menu_video_apple_logo_tried = false;
-    root_menu_video_apple_logo_valid = false;
     root_menu_video_netflix_logo_tried = false;
     root_menu_video_netflix_logo_valid = false;
     root_menu_video_netflix_logo_small_tried = false;
     root_menu_video_netflix_logo_small_valid = false;
     root_menu_video_steam_logo_tried = false;
     root_menu_video_steam_logo_valid = false;
-    memset(root_menu_video_apple_sliders.tried, 0,
-           sizeof(root_menu_video_apple_sliders.tried));
-    memset(root_menu_video_apple_sliders.valid, 0,
-           sizeof(root_menu_video_apple_sliders.valid));
-#ifdef HAVE_ALBUMART
-    root_menu_video_default_art_tried = false;
-    root_menu_video_default_art_valid = false;
-    root_menu_video_gloss_blue_tried = false;
-    root_menu_video_gloss_blue_valid = false;
-#endif
 }
 
 static void root_menu_video_sync_asset_mode(void)
@@ -7883,131 +8701,6 @@ static struct bitmap *root_menu_video_load_ui_bmp(const char *path,
     return bm;
 }
 
-enum root_menu_video_apple_slider_asset {
-    IPODJS_APPLE_VOLUME_LOW = 0,
-    IPODJS_APPLE_VOLUME_HIGH,
-    IPODJS_APPLE_BRIGHTNESS_LOW,
-    IPODJS_APPLE_BRIGHTNESS_HIGH,
-    IPODJS_APPLE_SLIDER_LIGHT,
-    IPODJS_APPLE_SLIDER_DARK,
-    IPODJS_APPLE_SLIDER_FILL,
-    IPODJS_APPLE_PROGRESS_FRAME,
-    IPODJS_APPLE_PROGRESS_FILL,
-    IPODJS_APPLE_PROGRESS_FILL_CAP,
-};
-
-static struct bitmap *root_menu_video_apple_slider_asset(int asset)
-{
-    struct root_menu_video_apple_slider_assets *a =
-        &root_menu_video_apple_sliders;
-    const char *path;
-    struct bitmap *bm;
-    unsigned char *data;
-    size_t data_size;
-    int width;
-    int height;
-
-    switch (asset)
-    {
-        case IPODJS_APPLE_VOLUME_LOW:
-            path = IPODJS_APPLE_ASSET_DIR
-                "/volume-low.apple.11x17x24.bmp";
-            bm = &a->volume_low;
-            data = a->volume_low_data;
-            data_size = sizeof(a->volume_low_data);
-            width = 11;
-            height = 17;
-            break;
-        case IPODJS_APPLE_VOLUME_HIGH:
-            path = IPODJS_APPLE_ASSET_DIR
-                "/volume-high.apple.19x18x24.bmp";
-            bm = &a->volume_high;
-            data = a->volume_high_data;
-            data_size = sizeof(a->volume_high_data);
-            width = 19;
-            height = 18;
-            break;
-        case IPODJS_APPLE_BRIGHTNESS_LOW:
-            path = IPODJS_APPLE_ASSET_DIR
-                "/brightness-low.apple.20x21x32.bmp";
-            bm = &a->brightness_low;
-            data = a->brightness_low_data;
-            data_size = sizeof(a->brightness_low_data);
-            width = 20;
-            height = 21;
-            break;
-        case IPODJS_APPLE_BRIGHTNESS_HIGH:
-            path = IPODJS_APPLE_ASSET_DIR
-                "/brightness-high.apple.30x31x32.bmp";
-            bm = &a->brightness_high;
-            data = a->brightness_high_data;
-            data_size = sizeof(a->brightness_high_data);
-            width = 30;
-            height = 31;
-            break;
-        case IPODJS_APPLE_SLIDER_LIGHT:
-            path = IPODJS_APPLE_ASSET_DIR
-                "/slider-light.apple.248x20x32.bmp";
-            bm = &a->frame_light;
-            data = a->frame_light_data;
-            data_size = sizeof(a->frame_light_data);
-            width = 248;
-            height = 20;
-            break;
-        case IPODJS_APPLE_SLIDER_DARK:
-            path = IPODJS_APPLE_ASSET_DIR
-                "/slider-dark.apple.248x20x32.bmp";
-            bm = &a->frame_dark;
-            data = a->frame_dark_data;
-            data_size = sizeof(a->frame_dark_data);
-            width = 248;
-            height = 20;
-            break;
-        case IPODJS_APPLE_SLIDER_FILL:
-            path = IPODJS_APPLE_ASSET_DIR
-                "/slider-fill.apple.316x20x24.bmp";
-            bm = &a->fill;
-            data = a->fill_data;
-            data_size = sizeof(a->fill_data);
-            width = 316;
-            height = 20;
-            break;
-        case IPODJS_APPLE_PROGRESS_FRAME:
-            path = IPODJS_APPLE_ASSET_DIR
-                "/progress-frame.apple.200x22x32.bmp";
-            bm = &a->progress_frame;
-            data = a->progress_frame_data;
-            data_size = sizeof(a->progress_frame_data);
-            width = 200;
-            height = 22;
-            break;
-        case IPODJS_APPLE_PROGRESS_FILL:
-            path = IPODJS_APPLE_ASSET_DIR
-                "/progress-fill.apple.200x22x32.bmp";
-            bm = &a->progress_fill;
-            data = a->progress_fill_data;
-            data_size = sizeof(a->progress_fill_data);
-            width = 200;
-            height = 22;
-            break;
-        case IPODJS_APPLE_PROGRESS_FILL_CAP:
-            path = IPODJS_APPLE_ASSET_DIR
-                "/progress-fill-cap.apple.16x16x24.bmp";
-            bm = &a->progress_fill_cap;
-            data = a->progress_fill_cap_data;
-            data_size = sizeof(a->progress_fill_cap_data);
-            width = 16;
-            height = 16;
-            break;
-        default:
-            return NULL;
-    }
-
-    return root_menu_video_load_ui_bmp(
-        path, bm, data, data_size, width, height,
-        &a->tried[asset], &a->valid[asset]);
-}
-
 static void root_menu_video_draw_play_icon(int x, int y, bool paused)
 {
     (void)paused;
@@ -8065,19 +8758,23 @@ static struct bitmap *root_menu_video_buffered_art(void)
 #ifdef IPOD_6G
     /* The configured stock WPS claims the 128px player art before playback.
      * Do not create a second owner from the dashboard or WPS draw paths. */
+    struct bitmap *best = NULL;
     for (int slot = 0; slot < WPS_MAX_ALBUMART; slot++)
     {
         handle = playback_current_aa_hid(slot);
         if (handle < 0)
             continue;
 
-        if (bufgetdata(handle, 0, (void *)&bm) > 0 && bm &&
-            bm->width == IPODJS_STOCK_ART_SIZE &&
-            bm->height == IPODJS_STOCK_ART_SIZE)
-            return bm;
+        /* Playback uses KEEP_ASPECT: a valid rectangular cover is smaller
+         * than the requested 128x128 box in one dimension. */
+        if (bufgetdata(handle, 0, (void *)&bm) > 0 && bm && bm->data &&
+            bm->width > 0 && bm->width <= IPODJS_STOCK_ART_SIZE &&
+            bm->height > 0 && bm->height <= IPODJS_STOCK_ART_SIZE &&
+            (!best || bm->width * bm->height > best->width * best->height))
+            best = bm;
     }
 
-    return NULL;
+    return best;
 #else
     root_menu_video_ensure_aa_slot();
     if (root_menu_video_aa_slot < 0)
@@ -8092,6 +8789,12 @@ static struct bitmap *root_menu_video_buffered_art(void)
 
     return bm;
 #endif
+}
+
+static void root_menu_video_prepare_wps_assets(void)
+{
+    root_menu_video_ensure_aa_slot();
+    (void)ipodjs_ui_prepare_retailos_controls();
 }
 
 static struct bitmap *root_menu_video_load_cached_bmp(const char *path,
@@ -8134,30 +8837,6 @@ static struct bitmap *root_menu_video_load_cached_bmp(const char *path,
 
     *valid = true;
     return bm;
-}
-
-static struct bitmap *root_menu_video_default_art(void)
-{
-    return root_menu_video_load_cached_bmp(
-        IPODJS_ASSET_DIR "/default_album_artwork.128x128x24.bmp",
-        &root_menu_video_default_art_bm,
-        root_menu_video_default_art_data,
-        sizeof(root_menu_video_default_art_data),
-        IPODJS_WPS_ART_MAX, IPODJS_WPS_ART_MAX,
-        &root_menu_video_default_art_tried,
-        &root_menu_video_default_art_valid);
-}
-
-static struct bitmap *root_menu_video_gloss_blue(void)
-{
-    return root_menu_video_load_cached_bmp(
-        IPODJS_ASSET_DIR "/gloss-blue.64x9x24.bmp",
-        &root_menu_video_gloss_blue_bm,
-        root_menu_video_gloss_blue_data,
-        sizeof(root_menu_video_gloss_blue_data),
-        64, 9,
-        &root_menu_video_gloss_blue_tried,
-        &root_menu_video_gloss_blue_valid);
 }
 
 static bool root_menu_video_try_cover_path(char *path, size_t path_size,
@@ -8448,7 +9127,8 @@ static void root_menu_video_draw_album_thumb(const char *album,
         bm = root_menu_video_db_album_art(album_seek, filter_tag,
                                           filter_seek, size);
 
-    lcd_set_foreground(active ? LCD_RGBPACK(137, 203, 246) :
+    lcd_set_foreground(active ? root_menu_video_accent_tint(
+                                LCD_RGBPACK(255, 255, 255), 105) :
                                 LCD_RGBPACK(239, 240, 242));
     lcd_fillrect(x - 1, y - 1, size + 2, size + 2);
 
@@ -8466,14 +9146,16 @@ static void root_menu_video_draw_album_thumb(const char *album,
                                  LCD_RGBPACK(242, 243, 245),
                                  LCD_RGBPACK(213, 217, 222));
         lcd_setfont(root_menu_video_font());
-        lcd_set_foreground(active ? LCD_RGBPACK(245, 250, 255) :
+        lcd_set_foreground(active ? root_menu_video_accent_tint(
+                                    LCD_RGBPACK(255, 255, 255), 42) :
                                     LCD_RGBPACK(150, 156, 164));
         lcd_set_background(LCD_RGBPACK(226, 229, 234));
         root_menu_video_puts_fit(x + 3, y + size / 2 - 6, size - 6,
                                  "Art", true);
     }
 
-    lcd_set_foreground(active ? LCD_RGBPACK(235, 246, 255) :
+    lcd_set_foreground(active ? root_menu_video_accent_tint(
+                                LCD_RGBPACK(255, 255, 255), 68) :
                                 LCD_RGBPACK(176, 180, 186));
     lcd_drawrect(x - 1, y - 1, size + 2, size + 2);
 }
@@ -8485,77 +9167,61 @@ static struct bitmap *root_menu_video_stock_wps_art(struct mp3entry *id3)
 #ifdef HAVE_ALBUMART
     struct bitmap *bm = root_menu_video_buffered_art();
 
-    if (!bm)
-        bm = root_menu_video_default_art();
-
+    /* Reuse the original music-note cover while playback art is pending. */
     (void)id3;
-    return bm;
+    return bm ? bm : ipodjs_ui_retailos_music_cover();
 #else
     (void)id3;
     return NULL;
 #endif
 }
 
-static void root_menu_video_fade_reflection(int x, int y, int w, int h,
-                                            unsigned background)
-{
-    int yy;
-
-    for (yy = 0; yy < h; yy++)
-    {
-        int alpha = 192 + yy * 64 / MAX(1, h - 1);
-        int xx;
-
-        for (xx = 0; xx < w; xx++)
-        {
-            fb_data *pixel = FBADDR(x + xx, y + yy);
-            unsigned r = (FB_UNPACK_RED(*pixel) * (256 - alpha) +
-                          FB_UNPACK_RED(background) * alpha) >> 8;
-            unsigned g = (FB_UNPACK_GREEN(*pixel) * (256 - alpha) +
-                          FB_UNPACK_GREEN(background) * alpha) >> 8;
-            unsigned b = (FB_UNPACK_BLUE(*pixel) * (256 - alpha) +
-                          FB_UNPACK_BLUE(background) * alpha) >> 8;
-
-            *pixel = FB_RGBPACK(r, g, b);
-        }
-    }
-}
-
 static bool root_menu_video_draw_stock_wps_art(int x, int y,
                                                struct mp3entry *id3)
 {
     struct bitmap *bm = root_menu_video_stock_wps_art(id3);
-    int size = IPODJS_STOCK_ART_SIZE;
-    int draw_w;
-    int draw_h;
-    int reflection_h = 30;
-    int row;
+    const int width = IPODJS_WPS_ART_DISPLAY;
+    const int reflection_h = 50;
+    unsigned panel = root_menu_video_panel();
+    const fb_data *source;
 
     if (!bm || !bm->data || bm->width <= 0 || bm->height <= 0)
         return false;
 
-    draw_w = MIN(size, bm->width);
-    draw_h = MIN(size, bm->height);
-    /* See draw_album_art() in the skin engine: buffered album art is an
-     * opaque native bitmap, not a transparent themed asset. */
-    lcd_bitmap_part((fb_data *)bm->data, 0, 0,
-                    STRIDE(SCREEN_MAIN, bm->width, bm->height),
-                    x, y, draw_w, draw_h);
-
-    lcd_set_foreground(root_menu_video_dark() ?
-                       LCD_RGBPACK(70, 75, 84) : LCD_RGBPACK(176, 176, 176));
-    lcd_drawrect(x - 1, y - 1, draw_w + 2, draw_h + 2);
-
-    reflection_h = MIN(reflection_h, draw_h);
-    for (row = 0; row < reflection_h; row++)
+    /* Project the existing WPS-owned cover directly into the LCD. The
+     * 128px buffered image and its owner stay unchanged. This bounded
+     * transform follows the slanted artwork/reflection in Apple's Classic
+     * guide; it needs no image decoder, additional art slot, or workspace. */
+    source = (const fb_data *)bm->data;
+    for (int dx = 0; dx < width; dx++)
     {
-        lcd_bitmap_part((fb_data *)bm->data, 0, draw_h - 1 - row,
-                        STRIDE(SCREEN_MAIN, bm->width, bm->height),
-                        x, y + draw_h + 2 + row, draw_w, 1);
+        int top = dx * 10 / (width - 1);
+        int height = width - top;
+        int sx = dx * bm->width / width;
+
+        for (int dy = 0; dy < height; dy++)
+        {
+            int sy = dy * bm->height / height;
+            *FBADDR(x + dx, y + top + dy) =
+                source[sy * bm->width + sx];
+        }
+        for (int dy = 0; dy < reflection_h; dy++)
+        {
+            int sy = bm->height - 1 - dy * bm->height / height;
+            fb_data pixel = source[sy * bm->width + sx];
+            int alpha = 144 + dy * 112 / (reflection_h - 1);
+            unsigned r = (FB_UNPACK_RED(pixel) * (256 - alpha) +
+                          FB_UNPACK_RED(panel) * alpha) >> 8;
+            unsigned g = (FB_UNPACK_GREEN(pixel) * (256 - alpha) +
+                          FB_UNPACK_GREEN(panel) * alpha) >> 8;
+            unsigned b = (FB_UNPACK_BLUE(pixel) * (256 - alpha) +
+                          FB_UNPACK_BLUE(panel) * alpha) >> 8;
+
+            *FBADDR(x + dx, y + width + dy) = FB_RGBPACK(r, g, b);
+        }
     }
-    root_menu_video_fade_reflection(x, y + draw_h + 2, draw_w,
-                                    reflection_h,
-                                    root_menu_video_panel());
+    if (id3 && bm == root_menu_video_buffered_art())
+        tv_art_draw(id3->path, FBADDR(x, y), LCD_WIDTH, x, y);
     return true;
 }
 
@@ -8593,15 +9259,87 @@ static struct {
     char text[MAX_PATH];
 } root_menu_video_wps_title_scroll;
 
+static struct {
+    struct viewport vp;
+    bool active;
+    int text_width, gap, offset;
+    long started;
+    char text[MAX_PATH];
+} root_menu_video_wps_album_scroll;
+
 static void root_menu_video_stop_wps_title_scroll(void)
 {
     root_menu_video_wps_title_scroll.active = false;
+    root_menu_video_wps_album_scroll.active = false;
+}
+
+static void root_menu_video_wps_album_offset(int offset)
+{
+    struct viewport *vp = &root_menu_video_wps_album_scroll.vp;
+    struct viewport *saved = lcd_set_viewport(vp);
+    lcd_set_drawmode(DRMODE_SOLID);
+    lcd_set_foreground(root_menu_video_panel());
+    lcd_fillrect(0, 0, vp->width, vp->height);
+    lcd_set_drawmode(DRMODE_FG);
+    lcd_set_foreground(root_menu_video_muted_text());
+    lcd_putsxy(-offset, 0, root_menu_video_wps_album_scroll.text);
+    lcd_putsxy(root_menu_video_wps_album_scroll.text_width +
+        root_menu_video_wps_album_scroll.gap - offset, 0,
+        root_menu_video_wps_album_scroll.text);
+    lcd_set_viewport(saved);
+}
+
+static void root_menu_video_draw_wps_album(int x, int y, int width,
+                                           const char *album, bool center)
+{
+    int font = lcd_getfont(), text_width, height;
+    root_menu_video_wps_album_scroll.active = false;
+    font_getstringsize(album, &text_width, &height, font);
+    if (text_width <= width)
+    {
+        root_menu_video_puts_fit(x, y, width, album, center);
+        return;
+    }
+    struct viewport *vp = &root_menu_video_wps_album_scroll.vp;
+    viewport_set_fullscreen(vp, SCREEN_MAIN);
+    vp->x = x; vp->y = y; vp->width = width; vp->height = height;
+    vp->font = font;
+    root_menu_video_wps_album_scroll.text_width = text_width;
+    font_getstringsize("   ", &root_menu_video_wps_album_scroll.gap, NULL, font);
+    strmemccpy(root_menu_video_wps_album_scroll.text, album,
+               sizeof(root_menu_video_wps_album_scroll.text));
+    root_menu_video_wps_album_scroll.started = current_tick +
+        global_settings.scroll_delay / MAX(1, 1000 / HZ);
+    root_menu_video_wps_album_scroll.offset = 0;
+    root_menu_video_wps_album_scroll.active = true;
+    root_menu_video_wps_album_offset(0);
+}
+
+static void root_menu_video_update_wps_album_scroll(void)
+{
+    static const unsigned char ticks[18] = {
+        100, 80, 64, 50, 40, 32, 25, 20, 16, 12, 10, 8, 6, 5, 4, 3, 2, 1
+    };
+    if (!root_menu_video_wps_album_scroll.active || button_hold() ||
+        !button_queue_empty() ||
+        TIME_BEFORE(current_tick, root_menu_video_wps_album_scroll.started))
+        return;
+    long elapsed = current_tick - root_menu_video_wps_album_scroll.started;
+    int cycle = root_menu_video_wps_album_scroll.text_width +
+                root_menu_video_wps_album_scroll.gap;
+    int offset = ((elapsed / ticks[MAX(0, MIN(17, global_settings.scroll_speed))]) *
+                  MAX(1, global_settings.scroll_step)) % MAX(1, cycle);
+    if (offset == root_menu_video_wps_album_scroll.offset) return;
+    root_menu_video_wps_album_scroll.offset = offset;
+    root_menu_video_wps_album_offset(offset);
+    struct viewport *vp = &root_menu_video_wps_album_scroll.vp;
+    lcd_update_rect(vp->x, vp->y, vp->width, vp->height);
 }
 
 static void root_menu_video_draw_wps_title_offset(int offset)
 {
     struct screen *display = &screens[SCREEN_MAIN];
-    unsigned canvas = root_menu_video_screen_bg();
+    unsigned canvas = root_menu_video_panel();
     unsigned text = root_menu_video_text();
     int repeat_x = root_menu_video_wps_title_scroll.text_width +
                    root_menu_video_wps_title_scroll.gap_width - offset;
@@ -8682,7 +9420,7 @@ static void root_menu_video_draw_wps_title(int x, int y, int width,
     root_menu_video_wps_title_vp.height = text_height;
     root_menu_video_wps_title_vp.font = font;
     root_menu_video_wps_title_vp.fg_pattern = text;
-    root_menu_video_wps_title_vp.bg_pattern = root_menu_video_screen_bg();
+    root_menu_video_wps_title_vp.bg_pattern = panel;
     root_menu_video_wps_title_scroll.active = true;
     root_menu_video_wps_title_scroll.width = width;
     root_menu_video_wps_title_scroll.height = text_height;
@@ -8748,66 +9486,10 @@ static int root_menu_video_elapsed_percent(void)
 }
 
 #ifdef HAVE_ALBUMART
-static void root_menu_video_bmp_tile(struct bitmap *bm, int x, int y,
-                                     int w, int h)
-{
-    int dx;
-    int dy;
 
-    if (!bm || w <= 0 || h <= 0)
-        return;
-
-    for (dx = 0; dx < w; dx += bm->width)
-    {
-        int draw_w = MIN(bm->width, w - dx);
-        for (dy = 0; dy < h; dy += bm->height)
-        {
-            int draw_h = MIN(bm->height, h - dy);
-            lcd_bmp_part(bm, 0, 0, x + dx, y + dy, draw_w, draw_h);
-        }
-    }
-}
 #endif
 
-static void root_menu_video_draw_meter(int x, int y, int w, int h,
-                                       int percent, unsigned fill)
-{
-    int inner_w = MAX(0, w - 2);
-    int inner = inner_w * MAX(0, MIN(100, percent)) / 100;
-    bool dark = root_menu_video_dark();
-    unsigned border = dark ? LCD_RGBPACK(28, 32, 39) :
-        root_menu_video_rgb_blend(255, 255, 255, 0, 0, 0, 45);
 
-    lcd_set_foreground(dark ? LCD_RGBPACK(41, 46, 55) :
-                       LCD_RGBPACK(238, 238, 238));
-    lcd_fillrect(x, y, w, h);
-    if (dark)
-        root_menu_video_glass_gradient(x, y, w, h,
-                                       LCD_RGBPACK(73, 80, 93),
-                                       LCD_RGBPACK(50, 56, 68),
-                                       LCD_RGBPACK(30, 35, 43));
-    else
-        root_menu_video_glass_gradient(x, y, w, h,
-                                       LCD_RGBPACK(255, 255, 255),
-                                       LCD_RGBPACK(224, 228, 234),
-                                       LCD_RGBPACK(196, 202, 210));
-    if (inner > 0)
-    {
-#ifdef HAVE_ALBUMART
-        struct bitmap *gloss_blue = root_menu_video_gloss_blue();
-        if (gloss_blue)
-            root_menu_video_bmp_tile(gloss_blue, x + 1, y + 1, inner,
-                                     h - 2);
-        else
-#endif
-        root_menu_video_glass_gradient(x + 1, y + 1, inner, h - 2,
-                                       IPODJS_ACTIVE_TOP,
-                                       IPODJS_ACTIVE_MID,
-                                       fill);
-    }
-    lcd_set_foreground(border);
-    lcd_drawrect(x, y, w, h);
-}
 
 static int root_menu_video_volume_percent(void)
 {
@@ -8864,91 +9546,18 @@ static void root_menu_video_draw_stock_meter(int x, int y, int w, int h,
 }
 
 static bool root_menu_video_draw_apple_track(int frame_x, int frame_y,
-                                             int percent, int frame_asset)
+                                             int percent)
 {
-    struct bitmap *frame = root_menu_video_apple_slider_asset(frame_asset);
-    bool progress = frame_asset == IPODJS_APPLE_PROGRESS_FRAME;
-    struct bitmap *fill = root_menu_video_apple_slider_asset(progress ?
-        IPODJS_APPLE_PROGRESS_FILL : IPODJS_APPLE_SLIDER_FILL);
-    struct bitmap *fill_cap = progress ?
-        root_menu_video_apple_slider_asset(
-            IPODJS_APPLE_PROGRESS_FILL_CAP) : NULL;
-    int old_drawmode;
-    int filled;
-
-    if (!frame || !fill || (progress && !fill_cap))
-        return false;
-
-    /* Apple's frame and fill carry antialiased alpha at both rounded ends.
-     * Blend against the pixels already in the WPS/slider surface; SOLID mode
-     * blends transparent pixels against the viewport background color and
-     * can leave a square dark box around the left cap. */
-    old_drawmode = lcd_get_drawmode();
-    lcd_set_drawmode(DRMODE_FG);
-    percent = MAX(0, MIN(100, percent));
-    filled = (frame->width - 6) * percent / 100;
-    lcd_bmp(frame, frame_x, frame_y);
-    if (filled > 0)
-    {
-        if (progress)
-        {
-            int draw_w = percent == 100 ? frame->width : filled + 3;
-            int cap_w = fill_cap->width;
-
-            lcd_bmp_part(fill, 0, 0, frame_x, frame_y,
-                         draw_w, frame->height);
-            if (draw_w >= cap_w)
-            {
-                lcd_bmp(fill_cap, frame_x + draw_w - cap_w, frame_y + 3);
-            }
-        }
-        else
-        {
-            lcd_bmp_part(fill, 2, 2, frame_x + 3, frame_y + 3,
-                         filled, frame->height - 6);
-        }
-
-        /* The fill is clipped from Apple's continuous blue strip. Reapply
-         * the exact Apple frame edge pixels afterward so the strip cannot
-         * square off or overwrite the antialiased rounded ends. */
-        lcd_bmp_part(frame, 0, 0, frame_x, frame_y,
-                     frame->width, 3);
-        lcd_bmp_part(frame, 0, frame->height - 3,
-                     frame_x, frame_y + frame->height - 3,
-                     frame->width, 3);
-        lcd_bmp_part(frame, 0, 3, frame_x, frame_y + 3,
-                     4, frame->height - 6);
-        lcd_bmp_part(frame, frame->width - 4, 3,
-                     frame_x + frame->width - 4, frame_y + 3,
-                     4, frame->height - 6);
-    }
-    lcd_set_drawmode(old_drawmode);
-    return true;
+    return ipodjs_ui_draw_retailos_music_progress(
+        &screens[SCREEN_MAIN], frame_x, frame_y, 204, percent);
 }
 
 static bool root_menu_video_draw_apple_slider(int frame_x, int frame_y,
                                               int percent, bool brightness)
 {
-    struct bitmap *low = root_menu_video_apple_slider_asset(
-        brightness ? IPODJS_APPLE_BRIGHTNESS_LOW :
-                     IPODJS_APPLE_VOLUME_LOW);
-    struct bitmap *high = root_menu_video_apple_slider_asset(
-        brightness ? IPODJS_APPLE_BRIGHTNESS_HIGH :
-                     IPODJS_APPLE_VOLUME_HIGH);
-    int frame_asset = root_menu_video_dark() ? IPODJS_APPLE_SLIDER_DARK :
-                                               IPODJS_APPLE_SLIDER_LIGHT;
-    struct bitmap *frame = root_menu_video_apple_slider_asset(frame_asset);
-
-    if (!low || !high || !frame ||
-        !root_menu_video_draw_apple_track(frame_x, frame_y, percent,
-                                          frame_asset))
-        return false;
-
-    lcd_bmp(low, frame_x - 10 - low->width,
-            frame_y + (frame->height - low->height) / 2);
-    lcd_bmp(high, frame_x + frame->width + 10,
-            frame_y + (frame->height - high->height) / 2);
-    return true;
+    return ipodjs_ui_draw_retailos_adjustment(
+        &screens[SCREEN_MAIN], frame_x, frame_y, 248, percent,
+        brightness, false);
 }
 
 static void root_menu_video_draw_volume_overlay(void)
@@ -8960,25 +9569,13 @@ static void root_menu_video_draw_volume_overlay(void)
 
     percent = root_menu_video_volume_percent();
     lcd_set_foreground(root_menu_video_panel());
-    lcd_fillrect(0, 196, LCD_WIDTH, 28);
-    if (!root_menu_video_draw_apple_track(60, 198, percent,
-                                          IPODJS_APPLE_PROGRESS_FRAME))
-    {
-        root_menu_video_draw_stock_meter(58, 201, 204, 13, percent,
-                                         root_menu_video_accent());
-    }
-    else
-    {
-        struct bitmap *low = root_menu_video_apple_slider_asset(
-            IPODJS_APPLE_VOLUME_LOW);
-        struct bitmap *high = root_menu_video_apple_slider_asset(
-            IPODJS_APPLE_VOLUME_HIGH);
-
-        if (low)
-            lcd_bmp(low, 34, 200);
-        if (high)
-            lcd_bmp(high, 268, 200);
-    }
+    lcd_fillrect(0, 196, LCD_WIDTH, 44);
+    ipodjs_ui_draw_retailos_music_progress(
+        &screens[SCREEN_MAIN], 56, 207, 208, percent);
+    ipodjs_ui_draw_retailos_control_icon(
+        &screens[SCREEN_MAIN], 37, 207, false, false, true);
+    ipodjs_ui_draw_retailos_control_icon(
+        &screens[SCREEN_MAIN], 274, 207, false, true, true);
 }
 
 struct root_menu_video_preview_slot {
@@ -9062,15 +9659,20 @@ static struct root_menu_video_menu_preview_failure
     root_menu_video_menu_preview_failures[8];
 
 #define IPODJS_APPLICATION_ICON_SIZE 46
-#define IPODJS_APPLICATION_ICON_CACHE 21
+#define IPODJS_APPLICATION_ICON_CACHE 32
+#ifdef HAVE_COMPOSITE_VIDEO_OUT
+#define IPODJS_APPLICATION_ICON_CAPACITY 80
+#else
+#define IPODJS_APPLICATION_ICON_CAPACITY IPODJS_APPLICATION_ICON_SIZE
+#endif
 
 struct root_menu_video_application_icon_slot {
     bool valid;
     bool tried;
     struct bitmap bm;
     unsigned char data[
-        BM_SIZE(IPODJS_APPLICATION_ICON_SIZE,
-                IPODJS_APPLICATION_ICON_SIZE,
+        BM_SIZE(IPODJS_APPLICATION_ICON_CAPACITY,
+                IPODJS_APPLICATION_ICON_CAPACITY,
                 FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
 };
 
@@ -9088,6 +9690,7 @@ enum root_menu_video_preview_cache_mode {
     IPODJS_PREVIEW_CACHE_SLIDESHOW,
     IPODJS_PREVIEW_CACHE_MENU,
     IPODJS_PREVIEW_CACHE_APPLICATIONS,
+    IPODJS_PREVIEW_CACHE_TV_APPLICATIONS,
 };
 
 static union root_menu_video_preview_storage root_menu_video_preview_storage;
@@ -9120,7 +9723,8 @@ static void root_menu_video_preview_use_cache(
             root_menu_video_menu_preview_slots[i].valid = false;
         root_menu_video_menu_preview_stamp = 0;
     }
-    else if (mode == IPODJS_PREVIEW_CACHE_APPLICATIONS)
+    else if (mode == IPODJS_PREVIEW_CACHE_APPLICATIONS ||
+             mode == IPODJS_PREVIEW_CACHE_TV_APPLICATIONS)
     {
         for (int i = 0; i < IPODJS_APPLICATION_ICON_CACHE; i++)
         {
@@ -9235,8 +9839,9 @@ root_menu_video_preview_source_for_title(const char *title)
     if (!strcmp(title, "Music") || !strcmp(title, "Cover Flow") ||
         !strcmp(title, "Now Playing"))
         return IPODJS_PREVIEW_MUSIC;
-    if (!strcmp(title, "Achievements") ||
-        !strcmp(title, "Applications"))
+    if (!strcmp(title, "Applications"))
+        return IPODJS_PREVIEW_APPLICATIONS;
+    if (!strcmp(title, "Achievements"))
         return IPODJS_PREVIEW_AVATAR;
     if (!strcmp(title, "Extras") &&
         global_settings.ui_engine_extras_pane == UI_ENGINE_EXTRAS_AVATAR)
@@ -11013,6 +11618,56 @@ static int root_menu_video_source_slideshow_wanted(
     return (int)(cycle % root_menu_video_preview_path_count);
 }
 
+/* Six native 80px icons cost 76,800 read-only bytes on RGB565 hardware.
+ * They are present before the first frame, with no decode, cache ownership
+ * change or playback allocation when Applications becomes selected. */
+static const fb_data * const root_menu_video_app_pane_icons[] = {
+    ipodjs_app_weather, ipodjs_app_youtube, ipodjs_app_maps,
+    ipodjs_app_clock, ipodjs_app_instagram, ipodjs_app_pocket_sky
+};
+
+/* Staggered columns travel at 12 pixels/second. A complete column wraps
+ * offscreen without a visible reset. The packaged icons supply the gloss. */
+static bool root_menu_video_draw_app_pane(int x, int y, int w, int h)
+{
+    const int pitch = 104;
+    const int ring = pitch * 3;
+    const int offset = ((unsigned long)current_tick % (HZ * 26)) * 12 / HZ;
+
+    for (int col = 0; col < 2; col++)
+    {
+        int left = x + (w - 176) / 2 + col * 96;
+        int phase = col ? offset + pitch / 2 : ring - offset;
+        for (int row = -4; row < 6; row++)
+        {
+            int top = y + row * pitch + phase;
+            int index = col * 3 + (row + 6) % 3;
+            const fb_data *icon = root_menu_video_app_pane_icons[index];
+            if (top >= y + h || top + 80 <= y)
+                continue;
+
+            /* Trim the baked outer rim and clip away the opaque black
+             * corner pixels. Leave the pane visible outside the rounded
+             * icon; no backing rectangle, outline or drop shadow. */
+            static const unsigned char corner_inset[16] = {
+                12, 9, 7, 6, 5, 4, 3, 2, 2, 1, 1, 1, 0, 0, 0, 0
+            };
+            for (int sy = MAX(2, y - top);
+                 sy < MIN(78, y + h - top); sy++)
+            {
+                int edge = MIN(sy - 2, 77 - sy);
+                int inset = edge < 16 ? corner_inset[edge] : 0;
+                int sx = MAX(2 + inset, x - left);
+                int end = MIN(78 - inset, x + w - left);
+                if (end > sx)
+                    lcd_bitmap_transparent_part(icon,
+                        sx, sy, 80, left + sx, top + sy, end - sx, 1);
+            }
+        }
+    }
+    return true;
+}
+
 static bool root_menu_video_preview_service(
     enum root_menu_video_preview_source source)
 {
@@ -11026,6 +11681,9 @@ static bool root_menu_video_preview_service(
     if (!button_queue_empty() || button_hold() ||
         root_menu_video_hold_storm_active())
         return false;
+
+    if (source == IPODJS_PREVIEW_APPLICATIONS)
+        return false; /* All pane artwork is already resident. */
 
     if (source == IPODJS_PREVIEW_AVATAR)
         root_menu_video_avatar_refresh_generation();
@@ -11056,6 +11714,9 @@ static bool root_menu_video_source_slideshow_frame_changed(
     int wanted;
     struct root_menu_video_preview_slot *slot;
 
+    if (source == IPODJS_PREVIEW_APPLICATIONS)
+        return false; /* Motion is a direct repaint, never a crossfade. */
+
     if (root_menu_video_preview_loaded != source ||
         root_menu_video_preview_path_count <= 0)
         return false;
@@ -11069,9 +11730,21 @@ static bool root_menu_video_source_slideshow_frame_changed(
          root_menu_video_preview_last_drawn_index != slot->index);
 }
 
+static fb_data root_menu_video_preview_blend(fb_data base, fb_data pixel,
+                                             int alpha)
+{
+    return FB_RGBPACK(
+        (FB_UNPACK_RED(base) * (256 - alpha) +
+         FB_UNPACK_RED(pixel) * alpha) >> 8,
+        (FB_UNPACK_GREEN(base) * (256 - alpha) +
+         FB_UNPACK_GREEN(pixel) * alpha) >> 8,
+        (FB_UNPACK_BLUE(base) * (256 - alpha) +
+         FB_UNPACK_BLUE(pixel) * alpha) >> 8);
+}
+
 static bool root_menu_video_draw_preview_cover(
     const struct bitmap *bm, int x, int y, int w, int h,
-    long pan_pos, long pan_scale)
+    long pan_pos, long pan_scale, int clip_x, int clip_w)
 {
     int crop_w;
     int crop_h;
@@ -11115,13 +11788,16 @@ static bool root_menu_video_draw_preview_cover(
     {
         int sample_y = MIN(bm->height - 1, (int)(y_pos >> 16));
         const fb_data *src = pixels + sample_y * bm->width;
-        fb_data *dst = FBADDR(x, y + dst_y);
-        unsigned long x_pos = ((unsigned long)src_x << 16) + x_step / 2;
+        int first = MAX(0, clip_x - x);
+        int end = MIN(w, clip_x + clip_w - x);
+        unsigned long x_pos = ((unsigned long)src_x << 16) + x_step / 2 +
+                             first * x_step;
 
-        for (int dst_x = 0; dst_x < w; dst_x++)
+        for (int dst_x = first; dst_x < end; dst_x++)
         {
             int sample_x = MIN(bm->width - 1, (int)(x_pos >> 16));
-            dst[dst_x] = src[sample_x];
+            fb_data *dest = FBADDR(x + dst_x, y + dst_y);
+            *dest = src[sample_x];
             x_pos += x_step;
         }
         y_pos += y_step;
@@ -11169,7 +11845,7 @@ static bool root_menu_video_draw_source_slideshow_cached(
         pan_pos = pan_scale / 2;
 
     if (!root_menu_video_draw_preview_cover(&slot->bm, x, y, w, h,
-                                             pan_pos, pan_scale))
+                                             pan_pos, pan_scale, x, w))
         return false;
 
     root_menu_video_preview_last_drawn_source = source;
@@ -11247,17 +11923,133 @@ static bool root_menu_video_sitekick_animation_due(const char *title,
     return true;
 }
 
+/* Eight bytes of selection/reveal state on ARM; no new pixel workspace. */
+static long root_menu_video_netflix_reveal_tick;
+static bool root_menu_video_netflix_selected;
+
+/* Cached-only Netflix pane: a flat brand bar over full-bleed library art.
+ * Reuse the Videos idle service and tick-based pan. No decoder, filesystem
+ * work or playback allocation belongs in this renderer. */
+static void root_menu_video_draw_netflix_preview(int x, int y, int w, int h)
+{
+    struct bitmap *logo = root_menu_video_netflix_logo_cached();
+    const int bar_h = 54;
+    bool artwork;
+
+    lcd_set_foreground(LCD_RGBPACK(12, 12, 12));
+    lcd_fillrect(x, y, w, h);
+    if (w < 32 || h < bar_h + 32)
+        return;
+
+    artwork = root_menu_video_draw_source_slideshow_cached(
+        IPODJS_PREVIEW_VIDEOS, x, y + bar_h, w, h - bar_h);
+    if (artwork)
+    {
+        long period = root_menu_video_source_slideshow_period(
+            IPODJS_PREVIEW_VIDEOS);
+        long cycle = current_tick / period;
+        long phase = current_tick % period;
+        long slide_ticks = MAX(1, 3 * HZ / 4);
+        int wanted = root_menu_video_source_slideshow_wanted(
+            IPODJS_PREVIEW_VIDEOS, cycle);
+        int previous = root_menu_video_source_slideshow_wanted(
+            IPODJS_PREVIEW_VIDEOS, cycle - 1);
+        struct root_menu_video_preview_slot *old =
+            root_menu_video_preview_find_slot(IPODJS_PREVIEW_VIDEOS,
+                                               previous);
+
+        /* Slide opaque images edge-to-edge: no overlapping artwork or
+         * blended detail. Both cards reuse the existing cache and remain
+         * clipped to this pane. */
+        if (phase < slide_ticks && old && previous != wanted &&
+            root_menu_video_preview_last_drawn_index == wanted)
+        {
+            struct root_menu_video_preview_slot *incoming =
+                root_menu_video_preview_find_slot(IPODJS_PREVIEW_VIDEOS,
+                                                   wanted);
+            int t = phase * 256 / slide_ticks;
+            int ease = t * t * (768 - 2 * t) / (256 * 256);
+            int offset = w * ease / 256;
+            long pan_duration = root_menu_video_source_slideshow_pan_duration(
+                IPODJS_PREVIEW_VIDEOS);
+            long pan = MIN(phase, pan_duration) * 1000 / pan_duration;
+            if (cycle & 1)
+                pan = 1000 - pan;
+
+            root_menu_video_draw_preview_cover(&old->bm, x - offset,
+                y + bar_h, w, h - bar_h,
+                (cycle & 1) ? 1000 : 0, 1000, x, w);
+            if (incoming)
+                root_menu_video_draw_preview_cover(&incoming->bm,
+                    x + w - offset, y + bar_h, w, h - bar_h,
+                    pan, 1000, x, w);
+        }
+
+    }
+
+    lcd_set_foreground(VIDEO_LIST_NETFLIX_RED);
+    lcd_fillrect(x, y, w, bar_h);
+    if (logo && logo->data && logo->width > 6 && logo->height > 6)
+    {
+        int width = MIN(108, w - 20);
+        int height = width * logo->height / logo->width;
+        int left = x + (w - width) / 2;
+        int top = y + (bar_h - height) / 2;
+        const fb_data *source = (const fb_data *)logo->data;
+
+        for (int dy = 0; dy < height; dy++)
+            for (int dx = 0; dx < width; dx++)
+                *FBADDR(left + dx, top + dy) =
+                    source[(3 + dy * (logo->height - 6) / height) *
+                           logo->width + 3 + dx * (logo->width - 6) / width];
+    }
+    /* One fixed wordmark, including during transitions. Reveal only the
+     * artwork beneath it; a second full-pane logo would ghost over the
+     * header during a dissolve. Fade from black without mixing images. */
+    if (artwork && !root_menu_video_netflix_reveal_tick)
+        root_menu_video_netflix_reveal_tick = current_tick;
+    long elapsed = root_menu_video_netflix_reveal_tick ?
+        current_tick - root_menu_video_netflix_reveal_tick : 0;
+    if (artwork && elapsed < HZ)
+    {
+        int t = elapsed * 256 / MAX(1, HZ);
+        int alpha = 256 - t * t * (768 - 2 * t) / (256 * 256);
+
+        for (int dy = bar_h; dy < h; dy++)
+            for (int dx = 0; dx < w; dx++)
+            {
+                fb_data *dest = FBADDR(x + dx, y + dy);
+                *dest = root_menu_video_preview_blend(*dest,
+                    FB_RGBPACK(12, 12, 12), alpha);
+            }
+    }
+
+}
+
 static void root_menu_video_draw_preview_for_title(const char *title,
                                                    int x, int y, int w, int h)
 {
     enum root_menu_video_preview_source source =
         root_menu_video_preview_source_for_title(title);
     bool drew = false;
+    bool netflix = title && !strcmp(title, "Netflix");
+
+    if (netflix != root_menu_video_netflix_selected)
+    {
+        root_menu_video_netflix_selected = netflix;
+        root_menu_video_netflix_reveal_tick = 0;
+    }
 
     root_menu_video_preview_gradient(x, y, w, h);
     lcd_setfont(root_menu_video_font());
     lcd_set_foreground(IPODJS_PREVIEW_TEXT);
     lcd_set_background(IPODJS_PREVIEW_BOTTOM);
+
+    if (source == IPODJS_PREVIEW_APPLICATIONS)
+    {
+        root_menu_video_draw_app_pane(x, y, w, h);
+        return;
+    }
 
     if (title && !strcmp(title, "Weather"))
     {
@@ -11283,13 +12075,7 @@ static void root_menu_video_draw_preview_for_title(const char *title,
 
     if (title && !strcmp(title, "Netflix"))
     {
-        struct bitmap *logo = root_menu_video_netflix_logo_cached();
-
-        lcd_set_foreground(VIDEO_LIST_NETFLIX_RED);
-        lcd_fillrect(x, y, w, h);
-        if (logo)
-            lcd_bmp(logo, x + (w - logo->width) / 2,
-                    y + (h - logo->height) / 2);
+        root_menu_video_draw_netflix_preview(x, y, w, h);
         return;
     }
 
@@ -11407,8 +12193,7 @@ static bool root_menu_video_animated_preview_info(
     const char *title, const char **directory, int *frame_count,
     long *frame_period)
 {
-    if (title && (!strcmp(title, "Applications") ||
-                  !strcmp(title, "Weather")))
+    if (title && !strcmp(title, "Weather"))
     {
         *directory = "weather-loop";
         *frame_count = IPODJS_WEATHER_PREVIEW_FRAMES;
@@ -11621,6 +12406,18 @@ static bool root_menu_video_custom_preview_animation_due(
     int frame_count;
     long frame_period;
 
+    if (title && !strcmp(title, "Netflix"))
+    {
+        if (button_hold() || !button_queue_empty() ||
+            root_menu_video_hold_storm_active() ||
+            !root_menu_video_netflix_logo_cached() ||
+            !TIME_AFTER(current_tick, *next_tick))
+            return false;
+
+        *next_tick = current_tick + MAX(1, HZ / 12);
+        return true;
+    }
+
     if (!root_menu_video_animated_preview_info(
             title, &directory, &frame_count, &frame_period) ||
         button_hold() || root_menu_video_hold_storm_active() ||
@@ -11661,58 +12458,6 @@ static void root_menu_video_clock_hand(int cx, int cy, int position,
         lcd_drawline(cx - 1, cy, end_x - 1, end_y);
         lcd_drawline(cx + 1, cy, end_x + 1, end_y);
     }
-}
-
-/* Blit the stock Extras/Clock pane background through the menu-preview
- * slot cache.  Fails closed to the gradient fallback when the asset is
- * missing or unreadable. */
-static bool root_menu_video_draw_clock_pane_background(int x, int y, int w,
-                                                       int h)
-{
-    char themed_path[MAX_PATH];
-    const char *load_path;
-    struct root_menu_video_menu_preview_slot *slot;
-    int dark = root_menu_video_dark() ? 1 : 0;
-    int rc;
-
-    load_path = root_menu_video_asset_path(
-        IPODJS_ASSET_DIR "/previews/clock-pane-stock.174x240x24.bmp",
-        themed_path, sizeof(themed_path));
-    slot = root_menu_video_menu_preview_find(load_path, dark);
-    if (!slot)
-    {
-        if (root_menu_video_menu_preview_recent_failure(load_path, dark))
-            return false;
-        if (!file_exists(load_path))
-        {
-            root_menu_video_menu_preview_record_failure(load_path, dark);
-            return false;
-        }
-
-        slot = root_menu_video_menu_preview_victim();
-        memset(&slot->bm, 0, sizeof(slot->bm));
-        slot->valid = false;
-        slot->path[0] = '\0';
-        slot->dark = dark;
-        slot->bm.width = 174;
-        slot->bm.height = LCD_HEIGHT;
-        slot->bm.format = FORMAT_NATIVE;
-        slot->bm.data = slot->data;
-        rc = read_bmp_file(load_path, &slot->bm, sizeof(slot->data),
-                           FORMAT_NATIVE, NULL);
-        if (rc < 0)
-        {
-            root_menu_video_menu_preview_record_failure(load_path, dark);
-            return false;
-        }
-
-        strmemccpy(slot->path, load_path, sizeof(slot->path));
-        slot->valid = true;
-        root_menu_video_menu_preview_clear_failure(load_path, dark);
-    }
-
-    root_menu_video_draw_menu_preview_slot(slot, x, y, w, h, true);
-    return true;
 }
 
 static bool root_menu_video_prepare_sitekick_component(const char *load_path,
@@ -11844,66 +12589,13 @@ static bool root_menu_video_draw_sitekick_preview(int x, int y, int w, int h)
 static void root_menu_video_draw_stock_clock_preview(int x, int y, int w,
                                                      int h)
 {
-    static const short tick_x[12] = {
-          0,  25,  43,  50,  43,  25,   0, -25, -43, -50, -43, -25
-    };
-    static const short tick_y[12] = {
-        -50, -43, -25,   0,  25,  43,  50,  43,  25,   0, -25, -43
-    };
-    struct tm *tm = get_time();
-    int cx = x + w / 2;
-    int cy = y + 79;
-    int radius = MIN(55, w / 2 - 10);
-    bool stock_bg = root_menu_video_draw_clock_pane_background(x, y, w, h);
-    unsigned face = root_menu_video_dark() ?
-        LCD_RGBPACK(42, 46, 54) : LCD_RGBPACK(248, 249, 250);
-    unsigned tick = root_menu_video_dark() ?
-        LCD_RGBPACK(232, 234, 238) : LCD_RGBPACK(38, 42, 48);
-    unsigned second = LCD_RGBPACK(218, 40, 46);
-
-    if (stock_bg)
-    {
-        /* The stock pane keeps a light clock face on its dark background
-         * in both themes. */
-        face = LCD_RGBPACK(248, 249, 250);
-        tick = LCD_RGBPACK(38, 42, 48);
-    }
-    else
-        root_menu_video_preview_gradient(x, y, w, h);
-
-    root_menu_video_fill_circle(cx + 2, cy + 3, radius + 3,
-        (stock_bg || root_menu_video_dark()) ? LCD_RGBPACK(12, 14, 18) :
-                                 LCD_RGBPACK(72, 78, 88));
-    root_menu_video_fill_circle(cx, cy, radius + 3,
-                                 LCD_RGBPACK(176, 183, 193));
-    root_menu_video_fill_circle(cx, cy, radius + 1,
-                                 LCD_RGBPACK(224, 228, 234));
-    root_menu_video_fill_circle(cx, cy, radius - 3, face);
-
-    for (int i = 0; i < 12; i++)
-    {
-        int outer_x = cx + tick_x[i] * (radius - 7) / 50;
-        int outer_y = cy + tick_y[i] * (radius - 7) / 50;
-        int inner_x = cx + tick_x[i] * (radius - 14) / 50;
-        int inner_y = cy + tick_y[i] * (radius - 14) / 50;
-
-        lcd_set_foreground(tick);
-        lcd_drawline(inner_x, inner_y, outer_x, outer_y);
-    }
-
-    if (tm)
-    {
-        int hour_position = (tm->tm_hour % 12) * 5 + tm->tm_min / 12;
-        root_menu_video_clock_hand(cx, cy, hour_position,
-                                   radius - 25, tick, true);
-        root_menu_video_clock_hand(cx, cy, tm->tm_min,
-                                   radius - 15, tick, true);
-        root_menu_video_clock_hand(cx, cy, tm->tm_sec,
-                                   radius - 10, second, false);
-    }
-
-    root_menu_video_fill_circle(cx, cy, 4, tick);
-    root_menu_video_fill_circle(cx, cy, 2, LCD_RGBPACK(104, 174, 222));
+    root_menu_video_preview_gradient(x, y, w, h);
+    /* This is the Clock tile's Extras pane. Draw the original RetailOS map
+     * behind the clock, using the same stock face origin as World Clock. */
+    (void)ipodjs_utilities_draw_classic_preview_map(x, y, w, h);
+    /* Original face, reflection, cap and all source hand frames. Do not
+     * replace a missing private resource with a hand-drawn Apple replica. */
+    ipodjs_utilities_draw_classic_preview(x + 2, y + 5, w, h - 55);
     root_menu_video_draw_clock_date(x, y, w, h, false);
 }
 
@@ -11964,7 +12656,11 @@ static void root_menu_video_draw_status_title_width(const char *title,
     int icon_x = batt_x - 19;
     int bluetooth_x = icon_x - 16;
     bool bluetooth = false;
-    bool internet = usb_internet_connected();
+    bool internet = root_menu_usb_internet_connected();
+    bool preserve = button_hold();
+    int text_y = preserve ? 5 + root_menu_video_text_y_offset() : 4;
+    int play_y = preserve ? 4 : 2;
+    int old_mode = lcd_get_drawmode();
 
 #ifdef IPOD_ACCESSORY_PROTOCOL
     bluetooth = !internet && iap_kokkia_present();
@@ -11979,27 +12675,29 @@ static void root_menu_video_draw_status_title_width(const char *title,
         lcd_hline(0, width - 1, IPODJS_HEADER_HEIGHT - 1);
     }
 
-    lcd_setfont(root_menu_video_font());
+    lcd_setfont(preserve ? ipodjs_ui_font() : ipodjs_ui_retailos_font(false));
+    if (!preserve)
+        lcd_set_drawmode(DRMODE_FG);
     lcd_set_foreground(root_menu_video_header_text());
     lcd_set_background(root_menu_video_header_bg());
     if (pane_mode)
     {
-        root_menu_video_puts_fit(6, 5 + root_menu_video_text_y_offset(),
+        root_menu_video_puts_fit(6, text_y,
                                  (bluetooth || internet) ? bluetooth_x - 12 :
                                  icon_x - 10,
-                                 "iPod", false);
+                                 title ? title : "iPod", false);
 
         if (button_hold())
             ipodjs_ui_draw_hold_indicator(&screens[SCREEN_MAIN], icon_x, 4);
         else if (audio_status() & AUDIO_STATUS_PLAY)
-            root_menu_video_draw_play_icon(icon_x, 4,
+            root_menu_video_draw_play_icon(icon_x, play_y,
                 audio_status() & AUDIO_STATUS_PAUSE);
     }
     else
     {
-        root_menu_video_puts_fit(6, 5 + root_menu_video_text_y_offset(),
+        root_menu_video_puts_fit(6, text_y,
                                  (bluetooth || internet) ? bluetooth_x - 12 :
-                                 width - 52,
+                                 (preserve ? width - 52 : icon_x - 10),
                                  title ? title : "iPod",
                                  false);
 
@@ -12007,18 +12705,20 @@ static void root_menu_video_draw_status_title_width(const char *title,
             ipodjs_ui_draw_hold_indicator(&screens[SCREEN_MAIN], icon_x, 4);
         else if (audio_status() & AUDIO_STATUS_PLAY)
         {
-            root_menu_video_draw_play_icon(icon_x, 4,
+            root_menu_video_draw_play_icon(icon_x, play_y,
                 audio_status() & AUDIO_STATUS_PAUSE);
         }
     }
 
     if (bluetooth)
         ipodjs_ui_draw_bluetooth_indicator(&screens[SCREEN_MAIN],
-                                           bluetooth_x, 2);
+                                           bluetooth_x + 2, 3);
     else if (internet)
         ipodjs_ui_draw_wifi_indicator(&screens[SCREEN_MAIN],
                                       bluetooth_x - 5, 3);
-    root_menu_video_draw_battery(batt_x, 5, batt, charger_inserted());
+    root_menu_video_draw_battery(batt_x, preserve ? 5 : 3,
+                                 batt, charger_inserted());
+    lcd_set_drawmode(old_mode);
 }
 
 static void root_menu_video_draw_status_title(const char *title)
@@ -12032,7 +12732,7 @@ static void root_menu_video_draw_wps_status_title(const char *title)
     int icon_x = batt_x - 19;
     int bluetooth_x = icon_x - 16;
     bool bluetooth = false;
-    bool internet = usb_internet_connected();
+    bool internet = root_menu_usb_internet_connected();
 
 #ifdef IPOD_ACCESSORY_PROTOCOL
     bluetooth = !internet && iap_kokkia_present();
@@ -12040,52 +12740,36 @@ static void root_menu_video_draw_wps_status_title(const char *title)
     root_menu_video_status_bluetooth_drawn = bluetooth;
     root_menu_video_status_bluetooth_valid = true;
 
-    ipodjs_ui_draw_header_background(&screens[SCREEN_MAIN], LCD_WIDTH);
-    if (root_menu_video_dark())
-    {
-        lcd_set_foreground(LCD_RGBPACK(11, 14, 19));
-        lcd_hline(0, LCD_WIDTH - 1, IPODJS_HEADER_HEIGHT - 1);
-    }
+    ipodjs_ui_draw_retailos_music_header(&screens[SCREEN_MAIN]);
 
-    lcd_setfont(root_menu_video_wps_font(true));
+    lcd_setfont(root_menu_video_retail_wps_font(false));
     lcd_set_foreground(root_menu_video_header_text());
-    lcd_set_background(root_menu_video_header_bg());
-    root_menu_video_puts_fit(6, 5, LCD_WIDTH - 52,
+    lcd_set_drawmode(DRMODE_FG);
+    root_menu_video_puts_fit(6, 4, LCD_WIDTH - 76,
                              title ? title : "Now Playing", false);
 
     if (button_hold())
         ipodjs_ui_draw_hold_indicator(&screens[SCREEN_MAIN], icon_x, 4);
-    else if (audio_status() & AUDIO_STATUS_PLAY)
-        ipodjs_ui_draw_playback_indicator(&screens[SCREEN_MAIN], icon_x, 4);
 
     if (bluetooth)
         ipodjs_ui_draw_bluetooth_indicator(&screens[SCREEN_MAIN],
-                                           bluetooth_x, 2);
+                                           bluetooth_x + 2, 3);
     else if (internet)
         ipodjs_ui_draw_wifi_indicator(&screens[SCREEN_MAIN],
                                       bluetooth_x - 5, 3);
-    root_menu_video_draw_battery(batt_x, 5, battery_level(),
-                                 charger_inserted());
+    lcd_set_drawmode(DRMODE_SOLID);
 }
 
 static void root_menu_video_draw_wps_modes(void)
 {
     const int y = IPODJS_HEADER_HEIGHT;
-    unsigned panel = root_menu_video_panel();
-    unsigned split = root_menu_video_dark() ?
-        LCD_RGBPACK(54, 60, 70) : IPODJS_SPLIT;
 
     /* These Apple indicators sit immediately below the status bar.  Draw
      * them after the WPS surface so the body fill cannot erase them. */
-    lcd_set_foreground(panel);
+    lcd_set_foreground(root_menu_video_panel());
     lcd_fillrect(258, y, LCD_WIDTH - 258, 20);
-    lcd_set_foreground(split);
-    lcd_hline(258, LCD_WIDTH - 1, y);
-    if (global_settings.playlist_shuffle)
-        ipodjs_ui_draw_shuffle_indicator(&screens[SCREEN_MAIN], 264, y);
-    if (global_settings.repeat_mode != REPEAT_OFF)
-        ipodjs_ui_draw_repeat_indicator(&screens[SCREEN_MAIN], 290, y,
-                                        global_settings.repeat_mode);
+    ipodjs_ui_draw_retailos_music_modes(&screens[SCREEN_MAIN],
+        global_settings.playlist_shuffle, global_settings.repeat_mode);
 }
 
 static void root_menu_video_draw_status(void)
@@ -12332,7 +13016,7 @@ static bool root_menu_video_load_weather(void)
         TIME_BEFORE(current_tick,
                     root_menu_video_weather_cache.checked_tick + HZ * 60))
         return root_menu_video_weather_cache.available &&
-               (!usb_internet_connected() ||
+               (!root_menu_usb_internet_connected() ||
                 root_menu_video_weather_cache.live);
 
     root_menu_video_weather_cache.checked_tick = current_tick;
@@ -12488,7 +13172,7 @@ static bool root_menu_video_load_weather(void)
     close(fd);
     root_menu_video_weather_cache.available =
         root_menu_video_weather_cache.condition[0] != '\0';
-    if (usb_internet_connected() && !root_menu_video_weather_cache.live)
+    if (root_menu_usb_internet_connected() && !root_menu_video_weather_cache.live)
         root_menu_video_weather_cache.available = false;
     return root_menu_video_weather_cache.available;
 }
@@ -12616,10 +13300,10 @@ static void root_menu_video_draw_list_row(int index, int screen_row,
     }
     else
     {
-        lcd_set_foreground(root_menu_video_row_bg());
+        lcd_set_foreground(root_menu_video_left_pane_bg());
         lcd_fillrect(0, y, IPODJS_LIST_WIDTH, row_h);
         lcd_set_foreground(root_menu_video_text());
-        lcd_set_background(root_menu_video_row_bg());
+        lcd_set_background(root_menu_video_left_pane_bg());
     }
 
     root_menu_video_puts_fit(6, y + 4, IPODJS_LIST_WIDTH - 24,
@@ -12640,7 +13324,7 @@ static void root_menu_video_draw_list(int selected,
     int i;
 
     lcd_setfont(root_menu_video_font());
-    lcd_set_foreground(root_menu_video_row_bg());
+    lcd_set_foreground(root_menu_video_left_pane_bg());
     lcd_fillrect(0, IPODJS_HEADER_HEIGHT, IPODJS_LIST_WIDTH,
                  LCD_HEIGHT - IPODJS_HEADER_HEIGHT);
 
@@ -12678,10 +13362,12 @@ static void root_menu_video_draw_native_row(const char *label, int screen_row,
     }
     else
     {
-        lcd_set_foreground(root_menu_video_row_bg());
+        unsigned bg = width <= IPODJS_LIST_WIDTH ?
+            root_menu_video_left_pane_bg() : root_menu_video_row_bg();
+        lcd_set_foreground(bg);
         lcd_fillrect(0, y, width, row_h);
         lcd_set_foreground(root_menu_video_text());
-        lcd_set_background(root_menu_video_row_bg());
+        lcd_set_background(bg);
     }
 
     root_menu_video_puts_fit(6, y + 4, width - 24,
@@ -12719,7 +13405,8 @@ static bool root_menu_video_draw_native_pane_delta(int previous_selected,
 
     if (settings_preview)
         root_menu_video_draw_settings_preview(preview_x, 0,
-            LCD_WIDTH - preview_x, LCD_HEIGHT, false);
+            LCD_WIDTH - preview_x, LCD_HEIGHT,
+            selected_label && !strcmp(selected_label, "Main Menu"));
     else
         root_menu_video_draw_preview_for_title(selected_label, preview_x, 0,
             LCD_WIDTH - preview_x, LCD_HEIGHT);
@@ -12805,49 +13492,35 @@ static void ipodjs_video_draw_wps_progress(struct mp3entry *id3,
 {
     char elapsed[16];
     char remaining[16];
-    int progress_x = 60;
-    int progress_w = 200;
-    int progress_y = 198;
+    int progress_x = 58;
+    int progress_w = 204;
+    int progress_y = 207;
     unsigned panel = root_menu_video_panel();
-    unsigned time_color = root_menu_video_dark() ?
-        LCD_RGBPACK(225, 228, 233) : LCD_RGBPACK(28, 28, 28);
+    unsigned time_color = root_menu_video_text();
+
+    (void)accent;
 
     root_menu_video_duration(elapsed, sizeof(elapsed),
                              id3 ? id3->elapsed : 0);
     root_menu_video_remaining_duration(remaining, sizeof(remaining), id3);
-    if (!root_menu_video_draw_apple_track(progress_x, progress_y,
-                                          root_menu_video_elapsed_percent(),
-                                          IPODJS_APPLE_PROGRESS_FRAME))
-    {
-        root_menu_video_draw_stock_meter(progress_x, progress_y + 3,
-                                         progress_w, 13,
-                                         root_menu_video_elapsed_percent(),
-                                         accent);
-    }
+    if (root_menu_video_wps_page == IPODJS_WPS_SCRUB)
+        ipodjs_ui_draw_retailos_scrubber(&screens[SCREEN_MAIN],
+            root_menu_video_elapsed_percent());
+    else
+        root_menu_video_draw_apple_track(
+            progress_x, progress_y, root_menu_video_elapsed_percent());
 
-    lcd_setfont(root_menu_video_wps_font(false));
+    lcd_setfont(root_menu_video_retail_wps_font(false));
     lcd_set_foreground(time_color);
     lcd_set_background(panel);
-    root_menu_video_puts_fit(10, progress_y + 4,
-                             progress_x - 16,
-                             elapsed, false);
-    root_menu_video_puts_fit(progress_x + progress_w + 6, progress_y + 4,
+    int elapsed_width;
+    lcd_getstringsize(elapsed, &elapsed_width, NULL);
+    root_menu_video_puts_fit(MAX(0, progress_x - 10 - elapsed_width), 209,
+                             progress_x - 10, elapsed, false);
+    root_menu_video_puts_fit(progress_x + progress_w + 10, 209,
                              LCD_WIDTH - progress_x - progress_w - 10,
-                             remaining, true);
+                             remaining, false);
 
-}
-
-static void root_menu_video_draw_wps_star(int x, int y, unsigned color)
-{
-    lcd_set_foreground(color);
-    lcd_hline(x + 4, x + 4, y);
-    lcd_hline(x + 3, x + 5, y + 1);
-    lcd_hline(x, x + 8, y + 2);
-    lcd_hline(x + 1, x + 7, y + 3);
-    lcd_hline(x + 2, x + 6, y + 4);
-    lcd_hline(x + 1, x + 7, y + 5);
-    lcd_hline(x + 1, x + 3, y + 6);
-    lcd_hline(x + 5, x + 7, y + 6);
 }
 
 static int root_menu_video_draw_wps_rating(struct mp3entry *id3,
@@ -12855,7 +13528,7 @@ static int root_menu_video_draw_wps_rating(struct mp3entry *id3,
                                            unsigned color)
 {
     int stars = 0;
-    int i;
+    (void)color;
 
 #ifdef HAVE_TAGCACHE
     if (id3)
@@ -12863,10 +13536,156 @@ static int root_menu_video_draw_wps_rating(struct mp3entry *id3,
 #else
     (void)id3;
 #endif
-    for (i = 0; i < stars; i++)
-        root_menu_video_draw_wps_star(x + i * 12, y, color);
+    ipodjs_ui_draw_retailos_music_rating(&screens[SCREEN_MAIN], x, y, stars);
 
     return stars;
+}
+
+static void root_menu_video_draw_wps_rating_editor(struct mp3entry *id3)
+{
+    int stars = id3 ? MIN(5, MAX(0, (id3->rating + 1) / 2)) : 0;
+    /* NowPlaying_Rating_Template: 130px strip at (95,200), 26px cells. */
+    ipodjs_ui_draw_retailos_rating_editor(&screens[SCREEN_MAIN], stars);
+}
+
+bool root_menu_ipodjs_wps_scrubbing(void)
+{
+    return root_menu_video_wps_page == IPODJS_WPS_SCRUB;
+}
+
+bool root_menu_ipodjs_wps_adjust_page(int delta)
+{
+    if (root_menu_video_wps_page == IPODJS_WPS_SHUFFLE)
+    {
+        bool enabled = delta > 0;
+        if (enabled != global_settings.playlist_shuffle)
+        {
+            struct playlist_info *playlist = playlist_get_current();
+            int result = 0;
+            if (playlist && playlist->started &&
+                (audio_status() & AUDIO_STATUS_PLAY))
+                result = enabled ?
+                    playlist_randomise(playlist, current_tick, true) :
+                    playlist_sort(playlist, true);
+            if (result >= 0)
+            {
+                global_settings.playlist_shuffle = enabled;
+                settings_save();
+                root_menu_video_wps_force_full = true;
+            }
+            else
+                splash(HZ, "Unable to change shuffle");
+        }
+        return true;
+    }
+    if (root_menu_video_wps_page == IPODJS_WPS_LYRICS ||
+        root_menu_video_wps_page == IPODJS_WPS_INFO)
+    {
+        ipodjs_wps_text_scroll(delta);
+        root_menu_video_wps_force_full = true;
+        return true;
+    }
+    return false;
+}
+
+static bool root_menu_video_wps_text_page(void)
+{
+    return root_menu_video_wps_page == IPODJS_WPS_LYRICS ||
+           root_menu_video_wps_page == IPODJS_WPS_INFO;
+}
+
+static void root_menu_video_draw_wps_text(void)
+{
+    lcd_setfont(root_menu_video_retail_wps_font(false));
+    lcd_set_foreground(root_menu_video_text());
+    lcd_set_background(root_menu_video_panel());
+    for (int row = 0; row < 11; row++)
+        root_menu_video_puts_fit(8, 31 + row * 18, 296,
+            ipodjs_wps_text_line(row), false);
+    ipodjs_ui_draw_retailos_scrollbar(&screens[SCREEN_MAIN], 318,
+        30, 198, ipodjs_wps_text_top(), 11, ipodjs_wps_text_count());
+}
+
+void root_menu_ipodjs_wps_select(void)
+{
+    root_menu_video_wps_page =
+        (root_menu_video_wps_page + 1) % IPODJS_WPS_PAGE_COUNT;
+    /* Explicit page entry may read text. Draw/scroll callbacks never do.
+     * Capture the path because playback may advance during bounded I/O. */
+    if (root_menu_video_wps_page == IPODJS_WPS_LYRICS)
+    {
+        char path[MAX_PATH];
+        struct mp3entry *id3 = audio_current_track();
+        strmemccpy(path, id3 ? id3->path : "", sizeof(path));
+        bool found = path[0] && ipodjs_wps_text_load(path);
+        id3 = audio_current_track();
+        if (!id3 || strcmp(path, id3->path))
+            root_menu_video_wps_page = IPODJS_WPS_ART;
+        else if (!found)
+            root_menu_video_wps_page = IPODJS_WPS_INFO;
+    }
+    if (root_menu_video_wps_page == IPODJS_WPS_INFO)
+    {
+        struct mp3entry *id3 = audio_current_track();
+        if (id3 && id3->comment && id3->comment[0])
+            ipodjs_wps_text_set(id3->comment);
+        else
+            root_menu_video_wps_page = IPODJS_WPS_ART;
+    }
+    ipodjs_wps_input_record(2, 0, 0);
+#ifdef HAVE_TAGCACHE
+    if (root_menu_video_wps_page == IPODJS_WPS_RATING)
+    {
+        struct mp3entry *id3 = audio_current_track();
+        if (id3 && (!id3->tagcache_idx || !global_settings.runtimedb))
+        {
+            /* An explicit rating action may look up the track. Rendering
+             * never opens/searches the database, and no runtime setting is
+             * silently enabled just to allow a manually assigned rating. */
+            char path[MAX_PATH];
+            struct tagcache_search tcs;
+            strmemccpy(path, id3->path, sizeof(path));
+            if (tagcache_find_index(&tcs, path))
+            {
+                int index = tcs.idx_id;
+                int rating = tagcache_get_numeric(&tcs, tag_rating);
+                tagcache_search_finish(&tcs);
+                id3 = audio_current_track();
+                if (id3 && !strcmp(id3->path, path))
+                {
+                    id3->tagcache_idx = index + 1;
+                    id3->rating = rating;
+                }
+            }
+        }
+    }
+#endif
+    root_menu_video_wps_force_full = true;
+    ipodjs_trace_screen("WPS Select", "page", root_menu_video_wps_page,
+                        0, IPODJS_WPS_PAGE_COUNT, 0, 0, LCD_WIDTH, LCD_HEIGHT);
+}
+
+bool root_menu_ipodjs_wps_adjust_rating(int delta)
+{
+    if (root_menu_video_wps_page != IPODJS_WPS_RATING)
+        return false;
+#ifdef HAVE_TAGCACHE
+    struct mp3entry *id3 = audio_current_track();
+    if (id3 && id3->tagcache_idx)
+    {
+        int stars = MIN(5, MAX(0, (id3->rating + 1) / 2 + delta));
+        int rating = stars * 2; /* Rockbox stores 0..10; Apple displays 0..5. */
+        if (rating != id3->rating)
+        {
+            id3->rating = rating;
+            tagcache_update_numeric(id3->tagcache_idx - 1, tag_rating, rating);
+            root_menu_video_wps_force_full = true;
+        }
+    }
+    else
+#endif
+        splash(HZ, "Rating needs a database track");
+    return true; /* The wheel must not change volume while rating. */
 }
 
 static void ipodjs_video_draw_wps_full(void)
@@ -12875,24 +13694,19 @@ static void ipodjs_video_draw_wps_full(void)
     unsigned accent = root_menu_video_accent();
     unsigned panel = root_menu_video_panel();
     unsigned text = root_menu_video_text();
-    unsigned split = root_menu_video_dark() ?
-        LCD_RGBPACK(54, 60, 70) : IPODJS_SPLIT;
-    int art_x = 15;
-    int art_y = 34;
-    int info_x = 157;
-    int info_w = LCD_WIDTH - info_x - 10;
+    int art_x = IPODJS_WPS_ART_X;
+    int art_y = IPODJS_WPS_ART_Y;
+    int info_x = 159;
+    int info_w = LCD_WIDTH - info_x - 5;
     int playlist_index = playlist_get_display_index();
     int playlist_count = playlist_amount();
-    int title_font = root_menu_video_wps_font(true);
-    int detail_font = root_menu_video_wps_font(false);
-    int title_height = font_get(title_font)->height;
-    int detail_height = font_get(detail_font)->height;
+    int title_font = root_menu_video_retail_wps_font(true);
+    int detail_font = root_menu_video_retail_wps_font(false);
     int title_y;
     int artist_y;
     int album_y;
     int sequence_y;
     int rating_y;
-    int rating_stars;
     char sequence[24];
     bool volume_active = root_menu_video_volume_overlay_active();
     const char *artist = id3 && id3->artist ? id3->artist : "";
@@ -12901,80 +13715,73 @@ static void ipodjs_video_draw_wps_full(void)
     root_menu_video_stop_wps_title_scroll();
     lcd_set_viewport(NULL);
     lcd_set_drawmode(DRMODE_SOLID);
-    lcd_set_background(root_menu_video_screen_bg());
+    lcd_set_background(panel);
     lcd_clear_display();
 
     root_menu_video_draw_wps_status_title("Now Playing");
-
-    if (global_settings.ui_engine_surface == UI_ENGINE_SURFACE_TRANSPARENT)
+    if (root_menu_video_wps_text_page())
     {
-        if (root_menu_video_dark())
-            root_menu_video_gradient(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH,
-                LCD_HEIGHT - IPODJS_HEADER_HEIGHT,
-                LCD_RGBPACK(32, 37, 46), LCD_RGBPACK(17, 21, 28));
-        else
-            root_menu_video_gradient(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH,
-                LCD_HEIGHT - IPODJS_HEADER_HEIGHT,
-                root_menu_video_rgb_blend(255, 255, 255, 248, 249, 250, 190),
-                root_menu_video_rgb_blend(255, 255, 255, 225, 229, 235, 160));
-    }
-    else
-    {
-        lcd_set_foreground(panel);
-        lcd_fillrect(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH,
-                     LCD_HEIGHT - IPODJS_HEADER_HEIGHT);
+        root_menu_video_draw_wps_text();
+        lcd_update();
+        return;
     }
 
-    lcd_set_foreground(split);
-    lcd_hline(0, LCD_WIDTH - 1, IPODJS_HEADER_HEIGHT);
     root_menu_video_draw_wps_modes();
 
-    bool art_drawn = root_menu_video_draw_stock_wps_art(art_x, art_y, id3);
-    if (!art_drawn)
+    bool visual_drawn = root_menu_video_draw_stock_wps_art(art_x, art_y, id3);
+    if (!visual_drawn)
     {
         info_x = 24;
         info_w = LCD_WIDTH - 48;
     }
 
-    title_y = art_drawn ? 58 : 66;
-    artist_y = title_y + title_height + 4;
-    album_y = artist_y + detail_height + 3;
-    rating_y = album_y + detail_height + 7;
+    /* Resolved glyph positions in Apple's 2009 guide, page 24. The raw weiV
+     * anchors are not Rockbox top-left text coordinates. Keep empty rows. */
+    title_y = 59;
+    artist_y = 80;
+    album_y = 98;
+    rating_y = 115;
 
     lcd_set_foreground(text);
     lcd_set_background(panel);
     lcd_setfont(title_font);
     root_menu_video_draw_wps_title(info_x, title_y, info_w,
                                    root_menu_video_now_title(), title_font,
-                                   text, panel, !art_drawn);
-    lcd_set_foreground(text);
+                                   text, panel, !visual_drawn);
+    lcd_set_foreground(root_menu_video_muted_text());
     lcd_setfont(detail_font);
     root_menu_video_puts_fit(info_x, artist_y, info_w,
-                             artist, !art_drawn);
-    root_menu_video_puts_fit(info_x, album_y, info_w,
-                             album, !art_drawn);
+                             artist, !visual_drawn);
+    root_menu_video_draw_wps_album(info_x, album_y, info_w,
+                                   album, !visual_drawn);
 
-    rating_stars = root_menu_video_draw_wps_rating(id3,
-        art_drawn ? info_x : (LCD_WIDTH - 57) / 2,
+    root_menu_video_draw_wps_rating(id3,
+        visual_drawn ? info_x : (LCD_WIDTH - 65) / 2,
         rating_y, text);
-    sequence_y = rating_stars > 0 ? rating_y + 12 : rating_y;
+    sequence_y = 134;
 
     if (playlist_index > 0 && playlist_count > 0)
     {
         snprintf(sequence, sizeof(sequence), "%d of %d",
                  playlist_index, playlist_count);
-        lcd_set_foreground(text);
+        lcd_set_foreground(root_menu_video_muted_text());
         lcd_set_background(panel);
         lcd_setfont(detail_font);
         root_menu_video_puts_fit(info_x, sequence_y, info_w, sequence,
-                                 !art_drawn);
+                                 !visual_drawn);
     }
 
-    if (!volume_active)
+    if (root_menu_video_wps_page == IPODJS_WPS_RATING)
+        root_menu_video_draw_wps_rating_editor(id3);
+    else if (root_menu_video_wps_page == IPODJS_WPS_SHUFFLE)
+        ipodjs_ui_draw_retailos_shuffle_selector(&screens[SCREEN_MAIN],
+            global_settings.playlist_shuffle);
+    else if (!volume_active || root_menu_video_wps_page == IPODJS_WPS_SCRUB)
         ipodjs_video_draw_wps_progress(id3, accent);
 
     ipodjs_video_draw_hold_overlay();
-    root_menu_video_draw_volume_overlay();
+    if (root_menu_video_wps_page == IPODJS_WPS_ART)
+        root_menu_video_draw_volume_overlay();
     lcd_update();
 }
 
@@ -13055,6 +13862,8 @@ static bool root_menu_video_wps_full_changed(
            old->art_data != now->art_data ||
            old->art_width != now->art_width ||
            old->art_height != now->art_height ||
+           (!old->art_data && !now->art_data &&
+            old->status != now->status) ||
            strcmp(old->path, now->path);
 }
 
@@ -13062,16 +13871,25 @@ static void root_menu_video_draw_wps_bottom(struct mp3entry *id3,
                                             bool volume_overlay)
 {
     lcd_set_foreground(root_menu_video_panel());
-    lcd_fillrect(0, 196, LCD_WIDTH, 28);
-    if (volume_overlay)
+    lcd_fillrect(0, 196, LCD_WIDTH, 44);
+    root_menu_video_draw_stock_wps_art(IPODJS_WPS_ART_X,
+                                       IPODJS_WPS_ART_Y, id3);
+    if (root_menu_video_wps_page == IPODJS_WPS_RATING)
+        root_menu_video_draw_wps_rating_editor(id3);
+    else if (root_menu_video_wps_page == IPODJS_WPS_SHUFFLE)
+        ipodjs_ui_draw_retailos_shuffle_selector(&screens[SCREEN_MAIN],
+            global_settings.playlist_shuffle);
+    else if (volume_overlay && root_menu_video_wps_page == IPODJS_WPS_ART)
         root_menu_video_draw_volume_overlay();
     else
         ipodjs_video_draw_wps_progress(id3, root_menu_video_accent());
-    lcd_update_rect(0, 196, LCD_WIDTH, 28);
+    lcd_update_rect(0, 196, LCD_WIDTH, 44);
 }
 
 void root_menu_ipodjs_draw_wps_frame(void)
 {
+    if (tv_art_changed())
+        root_menu_video_wps_force_full = true;
     struct root_menu_video_wps_render_state now;
     struct mp3entry *id3;
     bool header_changed;
@@ -13080,21 +13898,54 @@ void root_menu_ipodjs_draw_wps_frame(void)
     if (global_settings.ui_engine != UI_ENGINE_IPODJS)
         return;
 
+    struct mp3entry *current = audio_current_track();
+    if (current && root_menu_video_wps_render_state.path[0] &&
+        strcmp(current->path, root_menu_video_wps_render_state.path))
+    {
+        root_menu_video_wps_page = IPODJS_WPS_ART;
+        root_menu_video_wps_force_full = true;
+    }
+
+#ifdef HAS_BUTTON_HOLD
+    /* Hold owns its own screen. Keep WPS activity/progress out of that
+     * presentation and refresh its clock at most once per second. */
+    if (button_hold())
+    {
+        static long next_hold_refresh;
+        ipodjs_wps_input_paint(2);
+        bool entering = !root_menu_video_wps_render_state.hold;
+        if (entering || TIME_AFTER(current_tick, next_hold_refresh))
+        {
+            if (entering)
+                root_menu_video_hold_static_frame_valid = false;
+            ipodjs_video_draw_hold_overlay();
+            lcd_update();
+            next_hold_refresh = current_tick + HZ;
+        }
+        root_menu_video_wps_render_state.hold = true;
+        root_menu_video_wps_render_state.valid = false;
+        root_menu_video_wps_force_full = true;
+        return;
+    }
+#endif
+
 #if defined(HAVE_LCD_ENABLE) || defined(HAVE_LCD_SLEEP)
     if (!lcd_active())
     {
+        ipodjs_wps_input_paint(3);
         root_menu_video_wps_render_state.valid = false;
         return;
     }
 #endif
 
-    root_menu_video_ensure_aa_slot();
-    root_menu_video_apple_slider_asset(IPODJS_APPLE_VOLUME_LOW);
-    root_menu_video_apple_slider_asset(IPODJS_APPLE_VOLUME_HIGH);
-    root_menu_video_apple_slider_asset(IPODJS_APPLE_SLIDER_LIGHT);
-    root_menu_video_apple_slider_asset(IPODJS_APPLE_SLIDER_DARK);
-    root_menu_video_apple_slider_asset(IPODJS_APPLE_SLIDER_FILL);
-    root_menu_video_apple_slider_asset(IPODJS_APPLE_PROGRESS_FRAME);
+    if (ipodjs_ui_draw_retailos_playback_idle(&screens[SCREEN_MAIN]))
+    {
+        ipodjs_wps_input_paint(4);
+        root_menu_video_wps_render_state.valid = false;
+        root_menu_video_wps_force_full = true;
+        return;
+    }
+
     root_menu_video_wps_capture_state(&now);
 
     if (root_menu_video_wps_force_full ||
@@ -13102,6 +13953,7 @@ void root_menu_ipodjs_draw_wps_frame(void)
                                          &now))
     {
         ipodjs_video_draw_wps_full();
+        ipodjs_wps_input_paint(0);
         ipodjs_trace_wps("full", 0, 0, LCD_WIDTH, LCD_HEIGHT,
                          now.art_data, now.art_width, now.art_height);
         root_menu_video_wps_force_full = false;
@@ -13110,6 +13962,8 @@ void root_menu_ipodjs_draw_wps_frame(void)
     }
 
     (void)root_menu_video_update_wps_title_scroll();
+    ipodjs_wps_input_paint(1);
+    root_menu_video_update_wps_album_scroll();
 
     header_changed = root_menu_video_wps_render_state.status != now.status ||
         root_menu_video_wps_render_state.battery != now.battery ||
@@ -13122,37 +13976,25 @@ void root_menu_ipodjs_draw_wps_frame(void)
         (now.volume_overlay &&
          root_menu_video_wps_render_state.volume_percent !=
              now.volume_percent);
-
-    /* The transparent profile's panel is a full-height gradient.  A flat
-     * rectangle would leave a visible seam, so retain the conservative full
-     * redraw for that optional profile.  Stock Fidelity takes the fast path. */
-    if (bottom_changed &&
-        now.surface == UI_ENGINE_SURFACE_TRANSPARENT)
-    {
-        ipodjs_video_draw_wps_full();
-        ipodjs_trace_wps("full-transparent", 0, 0, LCD_WIDTH, LCD_HEIGHT,
-                         now.art_data, now.art_width, now.art_height);
-        root_menu_video_wps_render_state = now;
-        return;
-    }
-
     id3 = audio_current_track();
     if (header_changed)
     {
         root_menu_video_draw_wps_status_title("Now Playing");
-        root_menu_video_draw_wps_modes();
-        lcd_update_rect(0, 0, LCD_WIDTH, IPODJS_HEADER_HEIGHT + 20);
+        if (!root_menu_video_wps_text_page())
+            root_menu_video_draw_wps_modes();
+        lcd_update_rect(0, 0, LCD_WIDTH,
+            root_menu_video_wps_text_page() ? IPODJS_HEADER_HEIGHT :
+                                            IPODJS_HEADER_HEIGHT + 20);
         ipodjs_trace_wps("header", 0, 0, LCD_WIDTH,
                          IPODJS_HEADER_HEIGHT + 20, now.art_data,
                          now.art_width, now.art_height);
     }
-    if (bottom_changed)
+    if (bottom_changed && !root_menu_video_wps_text_page())
     {
         root_menu_video_draw_wps_bottom(id3, now.volume_overlay);
-        ipodjs_trace_wps("bottom", 0, 196, LCD_WIDTH, 28,
+        ipodjs_trace_wps("bottom", 0, 196, LCD_WIDTH, 44,
                          now.art_data, now.art_width, now.art_height);
     }
-
     root_menu_video_wps_render_state = now;
 }
 
@@ -13176,11 +14018,13 @@ static void ipodjs_video_draw_wps_empty_state(const char *title,
         if (root_menu_video_dark())
             root_menu_video_gradient(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH,
                 LCD_HEIGHT - IPODJS_HEADER_HEIGHT,
-                LCD_RGBPACK(32, 37, 46), LCD_RGBPACK(17, 21, 28));
+                root_menu_video_accent_tint(LCD_RGBPACK(32, 37, 46), 42),
+                root_menu_video_accent_tint(LCD_RGBPACK(17, 21, 28), 68));
         else
             root_menu_video_gradient(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH,
                 LCD_HEIGHT - IPODJS_HEADER_HEIGHT,
-                LCD_RGBPACK(248, 249, 251), LCD_RGBPACK(224, 229, 236));
+                root_menu_video_accent_tint(LCD_RGBPACK(248, 249, 251), 22),
+                root_menu_video_accent_tint(LCD_RGBPACK(224, 229, 236), 40));
     }
     else
     {
@@ -13194,12 +14038,12 @@ static void ipodjs_video_draw_wps_empty_state(const char *title,
     lcd_hline(0, LCD_WIDTH - 1, IPODJS_HEADER_HEIGHT);
     root_menu_video_draw_wps_modes();
 
-    lcd_setfont(root_menu_video_wps_font(true));
+    lcd_setfont(root_menu_video_retail_wps_font(true));
     lcd_set_foreground(text);
     lcd_set_background(panel);
     root_menu_video_puts_fit(30, 92, LCD_WIDTH - 60,
                              title ? title : "No Music", true);
-    lcd_setfont(root_menu_video_wps_font(false));
+    lcd_setfont(root_menu_video_retail_wps_font(false));
     lcd_set_foreground(muted);
     root_menu_video_puts_fit(30, 120, LCD_WIDTH - 60,
                              message ? message : "Nothing playing", true);
@@ -13361,6 +14205,7 @@ static void ipodjs_video_play_pause(void)
 
 static int ipodjs_video_wps_finish(int ret)
 {
+    tv_ui_leave();
     root_menu_video_stop_wps_title_scroll();
     root_menu_video_wps_force_full = true;
     wps_state_deinit();
@@ -13386,12 +14231,7 @@ static int ipodjs_video_wps(void)
     root_menu_video_wps_force_full = true;
     wps_state_init();
     root_menu_video_ensure_aa_slot();
-    root_menu_video_apple_slider_asset(IPODJS_APPLE_VOLUME_LOW);
-    root_menu_video_apple_slider_asset(IPODJS_APPLE_VOLUME_HIGH);
-    root_menu_video_apple_slider_asset(IPODJS_APPLE_SLIDER_LIGHT);
-    root_menu_video_apple_slider_asset(IPODJS_APPLE_SLIDER_DARK);
-    root_menu_video_apple_slider_asset(IPODJS_APPLE_SLIDER_FILL);
-    root_menu_video_apple_slider_asset(IPODJS_APPLE_PROGRESS_FRAME);
+    (void)ipodjs_ui_prepare_retailos_controls();
     root_menu_wait_for_button_release();
     button_clear_queue();
 
@@ -13402,7 +14242,7 @@ static int ipodjs_video_wps(void)
         int battery = battery_level();
         bool charging = charger_inserted();
         bool bluetooth = false;
-        bool internet = usb_internet_connected();
+        bool internet = root_menu_usb_internet_connected();
 #ifdef IPOD_ACCESSORY_PROTOCOL
         bluetooth = iap_kokkia_present();
 #endif
@@ -13458,7 +14298,9 @@ static int ipodjs_video_wps(void)
         }
         if (redraw)
         {
+            tv_ui_batch(true, true);
             root_menu_ipodjs_draw_wps_frame();
+            tv_ui_batch(false, true);
             volume_overlay_was_active = root_menu_video_volume_overlay_active();
             redraw = false;
         }
@@ -13501,9 +14343,11 @@ static int ipodjs_video_wps(void)
             continue;
         }
 
+        tv_wps_draw();
         action = paused ? skin_wait_for_action(WPS, CONTEXT_WPS|ALLOW_SOFTLOCK,
                                                HZ/5)
                         : get_action(CONTEXT_WPS|ALLOW_SOFTLOCK, HZ/5);
+        tv_wps_service(action == ACTION_NONE);
         if (ipodjs_ui_handle_system_event(action, &redraw))
             continue;
         if (action == ACTION_NONE)
@@ -13582,6 +14426,38 @@ static int ipodjs_video_wps(void)
     return ipodjs_video_wps_finish(GO_TO_ROOT);
 }
 
+static const char *root_menu_tv_home_name(int index, void *data,
+                                             char *buf, size_t size)
+{
+    (void)data; (void)buf; (void)size;
+    return root_menu_video_label(root_menu_video_item(index));
+}
+static void root_menu_tv_home(int selected)
+{
+    struct gui_synclist list = {.title = "Home", .selected_item = selected,
+        .nb_items = root_menu_video_count(),
+        .callback_get_item_name = root_menu_tv_home_name};
+    tv_list_draw(&list);
+}
+struct root_menu_tv_labels { const void *base; size_t stride; bool indirect; };
+static const char *root_menu_tv_name(int index, void *data,
+                                    char *buf, size_t size)
+{
+    (void)buf; (void)size;
+    struct root_menu_tv_labels *labels = data;
+    const char *p = (const char *)labels->base + index * labels->stride;
+    return labels->indirect ? *(const char * const *)p : p;
+}
+static void root_menu_tv_list(const char *title, int selected, int count,
+                             const void *labels, size_t stride, bool indirect)
+{
+    struct root_menu_tv_labels names = {labels, stride, indirect};
+    struct gui_synclist list = {.title = (char *)title,
+        .selected_item = selected, .nb_items = count, .data = &names,
+        .callback_get_item_name = root_menu_tv_name};
+    tv_list_draw(&list);
+}
+
 static void root_menu_video_draw_home(
     int selected, int preview_selected,
     struct root_menu_video_list_draw_state *state)
@@ -13601,6 +14477,7 @@ static void root_menu_video_draw_home(
         global_settings.ui_engine_hold_effect == UI_ENGINE_HOLD_LOCKSCREEN)
     {
         ipodjs_video_draw_hold_overlay();
+        lcd_boot_frame_hold(false);
         lcd_update();
         ipodjs_trace_screen("Lockscreen", "full", selected, 0,
                             root_menu_video_count(), 0, 0,
@@ -13609,13 +14486,16 @@ static void root_menu_video_draw_home(
         return;
     }
 
+    tv_ui_batch(true, false);
     root_menu_video_draw_status();
     root_menu_video_draw_list(selected, state);
     root_menu_video_draw_preview(preview_selected);
     ipodjs_video_draw_hold_overlay();
 
+    lcd_boot_frame_hold(false);
     if (!ipodjs_ui_transition_present(&screens[SCREEN_MAIN]))
         lcd_update();
+    tv_ui_batch(false, false);
     ipodjs_trace_screen("Home", "full", selected,
                         state && state->valid ? state->top : 0,
                         root_menu_video_count(), 0, 0,
@@ -13643,6 +14523,7 @@ static bool root_menu_video_draw_home_selection_delta(
     if (root_menu_video_list_top(selected, state->visible) != state->top)
         return false;
 
+    tv_ui_batch(true, false);
     lcd_set_viewport(NULL);
     lcd_set_drawmode(DRMODE_SOLID);
     lcd_setfont(root_menu_video_font());
@@ -13676,6 +14557,7 @@ static bool root_menu_video_draw_home_selection_delta(
     else if (selected_visible)
         lcd_update_rect(0, IPODJS_HEADER_HEIGHT + selected_row * state->row_h,
                         IPODJS_LIST_WIDTH, state->row_h);
+    tv_ui_batch(false, false);
     ipodjs_trace_screen("Home", "rows", selected, state->top,
                         root_menu_video_count(), 0,
                         IPODJS_HEADER_HEIGHT +
@@ -13698,14 +14580,19 @@ static void root_menu_video_draw_home_preview_only(int selected,
 
     int x = IPODJS_PREVIEW_X;
 
+    tv_ui_batch(true, false);
     lcd_set_viewport(NULL);
     lcd_set_drawmode(DRMODE_SOLID);
-    fading = crossfade &&
+    /* Netflix owns its sharp slide and fade-from-black reveal. A second
+     * pane compositor would blend two posters and soften their detail. */
+    const char *title = root_menu_video_preview(root_menu_video_item(selected));
+    fading = crossfade && (!title || strcmp(title, "Netflix")) &&
         ipodjs_ui_preview_fade_begin(&screens[SCREEN_MAIN], x, 0,
                                     LCD_WIDTH - x, LCD_HEIGHT);
     root_menu_video_draw_preview(selected);
     if (!fading || !ipodjs_ui_preview_fade_present(&screens[SCREEN_MAIN]))
         lcd_update_rect(x, 0, LCD_WIDTH - x, LCD_HEIGHT);
+    tv_ui_batch(false, false);
 }
 
 struct root_menu_video_music_item {
@@ -13814,6 +14701,7 @@ static void root_menu_video_draw_music_selection_delta(
     if (!state || !state->valid || previous_selected == selected)
         return;
 
+    tv_ui_batch(true, false);
     lcd_set_viewport(NULL);
     lcd_set_drawmode(DRMODE_SOLID);
     lcd_setfont(root_menu_video_font());
@@ -13830,6 +14718,9 @@ static void root_menu_video_draw_music_selection_delta(
     state->selected = selected;
     lcd_update_rect(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH,
                     LCD_HEIGHT - IPODJS_HEADER_HEIGHT);
+    tv_ui_batch(false, false);
+    root_menu_tv_list("Music", selected, root_menu_video_music_count(),
+        root_menu_video_music_items, sizeof(root_menu_video_music_items[0]), true);
 }
 
 static void root_menu_video_draw_music_menu(
@@ -13841,6 +14732,7 @@ static void root_menu_video_draw_music_menu(
     int top = root_menu_video_music_top(selected, visible);
     int i;
 
+    tv_ui_batch(true, false);
     lcd_set_viewport(NULL);
     lcd_set_drawmode(DRMODE_SOLID);
     lcd_set_background(root_menu_video_screen_bg());
@@ -13871,6 +14763,9 @@ static void root_menu_video_draw_music_menu(
     ipodjs_video_draw_hold_overlay();
     if (!ipodjs_ui_transition_present(&screens[SCREEN_MAIN]))
         lcd_update();
+    tv_ui_batch(false, false);
+    root_menu_tv_list("Music", selected, count, root_menu_video_music_items,
+        sizeof(root_menu_video_music_items[0]), true);
     ipodjs_trace_screen("Music", "full", selected, top, count,
                         0, 0, LCD_WIDTH, LCD_HEIGHT);
 }
@@ -14690,6 +15585,7 @@ static void root_menu_video_draw_db_menu(const char *title, int tag,
     if (album_rows && (top + visible) < total)
         draw_rows++;
 
+    tv_ui_batch(true, false);
     lcd_set_viewport(NULL);
     lcd_set_drawmode(DRMODE_SOLID);
     lcd_set_background(screen_bg);
@@ -14764,7 +15660,8 @@ static void root_menu_video_draw_db_menu(const char *title, int tag,
             lcd_set_background(active ? root_menu_video_accent() :
                                         row_bg);
             root_menu_video_puts_fit(text_x, text_y, text_w, label, false);
-            lcd_set_foreground(active ? LCD_RGBPACK(224, 242, 255) :
+            lcd_set_foreground(active ? root_menu_video_accent_tint(
+                                        LCD_RGBPACK(255, 255, 255), 36) :
                                         muted);
             root_menu_video_puts_fit(text_x, text_y + font_h, text_w,
                                      sublabel, false);
@@ -14783,6 +15680,8 @@ static void root_menu_video_draw_db_menu(const char *title, int tag,
     ipodjs_video_draw_hold_overlay();
     if (!ipodjs_ui_transition_present(&screens[SCREEN_MAIN]))
         lcd_update();
+    tv_ui_batch(false, false);
+    root_menu_tv_list(title, selected, row_count, rows, sizeof(*rows), false);
     ipodjs_trace_screen(title, "full", selected, top, row_count,
                         0, 0, LCD_WIDTH, LCD_HEIGHT);
 }
@@ -14809,6 +15708,7 @@ static bool root_menu_video_draw_db_selection_delta(
 
     previous_row = previous_selected - selected_top;
     selected_row = selected - selected_top;
+    tv_ui_batch(true, false);
     lcd_set_viewport(NULL);
     lcd_set_drawmode(DRMODE_SOLID);
     lcd_setfont(root_menu_video_font());
@@ -14820,6 +15720,8 @@ static bool root_menu_video_draw_db_selection_delta(
                     MIN(previous_row, selected_row) * row_h,
                     LCD_WIDTH,
                     (abs(previous_row - selected_row) + 1) * row_h);
+    tv_ui_batch(false, false);
+    root_menu_tv_list("Music", selected, row_count, rows, sizeof(*rows), false);
     ipodjs_trace_screen("Database Rows", "rows", selected, selected_top,
                         row_count, 0, IPODJS_HEADER_HEIGHT +
                             MIN(previous_row, selected_row) * row_h,
@@ -15675,7 +16577,8 @@ static void root_menu_video_search_draw(const char *query, bool entering,
                                       root_menu_video_row_bg());
         root_menu_video_puts_fit(31, y + 3, LCD_WIDTH - 38,
                                  label, false);
-        lcd_set_foreground(active ? LCD_RGBPACK(224, 242, 255) :
+        lcd_set_foreground(active ? root_menu_video_accent_tint(
+                                    LCD_RGBPACK(255, 255, 255), 36) :
                                       root_menu_video_muted_text());
         root_menu_video_puts_fit(31, y + 19, LCD_WIDTH - 38,
                                  result->sublabel, false);
@@ -16877,6 +17780,8 @@ struct root_menu_video_extras_item {
     int screen;
 };
 
+static int root_menu_video_about(void);
+
 enum {
     IPODJS_EXTRAS_CLOCK = -1000,
     IPODJS_EXTRAS_GAMES,
@@ -16884,6 +17789,7 @@ enum {
     IPODJS_EXTRAS_APPLICATIONS,
     IPODJS_EXTRAS_MAGAZINES,
     IPODJS_EXTRAS_COMICS,
+    IPODJS_EXTRAS_ABOUT,
 };
 
 static const struct root_menu_video_extras_item root_menu_video_extras_items[] = {
@@ -16897,6 +17803,7 @@ static const struct root_menu_video_extras_item root_menu_video_extras_items[] =
     { "Playlists", GO_TO_PLAYLISTS_SCREEN },
     { "Plugins", GO_TO_BROWSEPLUGINS },
     { "Shortcuts", GO_TO_SHORTCUTMENU },
+    { "About", IPODJS_EXTRAS_ABOUT },
     { "System", GO_TO_SYSTEM_SCREEN },
 };
 
@@ -16904,25 +17811,18 @@ enum root_menu_video_clock_item {
     IPODJS_CLOCK_WORLD = 0,
     IPODJS_CLOCK_STOPWATCH,
     IPODJS_CLOCK_TIMER,
+#ifdef HAVE_RTC_ALARM
     IPODJS_CLOCK_ALARMS,
+#endif
     IPODJS_CLOCK_COUNT,
 };
 
 static const char * const root_menu_video_clock_rows[IPODJS_CLOCK_COUNT] = {
-    "World Clock", "Stopwatch", "Timer", "Alarms"
+    "World Clock", "Stopwatch", "Timer",
+#ifdef HAVE_RTC_ALARM
+    "Alarms",
+#endif
 };
-
-static const char *root_menu_video_sleep_timer_text(char *buf, size_t size)
-{
-    int seconds = get_sleep_timer();
-
-    if (seconds <= 0)
-        snprintf(buf, size, "Sleep Timer Off");
-    else
-        snprintf(buf, size, "%d min remaining", (seconds + 59) / 60);
-
-    return buf;
-}
 
 static void root_menu_video_draw_clock_pane(int selected, int x, int y,
                                             int w, int h)
@@ -16933,6 +17833,59 @@ static void root_menu_video_draw_clock_pane(int selected, int x, int y,
     int hour;
 
     root_menu_video_preview_gradient(x, y, w, h);
+    (void)ipodjs_utilities_draw_classic_preview_map(
+        x, y, w, h);
+    /* RetailOS places the 132x145 face at x=176 (the Apple layout's
+     * 0x160 coordinate in half-pixel units) and y=25 below the status bar. */
+    if (ipodjs_utilities_draw_classic_preview(x + 2, y + 5, w, h - 55))
+    {
+        lcd_setfont(root_menu_video_font());
+        lcd_set_foreground(IPODJS_PREVIEW_TEXT);
+        lcd_set_background(IPODJS_PREVIEW_BOTTOM);
+        switch (selected)
+        {
+            case IPODJS_CLOCK_WORLD:
+                if (tm)
+                {
+                    hour = tm->tm_hour % 12;
+                    if (hour == 0)
+                        hour = 12;
+                    snprintf(line, sizeof(line), "%d:%02d %s", hour,
+                             tm->tm_min, tm->tm_hour >= 12 ? "PM" : "AM");
+                }
+                else
+                    strmemccpy(line, "--:--", sizeof(line));
+                root_menu_video_puts_fit(x + 8, y + h - 48, w - 16,
+                                         "World Clock", true);
+                root_menu_video_puts_fit(x + 8, y + h - 27, w - 16,
+                                         line, true);
+                break;
+            case IPODJS_CLOCK_STOPWATCH:
+                root_menu_video_puts_fit(x + 8, y + h - 48, w - 16,
+                                         "Stopwatch", true);
+                root_menu_video_puts_fit(x + 8, y + h - 27, w - 16,
+                                         "Laps and elapsed time", true);
+                break;
+            case IPODJS_CLOCK_TIMER:
+                ipodjs_utilities_timer_summary(line, sizeof(line));
+                root_menu_video_puts_fit(x + 8, y + h - 48, w - 16,
+                                         "Timer", true);
+                root_menu_video_puts_fit(x + 8, y + h - 27, w - 16,
+                                         line, true);
+                break;
+#ifdef HAVE_RTC_ALARM
+            case IPODJS_CLOCK_ALARMS:
+                root_menu_video_puts_fit(x + 8, y + h - 48, w - 16,
+                                         "Alarms", true);
+                root_menu_video_puts_fit(x + 8, y + h - 27, w - 16,
+                                         "Hardware wake alarms", true);
+                break;
+#endif
+            default:
+                break;
+        }
+        return;
+    }
     root_menu_video_draw_clock_date(x, y, w, h, selected == IPODJS_CLOCK_WORLD);
 
     lcd_setfont(root_menu_video_font());
@@ -16968,28 +17921,26 @@ static void root_menu_video_draw_clock_pane(int selected, int x, int y,
             break;
 
         case IPODJS_CLOCK_TIMER:
+            ipodjs_utilities_timer_summary(line, sizeof(line));
             root_menu_video_puts_fit(x + 16, center_y, w - 32,
                                      "Timer", true);
             root_menu_video_puts_fit(x + 16, center_y + 22, w - 32,
-                                     root_menu_video_sleep_timer_text(
-                                         line, sizeof(line)), true);
+                                     line, true);
             root_menu_video_puts_fit(x + 16, center_y + 44, w - 32,
-                                     "Select toggles", true);
+                                     "Independent countdown", true);
             break;
 
+#ifdef HAVE_RTC_ALARM
         case IPODJS_CLOCK_ALARMS:
-        default:
             root_menu_video_puts_fit(x + 16, center_y, w - 32,
                                      "Alarms", true);
-#ifdef HAVE_RTC_ALARM
             root_menu_video_puts_fit(x + 16, center_y + 22, w - 32,
-                                     "Wake alarm settings", true);
-#else
-            root_menu_video_puts_fit(x + 16, center_y + 22, w - 32,
-                                     "Alarm Clock app", true);
-#endif
+                                     "Hardware wake alarms", true);
             root_menu_video_puts_fit(x + 16, center_y + 44, w - 32,
                                      "Select to open", true);
+            break;
+#endif
+        default:
             break;
     }
 }
@@ -17009,7 +17960,7 @@ static void root_menu_video_draw_analog_clock(int selected)
 
     root_menu_video_draw_status();
     lcd_setfont(root_menu_video_font());
-    lcd_set_foreground(root_menu_video_screen_bg());
+    lcd_set_foreground(root_menu_video_left_pane_bg());
     lcd_fillrect(0, IPODJS_HEADER_HEIGHT, IPODJS_LIST_WIDTH,
                  LCD_HEIGHT - IPODJS_HEADER_HEIGHT);
 
@@ -17027,10 +17978,10 @@ static void root_menu_video_draw_analog_clock(int selected)
         }
         else
         {
-            lcd_set_foreground(root_menu_video_row_bg());
+            lcd_set_foreground(root_menu_video_left_pane_bg());
             lcd_fillrect(0, item_y, IPODJS_LIST_WIDTH, row_h);
             lcd_set_foreground(root_menu_video_text());
-            lcd_set_background(root_menu_video_row_bg());
+            lcd_set_background(root_menu_video_left_pane_bg());
         }
 
         root_menu_video_puts_fit(6, item_y + 4, IPODJS_LIST_WIDTH - 24,
@@ -17051,51 +18002,35 @@ static void root_menu_video_draw_analog_clock(int selected)
         lcd_update();
 }
 
-static void root_menu_video_set_sleep_duration(void)
-{
-    int duration = global_settings.sleeptimer_duration;
-
-    root_menu_video_finish_native_screen(0);
-    if (set_int((const unsigned char *)"Timer Duration", "min", UNIT_MIN,
-                &duration, NULL, 5, 5, 300, NULL))
-    {
-        global_settings.sleeptimer_duration = duration;
-        if (get_sleep_timer())
-            set_sleeptimer_duration(duration);
-    }
-    root_menu_video_enter_native_screen();
-}
-
 static int root_menu_video_clock_open(int selected)
 {
-    int ret = GO_TO_PREVIOUS;
+    enum ipodjs_utilities_result result;
+    enum ipodjs_utility utility;
 
-    root_menu_video_finish_native_screen(0);
     switch (selected)
     {
         case IPODJS_CLOCK_WORLD:
-            ret = launch_clock_plugin(NULL);
+            utility = IPODJS_UTILITY_WORLD_CLOCK;
             break;
         case IPODJS_CLOCK_STOPWATCH:
-            ret = launch_stopwatch_plugin(NULL);
+            utility = IPODJS_UTILITY_STOPWATCH;
             break;
         case IPODJS_CLOCK_TIMER:
-        {
-            char timer_status[48];
-
-            toggle_sleeptimer();
-            splash(HZ, root_menu_video_sleep_timer_text(
-                       timer_status, sizeof(timer_status)));
-            ret = GO_TO_PREVIOUS;
+            utility = IPODJS_UTILITY_TIMER;
             break;
-        }
+#ifdef HAVE_RTC_ALARM
         case IPODJS_CLOCK_ALARMS:
-        default:
-            ret = launch_alarmclock_plugin(NULL);
+            utility = IPODJS_UTILITY_ALARMS;
             break;
+#endif
+        default:
+            return GO_TO_PREVIOUS;
     }
-    root_menu_video_enter_native_screen();
-    return ret;
+    ipodjs_ui_transition_begin(1);
+    result = ipodjs_utilities_open(utility, false);
+    ipodjs_utilities_prepare_classic_preview();
+    ipodjs_ui_transition_begin(-1);
+    return result == IPODJS_UTILITIES_WPS ? GO_TO_WPS : GO_TO_PREVIOUS;
 }
 
 static int root_menu_video_clock_screen(void)
@@ -17105,6 +18040,7 @@ static int root_menu_video_clock_screen(void)
     bool held = button_hold();
     long next_refresh = 0;
 
+    ipodjs_utilities_prepare_classic_preview();
     button_clear_queue();
     while (true)
     {
@@ -17127,7 +18063,7 @@ static int root_menu_video_clock_screen(void)
             case ACTION_NONE:
                 if (TIME_AFTER(current_tick, next_refresh))
                 {
-                    next_refresh = current_tick + HZ;
+                    next_refresh = current_tick + MAX(1, HZ / 2);
                     redraw = true;
                 }
                 break;
@@ -17159,7 +18095,13 @@ static int root_menu_video_clock_screen(void)
                 if (root_menu_video_hold_update(&held, &redraw))
                     break;
                 if (selected == IPODJS_CLOCK_TIMER)
-                    root_menu_video_set_sleep_duration();
+                {
+                    ipodjs_ui_transition_begin(1);
+                    if (ipodjs_utilities_open(IPODJS_UTILITY_TIMER, true) ==
+                        IPODJS_UTILITIES_WPS)
+                        return GO_TO_WPS;
+                    ipodjs_ui_transition_begin(-1);
+                }
                 redraw = true;
                 break;
             case ACTION_STD_CANCEL:
@@ -17205,7 +18147,7 @@ static void root_menu_video_draw_extras_menu(int selected)
 
     root_menu_video_draw_status();
     lcd_setfont(root_menu_video_font());
-    lcd_set_foreground(root_menu_video_screen_bg());
+    lcd_set_foreground(root_menu_video_left_pane_bg());
     lcd_fillrect(0, IPODJS_HEADER_HEIGHT, IPODJS_LIST_WIDTH,
                  LCD_HEIGHT - IPODJS_HEADER_HEIGHT);
 
@@ -17225,10 +18167,10 @@ static void root_menu_video_draw_extras_menu(int selected)
         }
         else
         {
-            lcd_set_foreground(root_menu_video_row_bg());
+            lcd_set_foreground(root_menu_video_left_pane_bg());
             lcd_fillrect(0, item_y, IPODJS_LIST_WIDTH, row_h);
             lcd_set_foreground(root_menu_video_text());
-            lcd_set_background(root_menu_video_row_bg());
+            lcd_set_background(root_menu_video_left_pane_bg());
         }
 
         root_menu_video_puts_fit(6, item_y + 4, IPODJS_LIST_WIDTH - 24,
@@ -17263,6 +18205,7 @@ static int root_menu_video_extras_menu(void)
     long preview_io_settle_tick = current_tick + HZ / 2;
 
     root_menu_video_enter_native_screen();
+    ipodjs_utilities_prepare_classic_preview();
     root_menu_video_prepare_sitekick_preview();
     button_clear_queue();
 
@@ -17341,6 +18284,17 @@ static int root_menu_video_extras_menu(void)
             case ACTION_STD_OK:
                 if (root_menu_video_hold_update(&held, &redraw))
                     break;
+                if (root_menu_video_extras_items[selected].screen ==
+                    IPODJS_EXTRAS_ABOUT)
+                {
+                    ipodjs_ui_transition_begin(1);
+                    int ret = root_menu_video_about();
+                    if (ret == MENU_ATTACHED_USB || ret == GO_TO_WPS)
+                        return root_menu_video_finish_native_screen(ret);
+                    ipodjs_ui_transition_begin(-1);
+                    redraw = true;
+                    break;
+                }
                 if (root_menu_video_extras_items[selected].screen ==
                     IPODJS_EXTRAS_CLOCK)
                 {
@@ -17445,6 +18399,19 @@ static int root_menu_video_extras_menu(void)
     }
 }
 
+static int launch_minivmac_plugin(void *param)
+{
+    const char *launch_parameter = NULL;
+
+    (void)param;
+#if defined(IPOD_6G) && !defined(SIMULATOR)
+    if (ipod6g_videoout_active())
+        launch_parameter = "videoout-active";
+#endif
+    return load_plugin_path_screen(
+        PLUGIN_DIR "/viewers/minivmac.rock", launch_parameter);
+}
+
 struct root_menu_video_application_item {
     const char *label;
     int (*function)(void *param);
@@ -17455,13 +18422,21 @@ static const struct root_menu_video_application_item
 root_menu_video_application_items[] = {
     { "Clock", launch_clock_plugin, "clock.46x46x24.bmp" },
     { "Desktop Mode", launch_desktop_mode, "desktop-mode.46x46x24.bmp" },
+    { "Mini vMac", launch_minivmac_plugin, "minivmac.46x46x24.bmp" },
+    /* Legacy two-field form: { "Desktop Mode", launch_desktop_mode }, */
     { "YouTube", launch_youtube_plugin, "youtube.46x46x24.bmp" },
+    { "Twitch", launch_twitch_plugin, "twitch.46x46x24.bmp" },
     { "Spotify Wrapped", launch_spotify_wrapped_plugin,
       "spotify-wrapped.46x46x24.bmp" },
     { "TikTok", launch_tiktok_plugin, "tiktok.46x46x24.bmp" },
     { "OnlyFans", launch_onlyfans_plugin, "onlyfans.46x46x24.bmp" },
     { "Instagram", launch_instagram_plugin, "instagram.46x46x24.bmp" },
     { "Reddit", launch_reddit_plugin, "reddit.46x46x24.bmp" },
+    { "Twitter", launch_twitter_plugin, "twitter.46x46x24.bmp" },
+    { "MSN Messenger", launch_msn_plugin, "msn.46x46x24.bmp" },
+#if defined(IPOD_6G) && !defined(ROCKPOD_IOS_EMBED)
+    { "Newgrounds", launch_newgrounds_plugin, "newgrounds.46x46x24.bmp" },
+#endif
     { "Achievements", launch_achievements_plugin,
       "achievements.46x46x24.bmp" },
     { "DIRECTV", launch_livetv_plugin, "directv.46x46x24.bmp" },
@@ -17479,19 +18454,71 @@ root_menu_video_application_items[] = {
     { "Netflix", videos_scrn, "netflix.46x46x24.bmp" },
 #if defined(IPOD_6G) && (defined(HAVE_ROLO) || defined(SIMULATOR))
     { "RoloLauncher", launch_rolo_launcher, "rolo-launcher.46x46x24.bmp" },
+    { "Rockbox", launch_rockbox_upstream, "rockbox.46x46x24.bmp" },
 #endif
 };
+
+/* Fail the build instead of silently losing the last application icon. */
+typedef char application_icon_capacity_check[
+    ARRAYLEN(root_menu_video_application_items) <= IPODJS_APPLICATION_ICON_CACHE
+    ? 1 : -1];
+
+/* Stable icon IDs, one per line. Unknown/duplicate IDs are ignored and
+ * omitted applications retain their original relative order at the end. */
+#define IPODJS_APPLICATION_ORDER ROCKBOX_DIR "/ipodjs/applications-order.txt"
+static unsigned char root_menu_video_application_order[
+    IPODJS_APPLICATION_ICON_CACHE];
+static bool root_menu_video_application_order_ready;
+
+static void root_menu_video_load_application_order(void)
+{
+    char id[64];
+    uint32_t used = 0;
+    int count = 0;
+    int fd = open(IPODJS_APPLICATION_ORDER, O_RDONLY);
+
+    if (fd >= 0)
+    {
+        for (int line = 0; line < 64 && read_line(fd, id, sizeof(id)) > 0;
+             line++)
+        {
+            for (int i = 0;
+                 i < (int)ARRAYLEN(root_menu_video_application_items); i++)
+            {
+                const char *icon = root_menu_video_application_items[i].icon;
+                const char *dot = strchr(icon, '.');
+                size_t length = dot ? (size_t)(dot - icon) : strlen(icon);
+                if (!(used & (1u << i)) && strlen(id) == length &&
+                    !strncmp(id, icon, length))
+                {
+                    root_menu_video_application_order[count++] = i;
+                    used |= 1u << i;
+                    break;
+                }
+            }
+        }
+        close(fd);
+    }
+    for (int i = 0; i < (int)ARRAYLEN(root_menu_video_application_items); i++)
+        if (!(used & (1u << i)))
+            root_menu_video_application_order[count++] = i;
+    root_menu_video_application_order_ready = true;
+}
 
 static bool root_menu_video_onlyfans_visible;
 
 static void root_menu_video_prepare_application_visibility(void)
 {
+    root_menu_video_load_application_order();
     root_menu_video_onlyfans_visible =
         !file_exists(ROCKBOX_DIR "/onlyfans/hidden");
 }
 
 static bool root_menu_video_application_item_visible(int index)
 {
+    if (!strcmp(root_menu_video_application_items[index].label,
+                "Desktop Mode"))
+        return root_menu_video_desktop_mode_visible();
     return strcmp(root_menu_video_application_items[index].label,
                   "OnlyFans") ||
            root_menu_video_onlyfans_visible;
@@ -17512,10 +18539,12 @@ root_menu_video_application_item_at(int visible_index)
 {
     for (int i = 0; i < (int)ARRAYLEN(root_menu_video_application_items); i++)
     {
-        if (!root_menu_video_application_item_visible(i))
+        int index = root_menu_video_application_order_ready ?
+                    root_menu_video_application_order[i] : i;
+        if (!root_menu_video_application_item_visible(index))
             continue;
         if (visible_index-- == 0)
-            return &root_menu_video_application_items[i];
+            return &root_menu_video_application_items[index];
     }
     return &root_menu_video_application_items[0];
 }
@@ -17533,13 +18562,15 @@ static bool root_menu_video_applications_ios3(void)
 
 /* Application icons are primary navigation content, not decorative preview
  * work.  Decode the fixed, packaged 46px assets once when the screen is
- * entered.  Their storage aliases the existing preview cache union, so this
- * view adds no BSS and cannot ask playback to shrink its audio buffer. */
-static void root_menu_video_prepare_application_icons(void)
+ * entered. TV uses 80px versions of the same masters; the handheld keeps
+ * its 46px icons. Both fit the existing preview cache union, so neither
+ * asks playback to shrink its audio buffer. */
+static void root_menu_video_prepare_application_icons(bool tv)
 {
     char path[MAX_PATH];
 
-    root_menu_video_preview_use_cache(IPODJS_PREVIEW_CACHE_APPLICATIONS);
+    root_menu_video_preview_use_cache(tv ? IPODJS_PREVIEW_CACHE_TV_APPLICATIONS :
+                                          IPODJS_PREVIEW_CACHE_APPLICATIONS);
     (void)root_menu_video_wps_font(false);
 
     for (int i = 0;
@@ -17548,27 +18579,40 @@ static void root_menu_video_prepare_application_icons(void)
     {
         struct root_menu_video_application_icon_slot *slot =
             &root_menu_video_application_icon_slots[i];
-        int rc;
+        int rc, size = IPODJS_APPLICATION_ICON_SIZE;
 
         if (slot->tried)
             continue;
         slot->tried = true;
         snprintf(path, sizeof(path), IPODJS_ASSET_DIR "/applications/%s",
                  root_menu_video_application_items[i].icon);
-        if (!file_exists(path))
-            continue;
+        if (tv)
+        {
+            const char *name = root_menu_video_application_items[i].icon;
+            const char *dot = strchr(name,'.');
+            snprintf(path,sizeof(path),IPODJS_ASSET_DIR
+                     "/tv-applications/%.*s.80x80x24.bmp",
+                     dot ? (int)(dot-name) : (int)strlen(name), name);
+            size = 80;
+            if (!file_exists(path))
+            {
+                size = IPODJS_APPLICATION_ICON_SIZE;
+                snprintf(path,sizeof(path),IPODJS_ASSET_DIR "/applications/%s",name);
+            }
+        }
+        if (!file_exists(path)) continue;
 
         memset(&slot->bm, 0, sizeof(slot->bm));
-        slot->bm.width = IPODJS_APPLICATION_ICON_SIZE;
-        slot->bm.height = IPODJS_APPLICATION_ICON_SIZE;
+        slot->bm.width = size;
+        slot->bm.height = size;
         slot->bm.format = FORMAT_NATIVE;
         slot->bm.data = slot->data;
         rc = read_bmp_file(path, &slot->bm, sizeof(slot->data),
                            FORMAT_NATIVE | FORMAT_DITHER |
                            FORMAT_TRANSPARENT, NULL);
         slot->valid = rc > 0 &&
-                      slot->bm.width == IPODJS_APPLICATION_ICON_SIZE &&
-                      slot->bm.height == IPODJS_APPLICATION_ICON_SIZE;
+                      slot->bm.width == size &&
+                      slot->bm.height == size;
     }
 }
 
@@ -17577,7 +18621,9 @@ static struct bitmap *root_menu_video_application_icon(
 {
     int index;
 
-    if (!item)
+    if (!item ||
+        (root_menu_video_preview_cache_mode != IPODJS_PREVIEW_CACHE_APPLICATIONS &&
+         root_menu_video_preview_cache_mode != IPODJS_PREVIEW_CACHE_TV_APPLICATIONS))
         return NULL;
     index = (int)(item - root_menu_video_application_items);
     if (index < 0 || index >= IPODJS_APPLICATION_ICON_CACHE ||
@@ -17619,6 +18665,60 @@ static void root_menu_video_draw_application_focus(int x, int y,
     lcd_hline(x + 6, x + width - 7, y + 1);
 }
 
+struct root_menu_video_grid_label {
+    const char *text;
+    int x, y, width, height, row_y, extent, offset;
+    bool selected;
+};
+static struct root_menu_video_grid_label root_menu_video_grid_labels[12];
+static int root_menu_video_grid_label_count;
+static long root_menu_video_grid_label_started;
+
+static void root_menu_video_grid_label_draw(
+    const struct root_menu_video_grid_label *label, int offset)
+{
+    struct viewport vp;
+    viewport_set_defaults(&vp, SCREEN_MAIN);
+    vp.x = label->x; vp.y = label->y;
+    vp.width = label->width; vp.height = label->height + 1;
+    vp.font = root_menu_video_wps_font(false);
+    struct viewport *saved = lcd_set_viewport(&vp);
+    lcd_set_drawmode(DRMODE_SOLID);
+    /* Repaint only the label strip from the unchanged grid background. */
+    root_menu_video_gradient(-label->x, IPODJS_UI_HEADER_HEIGHT - label->y,
+        LCD_WIDTH, LCD_HEIGHT - IPODJS_UI_HEADER_HEIGHT,
+        LCD_RGBPACK(31,43,65), LCD_RGBPACK(3,6,12));
+    if (label->selected)
+        root_menu_video_draw_application_focus(1, label->row_y - 3 - label->y,
+            LCD_WIDTH / IPODJS_APPLICATION_COLUMNS - 8, 64);
+    lcd_set_drawmode(DRMODE_FG);
+    lcd_set_foreground(LCD_BLACK);
+    lcd_putsxy(-offset, 1, label->text);
+    lcd_set_foreground(LCD_WHITE);
+    lcd_putsxy(-offset, 0, label->text);
+    lcd_set_viewport(saved);
+}
+
+static void root_menu_video_grid_label_scroll(void)
+{
+    if (button_hold() || !button_queue_empty()) return;
+    long elapsed = current_tick - root_menu_video_grid_label_started;
+    if (elapsed < HZ) return;
+    for (int i = 0; i < root_menu_video_grid_label_count; i++)
+    {
+        struct root_menu_video_grid_label *label = &root_menu_video_grid_labels[i];
+        int extent = label->extent;
+        long cycle = ((2 * extent + 48) * HZ + 23) / 24;
+        int phase = ((elapsed - HZ) % cycle) * 24 / HZ;
+        int offset = phase <= extent ? phase : phase <= extent + 24 ? extent :
+            phase <= 2 * extent + 24 ? 2 * extent + 24 - phase : 0;
+        if (offset == label->offset) continue;
+        label->offset = offset;
+        root_menu_video_grid_label_draw(label, offset);
+        lcd_update_rect(label->x, label->y, label->width, label->height + 1);
+    }
+}
+
 static void root_menu_video_draw_applications_ios3(int selected)
 {
     const int count = root_menu_video_application_count();
@@ -17630,13 +18730,24 @@ static void root_menu_video_draw_applications_ios3(int selected)
     const unsigned body_top = LCD_RGBPACK(31, 43, 65);
     const unsigned body_bottom = LCD_RGBPACK(3, 6, 12);
 
+    root_menu_video_grid_label_count = 0;
+    root_menu_video_grid_label_started = current_tick;
+
     lcd_set_viewport(NULL);
     lcd_set_drawmode(DRMODE_SOLID);
     lcd_set_background(body_bottom);
     lcd_clear_display();
-    root_menu_video_gradient(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH,
-                             LCD_HEIGHT - IPODJS_HEADER_HEIGHT,
+    root_menu_video_gradient(0, IPODJS_UI_HEADER_HEIGHT, LCD_WIDTH,
+                             LCD_HEIGHT - IPODJS_UI_HEADER_HEIGHT,
                              body_top, body_bottom);
+    /* Extend only the background into the 20px light-header join. Keep
+     * every existing icon/label coordinate and the 24px Hold surface. */
+    if (!global_settings.ui_engine_dark_mode && !button_hold())
+    {
+        lcd_set_foreground(body_top);
+        lcd_fillrect(0, IPODJS_UI_RETAIL_MENU_HEADER_HEIGHT, LCD_WIDTH,
+            IPODJS_UI_HEADER_HEIGHT - IPODJS_UI_RETAIL_MENU_HEADER_HEIGHT);
+    }
     root_menu_video_draw_status_title("Applications");
 
     for (int cell = 0; cell < IPODJS_APPLICATION_PAGE_ITEMS; cell++)
@@ -17665,6 +18776,21 @@ static void root_menu_video_draw_applications_ios3(int selected)
             lcd_bmp(icon, image_x, icon_y[row]);
 
         lcd_setfont(root_menu_video_wps_font(false));
+        int label_width, label_height;
+        int available = LCD_WIDTH / IPODJS_APPLICATION_COLUMNS - 6;
+        lcd_getstringsize(item->label, &label_width, &label_height);
+        if (label_width > available)
+        {
+            struct root_menu_video_grid_label *label =
+                &root_menu_video_grid_labels[root_menu_video_grid_label_count++];
+            *label = (struct root_menu_video_grid_label) {
+                .text = item->label, .x = cell_x + 3, .y = label_y,
+                .width = available, .height = label_height, .row_y = icon_y[row],
+                .extent = label_width - available, .selected = index == selected
+            };
+            root_menu_video_grid_label_draw(label, 0);
+            continue;
+        }
         lcd_set_foreground(LCD_BLACK);
         root_menu_video_puts_fit(cell_x + 3, label_y + 1,
             LCD_WIDTH / IPODJS_APPLICATION_COLUMNS - 6,
@@ -17709,7 +18835,7 @@ static void root_menu_video_draw_applications_menu(int selected)
     lcd_clear_display();
     root_menu_video_draw_status();
     lcd_setfont(root_menu_video_font());
-    lcd_set_foreground(root_menu_video_screen_bg());
+    lcd_set_foreground(root_menu_video_left_pane_bg());
     lcd_fillrect(0, IPODJS_HEADER_HEIGHT, IPODJS_LIST_WIDTH,
                  LCD_HEIGHT - IPODJS_HEADER_HEIGHT);
 
@@ -17728,10 +18854,10 @@ static void root_menu_video_draw_applications_menu(int selected)
         }
         else
         {
-            lcd_set_foreground(root_menu_video_row_bg());
+            lcd_set_foreground(root_menu_video_left_pane_bg());
             lcd_fillrect(0, item_y, IPODJS_LIST_WIDTH, row_h);
             lcd_set_foreground(root_menu_video_text());
-            lcd_set_background(root_menu_video_row_bg());
+            lcd_set_background(root_menu_video_left_pane_bg());
         }
         root_menu_video_puts_fit(
             6, item_y + 4, IPODJS_LIST_WIDTH - 24,
@@ -17768,6 +18894,18 @@ static void root_menu_video_draw_applications_preview_only(int selected)
     lcd_update_rect(x, 0, LCD_WIDTH - x, LCD_HEIGHT);
 }
 
+static const char *tv_application_name(int index, void *data, char *buf, size_t size)
+{
+    (void)data; (void)buf; (void)size;
+    return root_menu_video_application_item_at(index)->label;
+}
+static void tv_applications_draw(int selected)
+{
+    struct gui_synclist list = { .title="Applications", .selected_item=selected,
+        .nb_items=root_menu_video_application_count(), .callback_get_item_name=tv_application_name };
+    tv_ui_set_section(TV_APPS);
+    tv_list_draw(&list);
+}
 static int root_menu_video_applications_menu(void)
 {
     int selected = 0;
@@ -17784,7 +18922,7 @@ static int root_menu_video_applications_menu(void)
     root_menu_video_enter_native_screen();
     root_menu_video_prepare_application_visibility();
     if (ios3)
-        root_menu_video_prepare_application_icons();
+        root_menu_video_prepare_application_icons(false);
     else
         root_menu_video_prepare_sitekick_preview();
     button_clear_queue();
@@ -17817,6 +18955,7 @@ static int root_menu_video_applications_menu(void)
             redraw_rows = false;
         }
 
+        tv_applications_draw(selected);
         action = get_action(CONTEXT_TREE, HZ / 20);
         if (ipodjs_ui_handle_system_event(action, &redraw))
             continue;
@@ -17830,6 +18969,8 @@ static int root_menu_video_applications_menu(void)
                     root_menu_video_application_item_at(selected)->label;
                 enum root_menu_video_preview_source source =
                     root_menu_video_preview_source_for_title(title);
+                if (ios3 && !held)
+                    root_menu_video_grid_label_scroll();
                 if (held && TIME_AFTER(current_tick, next_hold_refresh))
                 {
                     next_hold_refresh = current_tick + HZ;
@@ -17902,7 +19043,7 @@ static int root_menu_video_applications_menu(void)
                 root_menu_video_enter_native_screen();
                 root_menu_video_prepare_application_visibility();
                 if (ios3)
-                    root_menu_video_prepare_application_icons();
+                    root_menu_video_prepare_application_icons(false);
                 else
                     root_menu_video_prepare_sitekick_preview();
                 if (ret == MENU_ATTACHED_USB || ret == GO_TO_WPS)
@@ -18238,6 +19379,20 @@ static void ipodjs_steam_load_native_games(void)
 
 static void ipodjs_steam_load_special_games(void)
 {
+    if (file_exists(PLUGIN_GAMES_DATA_DIR "/8bit_rebellion/ready.dat") &&
+        file_exists(PLUGIN_GAMES_DATA_DIR "/8bit_rebellion/quests.tsv") &&
+        file_exists(PLUGIN_GAMES_DATA_DIR "/8bit_rebellion/scenes.tsv") &&
+        file_exists(PLUGIN_GAMES_DATA_DIR "/8bit_rebellion/sprites.rgb"))
+    {
+        (void)ipodjs_steam_add_game(
+            "Linkin Park: 8-Bit Rebellion!", "iOS Games",
+            "Action-adventure", "Artificial Life / Linkin Park",
+            "Artificial Life",
+            "An offline Rockbox reconstruction with original artwork and "
+            "music, six missions, local saves and click-wheel controls.",
+            PLUGIN_GAMES_DIR "/8bit_rebellion.rock", NULL,
+            PLUGIN_GAMES_DATA_DIR "/8bit_rebellion/cover.bmp", 2010);
+    }
     if (file_exists(ROCKBOX_DIR "/zelda3/zelda3_assets.dat"))
     {
         (void)ipodjs_steam_add_game(
@@ -18992,7 +20147,7 @@ static void root_menu_video_draw_games_menu(int selected)
 
     root_menu_video_draw_status();
     lcd_setfont(root_menu_video_font());
-    lcd_set_foreground(root_menu_video_screen_bg());
+    lcd_set_foreground(root_menu_video_left_pane_bg());
     lcd_fillrect(0, IPODJS_HEADER_HEIGHT, IPODJS_LIST_WIDTH,
                  LCD_HEIGHT - IPODJS_HEADER_HEIGHT);
 
@@ -19012,10 +20167,10 @@ static void root_menu_video_draw_games_menu(int selected)
         }
         else
         {
-            lcd_set_foreground(root_menu_video_row_bg());
+            lcd_set_foreground(root_menu_video_left_pane_bg());
             lcd_fillrect(0, item_y, IPODJS_LIST_WIDTH, row_h);
             lcd_set_foreground(root_menu_video_text());
-            lcd_set_background(root_menu_video_row_bg());
+            lcd_set_background(root_menu_video_left_pane_bg());
         }
 
         root_menu_video_puts_fit(6, item_y + 4, IPODJS_LIST_WIDTH - 24,
@@ -19198,122 +20353,28 @@ enum root_menu_video_qs_item {
 #if (defined(IPOD_6G) || defined(IPOD_VIDEO)) && !defined(SIMULATOR)
     IPODJS_QS_COMPOSITE_OUT,
 #endif
+#ifdef HAVE_VIDEOOUT_BACKLIGHT_OFF
+    IPODJS_QS_TV_BACKLIGHT,
+#endif
     IPODJS_QS_CACHE_MEMORY,
+    IPODJS_QS_SCREENSAVER,
     IPODJS_QS_COUNT,
 };
 
 #define IPODJS_QS_ICON_SIZE 18
 
-struct root_menu_video_qs_icon_slot {
-    bool valid;
-    bool tried;
-    int dark;
-    struct bitmap bm;
-    unsigned char data[BM_SIZE(IPODJS_QS_ICON_SIZE, IPODJS_QS_ICON_SIZE,
-                               FORMAT_NATIVE, false)];
-};
-
-static struct root_menu_video_qs_icon_slot
-    root_menu_video_qs_icons[IPODJS_QS_COUNT];
-
-static const char *root_menu_video_qs_icon_path(int item)
-{
-    switch (item)
-    {
-        case IPODJS_QS_VOLUME:
-            return IPODJS_ASSET_DIR "/qs/volume.18x18x24.bmp";
-        case IPODJS_QS_BRIGHTNESS:
-            return IPODJS_ASSET_DIR "/qs/brightness.18x18x24.bmp";
-        case IPODJS_QS_DARK_MODE:
-            return IPODJS_ASSET_DIR "/qs/dark-mode.18x18x24.bmp";
-        case IPODJS_QS_SHUFFLE:
-            return IPODJS_ASSET_DIR "/qs/shuffle.18x18x24.bmp";
-        case IPODJS_QS_REPEAT:
-            return IPODJS_ASSET_DIR "/qs/repeat.18x18x24.bmp";
-        case IPODJS_QS_ACCENT:
-            return IPODJS_ASSET_DIR "/qs/accent.18x18x24.bmp";
-        case IPODJS_QS_SURFACE:
-            return IPODJS_ASSET_DIR "/qs/surface.18x18x24.bmp";
-        case IPODJS_QS_DENSITY:
-            return IPODJS_ASSET_DIR "/qs/density.18x18x24.bmp";
-        case IPODJS_QS_FONT:
-            return IPODJS_ASSET_DIR "/qs/font.18x18x24.bmp";
-        case IPODJS_QS_EXTRAS_PANE:
-            return IPODJS_ASSET_DIR "/qs/surface.18x18x24.bmp";
-#ifdef HAVE_HARDWARE_CLICK
-        case IPODJS_QS_HAPTICS:
-            return IPODJS_ASSET_DIR "/qs/volume.18x18x24.bmp";
-#endif
-        case IPODJS_QS_HOLD:
-            return IPODJS_ASSET_DIR "/qs/hold.18x18x24.bmp";
-#if defined(USB_ENABLE_ETHERNET) && !defined(SIMULATOR)
-        case IPODJS_QS_USB_CONNECTION:
-            return NULL;
-#endif
-#ifdef IPOD_ACCESSORY_PROTOCOL
-        case IPODJS_QS_KOKKIA:
-            return NULL;
-#endif
-#if (defined(IPOD_6G) || defined(IPOD_VIDEO)) && !defined(SIMULATOR)
-        case IPODJS_QS_COMPOSITE_OUT:
-            return NULL;
-#endif
-        case IPODJS_QS_CACHE_MEMORY:
-            return IPODJS_ASSET_DIR "/qs/cache-memory.18x18x24.bmp";
-        default:
-            return NULL;
-    }
-}
-
-static struct bitmap *root_menu_video_qs_icon_asset(int item)
-{
-    struct root_menu_video_qs_icon_slot *slot;
-    const char *path = root_menu_video_qs_icon_path(item);
-    const char *load_path;
-    char themed_path[MAX_PATH];
-    int dark = root_menu_video_dark() ? 1 : 0;
-    int rc;
-
-    if (item < 0 || item >= IPODJS_QS_COUNT || !path)
-        return NULL;
-
-    slot = &root_menu_video_qs_icons[item];
-    if (slot->dark != dark)
-    {
-        slot->valid = false;
-        slot->tried = false;
-        slot->dark = dark;
-    }
-    if (slot->valid)
-        return &slot->bm;
-    if (slot->tried)
-        return NULL;
-
-    load_path = root_menu_video_asset_path(path, themed_path,
-                                           sizeof(themed_path));
-    slot->tried = true;
-    if (!file_exists(load_path))
-        return NULL;
-
-    memset(&slot->bm, 0, sizeof(slot->bm));
-    slot->bm.width = IPODJS_QS_ICON_SIZE;
-    slot->bm.height = IPODJS_QS_ICON_SIZE;
-    slot->bm.format = FORMAT_NATIVE;
-    slot->bm.data = slot->data;
-
-    rc = read_bmp_file(load_path, &slot->bm, sizeof(slot->data),
-                       FORMAT_NATIVE, NULL);
-    if (rc < 0)
-        return NULL;
-
-    slot->valid = true;
-    return &slot->bm;
-}
+#include "gui/ipodjs_qs_icons.h"
 
 static const char *root_menu_video_qs_label(int item)
 {
     switch (item)
     {
+#ifdef HAVE_VIDEOOUT_BACKLIGHT_OFF
+        case IPODJS_QS_TV_BACKLIGHT:
+            return "TV Backlight Off";
+#endif
+        case IPODJS_QS_SCREENSAVER:
+            return "Time/Battery";
         case IPODJS_QS_VOLUME:
             return "Volume";
         case IPODJS_QS_BRIGHTNESS:
@@ -19340,7 +20401,7 @@ static const char *root_menu_video_qs_label(int item)
 #endif
         case IPODJS_QS_HOLD:
             return "Hold";
-#if defined(USB_ENABLE_ETHERNET) && !defined(SIMULATOR)
+#ifdef USB_ENABLE_ETHERNET
         case IPODJS_QS_USB_CONNECTION:
             return "USB Connection";
 #endif
@@ -19418,6 +20479,17 @@ static void root_menu_video_qs_value(int item, char *buf, size_t buf_size)
                        buf_size);
             break;
 
+#ifdef HAVE_VIDEOOUT_BACKLIGHT_OFF
+        case IPODJS_QS_TV_BACKLIGHT:
+            strmemccpy(buf, global_settings.videoout_backlight_off ?
+                       "On" : "Off", buf_size);
+            break;
+#endif
+        case IPODJS_QS_SCREENSAVER:
+            strmemccpy(buf, global_settings.ui_engine_playback_screensaver ?
+                       "On" : "Off", buf_size);
+            break;
+
         case IPODJS_QS_DARK_MODE:
             strmemccpy(buf, global_settings.ui_engine_dark_mode ? "On" :
                        "Off", buf_size);
@@ -19488,12 +20560,12 @@ static void root_menu_video_qs_value(int item, char *buf, size_t buf_size)
     !defined(SIMULATOR)
         case IPODJS_QS_USB_CONNECTION:
             if (global_settings.usb_mode == USB_MODE_INTERNET)
-                strmemccpy(buf, usb_internet_connected() ? "Internet" :
+                strmemccpy(buf, root_menu_usb_internet_connected() ? "Internet" :
                            "Internet (plug in)", buf_size);
 #ifdef USB_ENABLE_IPHETH_HOST
             else if (global_settings.usb_mode == USB_MODE_IPHONE_TETHER)
             {
-                strmemccpy(buf, usb_internet_connected() ?
+                strmemccpy(buf, root_menu_usb_internet_connected() ?
                            "iPhone Internet" : "Open RockPod Link",
                            buf_size);
             }
@@ -19523,16 +20595,15 @@ static void root_menu_video_qs_value(int item, char *buf, size_t buf_size)
 #if (defined(IPOD_6G) || defined(IPOD_VIDEO)) && !defined(SIMULATOR)
         case IPODJS_QS_COMPOSITE_OUT:
         {
-#ifdef IPOD_VIDEO
-            static const char * const states[] = {"LCD", "Auto", "TV"};
-            int mode = MAX(IPOD_COMPOSITE_VIDEO_OFF,
-                           MIN(global_settings.composite_video_output,
-                               IPOD_COMPOSITE_VIDEO_ON));
-#else
             static const char * const states[] = {"Off", "Auto", "On"};
+#ifdef IPOD_6G
             int mode = MAX(IPOD6G_VIDEOOUT_OFF,
                            MIN(global_settings.composite_video_output,
                                IPOD6G_VIDEOOUT_ON));
+#else
+            int mode = MAX(IPOD_COMPOSITE_VIDEO_OFF,
+                           MIN(global_settings.composite_video_output,
+                               IPOD_COMPOSITE_VIDEO_ON));
 #endif
 #ifdef IPOD_6G
 #ifdef IPOD_ACCESSORY_PROTOCOL
@@ -19628,6 +20699,20 @@ static bool root_menu_video_qs_adjust(int item, int delta)
 
         case IPODJS_QS_SHUFFLE:
             root_menu_video_qs_apply_shuffle(!global_settings.playlist_shuffle);
+            changed = true;
+            break;
+
+#ifdef HAVE_VIDEOOUT_BACKLIGHT_OFF
+        case IPODJS_QS_TV_BACKLIGHT:
+            global_settings.videoout_backlight_off =
+                !global_settings.videoout_backlight_off;
+            backlight_set_videoout_off(global_settings.videoout_backlight_off);
+            changed = true;
+            break;
+#endif
+        case IPODJS_QS_SCREENSAVER:
+            global_settings.ui_engine_playback_screensaver =
+                !global_settings.ui_engine_playback_screensaver;
             changed = true;
             break;
 
@@ -19735,9 +20820,9 @@ static bool root_menu_video_qs_adjust(int item, int delta)
                                          IPOD6G_VIDEOOUT_OFF;
             settings_apply_ipod6g_videoout(value);
 #else
-            /* The 5G selects exactly one Apple MPlayer display at launch.
-             * Cycle all three policies so a passive lead can force TV even
-             * when the dock GPIO is not asserted. */
+            /* The 5G always retains its LCD MPlayer region and mirrors it to
+             * TV for Auto/On.  Cycle all three policies so a passive lead can
+             * force TV even when the dock GPIO is not asserted. */
             value = global_settings.composite_video_output +
                     (delta < 0 ? 2 : 1);
             value %= 3;
@@ -19828,12 +20913,6 @@ static void root_menu_video_clear_asset_caches(void)
 {
     root_menu_video_asset_dark_state = -1;
     root_menu_video_invalidate_ui_asset_cache();
-    for (int i = 0; i < IPODJS_QS_COUNT; i++)
-    {
-        root_menu_video_qs_icons[i].valid = false;
-        root_menu_video_qs_icons[i].tried = false;
-        root_menu_video_qs_icons[i].dark = -1;
-    }
 
     memset(&root_menu_video_weather_cache, 0,
            sizeof(root_menu_video_weather_cache));
@@ -19867,170 +20946,174 @@ static void root_menu_video_clear_disposable_caches(void)
 #endif
 }
 
+/* Every row has a resident glyph. The common silver rim and blue glass
+ * keep contrast on white, dark and selected rows without theme files. */
 static bool root_menu_video_draw_qs_icon(int x, int y, int item, bool active)
 {
-    struct bitmap *bm;
-
-#if (defined(IPOD_6G) || defined(IPOD_VIDEO)) && !defined(SIMULATOR)
-    if (item == IPODJS_QS_COMPOSITE_OUT)
+    enum ipodjs_qs_glyph glyph = IPODJS_QS_GLYPH_CACHE_MEMORY;
+    switch (item)
     {
-        /* External display with a dock/composite lead.  This is rendered
-         * instead of loaded from disk so the control always has its icon,
-         * including on incomplete or third-party themes. */
-        lcd_set_foreground(active ? IPODJS_PREVIEW_TEXT :
-                           root_menu_video_muted_text());
-        lcd_drawrect(x + 1, y + 1, 14, 11);
-        lcd_drawrect(x + 3, y + 3, 10, 7);
-        lcd_vline(x + 8, y + 12, y + 14);
-        lcd_hline(x + 5, x + 11, y + 15);
-        lcd_hline(x + 15, x + 17, y + 7);
-        lcd_fillrect(x + 16, y + 6, 2, 3);
-        return true;
-    }
-#else
-    (void)active;
+        case IPODJS_QS_VOLUME:
+            glyph = IPODJS_QS_GLYPH_VOLUME;
+            break;
+        case IPODJS_QS_BRIGHTNESS:
+            glyph = IPODJS_QS_GLYPH_BRIGHTNESS;
+            break;
+        case IPODJS_QS_DARK_MODE:
+            glyph = IPODJS_QS_GLYPH_DARK_MODE;
+            break;
+        case IPODJS_QS_SHUFFLE:
+            glyph = IPODJS_QS_GLYPH_SHUFFLE;
+            break;
+        case IPODJS_QS_REPEAT:
+            glyph = IPODJS_QS_GLYPH_REPEAT;
+            break;
+        case IPODJS_QS_ACCENT:
+            glyph = IPODJS_QS_GLYPH_ACCENT;
+            break;
+        case IPODJS_QS_SURFACE:
+            glyph = IPODJS_QS_GLYPH_SURFACE;
+            break;
+        case IPODJS_QS_DENSITY:
+            glyph = IPODJS_QS_GLYPH_DENSITY;
+            break;
+        case IPODJS_QS_FONT:
+            glyph = IPODJS_QS_GLYPH_FONT;
+            break;
+        case IPODJS_QS_EXTRAS_PANE:
+            glyph = IPODJS_QS_GLYPH_EXTRAS_PANE;
+            break;
+#ifdef HAVE_HARDWARE_CLICK
+        case IPODJS_QS_HAPTICS:
+            glyph = IPODJS_QS_GLYPH_HAPTICS;
+            break;
 #endif
-
+        case IPODJS_QS_HOLD:
+            glyph = IPODJS_QS_GLYPH_HOLD;
+            break;
 #ifdef USB_ENABLE_ETHERNET
-    if (item == IPODJS_QS_USB_CONNECTION)
-    {
-        ipodjs_ui_draw_wifi_indicator(&screens[SCREEN_MAIN], x - 2, y + 1);
-        return true;
-    }
+        case IPODJS_QS_USB_CONNECTION:
+            glyph = IPODJS_QS_GLYPH_USB_CONNECTION;
+            break;
 #endif
-
 #ifdef IPOD_ACCESSORY_PROTOCOL
-    if (item == IPODJS_QS_KOKKIA)
-    {
-        ipodjs_ui_draw_bluetooth_indicator(&screens[SCREEN_MAIN],
-                                           x + 3, y);
-        return true;
-    }
+        case IPODJS_QS_KOKKIA:
+            glyph = IPODJS_QS_GLYPH_KOKKIA;
+            break;
 #endif
+#if (defined(IPOD_6G) || defined(IPOD_VIDEO)) && !defined(SIMULATOR)
+        case IPODJS_QS_COMPOSITE_OUT:
+            glyph = IPODJS_QS_GLYPH_COMPOSITE_OUT;
+            break;
+#endif
+#ifdef HAVE_VIDEOOUT_BACKLIGHT_OFF
+        case IPODJS_QS_TV_BACKLIGHT:
+            glyph = IPODJS_QS_GLYPH_TV_BACKLIGHT;
+            break;
+#endif
+        case IPODJS_QS_CACHE_MEMORY:
+            glyph = IPODJS_QS_GLYPH_CACHE_MEMORY;
+            break;
+        case IPODJS_QS_SCREENSAVER:
+            glyph = IPODJS_QS_GLYPH_SCREENSAVER;
+            break;
+    }
 
-    if (item == IPODJS_QS_VOLUME)
+    lcd_set_foreground(active ? root_menu_video_accent_tint(
+                                LCD_RGBPACK(255, 255, 255), 68) :
+        root_menu_video_dark() ? LCD_RGBPACK(145, 158, 174) :
+                                LCD_RGBPACK(101, 115, 133));
+    lcd_drawrect(x, y + 1, 18, 16);
+    lcd_hline(x + 1, x + 16, y);
+    lcd_hline(x + 1, x + 16, y + 17);
+    for (int row = 1; row < 17; row++)
     {
-        bm = root_menu_video_apple_slider_asset(
-            IPODJS_APPLE_VOLUME_HIGH);
-        if (bm)
+        /* Gloss in the upper half, deeper blue below the glass edge. */
+        int shade = row < 8 ? 174 - row * 5 : 128 - (row - 8) * 5;
         {
-            lcd_bmp(bm, x, y);
-            return true;
+            unsigned base = LCD_RGBPACK(shade - 50, shade - 20, shade + 25);
+            lcd_set_foreground(root_menu_video_accent_tint(base,
+                global_settings.ui_engine_surface ==
+                UI_ENGINE_SURFACE_TRANSPARENT ? 180 : 255));
         }
+        lcd_hline(x + 1, x + 16, y + row);
     }
-    else if (item == IPODJS_QS_BRIGHTNESS)
-    {
-        bm = root_menu_video_apple_slider_asset(
-            IPODJS_APPLE_BRIGHTNESS_LOW);
-        if (bm)
-        {
-            lcd_bmp(bm, x, y - (bm->height - IPODJS_QS_ICON_SIZE) / 2);
-            return true;
-        }
-    }
+    lcd_set_foreground(root_menu_video_accent_tint(
+        LCD_RGBPACK(205, 224, 243), 95));
+    lcd_hline(x + 2, x + 15, y + 1);
+    lcd_set_foreground(LCD_RGBPACK(246, 250, 255));
+    for (int row = 0; row < 14; row++)
+        for (int col = 0; col < 14; col++)
+            if (ipodjs_qs_glyphs[glyph][row] & (1u << col))
+                lcd_drawpixel(x + col + 2, y + row + 2);
+    return true;
+}
 
-    bm = root_menu_video_qs_icon_asset(item);
-
-    if (bm)
-    {
-        lcd_bitmap_transparent((fb_data *)bm->data, x, y,
-                               bm->width, bm->height);
-        return true;
-    }
-
-    return false;
+static int root_menu_video_qs_footer_height(void)
+{
+    return MAX(IPODJS_MENU_BOTTOM_INSET,
+        font_get(ipodjs_ui_retailos_detail_font())->height + 4);
 }
 
 static int root_menu_video_qs_row_height(void)
 {
-    return MAX(21,
-               font_get(root_menu_video_font())->height + 2);
+    return MAX(root_menu_video_row_height(),
+        MAX(23, (int)font_get(ipodjs_ui_retailos_menu_font())->height + 4));
 }
 
 static int root_menu_video_qs_visible_rows(void)
 {
-    const int list_h = LCD_HEIGHT - IPODJS_HEADER_HEIGHT -
-                       IPODJS_MENU_BOTTOM_INSET;
-
-    return MAX(1, list_h / root_menu_video_qs_row_height());
+    return MAX(1, (LCD_HEIGHT - IPODJS_HEADER_HEIGHT -
+        root_menu_video_qs_footer_height()) / root_menu_video_qs_row_height());
 }
 
-static int root_menu_video_qs_top(int selected)
+static int root_menu_video_qs_top(int selected, int top, int count)
 {
     int visible = root_menu_video_qs_visible_rows();
-    int top = selected >= visible ? selected - visible + 1 : 0;
 
-    return MIN(top, MAX(0, IPODJS_QS_COUNT - visible));
+    if (selected < top)
+        top = selected;
+    else if (selected >= top + visible)
+        top = selected - visible + 1;
+    return MAX(0, MIN(top, count - visible));
 }
 
 static void root_menu_video_qs_rect(int item, int top, int *xp, int *yp,
                                     int *wp, int *hp)
 {
-    const int row_h = root_menu_video_qs_row_height();
-    const int visible = root_menu_video_qs_visible_rows();
-
     *xp = 0;
-    *yp = IPODJS_HEADER_HEIGHT + (item - top) * row_h;
-    *wp = IPODJS_QS_COUNT > visible ? LCD_WIDTH - 4 : LCD_WIDTH;
-    *hp = row_h;
+    *yp = IPODJS_HEADER_HEIGHT +
+          (item - top) * root_menu_video_qs_row_height();
+    *wp = IPODJS_QS_COUNT > root_menu_video_qs_visible_rows() ?
+          LCD_WIDTH - 4 : LCD_WIDTH;
+    *hp = root_menu_video_qs_row_height();
 }
 
 static void root_menu_video_draw_qs_row(int x, int y, int w, int h,
                                         bool active, bool adjusting)
 {
+    (void)adjusting;
     if (active)
-    {
         root_menu_video_selection_gradient(x, y, w, h);
-        lcd_set_foreground(LCD_RGBPACK(166, 224, 255));
-        lcd_hline(x, x + w - 1, y);
-        lcd_set_foreground(LCD_RGBPACK(0, 75, 165));
-        lcd_hline(x, x + w - 1, y + h - 1);
-        if (adjusting)
-        {
-            lcd_set_foreground(LCD_RGBPACK(235, 248, 255));
-            lcd_drawrect(x + 1, y + 1, w - 2, h - 2);
-        }
-    }
     else
     {
         lcd_set_foreground(root_menu_video_row_bg());
         lcd_fillrect(x, y, w, h);
-        lcd_set_foreground(root_menu_video_dark() ?
-                           LCD_RGBPACK(45, 50, 58) :
-                           IPODJS_SPLIT);
-        lcd_hline(x, x + w - 1, y + h - 1);
     }
 }
 
 static void root_menu_video_draw_qs_footer_text(const char *message)
 {
-    int y = LCD_HEIGHT - IPODJS_MENU_BOTTOM_INSET;
-    unsigned top;
-    unsigned bottom;
-    unsigned text;
+    int h = root_menu_video_qs_footer_height();
+    int y = LCD_HEIGHT - h;
+    unsigned bg = root_menu_video_row_bg();
 
-    if (root_menu_video_dark())
-    {
-        top = LCD_RGBPACK(48, 53, 62);
-        bottom = LCD_RGBPACK(28, 32, 39);
-        text = LCD_RGBPACK(204, 209, 217);
-    }
-    else
-    {
-        top = LCD_RGBPACK(246, 247, 249);
-        bottom = LCD_RGBPACK(202, 205, 210);
-        text = LCD_RGBPACK(72, 75, 80);
-    }
-
-    root_menu_video_gradient(0, y, LCD_WIDTH, IPODJS_MENU_BOTTOM_INSET,
-                             top, bottom);
-    lcd_set_foreground(root_menu_video_dark() ?
-                       LCD_RGBPACK(78, 84, 94) : LCD_RGBPACK(151, 154, 159));
-    lcd_hline(0, LCD_WIDTH - 1, y);
-    lcd_setfont(FONT_SYSFIXED);
-    lcd_set_foreground(text);
-    lcd_set_background(bottom);
-    root_menu_video_puts_fit(8, y + 3, LCD_WIDTH - 16, message, true);
+    lcd_set_foreground(bg);
+    lcd_fillrect(0, y, LCD_WIDTH, h);
+    lcd_setfont(ipodjs_ui_retailos_detail_font());
+    lcd_set_foreground(root_menu_video_muted_text());
+    lcd_set_background(bg);
+    root_menu_video_puts_fit(8, y + 2, LCD_WIDTH - 16, message, false);
 }
 
 static void root_menu_video_draw_qs_footer(int selected, bool adjusting)
@@ -20048,6 +21131,14 @@ static void root_menu_video_draw_qs_footer(int selected, bool adjusting)
             "Select for automatic dock output or off");
 #endif
 #endif
+#ifdef HAVE_VIDEOOUT_BACKLIGHT_OFF
+    else if (selected == IPODJS_QS_TV_BACKLIGHT)
+        root_menu_video_draw_qs_footer_text(
+            "Keep the iPod backlight off during TV output");
+#endif
+    else if (selected == IPODJS_QS_SCREENSAVER)
+        root_menu_video_draw_qs_footer_text(
+            "Select to toggle time/battery screensaver");
     else if (selected == IPODJS_QS_CACHE_MEMORY)
         root_menu_video_draw_qs_footer_text(
             "Select for cache and memory");
@@ -20061,160 +21152,160 @@ static void root_menu_video_draw_qs_footer(int selected, bool adjusting)
 #endif
     else
         root_menu_video_draw_qs_footer_text(
-            "Select Volume or Brightness to adjust");
+            "Select to change - Left/Right to adjust");
 }
 
 static void root_menu_video_draw_qs_scrollbar(int top, int visible)
 {
     const int list_h = LCD_HEIGHT - IPODJS_HEADER_HEIGHT -
-                       IPODJS_MENU_BOTTOM_INSET;
-    int track_y;
-    int track_h;
-    int thumb_h;
-    int thumb_y;
-
-    if (visible >= IPODJS_QS_COUNT)
-        return;
-
-    track_y = IPODJS_HEADER_HEIGHT + 2;
-    track_h = list_h - 4;
-    thumb_h = MAX(10, track_h * visible / IPODJS_QS_COUNT);
-    thumb_y = track_y + (track_h - thumb_h) * top /
-        MAX(1, IPODJS_QS_COUNT - visible);
-
-    lcd_set_foreground(root_menu_video_dark() ?
-                       LCD_RGBPACK(53, 58, 66) : LCD_RGBPACK(213, 216, 221));
-    lcd_fillrect(LCD_WIDTH - 3, track_y, 2, track_h);
-    lcd_set_foreground(root_menu_video_accent());
-    lcd_fillrect(LCD_WIDTH - 3, thumb_y, 2, thumb_h);
+                       root_menu_video_qs_footer_height();
+    ipodjs_ui_draw_retailos_scrollbar(&screens[SCREEN_MAIN], LCD_WIDTH,
+        IPODJS_HEADER_HEIGHT + 2, list_h - 4, top, visible, IPODJS_QS_COUNT);
 }
 
-static void root_menu_video_draw_apple_slider_screen(int item)
+static void root_menu_video_draw_apple_slider_screen(int item, bool full)
 {
     const bool brightness = item == IPODJS_QS_BRIGHTNESS;
     const char *title = brightness ? "Brightness" : "Volume";
     int percent = MAX(0, MIN(100, root_menu_video_qs_percent(item)));
-    unsigned panel = root_menu_video_panel();
+    char value[32];
 
     lcd_set_viewport(NULL);
     lcd_set_drawmode(DRMODE_SOLID);
-    lcd_set_background(root_menu_video_screen_bg());
-    lcd_clear_display();
-    root_menu_video_draw_status_title(title);
-    lcd_set_foreground(panel);
-    lcd_fillrect(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH,
-                 LCD_HEIGHT - IPODJS_HEADER_HEIGHT);
-    if (!root_menu_video_draw_apple_slider(36, 105, percent, brightness))
+    if (full)
     {
+        lcd_set_background(root_menu_video_screen_bg());
+        lcd_clear_display();
+        root_menu_video_draw_status_title(title);
+        lcd_set_foreground(root_menu_video_panel());
+        lcd_fillrect(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH,
+                     LCD_HEIGHT - IPODJS_HEADER_HEIGHT);
+    }
+    lcd_set_foreground(root_menu_video_panel());
+    lcd_fillrect(0, 90, LCD_WIDTH, 80);
+    if (!root_menu_video_draw_apple_slider(36, 105, percent, brightness))
         root_menu_video_draw_stock_meter(58, 108, 204, 13, percent,
                                          root_menu_video_accent());
+    root_menu_video_qs_value(item, value, sizeof(value));
+    lcd_setfont(ipodjs_ui_retailos_detail_font());
+    lcd_set_foreground(root_menu_video_text());
+    lcd_set_background(root_menu_video_panel());
+    root_menu_video_puts_fit(36, 143, 248, value, true);
+    if (full)
+    {
+        root_menu_video_draw_qs_footer(item, true);
+        ipodjs_video_draw_hold_overlay();
+        if (!ipodjs_ui_transition_present(&screens[SCREEN_MAIN]))
+            lcd_update();
     }
-    ipodjs_video_draw_hold_overlay();
-    lcd_update();
-    ipodjs_trace_screen(title, "apple-slider", percent, 0, 101,
-                        0, 0, LCD_WIDTH, LCD_HEIGHT);
+    else
+        lcd_update_rect(0, 90, LCD_WIDTH, 80);
+    ipodjs_trace_screen(title, full ? "apple-slider" : "slider-delta",
+                        percent, 0, 101, 0, 90, LCD_WIDTH, 80);
 }
 
-static void root_menu_video_draw_quick_settings(int selected, bool adjusting)
+static bool root_menu_video_qs_has_child(int item)
 {
-    int i;
-    int top = root_menu_video_qs_top(selected);
-    int visible = root_menu_video_qs_visible_rows();
-    unsigned bg = root_menu_video_screen_bg();
-    unsigned list_bg = root_menu_video_row_bg();
+    return item == IPODJS_QS_VOLUME || item == IPODJS_QS_BRIGHTNESS ||
+#ifdef IPOD_ACCESSORY_PROTOCOL
+           item == IPODJS_QS_KOKKIA ||
+#endif
+           item == IPODJS_QS_CACHE_MEMORY;
+}
 
-    if (adjusting &&
-        (selected == IPODJS_QS_VOLUME ||
-         selected == IPODJS_QS_BRIGHTNESS))
+static void root_menu_video_qs_text(int y, int h, int left, int right,
+    const char *label, const char *value, bool active, bool child)
+{
+    int value_w;
+    int font = ipodjs_ui_retailos_menu_font();
+    int value_right = right - 18;
+    int text_y = y + (h - font_get(font)->height) / 2;
+
+    lcd_setfont(font);
+    lcd_getstringsize(value, &value_w, NULL);
+    value_w = MIN(value_w, (right - left - 20) / 2);
+    lcd_set_foreground(active ? IPODJS_PREVIEW_TEXT : root_menu_video_text());
+    lcd_set_background(active ? root_menu_video_accent() :
+                       root_menu_video_row_bg());
+    root_menu_video_puts_fit(left, text_y,
+        value_right - value_w - left - 8, label, false);
+    root_menu_video_puts_fit(value_right - value_w, text_y, value_w,
+                             value, true);
+    if (child)
+        root_menu_video_draw_arrow(right - 9, y + (h - 6) / 2);
+}
+
+static void root_menu_video_draw_qs_item(int item, int selected, int top)
+{
+    char value[32];
+    int x, y, w, h;
+    bool active = item == selected;
+    bool child = root_menu_video_qs_has_child(item);
+
+    root_menu_video_qs_rect(item, top, &x, &y, &w, &h);
+    root_menu_video_qs_value(item, value, sizeof(value));
+    root_menu_video_draw_qs_row(x, y, w, h, active, false);
+    root_menu_video_draw_qs_icon(x + 7,
+        y + (h - IPODJS_QS_ICON_SIZE) / 2, item, active);
+    root_menu_video_qs_text(y, h, x + 32, x + w,
+        root_menu_video_qs_label(item), value, active, child);
+}
+
+static void root_menu_video_draw_quick_settings(int selected, bool adjusting,
+    int top, int previous, int previous_top, bool full)
+{
+    int visible = root_menu_video_qs_visible_rows();
+    int list_h = LCD_HEIGHT - IPODJS_HEADER_HEIGHT -
+                 root_menu_video_qs_footer_height();
+    bool list = full || previous_top != top;
+
+    if (adjusting)
     {
-        root_menu_video_draw_apple_slider_screen(selected);
+        root_menu_video_draw_apple_slider_screen(selected, full);
         return;
     }
-
     lcd_set_viewport(NULL);
     lcd_set_drawmode(DRMODE_SOLID);
-    lcd_set_background(bg);
-    lcd_clear_display();
-
-    root_menu_video_draw_status_title("Quick Settings");
-
-    lcd_set_foreground(list_bg);
-    lcd_fillrect(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH,
-                 LCD_HEIGHT - IPODJS_HEADER_HEIGHT);
-
-    lcd_setfont(root_menu_video_font());
-
-    for (i = top; i < IPODJS_QS_COUNT && i < top + visible; i++)
+    if (full)
     {
-        char value[32];
-        int x, y, w, h;
-        bool active = i == selected;
-        bool slider = i == IPODJS_QS_VOLUME || i == IPODJS_QS_BRIGHTNESS;
-        unsigned text = active ? IPODJS_PREVIEW_TEXT : root_menu_video_text();
-        unsigned muted = active ? LCD_RGBPACK(230, 245, 255) :
-            root_menu_video_muted_text();
-        int icon_y;
-        int text_y;
-        int label_x;
-        int label_w;
-        bool has_icon;
-
-        root_menu_video_qs_rect(i, top, &x, &y, &w, &h);
-        root_menu_video_qs_value(i, value, sizeof(value));
-        root_menu_video_draw_qs_row(x, y, w, h,
-                                    active, active && adjusting);
-
-        icon_y = y + (h - IPODJS_QS_ICON_SIZE) / 2;
-        text_y = y + MAX(1, (h - font_get(root_menu_video_font())->height) /
-                            2) + root_menu_video_text_y_offset();
-
-        has_icon = root_menu_video_draw_qs_icon(x + 7, icon_y, i, active);
-        label_x = has_icon ? x + 32 : x + 9;
-        label_w = slider ? (has_icon ? 118 : 141) : w - 104;
-        lcd_setfont(root_menu_video_font());
-        lcd_set_foreground(text);
-        lcd_set_background(active ? root_menu_video_accent() :
-                           list_bg);
-        root_menu_video_puts_fit(label_x, text_y, label_w,
-                                 root_menu_video_qs_label(i), false);
-
-        if (slider)
-        {
-            int percent = MAX(0, MIN(root_menu_video_qs_percent(i), 100));
-            int meter_x = x + 154;
-            int meter_w = 82;
-            root_menu_video_draw_meter(meter_x, y + (h - 8) / 2, meter_w, 8,
-                                       percent,
-                                       root_menu_video_accent());
-            lcd_set_foreground(muted);
-            root_menu_video_puts_fit(x + w - 47, text_y, 40, value, true);
-        }
-        else
-        {
-            lcd_set_foreground(muted);
-            root_menu_video_puts_fit(x + w - 82, text_y, 68, value, true);
-        }
-
-        if (active && !adjusting)
-            root_menu_video_draw_arrow(x + w - 9, y + (h - 6) / 2);
-        else if (active)
-        {
-            int cy = y + h / 2;
-
-            lcd_set_foreground(IPODJS_PREVIEW_TEXT);
-            lcd_hline(x + w - 12, x + w - 8, cy - 3);
-            lcd_hline(x + w - 14, x + w - 6, cy);
-            lcd_hline(x + w - 12, x + w - 8, cy + 3);
-        }
+        lcd_set_background(root_menu_video_screen_bg());
+        lcd_clear_display();
+        root_menu_video_draw_status_title("Quick Settings");
     }
-
-    root_menu_video_draw_qs_scrollbar(top, visible);
-    root_menu_video_draw_qs_footer(selected, adjusting);
-    ipodjs_video_draw_hold_overlay();
-    if (!ipodjs_ui_transition_present(&screens[SCREEN_MAIN]))
-        lcd_update();
-    ipodjs_trace_screen("Quick Settings", "full", selected, top,
-                        IPODJS_QS_COUNT, 0, 0, LCD_WIDTH, LCD_HEIGHT);
+    if (list)
+    {
+        lcd_set_foreground(root_menu_video_row_bg());
+        lcd_fillrect(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH, list_h);
+    }
+    for (int i = top; i < IPODJS_QS_COUNT && i < top + visible; i++)
+    {
+        if (!list && i != selected && i != previous)
+            continue;
+        root_menu_video_draw_qs_item(i, selected, top);
+        if (!list)
+            lcd_update_rect(0, IPODJS_HEADER_HEIGHT +
+                (i - top) * root_menu_video_qs_row_height(), LCD_WIDTH - 4,
+                root_menu_video_qs_row_height());
+    }
+    if (list)
+        root_menu_video_draw_qs_scrollbar(top, visible);
+    root_menu_video_draw_qs_footer(selected, false);
+    if (full)
+    {
+        ipodjs_video_draw_hold_overlay();
+        if (!ipodjs_ui_transition_present(&screens[SCREEN_MAIN]))
+            lcd_update();
+    }
+    else
+    {
+        if (list)
+            lcd_update_rect(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH, list_h);
+        lcd_update_rect(0, LCD_HEIGHT - root_menu_video_qs_footer_height(),
+                         LCD_WIDTH, root_menu_video_qs_footer_height());
+    }
+    ipodjs_trace_screen("Quick Settings", full ? "full" :
+        list ? "list-delta" : "row-delta", selected, top,
+        IPODJS_QS_COUNT, 0, IPODJS_HEADER_HEIGHT, LCD_WIDTH, list_h);
 }
 
 enum root_menu_video_cache_item {
@@ -20244,8 +21335,8 @@ static const char * const root_menu_video_cache_help[IPODJS_CACHE_COUNT] = {
 
 static void root_menu_video_draw_cache_memory(int selected)
 {
-    const int row_h = 42;
-    const int start_y = IPODJS_HEADER_HEIGHT + 12;
+    const int row_h = root_menu_video_qs_row_height();
+    const int start_y = IPODJS_HEADER_HEIGHT;
     unsigned list_bg = root_menu_video_row_bg();
 
     lcd_set_viewport(NULL);
@@ -20257,36 +21348,24 @@ static void root_menu_video_draw_cache_memory(int selected)
     lcd_set_foreground(list_bg);
     lcd_fillrect(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH,
                  LCD_HEIGHT - IPODJS_HEADER_HEIGHT);
-    lcd_setfont(root_menu_video_font());
+    lcd_setfont(ipodjs_ui_retailos_menu_font());
 
     for (int i = 0; i < IPODJS_CACHE_COUNT; i++)
     {
         int y = start_y + i * row_h;
-        int text_y = y + MAX(1,
-            (row_h - font_get(root_menu_video_font())->height) / 2) +
-            root_menu_video_text_y_offset();
         bool active = i == selected;
 
         root_menu_video_draw_qs_row(0, y, LCD_WIDTH, row_h, active, false);
-        lcd_setfont(root_menu_video_font());
-        lcd_set_foreground(active ? IPODJS_PREVIEW_TEXT :
-                           root_menu_video_text());
-        lcd_set_background(active ? root_menu_video_accent() : list_bg);
-        root_menu_video_puts_fit(10, text_y, 205,
-                                 root_menu_video_cache_labels[i], false);
-        lcd_set_foreground(active ? LCD_RGBPACK(230, 245, 255) :
-                           root_menu_video_muted_text());
-        root_menu_video_puts_fit(218, text_y, 86,
-                                 root_menu_video_cache_values[i], true);
-        if (active)
-            root_menu_video_draw_arrow(LCD_WIDTH - 9,
-                                       y + (row_h - 6) / 2);
+        root_menu_video_qs_text(y, row_h, 9, LCD_WIDTH,
+            root_menu_video_cache_labels[i], root_menu_video_cache_values[i],
+            active, i == IPODJS_CACHE_RESTART);
     }
 
     root_menu_video_draw_qs_footer_text(
         root_menu_video_cache_help[selected]);
     ipodjs_video_draw_hold_overlay();
-    lcd_update();
+    if (!ipodjs_ui_transition_present(&screens[SCREEN_MAIN]))
+        lcd_update();
 }
 
 static void root_menu_video_draw_reboot_confirmation(void)
@@ -20314,7 +21393,8 @@ static void root_menu_video_draw_reboot_confirmation(void)
     root_menu_video_draw_qs_footer_text(
         "Select: Restart - Menu: Cancel");
     ipodjs_video_draw_hold_overlay();
-    lcd_update();
+    if (!ipodjs_ui_transition_present(&screens[SCREEN_MAIN]))
+        lcd_update();
 }
 
 static bool root_menu_video_confirm_reboot(void)
@@ -20448,7 +21528,10 @@ static bool root_menu_video_cache_memory_menu(bool changed_settings,
                 }
                 else if (selected == IPODJS_CACHE_RESTART)
                 {
-                    if (!root_menu_video_confirm_reboot())
+                    ipodjs_ui_transition_begin(1);
+                    bool confirmed = root_menu_video_confirm_reboot();
+                    ipodjs_ui_transition_begin(-1);
+                    if (!confirmed)
                     {
                         redraw = true;
                         break;
@@ -20603,9 +21686,10 @@ static void root_menu_video_kokkia_value(
 }
 
 static void root_menu_video_draw_kokkia_status(
-    int selected, const struct iap_connection_info *info)
+    int selected, int top, const struct iap_connection_info *info)
 {
-    const int row_h = 21;
+    const int row_h = root_menu_video_qs_row_height();
+    const int visible = root_menu_video_qs_visible_rows();
     const int start_y = IPODJS_HEADER_HEIGHT;
     unsigned list_bg = root_menu_video_row_bg();
 
@@ -20617,33 +21701,20 @@ static void root_menu_video_draw_kokkia_status(
     lcd_set_foreground(list_bg);
     lcd_fillrect(0, IPODJS_HEADER_HEIGHT, LCD_WIDTH,
                  LCD_HEIGHT - IPODJS_HEADER_HEIGHT);
-    lcd_setfont(root_menu_video_font());
+    lcd_setfont(ipodjs_ui_retailos_menu_font());
 
-    for (int item = 0; item < IPODJS_KOKKIA_COUNT; item++)
+    for (int item = top; item < IPODJS_KOKKIA_COUNT &&
+         item < top + visible; item++)
     {
         char value[64];
-        int y = start_y + item * row_h;
-        int text_y = y + MAX(1,
-            (row_h - font_get(root_menu_video_font())->height) / 2) +
-            root_menu_video_text_y_offset();
+        int y = start_y + (item - top) * row_h;
         bool active = item == selected;
-        bool action = item >= IPODJS_KOKKIA_RECONNECT;
 
         root_menu_video_kokkia_value(item, info, value, sizeof(value));
         root_menu_video_draw_qs_row(0, y, LCD_WIDTH, row_h, active, false);
-        lcd_setfont(root_menu_video_font());
-        lcd_set_foreground(active ? IPODJS_PREVIEW_TEXT :
-                           root_menu_video_text());
-        lcd_set_background(active ? root_menu_video_accent() : list_bg);
-        root_menu_video_puts_fit(8, text_y, 150,
-                                 root_menu_video_kokkia_labels[item], false);
-        lcd_set_foreground(active ? LCD_RGBPACK(230, 245, 255) :
-                           root_menu_video_muted_text());
-        root_menu_video_puts_fit(158, text_y,
-                                 action ? 142 : 152, value, true);
-        if (active && action)
-            root_menu_video_draw_arrow(LCD_WIDTH - 9,
-                                       y + (row_h - 6) / 2);
+        root_menu_video_qs_text(y, row_h, 9, LCD_WIDTH - 4,
+            root_menu_video_kokkia_labels[item], value, active,
+            item == IPODJS_KOKKIA_HELP);
     }
 
     if (selected == IPODJS_KOKKIA_RECONNECT)
@@ -20660,7 +21731,13 @@ static void root_menu_video_draw_kokkia_status(
             "Live dock diagnostics");
 
     ipodjs_video_draw_hold_overlay();
-    lcd_update();
+    ipodjs_ui_draw_retailos_scrollbar(&screens[SCREEN_MAIN], LCD_WIDTH,
+        IPODJS_HEADER_HEIGHT + 2,
+        LCD_HEIGHT - IPODJS_HEADER_HEIGHT -
+        root_menu_video_qs_footer_height() - 4,
+        top, visible, IPODJS_KOKKIA_COUNT);
+    if (!ipodjs_ui_transition_present(&screens[SCREEN_MAIN]))
+        lcd_update();
 }
 
 static void root_menu_video_draw_kokkia_help(void)
@@ -20692,7 +21769,8 @@ static void root_menu_video_draw_kokkia_help(void)
     root_menu_video_puts_fit(12, 174, LCD_WIDTH - 24,
         "Pair memory is stored by Kokkia.", false);
     root_menu_video_draw_qs_footer_text("Menu returns to Kokkia");
-    lcd_update();
+    if (!ipodjs_ui_transition_present(&screens[SCREEN_MAIN]))
+        lcd_update();
 }
 
 static void root_menu_video_kokkia_help(void)
@@ -20725,6 +21803,7 @@ static void root_menu_video_kokkia_menu(void)
 {
     struct iap_connection_info drawn_info;
     int selected = 0;
+    int top = 0;
     bool redraw = true;
     bool held = button_hold();
 
@@ -20743,7 +21822,8 @@ static void root_menu_video_kokkia_menu(void)
         root_menu_video_hold_update(&held, &redraw);
         if (redraw)
         {
-            root_menu_video_draw_kokkia_status(selected, &info);
+            top = root_menu_video_qs_top(selected, top, IPODJS_KOKKIA_COUNT);
+            root_menu_video_draw_kokkia_status(selected, top, &info);
             drawn_info = info;
             redraw = false;
         }
@@ -20785,7 +21865,9 @@ static void root_menu_video_kokkia_menu(void)
                 }
                 else if (selected == IPODJS_KOKKIA_HELP)
                 {
+                    ipodjs_ui_transition_begin(1);
                     root_menu_video_kokkia_help();
+                    ipodjs_ui_transition_begin(-1);
                     redraw = true;
                 }
                 else if (selected == IPODJS_KOKKIA_PAUSE_UNPLUG)
@@ -20820,6 +21902,13 @@ static void root_menu_video_kokkia_menu(void)
 static int root_menu_video_quick_settings(void)
 {
     int selected = 0;
+    int top = 0;
+    int previous = 0;
+    int previous_top = 0;
+    bool partial = false;
+    int last_audio = audio_status();
+    int last_battery = battery_level();
+    bool last_charger = charger_inserted();
     bool redraw = true;
     bool changed_settings = false;
     bool changed_status = false;
@@ -20836,15 +21925,37 @@ static int root_menu_video_quick_settings(void)
     while (true)
     {
         int action;
+        int audio = audio_status();
+        int battery = battery_level();
+        bool charger = charger_inserted();
+
+        if (audio != last_audio || battery != last_battery ||
+            charger != last_charger)
+        {
+            redraw = true;
+            partial = false;
+            last_audio = audio;
+            last_battery = battery;
+            last_charger = charger;
+        }
 
 #ifdef IPOD_ACCESSORY_PROTOCOL
         if (iap_connection_status() != last_kokkia_status)
+        {
             redraw = true;
+            partial = false;
+        }
 #endif
-        root_menu_video_hold_update(&held, &redraw);
+        if (root_menu_video_hold_update(&held, &redraw))
+            partial = false;
         if (redraw)
         {
-            root_menu_video_draw_quick_settings(selected, adjusting);
+            top = root_menu_video_qs_top(selected, top, IPODJS_QS_COUNT);
+            root_menu_video_draw_quick_settings(selected, adjusting, top,
+                previous, previous_top, !partial);
+            previous = selected;
+            previous_top = top;
+            partial = false;
 #ifdef IPOD_ACCESSORY_PROTOCOL
             last_kokkia_status = iap_connection_status();
 #endif
@@ -20862,6 +21973,7 @@ static int root_menu_video_quick_settings(void)
                 if (held && TIME_AFTER(current_tick, next_hold_refresh))
                 {
                     next_hold_refresh = current_tick + HZ;
+                    partial = false;
                     redraw = true;
                 }
                 break;
@@ -20883,6 +21995,7 @@ static int root_menu_video_quick_settings(void)
                 else
                     selected = selected <= 0 ? IPODJS_QS_COUNT - 1 :
                                selected - 1;
+                partial = true;
                 redraw = true;
                 break;
 
@@ -20903,6 +22016,7 @@ static int root_menu_video_quick_settings(void)
                 else
                     selected = selected >= IPODJS_QS_COUNT - 1 ? 0 :
                                selected + 1;
+                partial = true;
                 redraw = true;
                 break;
 
@@ -20915,6 +22029,9 @@ static int root_menu_video_quick_settings(void)
                                        selected != IPODJS_QS_VOLUME;
                     changed_status = changed_status ||
                                      selected == IPODJS_QS_VOLUME;
+                    partial = selected < IPODJS_QS_DARK_MODE ||
+                              selected == IPODJS_QS_SHUFFLE ||
+                              selected == IPODJS_QS_REPEAT;
                     redraw = true;
                 }
                 break;
@@ -20925,22 +22042,27 @@ static int root_menu_video_quick_settings(void)
 #ifdef IPOD_ACCESSORY_PROTOCOL
                 if (selected == IPODJS_QS_KOKKIA)
                 {
+                    ipodjs_ui_transition_begin(1);
                     root_menu_video_kokkia_menu();
+                    ipodjs_ui_transition_begin(-1);
                     redraw = true;
                     break;
                 }
 #endif
                 if (selected == IPODJS_QS_CACHE_MEMORY)
                 {
+                    ipodjs_ui_transition_begin(1);
                     if (root_menu_video_cache_memory_menu(changed_settings,
                                                           changed_status))
                         return GO_TO_ROOT;
+                    ipodjs_ui_transition_begin(-1);
                     redraw = true;
                     break;
                 }
                 if (selected == IPODJS_QS_VOLUME ||
                     selected == IPODJS_QS_BRIGHTNESS)
                 {
+                    ipodjs_ui_transition_begin(adjusting ? -1 : 1);
                     adjusting = !adjusting;
                     redraw = true;
                     break;
@@ -20948,6 +22070,9 @@ static int root_menu_video_quick_settings(void)
                 if (root_menu_video_qs_adjust(selected, 1))
                 {
                     changed_settings = true;
+                    partial = selected < IPODJS_QS_DARK_MODE ||
+                              selected == IPODJS_QS_SHUFFLE ||
+                              selected == IPODJS_QS_REPEAT;
                     redraw = true;
                 }
                 break;
@@ -20961,6 +22086,9 @@ static int root_menu_video_quick_settings(void)
                                        selected != IPODJS_QS_VOLUME;
                     changed_status = changed_status ||
                                      selected == IPODJS_QS_VOLUME;
+                    partial = selected < IPODJS_QS_DARK_MODE ||
+                              selected == IPODJS_QS_SHUFFLE ||
+                              selected == IPODJS_QS_REPEAT;
                     redraw = true;
                 }
                 break;
@@ -20981,6 +22109,7 @@ static int root_menu_video_quick_settings(void)
                     break;
                 if (adjusting)
                 {
+                    ipodjs_ui_transition_begin(-1);
                     adjusting = false;
                     redraw = true;
                     break;
@@ -20999,6 +22128,7 @@ static int root_menu_video_quick_settings(void)
                     break;
                 if (adjusting)
                 {
+                    ipodjs_ui_transition_begin(-1);
                     adjusting = false;
                     redraw = true;
                     break;
@@ -21057,12 +22187,87 @@ static int root_menu_video_onlyfans_visibility(void)
     return 0;
 }
 
+static int root_menu_video_about(void)
+{
+    struct ipodjs_about_data data;
+    int page = 0, app_top = 0;
+    bool redraw = true, held = button_hold();
+    long next_hold_refresh = 0;
+    root_menu_video_enter_native_screen();
+    ipodjs_about_snapshot(&data);
+    while (true)
+    {
+        root_menu_video_hold_update(&held, &redraw);
+        if (redraw)
+        {
+            ipodjs_about_draw(&screens[SCREEN_MAIN], &data, page, app_top);
+            root_menu_video_draw_status_title(page == 1 ? "App Storage" : "About");
+            ipodjs_video_draw_hold_overlay();
+            if (!ipodjs_ui_transition_present(&screens[SCREEN_MAIN]))
+                lcd_update();
+            ipodjs_trace_screen("About", "full", page, app_top, 4,
+                0, 0, LCD_WIDTH, LCD_HEIGHT);
+            redraw = false;
+        }
+        int action = get_action(CONTEXT_STD, HZ / 10);
+        if (ipodjs_ui_handle_system_event(action, &redraw))
+            continue;
+        if (root_menu_video_handle_tree_stop(action, &redraw))
+            continue;
+        if (held)
+        {
+            if (TIME_AFTER(current_tick, next_hold_refresh))
+            {
+                redraw = true;
+                next_hold_refresh = current_tick + HZ;
+            }
+            continue;
+        }
+        switch (action)
+        {
+            case ACTION_NONE:
+                ipodjs_about_scroll(&screens[SCREEN_MAIN]);
+                break;
+            case ACTION_STD_OK:
+                page = (page + 1) % 4;
+                redraw = true;
+                break;
+            case ACTION_STD_NEXT:
+            case ACTION_STD_NEXTREPEAT:
+                if (page == 1 && app_top + 4 < (int)data.app_count)
+                {
+                    app_top += 4;
+                    redraw = true;
+                }
+                break;
+            case ACTION_STD_PREV:
+            case ACTION_STD_PREVREPEAT:
+                if (page == 1 && app_top > 0)
+                {
+                    app_top = MAX(0, app_top - 4);
+                    redraw = true;
+                }
+                break;
+            case ACTION_STD_CANCEL:
+            case ACTION_STD_MENU:
+                return root_menu_video_finish_native_screen(0);
+            default:
+                if (default_event_handler(action) == SYS_USB_CONNECTED)
+                    return root_menu_video_finish_native_screen(MENU_ATTACHED_USB);
+                break;
+        }
+    }
+}
+
 static const struct root_menu_video_settings_item
 root_menu_video_settings_items[] = {
     { "Main Menu", NULL, root_menu_video_main_menu_config },
     { "Sound", &sound_settings, NULL },
     { "Playback", &playback_settings, NULL },
     { "General", &settings_menu_item, NULL },
+#if defined(HAVE_COMPOSITE_VIDEO_OUT) && !defined(SIMULATOR)
+    { "Composite Video", &composite_menu, NULL },
+#endif
     { "Themes", &theme_menu, NULL },
 #ifdef HAVE_RECORDING
     { "Recording", &recording_settings, NULL },
@@ -21088,15 +22293,17 @@ static void root_menu_video_draw_settings_menu(int selected)
     if (selected >= visible)
         top = selected - visible + 1;
 
+    tv_ui_batch(true, false);
     lcd_set_viewport(NULL);
     lcd_set_drawmode(DRMODE_SOLID);
     lcd_set_background(root_menu_video_screen_bg());
     lcd_clear_display();
 
-    root_menu_video_draw_status();
+    root_menu_video_draw_status_title_width("Settings", IPODJS_LIST_WIDTH,
+                                            true);
 
     lcd_setfont(root_menu_video_font());
-    lcd_set_foreground(root_menu_video_screen_bg());
+    lcd_set_foreground(root_menu_video_left_pane_bg());
     lcd_fillrect(0, IPODJS_HEADER_HEIGHT, IPODJS_LIST_WIDTH,
                  LCD_HEIGHT - IPODJS_HEADER_HEIGHT);
 
@@ -21116,10 +22323,10 @@ static void root_menu_video_draw_settings_menu(int selected)
         }
         else
         {
-            lcd_set_foreground(root_menu_video_row_bg());
+            lcd_set_foreground(root_menu_video_left_pane_bg());
             lcd_fillrect(0, item_y, IPODJS_LIST_WIDTH, row_h);
             lcd_set_foreground(root_menu_video_text());
-            lcd_set_background(root_menu_video_row_bg());
+            lcd_set_background(root_menu_video_left_pane_bg());
         }
 
         root_menu_video_puts_fit(6, item_y + 4, IPODJS_LIST_WIDTH - 24,
@@ -21134,11 +22341,14 @@ static void root_menu_video_draw_settings_menu(int selected)
                        LCD_RGBPACK(54, 60, 70) : IPODJS_SPLIT);
     lcd_vline(IPODJS_SPLIT_X, 0, LCD_HEIGHT - 1);
 
-    root_menu_video_draw_settings_preview(x, y, w, h, true);
+    root_menu_video_draw_settings_preview(x, y, w, h, selected == 1);
 
     ipodjs_video_draw_hold_overlay();
     if (!ipodjs_ui_transition_present(&screens[SCREEN_MAIN]))
         lcd_update();
+    tv_ui_batch(false, false);
+    root_menu_tv_list("Settings", selected, count, root_menu_video_settings_items,
+        sizeof(root_menu_video_settings_items[0]), true);
     ipodjs_trace_screen("Settings", "full", selected, top, count,
                         0, 0, LCD_WIDTH, LCD_HEIGHT);
 }
@@ -21151,8 +22361,10 @@ static int root_menu_video_settings_menu(void)
     bool redraw_rows = false;
     bool held = button_hold();
     long next_hold_refresh = 0;
+    char storage[32];
 
     root_menu_video_enter_native_screen();
+    root_menu_video_storage_info(storage, sizeof(storage), NULL, true);
     button_clear_queue();
 
     while (true)
@@ -21161,6 +22373,7 @@ static int root_menu_video_settings_menu(void)
         int count = ARRAYLEN(root_menu_video_settings_items);
 
         root_menu_video_hold_update(&held, &redraw);
+        bool menu_painted = redraw || redraw_rows;
         if (redraw)
         {
             root_menu_video_draw_settings_menu(selected);
@@ -21175,6 +22388,20 @@ static int root_menu_video_settings_menu(void)
                     root_menu_video_settings_items[selected].label, true))
                 root_menu_video_draw_settings_menu(selected);
             redraw_rows = false;
+        }
+
+        if (menu_painted && !held)
+        {
+            int row_h = root_menu_video_row_height();
+            int visible = root_menu_video_visible_rows(row_h);
+            int row = MIN(selected, visible - 1);
+            int y = IPODJS_HEADER_HEIGHT + row * row_h;
+            lcd_setfont(root_menu_video_font());
+            ipodjs_ui_menu_text_scroll(&screens[SCREEN_MAIN], 6,
+                y + 4, IPODJS_LIST_WIDTH - 24,
+                y, row_h, root_menu_video_settings_items[selected].label);
+            lcd_update_rect(6, y + 4, IPODJS_LIST_WIDTH - 24,
+                font_get(root_menu_video_font())->height);
         }
 
         action = get_action(CONTEXT_TREE, HZ/20);
@@ -21260,10 +22487,11 @@ static bool root_menu_video_preview_switch_is_immediate(int old_index,
     const char *new_label =
         root_menu_video_label(root_menu_video_item(new_index));
 
-    /* The Netflix pane is a static brand card. Clear or reveal it on the
-     * same wheel event; media preview I/O remains deferred and cache-only
-     * drawing can fill the replacement pane immediately. */
-    return !strcmp(old_label, "Netflix") || !strcmp(new_label, "Netflix");
+    /* Resident brand/artwork panes can appear on the same wheel event.
+     * Other media preview I/O remains deferred. */
+    return !strcmp(old_label, "Netflix") || !strcmp(new_label, "Netflix") ||
+           !strcmp(old_label, "Applications") ||
+           !strcmp(new_label, "Applications");
 }
 
 #define NOTIFICATION_IOS5_ASSET_DIR ROCKBOX_DIR \
@@ -21283,6 +22511,7 @@ static struct {
     struct bitmap close;
     struct bitmap achievement;
     struct bitmap sitekick;
+    struct bitmap msn;
     unsigned char linen_data[
         BM_SIZE(NOTIFICATION_CENTER_LINEN_W,
                 NOTIFICATION_CENTER_LINEN_H, FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
@@ -21300,6 +22529,7 @@ static struct {
         BM_SIZE(NOTIFICATION_SOURCE_ICON_W, NOTIFICATION_SOURCE_ICON_H,
                 FORMAT_NATIVE, false) +
         NOTIFICATION_SOURCE_ICON_W * NOTIFICATION_SOURCE_ICON_H / 2] IPODJS_BM_ALIGN;
+    unsigned char msn_data[22 * 22 * 3] IPODJS_BM_ALIGN;
     bool prepared;
     bool valid;
 } root_menu_video_notification_assets;
@@ -21332,6 +22562,11 @@ static void root_menu_video_prepare_notification_assets(void)
     if (root_menu_video_notification_assets.prepared)
         return;
     root_menu_video_notification_assets.prepared = true;
+    root_menu_video_load_notification_asset(
+        ROCKBOX_DIR "/ipodjs/msn/notification.bmp",
+        &root_menu_video_notification_assets.msn,
+        root_menu_video_notification_assets.msn_data,
+        sizeof(root_menu_video_notification_assets.msn_data), 22, 22);
 
     snprintf(path, sizeof(path), "%s/%s", NOTIFICATION_IOS5_ASSET_DIR,
              "notification-center-linen.ios5.32x32x24.bmp");
@@ -21398,7 +22633,9 @@ static void root_menu_video_draw_notification_source_icon(unsigned source,
 {
     struct bitmap *bm = NULL;
 
-    if (source == NOTIFICATION_SOURCE_ACHIEVEMENTS)
+    if (source == NOTIFICATION_SOURCE_MSN)
+        bm = &root_menu_video_notification_assets.msn;
+    else if (source == NOTIFICATION_SOURCE_ACHIEVEMENTS)
         bm = &root_menu_video_notification_assets.achievement;
     else if (source == NOTIFICATION_SOURCE_SITEKICK)
         bm = &root_menu_video_notification_assets.sitekick;
@@ -21453,6 +22690,8 @@ static void root_menu_video_draw_notification_source_icon(unsigned source,
 
 static const char *notification_source_label(unsigned source)
 {
+    if (source == NOTIFICATION_SOURCE_MSN)
+        return "MSN Messenger";
     if (source == NOTIFICATION_SOURCE_ACHIEVEMENTS)
         return "Achievements";
     if (source == NOTIFICATION_SOURCE_SITEKICK)
@@ -21492,40 +22731,13 @@ static void root_menu_video_notification_age(char *buf, size_t size,
         snprintf(buf, size, "%ldd", age / (24 * 60 * 60));
 }
 
-static void root_menu_video_draw_notification_dot(int x, int y,
-                                                  bool unread)
-{
-    lcd_set_drawmode(DRMODE_SOLID);
-    lcd_set_foreground(unread ? LCD_RGBPACK(38, 151, 244) :
-                                LCD_RGBPACK(101, 106, 113));
-    lcd_hline(x + 2, x + 5, y);
-    lcd_hline(x, x + 7, y + 2);
-    lcd_fillrect(x, y + 3, 8, 3);
-    lcd_hline(x + 1, x + 6, y + 6);
-    lcd_hline(x + 2, x + 5, y + 7);
-}
-
-static void root_menu_video_draw_notification_grabber(void)
-{
-    const int x = LCD_WIDTH / 2 - 23;
-    const int y = LCD_HEIGHT - 9;
-
-    lcd_set_drawmode(DRMODE_SOLID);
-    lcd_set_foreground(LCD_RGBPACK(8, 9, 10));
-    lcd_fillrect(x + 3, y - 2, 40, 10);
-    lcd_fillrect(x, y + 1, 46, 5);
-    lcd_set_foreground(LCD_RGBPACK(108, 111, 116));
-    lcd_hline(x + 4, x + 41, y);
-    lcd_hline(x + 2, x + 43, y + 3);
-    lcd_hline(x + 4, x + 41, y + 6);
-}
-
-static void root_menu_video_draw_notification_center(int selected)
+static void root_menu_video_draw_notification_center(int selected,
+                                                      bool clear_pending)
 {
     const int top_h = 24;
-    const int section_h = 28;
+    const int section_h = NOTIFICATION_SECTION_H;
     const int item_h = 60;
-    const int bottom_h = 12;
+    const int bottom_h = 20;
     const int block_h = section_h + item_h;
     const int visible = MAX(1,
         (LCD_HEIGHT - top_h - bottom_h) / block_h);
@@ -21563,27 +22775,29 @@ static void root_menu_video_draw_notification_center(int selected)
     lcd_set_foreground(LCD_RGBPACK(11, 12, 14));
     lcd_hline(0, LCD_WIDTH - 1, top_h - 1);
 
-    if (count == 0)
+    if (clear_pending || count == 0)
     {
-        const int panel_y = 88;
-
-        root_menu_video_gradient(18, panel_y, LCD_WIDTH - 36, 58,
-                                 LCD_RGBPACK(53, 57, 64),
-                                 LCD_RGBPACK(23, 26, 31));
-        lcd_set_foreground(LCD_RGBPACK(8, 9, 11));
-        lcd_drawrect(18, panel_y, LCD_WIDTH - 36, 58);
+        /* Keep the confirmation on the original linen sheet. A new Select
+         * press confirms; releasing the hold cannot accept it. */
         lcd_setfont(bold_font);
         lcd_set_drawmode(DRMODE_FG);
         lcd_set_foreground(LCD_WHITE);
-        root_menu_video_puts_fit(30, panel_y + 10,
-                                 LCD_WIDTH - 60, "No Notifications", true);
-        lcd_setfont(regular_font);
-        lcd_set_foreground(LCD_RGBPACK(194, 197, 202));
-        root_menu_video_puts_fit(30, panel_y + 34,
-                                 LCD_WIDTH - 60, "You're all caught up.",
-                                 true);
+        root_menu_video_puts_fit(12, 92, LCD_WIDTH - 24,
+            clear_pending ? "Clear all notifications?" : "No Notifications",
+            true);
+        if (clear_pending)
+        {
+            if (root_menu_video_notification_assets.valid)
+                root_menu_video_tile_notification_asset(
+                    &root_menu_video_notification_assets.section,
+                    40, 122, LCD_WIDTH - 80, NOTIFICATION_SECTION_H);
+            lcd_set_drawmode(DRMODE_FG);
+            lcd_setfont(regular_font);
+            root_menu_video_puts_fit(44, 127, LCD_WIDTH - 88,
+                                     "Select = yes", true);
+        }
     }
-    for (row = 0; row < visible && top + row < count; ++row)
+    for (row = 0; !clear_pending && row < visible && top + row < count; ++row)
     {
         struct notification_record record;
         int index = top + row;
@@ -21618,44 +22832,42 @@ static void root_menu_video_draw_notification_center(int selected)
                     LCD_WIDTH - 24,
                     y + (section_h - NOTIFICATION_CLOSE_H) / 2);
 
+        /* Wheel focus is a narrow rule, leaving Apple's linen visible. */
         if (highlighted)
         {
-            root_menu_video_gradient(5, content_y + 3,
-                                     LCD_WIDTH - 10, item_h - 6,
-                                     LCD_RGBPACK(64, 70, 80),
-                                     LCD_RGBPACK(31, 35, 42));
-            lcd_set_foreground(LCD_RGBPACK(8, 9, 11));
-            lcd_drawrect(5, content_y + 3,
-                         LCD_WIDTH - 10, item_h - 6);
-            lcd_set_foreground(LCD_RGBPACK(105, 110, 119));
-            lcd_hline(7, LCD_WIDTH - 8, content_y + 4);
+            lcd_set_drawmode(DRMODE_SOLID);
+            lcd_set_foreground(LCD_RGBPACK(198, 201, 206));
+            lcd_fillrect(0, content_y + 4, 2, item_h - 8);
         }
 
-        root_menu_video_draw_notification_dot(
-            21, content_y + (item_h - 8) / 2, !record.read);
         root_menu_video_notification_age(age, sizeof(age),
                                          record.request.timestamp);
         font_getstringsize(age, &age_w, NULL, bold_font);
         lcd_set_drawmode(DRMODE_FG);
         lcd_setfont(bold_font);
         lcd_set_foreground(LCD_WHITE);
-        root_menu_video_puts_fit(42, content_y + 8,
-                                 LCD_WIDTH - 58 - age_w,
+        root_menu_video_puts_fit(12, content_y + 8,
+                                 LCD_WIDTH - 32 - age_w,
                                  record.request.title, false);
         root_menu_video_puts_fit(LCD_WIDTH - age_w - 9,
                                  content_y + 8, age_w, age, false);
         lcd_setfont(regular_font);
         lcd_set_foreground(highlighted ? LCD_RGBPACK(232, 233, 236) :
                                          LCD_RGBPACK(210, 213, 218));
-        root_menu_video_puts_fit(42,
+        root_menu_video_puts_fit(12,
                                  content_y + 12 + bold_h,
-                                 LCD_WIDTH - 54,
+                                 LCD_WIDTH - 24,
                                  record.request.body, false);
         lcd_set_drawmode(DRMODE_SOLID);
         lcd_set_foreground(LCD_RGBPACK(18, 20, 23));
         lcd_hline(0, LCD_WIDTH - 1, content_y + item_h - 1);
     }
-    root_menu_video_draw_notification_grabber();
+    lcd_set_drawmode(DRMODE_FG);
+    lcd_setfont(regular_font);
+    lcd_set_foreground(LCD_RGBPACK(200, 203, 208));
+    root_menu_video_puts_fit(8, LCD_HEIGHT - 17, LCD_WIDTH - 16,
+        clear_pending ? "Menu to cancel" :
+        count ? "Hold Select to clear all" : "", true);
     if (!ipodjs_ui_transition_present(&screens[SCREEN_MAIN]))
         lcd_update();
 }
@@ -21674,6 +22886,8 @@ static int root_menu_video_launch_notification(
     else if (record->request.source == NOTIFICATION_SOURCE_SITEKICK)
         ret = launch_sitekick_plugin(record->request.route[0] ?
                                      (void *)record->request.route : NULL);
+    else if (record->request.source == NOTIFICATION_SOURCE_MSN)
+        ret = launch_msn_plugin((void *)record->request.route);
     else if (record->request.source == NOTIFICATION_SOURCE_LIVETV)
         ret = launch_livetv_plugin(NULL);
     else if (record->request.source == NOTIFICATION_SOURCE_WEATHER)
@@ -21686,6 +22900,7 @@ static int root_menu_video_notification_center(void)
 {
     int selected = 0;
     bool redraw = true;
+    bool clear_pending = false;
 
     root_menu_video_prepare_notification_assets();
     notification_manager_set_center_active(true);
@@ -21701,7 +22916,7 @@ static int root_menu_video_notification_center(void)
             selected = 0;
         if (redraw)
         {
-            root_menu_video_draw_notification_center(selected);
+            root_menu_video_draw_notification_center(selected, clear_pending);
             redraw = false;
         }
         action = get_action(CONTEXT_TREE|ALLOW_SOFTLOCK, HZ / 5);
@@ -21711,7 +22926,7 @@ static int root_menu_video_notification_center(void)
         {
         case ACTION_STD_PREV:
         case ACTION_STD_PREVREPEAT:
-            if (selected > 0)
+            if (!clear_pending && selected > 0)
             {
                 selected--;
                 redraw = true;
@@ -21719,13 +22934,21 @@ static int root_menu_video_notification_center(void)
             break;
         case ACTION_STD_NEXT:
         case ACTION_STD_NEXTREPEAT:
-            if (selected + 1 < count)
+            if (!clear_pending && selected + 1 < count)
             {
                 selected++;
                 redraw = true;
             }
             break;
         case ACTION_STD_OK:
+            if (clear_pending)
+            {
+                notification_manager_clear();
+                clear_pending = false;
+                selected = 0;
+                redraw = true;
+                break;
+            }
             if (count > 0)
             {
                 struct notification_record record;
@@ -21748,18 +22971,20 @@ static int root_menu_video_notification_center(void)
             }
             break;
         case ACTION_STD_CONTEXT:
-            if (count > 0 && yesno_pop("Clear all notifications?"))
+            if (count > 0)
             {
-                notification_manager_clear();
-                selected = 0;
+                clear_pending = true;
                 redraw = true;
             }
             break;
         case ACTION_STD_CANCEL:
-            notification_manager_set_center_active(false);
-            button_clear_queue();
-            return 0;
         case ACTION_STD_MENU:
+            if (clear_pending)
+            {
+                clear_pending = false;
+                redraw = true;
+                break;
+            }
             notification_manager_set_center_active(false);
             button_clear_queue();
             return 0;
@@ -21786,8 +23011,347 @@ static int root_menu_video_present_notification_center(void)
     return result;
 }
 
+#ifdef HAVE_TAGCACHE
+/* TV Home uses the existing application/library launch paths. Selection is
+ * independent of the handheld main-menu order and never rewrites its theme. */
+/* Home promotions reuse the existing banner buffer and at most 2,880 bytes
+ * of title/ID metadata. Every file closes within one bounded idle service;
+ * rendering and focus changes do not allocate, decode or access storage. */
+#define TV_HOME_PROMO_MAX 32
+#define TV_HOME_PROMO_VISIBLE 5
+static char tv_home_promo_title[VIDEO_BROWSER_TITLE_MAX];
+static struct tv_home_promo {
+    char title[VIDEO_BROWSER_TITLE_MAX];
+    char art[VIDEO_LIST_ART_ID_LEN];
+    bool show;
+} tv_home_promos[TV_HOME_PROMO_MAX];
+static int tv_home_promo_count, tv_home_promo_selected, tv_home_promo_loaded;
+static int tv_home_promo_candidates;
+static uint32_t tv_home_promo_random = 0x91e10da5u;
+static off_t tv_home_promo_offset;
+static long tv_home_promo_due, tv_home_promo_idle;
+static bool tv_home_promo_ready, tv_home_promo_complete;
+
+static bool tv_home_promo_id_valid(const char *id)
+{
+    if (strlen(id) != VIDEO_LIST_ART_ID_LEN-1) return false;
+    for (int i=0; i<VIDEO_LIST_ART_ID_LEN-1; i++)
+        if (!strchr("0123456789abcdefABCDEF", id[i])) return false;
+    return true;
+}
+
+static void tv_home_promo_reset(void)
+{
+    tv_home_promo_ready = tv_home_promo_complete = false;
+    tv_home_promo_count = tv_home_promo_selected = 0;
+    tv_home_promo_candidates = 0;
+    tv_home_promo_random += (uint32_t)current_tick + 0x9e3779b9u;
+    if (!tv_home_promo_random) tv_home_promo_random = 1;
+    tv_home_promo_loaded = -1;
+    tv_home_promo_offset = 0;
+    tv_home_promo_due = current_tick;
+    tv_home_promo_idle = current_tick + HZ/3;
+}
+
+/* Button handling changes only the index. Artwork is serviced after input
+ * settles, and a focused promotion never rotates away from the user. */
+static void tv_home_promo_move(int direction)
+{
+    if (!tv_home_promo_count) return;
+    tv_home_promo_selected = (tv_home_promo_selected + direction +
+        tv_home_promo_count) % tv_home_promo_count;
+    tv_home_promo_ready = tv_home_promo_loaded == tv_home_promo_selected &&
+                          video_netflix_banner_valid;
+    strmemccpy(tv_home_promo_title,
+        tv_home_promos[tv_home_promo_selected].title, sizeof(tv_home_promo_title));
+    tv_home_promo_due = current_tick + 8*HZ;
+}
+
+static bool tv_home_promo_service(bool idle, bool focused)
+{
+    if (!idle)
+    {
+        tv_home_promo_idle = current_tick + HZ/3;
+        return false;
+    }
+    if (!tv_ui_active() || button_hold() || button_queue_count() ||
+        TIME_BEFORE(current_tick, tv_home_promo_idle)) return false;
+    bool changed = false;
+    if (!tv_home_promo_complete)
+    {
+        int fd = open(VIDEO_LIST_INDEX, O_RDONLY);
+        if (fd < 0) { tv_home_promo_complete = true; return false; }
+        if (lseek(fd, tv_home_promo_offset, SEEK_SET) < 0)
+            tv_home_promo_offset = 0;
+        for (int row=0; row<32 && !button_queue_count(); row++)
+        {
+            char line[VIDEO_LIST_MANIFEST_LINE_MAX];
+            char *fields[30];
+            if (read_line(fd,line,sizeof(line)) <= 0)
+            { tv_home_promo_complete = true; break; }
+            tv_home_promo_offset = lseek(fd,0,SEEK_CUR);
+            video_trim_line(line);
+            if (!video_split_tsv(line,fields,ARRAYLEN(fields)) ||
+                video_manifest_entry_locked(fields) ||
+                strcmp(fields[4],"show") ||
+                !tv_home_promo_id_valid(fields[29])) continue;
+            int i;
+            for (i=0; i<tv_home_promo_candidates; i++)
+                if (!strcmp(tv_home_promos[i].art,fields[29])) break;
+            if (i<tv_home_promo_candidates) continue;
+            struct tv_home_promo *p=&tv_home_promos[tv_home_promo_candidates++];
+            p->show = true;
+            strmemccpy(p->title,p->show && fields[7][0] ? fields[7] : fields[3],sizeof(p->title));
+            strmemccpy(p->art,fields[29],sizeof(p->art));
+            if (tv_home_promo_candidates == TV_HOME_PROMO_MAX)
+            { tv_home_promo_complete = true; break; }
+        }
+        close(fd);
+    }
+    if (!tv_home_promo_complete) return false;
+    if (!tv_home_promo_count && tv_home_promo_candidates)
+    {
+        /* Publish the final five together, so idle scanning never exposes
+         * an expanding carousel. A private shuffle leaves music RNG alone. */
+        tv_home_promo_count = MIN(TV_HOME_PROMO_VISIBLE,tv_home_promo_candidates);
+        for (int i=0; i<tv_home_promo_count; i++)
+        {
+            tv_home_promo_random ^= tv_home_promo_random << 13;
+            tv_home_promo_random ^= tv_home_promo_random >> 17;
+            tv_home_promo_random ^= tv_home_promo_random << 5;
+            int j=i+tv_home_promo_random%(tv_home_promo_candidates-i);
+            struct tv_home_promo swap=tv_home_promos[i];
+            tv_home_promos[i]=tv_home_promos[j];
+            tv_home_promos[j]=swap;
+        }
+        changed = true;
+    }
+    if (!tv_home_promo_count) return changed;
+    if (!focused && !TIME_BEFORE(current_tick,tv_home_promo_due) &&
+        tv_home_promo_loaded >= 0)
+    { tv_home_promo_move(1); changed = true; }
+    if (tv_home_promo_loaded != tv_home_promo_selected)
+    {
+        struct tv_home_promo *p=&tv_home_promos[tv_home_promo_selected];
+        video_netflix_load_banner(p->art);
+        tv_home_promo_loaded = tv_home_promo_selected;
+        tv_home_promo_ready = video_netflix_banner_valid;
+        strmemccpy(tv_home_promo_title,p->title,sizeof(tv_home_promo_title));
+        tv_home_promo_due = current_tick + 8*HZ;
+        changed = true;
+    }
+    return changed;
+}
+
+static int tv_home_category = TV_MUSIC;
+static int tv_home_selected[TV_SECTION_COUNT];
+static const char * const tv_home_titles[] = { "Applications", "Videos", "Music", "Settings" };
+static const char * const tv_home_video_names[] = { "YouTube", "Netflix", "DIRECTV", "Twitch" };
+static const char * const tv_home_music_names[] = { "Music Library", "Now Playing", "Playlists", "Cover Flow" };
+static const char * const tv_home_settings_names[] = { "Settings", "System" };
+static const struct menu_item_ex * const tv_home_videos[] = { &youtube_item, &videos, &livetv_item, &twitch_item };
+static const struct menu_item_ex * const tv_home_music[] = { &db_browser, &wps_item, &playlists, &pictureflow_item };
+static const struct menu_item_ex * const tv_home_settings[] = { &menu_, &system_menu_ };
+static int tv_home_count(void)
+{
+    switch (tv_home_category)
+    {
+        case TV_APPS: return root_menu_video_application_count();
+        case TV_VIDEOS: return ARRAYLEN(tv_home_videos);
+        case TV_MUSIC: return ARRAYLEN(tv_home_music);
+        default: return ARRAYLEN(tv_home_settings);
+    }
+}
+static const char *tv_home_name(int item, void *data, char *buf, size_t size)
+{
+    (void)data; (void)buf; (void)size;
+    switch (tv_home_category)
+    {
+        case TV_APPS: return root_menu_video_application_item_at(item)->label;
+        case TV_VIDEOS: return tv_home_video_names[item];
+        case TV_MUSIC: return tv_home_music_names[item];
+        default: return tv_home_settings_names[item];
+    }
+}
+static const struct button_mapping tv_home_local[] = {
+    { ACTION_TREE_PGLEFT, BUTTON_LEFT|BUTTON_REL, BUTTON_LEFT },
+    { ACTION_TREE_PGRIGHT, BUTTON_RIGHT|BUTTON_REL, BUTTON_RIGHT },
+    LAST_ITEM_IN_LIST__NEXTLIST(CONTEXT_TREE)
+};
+static const struct button_mapping *tv_home_keymap(int context)
+{
+    context &= ~CONTEXT_PLUGIN;
+    return context == CONTEXT_MAINMENU ? tv_home_local : get_context_mapping(context);
+}
+static int root_menu_tv_dashboard(void)
+{
+    tv_home_promo_reset();
+    root_menu_video_enter_native_screen();
+    root_menu_video_prepare_application_visibility();
+    root_menu_video_prepare_application_icons(true);
+    struct gui_synclist list;
+    gui_synclist_init(&list,tv_home_name,NULL,false,1,NULL);
+    int drawn_category=-1,drawn_item=-1,drawn_status=-1;
+    bool tabs = true, drawn_tabs = false, featured = false, drawn_featured = false;
+    while(tv_ui_active())
+    {
+        int count=tv_home_count();
+        int *selected=&tv_home_selected[tv_home_category];
+        *selected=MAX(0,MIN(*selected,count-1));
+        tv_ui_set_section(tv_home_category);
+        int status=audio_status();
+        if(drawn_category!=tv_home_category || drawn_item!=*selected || drawn_status!=status || drawn_tabs!=tabs || drawn_featured!=featured)
+        {
+            gui_synclist_set_title(&list,tv_home_titles[tv_home_category],Icon_NOICON);
+            gui_synclist_set_nb_items(&list,count);
+            gui_synclist_select_item(&list,*selected);
+            gui_synclist_draw_native(&list);
+            tv_ui_set_home(true,tabs);
+            if (tv_home_category == TV_APPS || tv_home_category == TV_VIDEOS)
+            {
+                const struct bitmap *icons[6] = { NULL };
+                int columns = tv_home_category == TV_VIDEOS ? 4 : 3;
+                int first = (*selected / (columns * 2)) * columns * 2;
+                for (int i = 0; i < (int)ARRAYLEN(icons) && first + i < count; i++)
+                {
+                    if (tv_home_category == TV_APPS)
+                        icons[i] = root_menu_video_application_icon(
+                            root_menu_video_application_item_at(first + i));
+                    else
+                        for (unsigned j = 0; j < ARRAYLEN(root_menu_video_application_items); j++)
+                            if (!strcmp(root_menu_video_application_items[j].label,
+                                        tv_home_video_names[first + i]))
+                                icons[i] = root_menu_video_application_icon(
+                                    &root_menu_video_application_items[j]);
+                }
+                if (tv_home_category == TV_VIDEOS)
+                    tv_home_videos_draw(&list, icons,
+                        tv_home_promo_ready ? &video_netflix_banner_bm : NULL,
+                        tv_home_promo_title, featured, tv_home_promo_selected, tv_home_promo_count);
+                else
+                    tv_grid_draw(&list,icons,first,columns);
+            }
+            else
+                tv_list_art_draw(&list, tv_home_category == TV_MUSIC ?
+                                 root_menu_video_buffered_art() : NULL);
+            drawn_category=tv_home_category; drawn_item=*selected; drawn_status=status; drawn_tabs=tabs; drawn_featured=featured;
+        }
+        int action=get_custom_action(CONTEXT_MAINMENU|CONTEXT_PLUGIN|ALLOW_SOFTLOCK,HZ/5,tv_home_keymap);
+        if (tv_home_promo_service(action == ACTION_NONE &&
+                                  tv_home_category == TV_VIDEOS, featured))
+            drawn_category = -1;
+        bool remote = (get_action_statuscode(NULL) & ACTION_REMOTE) != 0;
+        bool grid = tv_home_category == TV_APPS || tv_home_category == TV_VIDEOS;
+        int columns = tv_home_category == TV_VIDEOS ? 4 : 3;
+        if(action==SYS_USB_CONNECTED)
+        {
+            gui_synclist_scroll_stop(&list);
+            tv_ui_set_home(false,false);
+            default_event_handler(action);
+            return root_menu_video_finish_native_screen(GO_TO_ROOT);
+        }
+        if (ipodjs_ui_handle_system_event(action,NULL))
+            continue;
+        switch(action)
+        {
+            case ACTION_TREE_PGLEFT:
+                if (tabs)
+                    tv_home_category=(tv_home_category+TV_SECTION_COUNT-1)%TV_SECTION_COUNT;
+                else if (featured) { tv_home_promo_move(-1); drawn_category=-1; }
+                else if (grid && *selected % columns > 0)
+                    --*selected;
+                break;
+            case ACTION_TREE_PGRIGHT:
+                if (tabs)
+                    tv_home_category=(tv_home_category+1)%TV_SECTION_COUNT;
+                else if (featured) { tv_home_promo_move(1); drawn_category=-1; }
+                else if (grid && *selected % columns < columns-1 && *selected+1 < count)
+                    ++*selected;
+                break;
+            case ACTION_STD_PREV: case ACTION_STD_PREVREPEAT:
+                if (featured) { featured=false; tabs=true; }
+                else if (!tabs)
+                {
+                    int step = grid && remote ? columns : 1;
+                    if (*selected < step)
+                    {
+                        featured=tv_home_category==TV_VIDEOS && tv_home_promo_count>0;
+                        tabs=!featured;
+                    }
+                    else *selected -= step;
+                }
+                break;
+            case ACTION_STD_NEXT: case ACTION_STD_NEXTREPEAT:
+                if (tabs)
+                { tabs=false; featured=tv_home_category==TV_VIDEOS && tv_home_promo_count>0; }
+                else if (featured) featured=false;
+                else if (count > 0)
+                {
+                    int step = grid && remote ? columns : 1;
+                    if (*selected + step < count) *selected += step;
+                    else if (grid && *selected / columns < (count-1) / columns)
+                        *selected = count-1;
+                }
+                break;
+            case ACTION_STD_CANCEL: case ACTION_STD_MENU:
+                if (featured) { featured=false; tabs=true; }
+                else if (!tabs && tv_home_category==TV_VIDEOS && tv_home_promo_count>0) featured=true;
+                else tabs=true;
+                break;
+            case ACTION_STD_OK:
+            {
+                if(count<=0 || (featured && !tv_home_promo_count)) break;
+                if (tabs) { tabs=false; featured=tv_home_category==TV_VIDEOS && tv_home_promo_count>0; break; }
+                tv_ui_set_home(false,false);
+                gui_synclist_scroll_stop(&list);
+                root_menu_video_finish_native_screen(0);
+                int ret;
+                if (featured && tv_home_promo_count>0)
+                {
+                    const struct tv_home_promo *p=&tv_home_promos[tv_home_promo_selected];
+                    videos_featured_request[0]=p->show ? 'S' : 'M';
+                    strmemccpy(videos_featured_request+1,p->title,
+                               sizeof(videos_featured_request)-1);
+                    return GO_TO_VIDEOS;
+                }
+                else if(tv_home_category==TV_APPS)
+                    ret=root_menu_video_application_item_at(*selected)->function(NULL);
+                else
+                {
+                    const struct menu_item_ex *item=tv_home_category==TV_VIDEOS?
+                        tv_home_videos[*selected]:tv_home_category==TV_MUSIC?
+                        tv_home_music[*selected]:tv_home_settings[*selected];
+                    ret=root_menu_video_launch_menu_item(item);
+                }
+                if(ret!=GO_TO_ROOT && ret!=GO_TO_PREVIOUS && ret!=0)
+                    return ret;
+                tv_home_promo_reset();
+                root_menu_video_enter_native_screen();
+                root_menu_video_prepare_application_visibility();
+                root_menu_video_prepare_application_icons(true);
+                drawn_category=-1;
+                break;
+            }
+            default:
+                if(default_event_handler(action)==SYS_USB_CONNECTED)
+                {
+                    tv_ui_set_home(false,false);
+                    return root_menu_video_finish_native_screen(GO_TO_ROOT);
+                }
+                break;
+        }
+    }
+    tv_ui_set_home(false,false);
+    gui_synclist_scroll_stop(&list);
+    return root_menu_video_finish_native_screen(GO_TO_ROOT);
+}
+
+#endif
 static int root_menu_video_dashboard(int *selectedp)
 {
+#ifdef HAVE_TAGCACHE
+    if (tv_ui_active()) return root_menu_tv_dashboard();
+#endif
     int selected = MAX(0, MIN(*selectedp, root_menu_video_count() - 1));
     int preview_selected = selected;
     int previous_selected = selected;
@@ -21813,6 +23377,7 @@ static int root_menu_video_dashboard(int *selectedp)
     root_menu_video_prepare_netflix_logo();
     root_menu_video_prepare_sitekick_preview();
     root_menu_video_prepare_notification_assets();
+    ambient_clock_ready(true);
     button_clear_queue();
 
     while (true)
@@ -21826,8 +23391,20 @@ static int root_menu_video_dashboard(int *selectedp)
         const struct menu_item_ex *item;
         enum root_menu_video_preview_source preview_source;
 
+#ifdef HAVE_TAGCACHE
+        /* Dock activation can arrive after the handheld Home loop starts.
+         * Re-enter through the root dispatcher so TV gets its own navigation
+         * loop without nesting another dashboard on the main thread stack. */
+        if (tv_ui_active())
+        {
+            *selectedp = selected;
+            lcd_scroll_stop();
+            return root_menu_video_finish_native_screen(GO_TO_ROOT);
+        }
+#endif
+
         notification_manager_service();
-        internet = usb_internet_connected();
+        internet = root_menu_usb_internet_connected();
 
 #ifdef IPOD_ACCESSORY_PROTOCOL
         bluetooth = iap_kokkia_present();
@@ -21906,10 +23483,31 @@ static int root_menu_video_dashboard(int *selectedp)
         }
 
         item = root_menu_video_item(selected);
+        if (!held) root_menu_tv_home(selected);
         action = get_action(CONTEXT_TREE|ALLOW_SOFTLOCK,
                             paused ? HZ/5 : HZ/20);
+        if (ambient_clock_ready(action != ACTION_NONE))
+        {
+            action = ambient_clock_run(false);
+            root_menu_video_draw_home(selected, preview_selected, &draw_state);
+            drawn_selected = selected;
+            preview_io_settle_tick = current_tick + HZ / 2;
+        }
         if (button_status() & BUTTON_LEFT)
             left_toggle_armed = true;
+        if (action == SYS_HIBERNATE_COMPLETE)
+        {
+            /* RetailOS event 17 leaves state 12 through a clean state-0
+             * transition: transient input is gone and its UI timer is
+             * cancelled/rearmed. Preserve the selected item and pixels, but
+             * start Rockbox's preview/animation service epoch over. */
+            play_hold_stopped = false;
+            preview_pending = false;
+            preview_io_settle_tick = current_tick + HZ / 2;
+            next_slideshow = current_tick + IPODJS_SLIDESHOW_DELAY;
+            redraw = true;
+            redraw_list_only = false;
+        }
         if (ipodjs_ui_handle_system_event(action, &redraw))
             continue;
 #ifdef IPOD_ACCESSORY_PROTOCOL
@@ -22383,8 +23981,8 @@ static int load_plugin_screen(char *key)
 
         if (ret == PLUGIN_USB_CONNECTED || ret == PLUGIN_ERROR)
             ret_val = GO_TO_ROOT;
-        else if (ret == PLUGIN_GOTO_WPS)
-            ret_val = GO_TO_WPS;
+        else if (ret == PLUGIN_GOTO_WPS) /* prevent infinite loop */
+            ret_val = old_global == GO_TO_WPS ? GO_TO_BROWSEPLUGINS : GO_TO_WPS;
         else if (ret == PLUGIN_GOTO_PLUGIN)
         {
             if(op_entry->lang_id == LANG_OPEN_PLUGIN)
@@ -22463,8 +24061,8 @@ static int load_plugin_path_screen(const char *path, const char *param)
 
         if (ret == PLUGIN_USB_CONNECTED || ret == PLUGIN_ERROR)
             ret_val = GO_TO_ROOT;
-        else if (ret == PLUGIN_GOTO_WPS)
-            ret_val = GO_TO_WPS;
+        else if (ret == PLUGIN_GOTO_WPS) /* prevent infinite loop */
+            ret_val = old_global == GO_TO_WPS ? GO_TO_BROWSEPLUGINS : GO_TO_WPS;
         else
         {
             if (ret == PLUGIN_GOTO_ROOT)
@@ -22633,6 +24231,12 @@ void root_menu(void)
 
     while (true)
     {
+#ifdef HAVE_IPODJS_UI
+        if (next_screen != GO_TO_ROOT || !root_menu_video_enabled() ||
+            tv_ui_active())
+#endif
+            lcd_boot_frame_hold(false);
+
         switch (next_screen)
         {
             case MENU_ATTACHED_USB:

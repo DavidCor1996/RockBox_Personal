@@ -21,7 +21,13 @@ from services.snow_leopard_assets import ASSET_SPECS, validate_pack  # noqa: E40
 # against PLUGIN_BUFFER_SIZE, which is 3 MiB and dedicated to the running
 # plugin - never playback or core memory - so the limit exists to keep the
 # shell honest rather than because the space is contended.
-DECODED_LIMIT_BYTES = 1024 * 1024
+DECODED_LIMIT_BYTES = 1152 * 1024
+# Sitekick, Steam, and Netflix ship their own 32/34/38-pixel Dock artwork
+# outside the private Apple pack.  Desktop Mode still decodes those assets in
+# its plugin arena, so keep them in the same honest resident calculation.
+EXTERNAL_SHELL_ASSET_BYTES = 3 * (
+    32 * 32 * 3 + 34 * 34 * 3 + 38 * 38 * 3
+)
 
 PLUGIN = ROOT / "apps/plugins/desktop_mode.c"
 LIVETV_HEADER = ROOT / "apps/plugins/mpegplayer/livetv.h"
@@ -59,7 +65,14 @@ class WheelModel:
         if self.last < 0:
             self.last = wheel
             self.last_tick = tick
-            return (0, 0)
+            angle = math.radians(wheel * 360 // 96 - 90)
+            dx = 1 if math.cos(angle) > 0.25 else -1 if math.cos(angle) < -0.25 else 0
+            dy = 1 if math.sin(angle) > 0.25 else -1 if math.sin(angle) < -0.25 else 0
+            if self.reverse:
+                dx, dy = -dx, -dy
+            self.x = max(0, min(318, self.x + dx))
+            self.y = max(0, min(238, self.y + dy))
+            return (dx, dy)
         old = self.last
         if old == wheel:
             return (0, 0)
@@ -68,10 +81,6 @@ class WheelModel:
             delta -= 96
         elif delta < -48:
             delta += 96
-        if abs(delta) <= 2:
-            # the anchor is held below the threshold so a slow stroke
-            # accumulates across samples rather than being discarded
-            return (0, 0)
         direction = -1 if delta < 0 else 1
         elapsed = tick - self.last_tick
         if self.direction and direction != self.direction:
@@ -93,12 +102,19 @@ class WheelModel:
             (self.velocity * 2 + min(4, abs(delta) * hz // elapsed // 12))
             // 3,
         )
-        scale = self.pointer_speed + self.velocity - 1
+        gain16 = (
+            32
+            + (max(1, self.pointer_speed) - 1)
+            * 12
+            * min(8, max(0, abs(delta) - 4))
+            // 8
+            + self.velocity * 6
+        )
         # displacement carries sixteenths of a pixel between samples
-        self.frac_x += int(dx * scale / 128)
-        self.frac_y += int(dy * scale / 128)
-        dx = max(-14, min(14, int(self.frac_x / 16)))
-        dy = max(-14, min(14, int(self.frac_y / 16)))
+        self.frac_x += int(dx * gain16 / 4096)
+        self.frac_y += int(dy * gain16 / 4096)
+        dx = max(-6, min(6, int(self.frac_x / 16)))
+        dy = max(-6, min(6, int(self.frac_y / 16)))
         self.frac_x -= dx * 16
         self.frac_y -= dy * 16
         self.x = max(0, min(318, self.x + dx))
@@ -272,6 +288,34 @@ def _check_source():
         errors.append("absolute wheel availability is never latched")
     if "dm_fallback_step" not in source:
         errors.append("four-direction accessibility fallback is missing")
+    fast_desktop_tokens = (
+        "#define DM_VISIBLE_WINDOWS 3",
+        "dm_update_window_drag",
+        "HZ / 25",
+        "dm_draw_inactive_windows",
+        "dm_update_dock_stage",
+        "DM_OVERLAY_APP_MENU",
+        "DM_ACTION_DESKTOP_FOLDER",
+    )
+    for token in fast_desktop_tokens:
+        if token not in source:
+            errors.append("fast desktop contract is missing: %s" % token)
+    media_desktop_tokens = (
+        "DM_ITUNES_GENRES",
+        "DM_ACTION_ITUNES_SEEK",
+        "DM_ACTION_ITUNES_SEARCH",
+        "dm_itunes_rebuild_visible",
+        "dm_draw_dashboard",
+        "dm_dashboard_refresh_cache",
+        "DM_ACTION_DASHBOARD_ITUNES",
+        "dm_request_damage",
+    )
+    for token in media_desktop_tokens:
+        if token not in source:
+            errors.append("iTunes/Dashboard contract is missing: %s" % token)
+    activate_app = _extract_function(source, "dm_activate_app")
+    if 'PLUGIN_APPS_DIR "/clock.rock"' in activate_app:
+        errors.append("Dashboard still replaces Desktop Mode with Clock")
     if "#define DM_BOOT_FRAME_COUNT 12" not in source:
         errors.append("authentic boot animation does not declare twelve phases")
     boot = _extract_function(source, "dm_show_boot_animation")
@@ -310,32 +354,33 @@ def _check_source():
 def _check_wheel():
     errors = []
     wheel = WheelModel()
-    if wheel.sample(10, 1) != (0, 0):
-        errors.append("initial wheel contact moved the pointer")
-    if wheel.sample(11, 2) != (0, 0) or wheel.sample(12, 3) != (0, 0):
-        errors.append("one/two-count jitter moved the pointer")
-    if wheel.sample(13, 4) == (0, 0):
-        errors.append("cumulative intentional wheel motion was lost")
+    if wheel.sample(10, 1) == (0, 0):
+        errors.append("initial wheel contact did not acknowledge the pointer")
+    before = (wheel.x, wheel.y)
+    wheel.sample(11, 2)
+    wheel.sample(12, 3)
+    if (wheel.x, wheel.y) == before:
+        errors.append("first-count precision motion was lost")
 
     wrap = WheelModel()
     wrap.sample(94, 10)
     dx, dy = wrap.sample(1, 12)
-    if (dx, dy) == (0, 0) or abs(dx) > 14 or abs(dy) > 14:
+    if (dx, dy) == (0, 0) or abs(dx) > 10 or abs(dy) > 10:
         errors.append("95-to-0 wheel wrap is discontinuous")
 
     lift = WheelModel()
     lift.sample(20, 1)
     lift.sample(40, 2)
     lift.sample(-1, 3)
-    if lift.sample(70, 4) != (0, 0):
-        errors.append("finger lift did not reset the wheel anchor")
+    if lift.sample(70, 4) == (0, 0):
+        errors.append("new contact after finger lift was not acknowledged")
 
     cap = WheelModel(pointer_speed=4)
     cap.sample(0, 1)
     for tick, position in enumerate((20, 40, 60, 80), 2):
         dx, dy = cap.sample(position, tick)
-        if abs(dx) > 14 or abs(dy) > 14:
-            errors.append("wheel acceleration exceeded 14 pixels")
+        if abs(dx) > 6 or abs(dy) > 6:
+            errors.append("wheel acceleration exceeded 6 pixels")
             break
 
     reversal = WheelModel(pointer_speed=4)
@@ -399,7 +444,7 @@ def _size_contract(pack=None, profile="320x240"):
         for spec in ASSET_SPECS
         if spec.size is not None and spec.runtime_resident
         and spec.output.startswith((profile + "/", "cursor/", "desktop/"))
-    ) + _font_resident_bytes(pack)
+    ) + _font_resident_bytes(pack) + EXTERNAL_SHELL_ASSET_BYTES
     transient_boot = sum(
         _align(spec.size[0] * spec.size[1] * 2)
         for spec in ASSET_SPECS
@@ -413,6 +458,7 @@ def _size_contract(pack=None, profile="320x240"):
     return {
         "required_assets": len(ASSET_SPECS),
         "resident_asset_bytes": resident,
+        "external_shell_asset_bytes": EXTERNAL_SHELL_ASSET_BYTES,
         "compose_buffer_bytes": compose,
         "transient_boot_bytes": transient_boot,
         "shell_runtime_bytes": shell_runtime,

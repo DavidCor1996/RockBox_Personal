@@ -1,0 +1,29 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_debug_display.c:21:10: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   21 |     { 0, gDebugCircleTex }, { 0, gDebugCrossTex }, { 0, gDebugBallTex },
+      |          ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_debug_display.c:21:34: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   21 |     { 0, gDebugCircleTex }, { 0, gDebugCrossTex }, { 0, gDebugBallTex },
+      |                                  ^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_debug_display.c:21:57: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   21 |     { 0, gDebugCircleTex }, { 0, gDebugCrossTex }, { 0, gDebugBallTex },
+      |                                                         ^~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_debug_display.c:22:10: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   22 |     { 0, gDebugCursorTex }, { 1, gDebugArrowDL },  { 1, gDebugCameraDL },
+      |          ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_debug_display.c:22:34: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   22 |     { 0, gDebugCursorTex }, { 1, gDebugArrowDL },  { 1, gDebugCameraDL },
+      |                                  ^~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_debug_display.c:22:57: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   22 |     { 0, gDebugCursorTex }, { 1, gDebugArrowDL },  { 1, gDebugCameraDL },
+      |                                                         ^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_debug_display.c: In function 'DebugDisplay_DrawSpriteI8':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_debug_display.c:90:37: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+   90 |     gSPDisplayList(POLY_XLU_DISP++, gDebugSpriteDL);
+      |                                     ^~~~~~~~~~~~~~
+      |                                     |
+      |                                     const char *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_debug_display.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~

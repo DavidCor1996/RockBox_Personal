@@ -1,0 +1,95 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_room.c: In function 'func_80095AB4':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_room.c:60:47: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+   60 |         gSPSegment(POLY_OPA_DISP++, 0x03, room->segment);
+      |                                           ~~~~^~~~~~~~~
+      |                                               |
+      |                                               void *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_room.c:5:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_room.c:67:47: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+   67 |         gSPSegment(POLY_XLU_DISP++, 0x03, room->segment);
+      |                                           ~~~~^~~~~~~~~
+      |                                               |
+      |                                               void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_room.c: In function 'Room_DrawBackground2D':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_room.c:291:24: warning: assignment to 'u64 *' {aka 'long long unsigned int *'} from 'unsigned int' makes pointer from integer without a cast [-Wint-conversion]
+  291 |         bg->b.imagePtr = (uintptr_t)blob;
+      |                        ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_room.c: In function 'func_80096680':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_room.c:365:18: warning: assignment to 'PolygonDlist *' from incompatible pointer type 'Gfx *' [-Wincompatible-pointer-types]
+  365 |     polygonDlist = SEGMENTED_TO_VIRTUAL(polygon1->dlist);
+      |                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_room.c:371:47: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  371 |         gSPSegment(POLY_OPA_DISP++, 0x03, room->segment);
+      |                                           ~~~~^~~~~~~~~
+      |                                               |
+      |                                               void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_room.c:399:47: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  399 |         gSPSegment(POLY_XLU_DISP++, 0x03, room->segment);
+      |                                           ~~~~^~~~~~~~~
+      |                                               |
+      |                                               void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_room.c: In function 'func_80096B6C':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_room.c:461:18: warning: assignment to 'PolygonDlist *' from incompatible pointer type 'Gfx *' [-Wincompatible-pointer-types]
+  461 |     polygonDlist = SEGMENTED_TO_VIRTUAL(polygon1->dlist);
+      |                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_room.c:468:47: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  468 |         gSPSegment(POLY_OPA_DISP++, 0x03, room->segment);
+      |                                           ~~~~^~~~~~~~~
+      |                                               |
+      |                                               void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_room.c:483:70: warning: passing argument 3 of 'Room_DrawBackground2D' makes pointer from integer without a cast [-Wint-conversion]
+  483 |                 Room_DrawBackground2D(&spA8, bgImage->source, bgImage->tlut, bgImage->width, bgImage->height,
+      |                                                               ~~~~~~~^~~~~~
+      |                                                                      |
+      |                                                                      u32 {aka long unsigned int}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_room.c:259:57: note: expected 'void *' but argument is of type 'u32' {aka 'long unsigned int'}
+  259 | void Room_DrawBackground2D(Gfx** gfxP, void* tex, void* tlut, u16 width, u16 height, u8 fmt, u8 siz, u16 tlutMode,
+      |                                                   ~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_room.c:495:47: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  495 |         gSPSegment(POLY_XLU_DISP++, 0x03, room->segment);
+      |                                           ~~~~^~~~~~~~~
+      |                                               |
+      |                                               void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_room.c: In function 'func_80096FE8':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:135:40: warning: passing argument 2 of 'LogUtils_LogThreadId' makes integer from pointer without a cast [-Wint-conversion]
+  135 |         LogUtils_LogThreadId(__FILE__, __FILE__);           \
+      |                                        ^~~~~~~~
+      |                                        |
+      |                                        char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:146:29: note: in expansion of macro 'LOG'
+  146 | #define LOG_NUM(exp, value) LOG(exp, value, "%d")
+      |                             ^~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_room.c:546:9: note: in expansion of macro 'LOG_NUM'
+  546 |         LOG_NUM("game_play->room_rom_address.num", play->numRooms);
+      |         ^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:94:49: note: expected 's32' {aka 'long int'} but argument is of type 'char *'
+   94 | void LogUtils_LogThreadId(const char* name, s32 line);
+      |                                             ~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_room.c: In function 'Room_RequestNewRoom':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_room.c:602:58: warning: passing argument 2 of 'DmaMgr_SendRequest2' makes integer from pointer without a cast [-Wint-conversion]
+  602 |         DmaMgr_SendRequest2(&roomCtx->dmaRequest, roomCtx->unk_34, play->roomList[roomNum].vromStart, size, 0,
+      |                                                   ~~~~~~~^~~~~~~~
+      |                                                          |
+      |                                                          void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:50:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   50 | s32 DmaMgr_SendRequest2(DmaRequest* req, uintptr_t ram, uintptr_t vrom, size_t size, u32 unk5, OSMesgQueue* queue, OSMesg msg,
+      |                                          ~~~~~~~~~~^~~

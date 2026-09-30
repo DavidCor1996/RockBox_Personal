@@ -1,0 +1,167 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:83:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[42]' [-Wincompatible-pointer-types]
+   83 |     { &gDaruniaIdleAnim, 1.0f, 0.0f, -1.0f, ANIMMODE_LOOP, 0.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:83:7: note: (near initialization for 'sAnimationInfo[0].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:84:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[42]' [-Wincompatible-pointer-types]
+   84 |     { &gDaruniaIdleAnim, 1.0f, 0.0f, -1.0f, ANIMMODE_LOOP, -10.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:84:7: note: (near initialization for 'sAnimationInfo[1].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:85:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[46]' [-Wincompatible-pointer-types]
+   85 |     { &gDaruniaItemGiveAnim, 1.0f, 0.0f, -1.0f, ANIMMODE_LOOP, -10.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:85:7: note: (near initialization for 'sAnimationInfo[2].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:86:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[50]' [-Wincompatible-pointer-types]
+   86 |     { &gDaruniaItemGiveIdleAnim, 1.0f, 0.0f, -1.0f, ANIMMODE_LOOP, -10.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:86:7: note: (near initialization for 'sAnimationInfo[3].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:87:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[45]' [-Wincompatible-pointer-types]
+   87 |     { &gDaruniaHitLinkAnim, 1.0f, 0.0f, -1.0f, ANIMMODE_LOOP, -10.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:87:7: note: (near initialization for 'sAnimationInfo[4].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:88:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[47]' [-Wincompatible-pointer-types]
+   88 |     { &gDaruniaHitBreastAnim, 1.0f, 0.0f, -1.0f, ANIMMODE_LOOP, -10.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:88:7: note: (near initialization for 'sAnimationInfo[5].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:89:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[57]' [-Wincompatible-pointer-types]
+   89 |     { &gDaruniaStandUpAfterFallingAnim, 1.0f, 0.0f, -1.0f, ANIMMODE_LOOP, -10.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:89:7: note: (near initialization for 'sAnimationInfo[6].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:90:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[50]' [-Wincompatible-pointer-types]
+   90 |     { &gDaruniaDancingLoop1Anim, 1.0f, 0.0f, -1.0f, ANIMMODE_ONCE, -10.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:90:7: note: (near initialization for 'sAnimationInfo[7].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:91:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[50]' [-Wincompatible-pointer-types]
+   91 |     { &gDaruniaDancingLoop1Anim, 1.0f, 0.0f, -1.0f, ANIMMODE_ONCE, 0.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:91:7: note: (near initialization for 'sAnimationInfo[8].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:92:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[50]' [-Wincompatible-pointer-types]
+   92 |     { &gDaruniaDancingLoop2Anim, 1.0f, 0.0f, -1.0f, ANIMMODE_ONCE, 0.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:92:7: note: (near initialization for 'sAnimationInfo[9].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:93:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[50]' [-Wincompatible-pointer-types]
+   93 |     { &gDaruniaDancingLoop3Anim, 1.0f, 0.0f, -1.0f, ANIMMODE_ONCE, 0.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:93:7: note: (near initialization for 'sAnimationInfo[10].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:94:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[47]' [-Wincompatible-pointer-types]
+   94 |     { &gDaruniaWrongSongAnim, 1.0f, 0.0f, -1.0f, ANIMMODE_ONCE, 0.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:94:7: note: (near initialization for 'sAnimationInfo[11].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:95:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[50]' [-Wincompatible-pointer-types]
+   95 |     { &gDaruniaWrongSongEndAnim, 1.0f, 0.0f, -1.0f, ANIMMODE_LOOP, 0.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:95:7: note: (near initialization for 'sAnimationInfo[12].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:96:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[50]' [-Wincompatible-pointer-types]
+   96 |     { &gDaruniaDancingLoop4Anim, 1.0f, 0.0f, -1.0f, ANIMMODE_ONCE, 0.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:96:7: note: (near initialization for 'sAnimationInfo[13].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:97:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[48]' [-Wincompatible-pointer-types]
+   97 |     { &gDaruniaDancingEndAnim, 1.0f, 0.0f, -1.0f, ANIMMODE_ONCE, -6.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:97:7: note: (near initialization for 'sAnimationInfo[14].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:109:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[50]' [-Wincompatible-pointer-types]
+  109 |     { &gDaruniaDancingLoop1Anim, 0.78f, 0.0f, -1.0f, ANIMMODE_ONCE, -10.0f }, //
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:109:7: note: (near initialization for 'sAnimationInfoFix[7].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:110:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[50]' [-Wincompatible-pointer-types]
+  110 |     { &gDaruniaDancingLoop1Anim, 0.77f, 0.0f, -1.0f, ANIMMODE_ONCE, 0.0f },   // hop
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:110:7: note: (near initialization for 'sAnimationInfoFix[8].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:111:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[50]' [-Wincompatible-pointer-types]
+  111 |     { &gDaruniaDancingLoop2Anim, 0.78f, 0.0f, -1.0f, ANIMMODE_ONCE, 0.0f },   // from hop to spin
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:111:7: note: (near initialization for 'sAnimationInfoFix[9].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:112:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[50]' [-Wincompatible-pointer-types]
+  112 |     { &gDaruniaDancingLoop3Anim, 0.77f, 0.0f, -1.0f, ANIMMODE_ONCE, 0.0f },   // spin
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:112:7: note: (near initialization for 'sAnimationInfoFix[10].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:115:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[50]' [-Wincompatible-pointer-types]
+  115 |     { &gDaruniaDancingLoop4Anim, 0.78f, 0.0f, -1.0f, ANIMMODE_ONCE, 0.0f }, // from spin to hop
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:115:7: note: (near initialization for 'sAnimationInfoFix[13].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c: In function 'EnDu_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:320:48: warning: passing argument 3 of 'SkelAnime_InitFlex' from incompatible pointer type [-Wincompatible-pointer-types]
+  320 |     SkelAnime_InitFlex(play, &this->skelAnime, &gDaruniaSkel, NULL, 0, 0, 0);
+      |                                                ^~~~~~~~~~~~~
+      |                                                |
+      |                                                const char (*)[38]
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1329:83: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[38]'
+ 1329 | s32 SkelAnime_InitFlex(PlayState* play, SkelAnime* skelAnime, FlexSkeletonHeader* skeletonHeaderSeg,
+      |                                                               ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:334:29: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  334 |         play->csCtx.segment = SEGMENTED_TO_VIRTUAL(gGoronCityDarunia01Cs);
+      |                             ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c: In function 'func_809FE4A4':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:383:33: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  383 |             play->csCtx.segment = SEGMENTED_TO_VIRTUAL(gGoronCityDaruniaWrongCs);
+      |                                 ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:393:33: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  393 |             play->csCtx.segment = SEGMENTED_TO_VIRTUAL(gGoronCityDaruniaCorrectCs);
+      |                                 ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c: In function 'EnDu_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:662:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  662 |         gDaruniaEyeOpenTex,
+      |         ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:663:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  663 |         gDaruniaEyeOpeningTex,
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:664:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  664 |         gDaruniaEyeShutTex,
+      |         ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:665:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  665 |         gDaruniaEyeClosingTex,
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:668:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  668 |         gDaruniaMouthSeriousTex,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:669:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  669 |         gDaruniaMouthGrinningTex,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:670:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  670 |         gDaruniaMouthOpenTex,
+      |         ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:671:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  671 |         gDaruniaMouthHappyTex,
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:674:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  674 |         gDaruniaNoseSeriousTex,
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:675:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  675 |         gDaruniaNoseHappyTex,
+      |         ^~~~~~~~~~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:10:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:681:71: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  681 |     gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(eyeTextures[this->eyeTexIndex]));
+      |                                                            ~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+      |                                                                       |
+      |                                                                       void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:682:73: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  682 |     gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(mouthTextures[this->mouthTexIndex]));
+      |                                                            ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~
+      |                                                                         |
+      |                                                                         void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Du/z_en_du.c:683:72: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  683 |     gSPSegment(POLY_OPA_DISP++, 0x0A, SEGMENTED_TO_VIRTUAL(noseTextures[this->noseTexIndex]));
+      |                                                            ~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+      |                                                                        |
+      |                                                                        void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~

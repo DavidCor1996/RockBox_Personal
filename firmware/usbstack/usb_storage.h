@@ -30,6 +30,8 @@ int usb_storage_get_config_descriptor(unsigned char *dest,int max_packet_size);
 void usb_storage_init_connection(void);
 void usb_storage_disconnect(void);
 void usb_storage_notify_event(intptr_t data);
+/* True after the host has ejected every exposed drive successfully. */
+bool usb_storage_safe_to_disconnect(void);
 void usb_storage_init(void);
 void usb_storage_transfer_complete(int ep,int dir,int state,int length);
 bool usb_storage_control_request(struct usb_ctrlrequest* req, void* reqdata, unsigned char* dest);

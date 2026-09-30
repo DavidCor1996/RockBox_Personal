@@ -3,14 +3,15 @@
 
 Apple binaries are intentionally not stored in this repository.  This tool
 accepts official Apple downloads, verifies their exact hashes, and emits
-only direct resource extractions or format conversions.  It never redraws,
-traces, interpolates, or resamples artwork.
+only direct resource extractions or format conversions.  It never redraws or traces artwork. The Bluetooth web-guide glyph is
+reduced to fit the Classic status bar; other resources retain native pixels.
 """
 
 from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import shutil
 import struct
 import subprocess
@@ -24,6 +25,9 @@ IPSW_SHA256 = (
 )
 CLASSIC_IPSW_SHA256 = (
     "e753abfb11aaeaa6fd1d7257e87f4e53b6b5d923b1de0e4c9c63c30e0dac9d1a"
+)
+CLASSIC_204_OSOS_SHA256 = (
+    "f4368251a58b2fdc7b46acf3178dae1d24bc1e029736240741015851256c65c4"
 )
 GUIDE_SHA256 = (
     "b5b8dca3c526c3eaa80507818de5541611d35e5711dc7f5fd7186c8439227d2a"
@@ -196,27 +200,20 @@ def build_battery_strip(guide: Path, temporary: Path, output: Path) -> None:
     if identify.stdout != "26x65":
         raise SystemExit(f"unexpected Apple battery strip size: {identify.stdout}")
 
-def build_bluetooth_icon(guide: Path, temporary: Path, output: Path) -> None:
-    """Rasterize and crop Apple's status glyph without tracing or resampling."""
-    prefix = temporary / "touch-status-icons"
-    page = temporary / "touch-status-icons.png"
+def build_bluetooth_icon(source: Path, temporary: Path, output: Path) -> None:
+    """Convert Apple's transparent web-guide glyph for the 20px header."""
+    require_hash(source,
+                 "8670bbe2590eaa9317a1993293318e2474cda48c5e022731ec59f7748179923b",
+                 "Apple Bluetooth status PNG")
+    # Remove transparent padding, then halve the original 18x28 glyph.
+    # Preserve alpha so antialiased edges work on light and dark headers.
+    run(require_tool("magick"), source, "-crop", "18x28+2+1", "+repage",
+        "-resize", "50%", f"BMP:{output}")
+    header = output.read_bytes()[:54]
+    if (struct.unpack_from("<ii", header, 18) != (9, 14) or
+            struct.unpack_from("<H", header, 28)[0] != 32):
+        raise SystemExit("Bluetooth asset must be 9x14 with 32-bit alpha")
 
-    run(require_tool("pdftoppm"), "-f", "17", "-l", "17", "-singlefile",
-        "-png", "-r", "144", guide, prefix)
-    if not page.is_file():
-        raise SystemExit("the Apple iPod touch status-icon page was not found")
-
-    # At 144 dpi the Bluetooth vector is exactly 12x19 pixels on page 17.
-    # Crop those rendered Apple pixels directly, replacing only the white
-    # page background with Rockbox's transparent bitmap key.
-    run(require_tool("magick"), page, "-crop", "12x19+282+760", "+repage",
-        "-fill", "#ff00ff", "-opaque", "white", f"BMP3:{output}")
-    identify = subprocess.run(
-        [require_tool("identify"), "-format", "%wx%h", str(output)],
-        check=True, capture_output=True, text=True,
-    )
-    if identify.stdout != "12x19":
-        raise SystemExit(f"unexpected Apple Bluetooth icon size: {identify.stdout}")
 
 
 def main() -> int:
@@ -225,10 +222,18 @@ def main() -> int:
                         help="official Apple iPod_13.1.3.ipsw")
     parser.add_argument("--classic-ipsw", required=True, type=Path,
                         help="official Apple iPod_24.1.1.2.ipsw")
+    parser.add_argument(
+        "--classic-osos",
+        required=True,
+        type=Path,
+        help="hardware-decrypted official iPod35 2.0.4 OS image",
+    )
     parser.add_argument("--guide", required=True, type=Path,
                         help="official iPod classic 120GB User Guide PDF")
-    parser.add_argument("--touch-guide", required=True, type=Path,
-                        help="official iPod touch iPhone OS 3.0 User Guide PDF")
+    parser.add_argument("--touch-guide", required=False, type=Path,
+                        help="legacy option, no longer used for Bluetooth")
+    parser.add_argument("--bluetooth-icon", required=True, type=Path,
+                        help="Apple iPod touch 4 guide Art/IL_BluetoothBlue.png")
     parser.add_argument(
         "--output", type=Path, default=ROOT / "assets/ipodjs/apple",
         help="private output directory (default: assets/ipodjs/apple)",
@@ -238,9 +243,9 @@ def main() -> int:
     require_hash(args.ipsw, IPSW_SHA256, "Apple IPSW")
     require_hash(args.classic_ipsw, CLASSIC_IPSW_SHA256,
                  "Apple iPod classic IPSW")
+    require_hash(args.classic_osos, CLASSIC_204_OSOS_SHA256,
+                 "Apple iPod35 2.0.4 decrypted OS image")
     require_hash(args.guide, GUIDE_SHA256, "Apple user guide")
-    require_hash(args.touch_guide, TOUCH_GUIDE_SHA256,
-                 "Apple iPod touch user guide")
     args.output.mkdir(parents=True, exist_ok=True)
 
     with tempfile.TemporaryDirectory(prefix="ipodjs-apple-") as temp_name:
@@ -248,6 +253,34 @@ def main() -> int:
         images = temporary / "firmware-images"
         run(pillow_python(), ROOT / "tools/ipod_stock_resource_extract.py",
             args.ipsw, images)
+
+        # The Classic UI archive is the authoritative source for every
+        # RetailOS surface and every animation frame.  Extract into an empty
+        # temporary directory so the extractor's 598/598 completeness gate
+        # cannot be fooled by files left by an older run, then replace only
+        # the generated RetailOS subtree.  Custom iPodJS application assets
+        # live elsewhere and are deliberately outside this operation.
+        classic_dump = temporary / "retailos-2.0.4"
+        run(
+            pillow_python(),
+            ROOT / "tools/ipod_classic_resource_extract.py",
+            args.classic_osos,
+            classic_dump,
+        )
+        classic_inventory = json.loads(
+            (classic_dump / "inventory.json").read_text(encoding="utf-8")
+        )
+        if (
+            not classic_inventory.get("complete")
+            or not classic_inventory.get("runtime_animation_complete")
+            or classic_inventory.get("resource_count") != 598
+            or classic_inventory.get("animation_source_frame_count") != 227
+        ):
+            raise SystemExit("Classic 2.0.4 resource/frame inventory is incomplete")
+        classic_output = args.output / "retailos-2.0.4"
+        if classic_output.exists():
+            shutil.rmtree(classic_output)
+        shutil.copytree(classic_dump, classic_output)
 
         blank = find_resource(images, 24413, 95, 82)
         digits = find_resource(images, 24414, 95, 82)
@@ -394,11 +427,11 @@ def main() -> int:
             args.output / "status-battery.apple.26x65x24.bmp",
         )
         build_bluetooth_icon(
-            args.touch_guide, temporary,
-            args.output / "status-bluetooth.apple.12x19x24.bmp",
+            args.bluetooth_icon, temporary,
+            args.output / "status-bluetooth.apple.9x14x32.bmp",
         )
 
-    generated = sorted(path for path in args.output.iterdir() if path.is_file())
+    generated = sorted(path for path in args.output.rglob("*") if path.is_file())
     provenance = [
         "Private iPodJS Apple asset extraction",
         "",
@@ -419,21 +452,29 @@ def main() -> int:
         f"SHA-256: {GUIDE_SHA256}",
         "Resources: page 16 battery-state images (PDF objects 123-131)",
         "",
-        "Apple iPod touch User Guide for iPhone OS 3.0",
-        f"SHA-256: {TOUCH_GUIDE_SHA256}",
-        "Resource: page 17 Bluetooth status glyph, rendered at 144 dpi",
-        "          and cropped without tracing, repainting, or resampling",
+        "Apple iPod touch 4 web guide Bluetooth status icon",
+        "https://help.apple.com/ipodtouch/4/Contents/en/Art/IL_BluetoothBlue.png",
+        "Resource: transparent 18x28 glyph cropped and reduced to 9x14",
         "",
         "Apple iPod_24.1.1.2.ipsw",
         f"SHA-256: {CLASSIC_IPSW_SHA256}",
         "Resource: Resources/Fonts/Helvetica.ttf from the intact FAT16",
         "          iPodResources volume; official outlines rasterized at 17px.",
         "",
+        "Apple iPod35 RetailOS 2.0.4 decrypted OS image",
+        f"SHA-256: {CLASSIC_204_OSOS_SHA256}",
+        "Resources: complete embedded paMB/GAMI inventory (598/598 bitmaps)",
+        "Animation ledger: 227/227 source frames across 11 named sequences",
+        "Runtime forms: direct PNG decode, RGB565+alpha RGA conversion, and",
+        "               lossless raw IAF packs; no frame is interpolated.",
+        "",
         "Generated files:",
     ]
     for path in generated:
         if path.name != "PROVENANCE.txt":
-            provenance.append(f"{path.name}\t{sha256(path)}")
+            provenance.append(
+                f"{path.relative_to(args.output)}\t{sha256(path)}"
+            )
     provenance.append("")
     (args.output / "PROVENANCE.txt").write_text(
         "\n".join(provenance), encoding="utf-8"

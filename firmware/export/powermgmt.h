@@ -176,7 +176,12 @@ void shutdown_hw(enum shutdown_type sd_type);
 void sys_poweroff(void);
 #if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
         IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
-void sys_poweroff_handle_request(uint32_t sequence);
+long sys_poweroff_handle_request(uint32_t sequence);
+void sys_poweroff_handle_plugin_capable(intptr_t protocol);
+long sys_poweroff_handle_plugin_ready(intptr_t protocol);
+void sys_poweroff_plugin_reset(void);
+bool sys_poweroff_button_is_reserved(void);
+void sys_poweroff_hibernate_event_committed(void);
 #endif
 void sys_reboot(void);
 void sys_disk_mode(void);

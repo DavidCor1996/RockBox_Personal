@@ -1,0 +1,63 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Link_Child/z_en_horse_link_child.c:36:5: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[59]' [-Wincompatible-pointer-types]
+   36 |     &gChildEponaIdleAnim,     &gChildEponaWhinnyAnim,    &gChildEponaWalkingAnim,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Link_Child/z_en_horse_link_child.c:36:5: note: (near initialization for 'sAnimations[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Link_Child/z_en_horse_link_child.c:36:31: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[61]' [-Wincompatible-pointer-types]
+   36 |     &gChildEponaIdleAnim,     &gChildEponaWhinnyAnim,    &gChildEponaWalkingAnim,
+      |                               ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Link_Child/z_en_horse_link_child.c:36:31: note: (near initialization for 'sAnimations[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Link_Child/z_en_horse_link_child.c:36:58: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[62]' [-Wincompatible-pointer-types]
+   36 |     &gChildEponaIdleAnim,     &gChildEponaWhinnyAnim,    &gChildEponaWalkingAnim,
+      |                                                          ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Link_Child/z_en_horse_link_child.c:36:58: note: (near initialization for 'sAnimations[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Link_Child/z_en_horse_link_child.c:37:5: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[63]' [-Wincompatible-pointer-types]
+   37 |     &gChildEponaTrottingAnim, &gChildEponaGallopingAnim,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Link_Child/z_en_horse_link_child.c:37:5: note: (near initialization for 'sAnimations[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Link_Child/z_en_horse_link_child.c:37:31: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[64]' [-Wincompatible-pointer-types]
+   37 |     &gChildEponaTrottingAnim, &gChildEponaGallopingAnim,
+      |                               ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Link_Child/z_en_horse_link_child.c:37:31: note: (near initialization for 'sAnimations[4]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Link_Child/z_en_horse_link_child.c: In function 'EnHorseLinkChild_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Link_Child/z_en_horse_link_child.c:155:34: warning: passing argument 3 of 'Skin_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  155 |     Skin_Init(play, &this->skin, &gChildEponaSkel, &gChildEponaGallopingAnim);
+      |                                  ^~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[55]
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Link_Child/z_en_horse_link_child.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Link_Child/z_en_horse_link_child.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1361:61: note: expected 'SkeletonHeader *' but argument is of type 'const char (*)[55]'
+ 1361 | void Skin_Init(PlayState* play, Skin* skin, SkeletonHeader* skeletonHeader, AnimationHeader* animationHeader);
+      |                                             ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Link_Child/z_en_horse_link_child.c:155:52: warning: passing argument 4 of 'Skin_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  155 |     Skin_Init(play, &this->skin, &gChildEponaSkel, &gChildEponaGallopingAnim);
+      |                                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                    |
+      |                                                    const char (*)[64]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1361:94: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[64]'
+ 1361 | void Skin_Init(PlayState* play, Skin* skin, SkeletonHeader* skeletonHeader, AnimationHeader* animationHeader);
+      |                                                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Link_Child/z_en_horse_link_child.c: At top level:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Link_Child/z_en_horse_link_child.c:550:33: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  550 | static void* sEyeTextures[] = { gChildEponaEyeOpenTex, gChildEponaEyeHalfTex, gChildEponaEyeCloseTex };
+      |                                 ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Link_Child/z_en_horse_link_child.c:550:56: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  550 | static void* sEyeTextures[] = { gChildEponaEyeOpenTex, gChildEponaEyeHalfTex, gChildEponaEyeCloseTex };
+      |                                                        ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Link_Child/z_en_horse_link_child.c:550:79: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  550 | static void* sEyeTextures[] = { gChildEponaEyeOpenTex, gChildEponaEyeHalfTex, gChildEponaEyeCloseTex };
+      |                                                                               ^~~~~~~~~~~~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:10:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Link_Child/z_en_horse_link_child.c: In function 'EnHorseLinkChild_OverrideLimbDraw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Link_Child/z_en_horse_link_child.c:612:76: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  612 |         gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(sEyeTextures[index]));
+      |                                                                ~~~~~~~~~~~~^~~~~~~
+      |                                                                            |
+      |                                                                            void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~

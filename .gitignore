@@ -1,5 +1,6 @@
 # /
 /build-hw-*/
+/build-*/
 /build-hw/
 /build-sim/
 /sim*
@@ -17,6 +18,8 @@
 **/.backups/
 **/.rockpod-backups/
 **/backups/
+**/*-backup-*/
+**/device-backup-*/
 *.bak
 *.backup
 *.backup-*
@@ -82,6 +85,12 @@
 /rockpod/.snow_leopard_desktop/
 /rockpod/.desktop_mode/
 /.rockpod-private/
+
+# Imported game runtime and embedded development checkout stay local.
+/assets/8bit_rebellion/rockbox/
+/devsrc/nano-soh-runtime/Shipwright/
+/assets/ipodjs/rockbox/previews/.rockbox/
+/assets/ipodjs/rockbox/.rockbox/
 
 __pycache__
 .DS_STORE
@@ -449,3 +458,6 @@ database_idx.tcd
 *.mlp
 *.mla
 *.mlk
+
+# Reproducibly built local Apple-iPod H.264 encoder (see tools/build_x264_apple_ipod.sh)
+/rockpod/.tools/

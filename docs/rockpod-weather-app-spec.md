@@ -297,3 +297,28 @@ RockPod:
 - Calendar-aware weather notes for travel dates.
 - Manual on-host refresh without a full media sync.
 - Provider selection UI with optional API-key storage.
+
+## September 2026 visual and sync refresh
+
+The plugin uses an open blue gradient, embedded Helvetica glyphs, dimensional
+keyed bitmap weather symbols, seven daily rows, and a six-hour details strip.
+There are no opaque forecast-row or text backgrounds. Select toggles details;
+the wheel selects a day. Hero artwork drifts on an elapsed-tick clock, with
+condition-specific rain, snow and clear-sky shimmer. Rendering is capped below
+8 updates per second and action processing takes priority over animation.
+
+Icon decoding runs once at entry into fixed plugin BSS (93,440 bytes on RGB565).
+Draw functions perform no file reads or allocations. The full-screen background
+cache is removed; forecast parsing streams through a 512-byte line buffer.
+No audio buffer, mixer, playlist or core allocation API is used. Missing artwork
+shows a neutral placeholder instead of a crude substitute weather drawing.
+The embedded glyph source is generated from the repository Helvetica BDFs with
+`tools/convbdf`, preserving the source font attribution.
+
+Weather sync rejects cached forecasts from another location or unit setting,
+and tolerates truncated daily arrays. Simulator and iPod 6G weather plugin
+builds pass; the weather Python suite passes 12 tests. Simulator captures verify
+transparent artwork, overview/details layout and changes between animation
+frames. Native plugin BSS is 147,896 bytes; the draw function's ARM local stack
+reservation is 116 bytes (plus saved registers and callees). Physical-device
+playback and navigation stress testing has not been performed for this pass.

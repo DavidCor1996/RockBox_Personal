@@ -70,6 +70,7 @@ int plugin_open(const char *plugin, const char *parameter);
 
 #ifndef __PCTOOL__
 #include "config.h"
+#include "tv_guide.h"
 #include "notification.h"
 #include "system.h"
 #include "dir.h"
@@ -182,7 +183,7 @@ int plugin_open(const char *plugin, const char *parameter);
  * when this happens please take the opportunity to sort in
  * any new functions "waiting" at the end of the list.
  */
-#define PLUGIN_API_VERSION 287
+#define PLUGIN_API_VERSION 291
 
 /* 239 Marks the removal of ARCHOS HWCODEC and CHARCELL */
 
@@ -1067,6 +1068,18 @@ struct plugin_api {
     int (*video_h264_play)(const char *filepath, void *buffer,
                            size_t buffer_size);
 #endif
+#ifdef HAVE_DOCKED_AMBIENT_CLOCK
+    bool (*ambient_clock_ready)(bool activity);
+    int (*ambient_clock_run)(bool preview);
+#endif
+#ifdef HAVE_COMPOSITE_VIDEO_OUT
+    bool (*tv_guide_render)(enum tv_guide_command command, int x, int y,
+        int width, int height, unsigned color, const void *data);
+    bool (*tv_video_prepare)(const unsigned char * const planes[3],
+        int width, int height, int stride, int dar_n, int dar_d,
+        unsigned long elapsed_ms, unsigned long duration_ms,
+        bool paused, bool show_status, const unsigned char *caption);
+#endif
 };
 
 /* plugin header */
@@ -1106,6 +1119,10 @@ extern unsigned char plugin_end_addr[];
 #define str(x) language_strings[x]
 
 int plugin_load(const char* plugin, const void* parameter);
+char *plugin_get_current_filename(void);
+/* Core power management uses this to keep retained suspend away from plugin
+ * code, callbacks, and hardware ownership that have no suspend contract. */
+bool plugin_is_loaded(void);
 
 /* defined by the plugin */
 extern const struct plugin_api *rb;

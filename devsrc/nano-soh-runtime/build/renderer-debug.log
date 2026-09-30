@@ -1,0 +1,15 @@
+texture tile 0 fmt 2 size 1 line 4 tmem 0 bounds 0,0,124,124 masks 5,5 lut 0
+scenes/shared/spot04_scene/spot04_room_0DL_006170: error=5 w0=06000204 commands=29 draws=1 assets=4864
+Renderer: transformed triangles, vertex/list bounds, recursion/command limits and packed RGBA16 row strides passed.
+External display lists: 0 completed, 1 rejected; isolated mesh translation, not gameplay or hardware rendering.
+Traceback (most recent call last):
+  File "/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/tools/test_renderer.py", line 34, in <module>
+    if __name__=='__main__': main()
+                             ~~~~^^
+  File "/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/tools/test_renderer.py", line 32, in main
+    subprocess.run([work/'test',args.pack,work/'names'],check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '[PosixPath('/tmp/nano-renderer-1e5_qwml/test'), PosixPath('/home/david/.local/share/NanoApps/soh/oot.nanores'), PosixPath('/tmp/nano-renderer-1e5_qwml/names')]' returned non-zero exit status 1.

@@ -23,6 +23,7 @@
  - Multi screen support
  - Rewrote/removed a lot of code now useless with the new gui API
 */
+#include "ambient_clock.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include "config.h"
@@ -467,8 +468,14 @@ int do_menu(const struct menu_item_ex *start_menu, int *start_selected,
                                 list_do_action_timeout(&lists, HZ));
             /* HZ so the status bar redraws corectly */
 
+        bool ambient_redraw = false;
+        if (ambient_clock_ready(action != ACTION_NONE || menu != &root_menu_))
+        {
+            action = ambient_clock_run(false);
+            ambient_redraw = true;
+        }
         /* query audio status to see if it changed */
-        redraw_lists = query_audio_status(&old_audio_status);
+        redraw_lists = query_audio_status(&old_audio_status) || ambient_redraw;
 
 #ifdef HAVE_TOUCHSCREEN
         /* need to translate touch actions *first* so the menu callback has

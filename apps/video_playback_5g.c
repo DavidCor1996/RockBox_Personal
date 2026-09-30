@@ -2,8 +2,8 @@
  * Apple VideoCore H.264/AAC player for iPod Video (5G/5.5G).
  *
  * This is the host half of the media path used by Apple's 1.3 firmware.  It
- * boots the retail VMCS image, implements its read-only VLL file service and
- * uses the passthru service to deliver MP4 samples to Apple's MPlayer,
+ * warm-loads the retail VMCS image, implements its read-only VLL file service
+ * and uses passthru to deliver MP4 samples to Apple's MPlayer,
  * h264dec and aacdec VideoCore modules.  No Apple binary is built into
  * Rockbox; the owner installs the files extracted from Apple's iPod updater.
  ***************************************************************************/
@@ -12,6 +12,7 @@
 #if defined(IPOD_VIDEO) && !defined(SIMULATOR)
 
 #include "bcm2722.h"
+#include "backlight.h"
 #include "button.h"
 #include "cpu.h"
 #include "file.h"
@@ -19,6 +20,7 @@
 #include "kernel.h"
 #include "lcd.h"
 #include "mp4_demux.h"
+#include "misc.h"
 #include "rbpaths.h"
 #include "settings.h"
 #include "sound.h"
@@ -27,6 +29,8 @@
 #include "system.h"
 #include "timefuncs.h"
 #include "video_playback.h"
+#include "video_completion.h"
+#include "video_resume.h"
 
 #include <stdint.h>
 #include <stdio.h>
@@ -35,6 +39,7 @@
 
 #define VIDEO5_VMCS             ROCKBOX_DIR "/videocore/vmcs.bin"
 #define VIDEO5_VLL_DIR          ROCKBOX_DIR "/videocore"
+#define VIDEO5_STATUS_FILE      ROCKBOX_DIR "/video5-last-status.txt"
 #define VIDEO5_VMCS_BYTES       201376u
 #define VIDEO5_FRAME_MAGIC      0xf1a55a1fu
 #define VIDEO5_MAX_FRAME        1408u
@@ -47,6 +52,7 @@
 #define VIDEO5_TAG_GENCMD       1
 #define VIDEO5_TAG_DISPLAY      2
 #define VIDEO5_TAG_HOSTFS       5
+#define VIDEO5_TAG_HOSTREQ      6
 #define VIDEO5_TAG_PASSTHRU     7
 
 #define VIDEO5_DISPLAY_LCD      0
@@ -64,6 +70,9 @@
 #define VIDEO5_FS_SEEK          0x43
 #define VIDEO5_FS_READ          0x44
 #define VIDEO5_FS_OPEN          0x4c
+
+#define VIDEO5_HR_NOTIFY        0x47
+#define VIDEO5_HR_UNSUPPORTED   10
 
 #define VIDEO5_PT_SETUP         0x60
 #define VIDEO5_PT_SAMPLE        0x61
@@ -138,6 +147,7 @@ struct video5_player
     struct video5_channel gencmd;
     struct video5_channel display;
     struct video5_channel hostfs;
+    struct video5_channel hostreq;
     struct video5_channel passthru;
     struct mp4v_demux_res *demux;
     int media_fd;
@@ -169,6 +179,7 @@ struct video5_launch
 {
     const char *path;
     enum video5_style style;
+    bool restart;
     bool live;
     bool allow_seek;
     uint32_t live_epoch;
@@ -184,6 +195,30 @@ struct video5_host_file
 };
 
 static struct video5_host_file video5_files[8];
+
+static const char *video5_driver_stage_name(enum bcm2722_video_stage stage)
+{
+    static const char * const names[] = {
+        "off", "validate", "lcd-handoff", "power-reset", "bootstrap",
+        "upload", "verify", "start", "runtime-bootstrap", "ready", "stopped",
+    };
+
+    return (unsigned)stage < ARRAYLEN(names) ? names[stage] : "unknown";
+}
+
+static void video5_write_status(const char *phase, const char *detail)
+{
+    int fd = open(VIDEO5_STATUS_FILE, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+
+    if (fd < 0)
+        return;
+    fdprintf(fd, "phase=%s\ndriver_stage=%s\ndetail=%s\n",
+             phase != NULL ? phase : "unknown",
+             video5_driver_stage_name(bcm2722_video_get_stage()),
+             detail != NULL ? detail : "none");
+    fsync(fd);
+    close(fd);
+}
 
 static uint16_t video5_get_u16(const uint8_t *p)
 {
@@ -302,8 +337,9 @@ static bool video5_channel_send_sequence(struct video5_channel *channel,
 
     if (!channel->valid || total > sizeof(frame))
         return false;
-    read_pointer = bcm2722_read16(channel->record + 0x10);
-    write_pointer = bcm2722_read16(channel->record + 0x20);
+    if (!bcm2722_read16(channel->record + 0x10, &read_pointer) ||
+        !bcm2722_read16(channel->record + 0x20, &write_pointer))
+        return false;
     ring_size = channel->tx_end - channel->tx_start;
     if (read_pointer < channel->tx_start || read_pointer >= channel->tx_end ||
         write_pointer < channel->tx_start || write_pointer >= channel->tx_end)
@@ -324,9 +360,8 @@ static bool video5_channel_send_sequence(struct video5_channel *channel,
         return false;
     write_pointer = video5_ring_advance(write_pointer, total,
                                         channel->tx_start, channel->tx_end);
-    bcm2722_write16(channel->record + 0x20, write_pointer);
-    bcm2722_notify();
-    return true;
+    return bcm2722_write16(channel->record + 0x20, write_pointer) &&
+           bcm2722_notify();
 }
 
 static bool video5_channel_send(struct video5_channel *channel,
@@ -355,8 +390,9 @@ static bool video5_channel_receive(struct video5_channel *channel,
 
     if (!channel->valid)
         return false;
-    read_pointer = bcm2722_read16(channel->record + 0x30);
-    write_pointer = bcm2722_read16(channel->record + 0x40);
+    if (!bcm2722_read16(channel->record + 0x30, &read_pointer) ||
+        !bcm2722_read16(channel->record + 0x40, &write_pointer))
+        return false;
     if (read_pointer < channel->rx_start || read_pointer >= channel->rx_end ||
         write_pointer < channel->rx_start || write_pointer >= channel->rx_end)
         return false;
@@ -381,8 +417,7 @@ static bool video5_channel_receive(struct video5_channel *channel,
         return false;
     read_pointer = video5_ring_advance(read_pointer, total,
                                        channel->rx_start, channel->rx_end);
-    bcm2722_write16(channel->record + 0x30, read_pointer);
-    return true;
+    return bcm2722_write16(channel->record + 0x30, read_pointer);
 }
 
 static bool video5_channel_from_tag(uint32_t base, unsigned tag,
@@ -393,20 +428,29 @@ static bool video5_channel_from_tag(uint32_t base, unsigned tag,
     memset(channel, 0, sizeof(*channel));
     for (i = 0; i < 8; i++)
     {
-        uint16_t offset = bcm2722_read16(base + i * 2);
+        uint16_t offset;
         uint32_t record;
 
+        if (!bcm2722_read16(base + i * 2, &offset))
+            return false;
         if (offset == 0)
             continue;
         record = base + offset;
-        if (bcm2722_read16(record + 4) != tag)
-            continue;
+        {
+            uint16_t record_tag;
+
+            if (!bcm2722_read16(record + 4, &record_tag))
+                return false;
+            if (record_tag != tag)
+                continue;
+        }
         channel->base = base;
         channel->record = record;
-        channel->tx_start = bcm2722_read16(record + 6);
-        channel->tx_end = bcm2722_read16(record + 8);
-        channel->rx_start = bcm2722_read16(record + 10);
-        channel->rx_end = bcm2722_read16(record + 12);
+        if (!bcm2722_read16(record + 6, &channel->tx_start) ||
+            !bcm2722_read16(record + 8, &channel->tx_end) ||
+            !bcm2722_read16(record + 10, &channel->rx_start) ||
+            !bcm2722_read16(record + 12, &channel->rx_end))
+            return false;
         channel->valid = channel->tx_start < channel->tx_end &&
                          channel->rx_start < channel->rx_end &&
                          (channel->tx_start & 15) == 0 &&
@@ -424,10 +468,16 @@ static bool video5_discover_services(struct video5_player *player)
 
     while (TIME_BEFORE(current_tick, deadline))
     {
-        if (bcm2722_read32(0x1f0 + 8) == 1)
-        {
-            uint32_t base = bcm2722_read32(0x1f0 + 12);
+        uint32_t ready;
 
+        if (!bcm2722_read32(0x1f0 + 8, &ready))
+            return false;
+        if (ready == 1)
+        {
+            uint32_t base;
+
+            if (!bcm2722_read32(0x1f0 + 12, &base))
+                return false;
             if (base != 0 && (base & 3) == 0 &&
                 video5_channel_from_tag(base, VIDEO5_TAG_GENCMD,
                                         &player->gencmd) &&
@@ -435,6 +485,8 @@ static bool video5_discover_services(struct video5_player *player)
                                         &player->display) &&
                 video5_channel_from_tag(base, VIDEO5_TAG_HOSTFS,
                                         &player->hostfs) &&
+                video5_channel_from_tag(base, VIDEO5_TAG_HOSTREQ,
+                                        &player->hostreq) &&
                 video5_channel_from_tag(base, VIDEO5_TAG_PASSTHRU,
                                         &player->passthru))
                 return true;
@@ -517,32 +569,37 @@ static bool video5_pump_hostfs(struct video5_player *player)
     int32_t result = -1;
 
     if (!video5_channel_receive(&player->hostfs, &frame))
-        return true;
+        return !bcm2722_video_faulted();
     memset(reply, 0, sizeof(reply));
     if (frame.opcode == VIDEO5_FS_OPEN && frame.length > 16 &&
         memchr(frame.payload + 16, '\0', frame.length - 16) != NULL)
     {
         result = video5_host_open((const char *)frame.payload + 16);
     }
-    else if (frame.opcode == VIDEO5_FS_READ && frame.length >= 12)
+    else if (frame.opcode == VIDEO5_FS_READ && frame.length >= 16)
     {
         int fd = video5_host_fd(video5_get_u32(frame.payload));
         uint32_t count = video5_get_u32(frame.payload + 4);
         uint32_t size = video5_get_u32(frame.payload + 8);
         uint64_t requested = (uint64_t)count * size;
 
-        if (fd >= 0)
+        /* RetailOS preserves the request's four argument words.  fread's
+         * result is an object count, while the returned data begins at +16. */
+        memcpy(reply, frame.payload, 16);
+        reply_length = 16;
+        if (fd >= 0 && size != 0)
         {
             ssize_t bytes;
 
             if (requested > sizeof(reply) - 16)
                 requested = sizeof(reply) - 16;
             bytes = read(fd, reply + 16, (size_t)requested);
-            result = bytes < 0 ? -1 : bytes;
+            if (bytes < 0)
+                result = -1;
+            else
+                result = (int32_t)((uint32_t)bytes / size);
             reply_length = bytes < 0 ? 16 : 16 + bytes;
         }
-        else
-            reply_length = 16;
     }
     else if (frame.opcode == VIDEO5_FS_SEEK && frame.length >= 12)
     {
@@ -569,6 +626,29 @@ static bool video5_pump_hostfs(struct video5_player *player)
                                         frame.opcode, reply, reply_length);
 }
 
+static bool video5_pump_hostreq(struct video5_player *player)
+{
+    struct video5_frame frame;
+    uint32_t error = VIDEO5_HR_UNSUPPORTED;
+
+    if (!video5_channel_receive(&player->hostreq, &frame))
+        return !bcm2722_video_faulted();
+
+    /* RetailOS 1.3's tag-6 task at 0x100f9ca4 dispatches opcode 0x47 to
+     * its 15-entry notification callback table, then acknowledges with an
+     * empty same-sequence/same-opcode frame.  Rockpod consumes playback
+     * completion through passthru, so no additional UI callback is needed. */
+    if (frame.opcode == VIDEO5_HR_NOTIFY)
+        return video5_channel_send_sequence(&player->hostreq, frame.sequence,
+                                            frame.opcode, NULL, 0);
+
+    /* The RetailOS default switch arm returns a four-byte error value 10.
+     * This keeps an unexpected host request from blocking VideoCore while
+     * refusing to fabricate an unproven service implementation. */
+    return video5_channel_send_sequence(&player->hostreq, frame.sequence,
+                                        frame.opcode, &error, sizeof(error));
+}
+
 static bool video5_gencmd(struct video5_player *player, const char *command)
 {
     struct video5_frame frame;
@@ -581,7 +661,8 @@ static bool video5_gencmd(struct video5_player *player, const char *command)
     deadline = current_tick + VIDEO5_COMMAND_TIMEOUT;
     while (TIME_BEFORE(current_tick, deadline))
     {
-        if (!video5_pump_hostfs(player))
+        if (!video5_pump_hostfs(player) ||
+            !video5_pump_hostreq(player))
             return false;
         if (video5_channel_receive(&player->gencmd, &frame))
         {
@@ -593,6 +674,8 @@ static bool video5_gencmd(struct video5_player *player, const char *command)
             return strstr((const char *)frame.payload, "error=") == NULL ||
                    strstr((const char *)frame.payload, "error=0") != NULL;
         }
+        if (bcm2722_video_faulted())
+            return false;
         sleep(1);
     }
     return false;
@@ -605,22 +688,36 @@ static uint8_t video5_detect_output_display(void)
     if (global_settings.composite_video_output == IPOD_COMPOSITE_VIDEO_ON)
         return VIDEO5_DISPLAY_TV;
 
-    /* The 5G diagnostic screen identifies GPIOA bit 4 as dock mode. Apple's
-     * player selects one MPlayer display at launch: 0 for LCD or 2 for TV.
-     * Auto preserves that stock launch-time choice; On also supports passive
-     * composite leads whose dock GPIO is not asserted. */
+    /* RetailOS uses one MPlayer display at launch: 0 for LCD or 2 for TV.
+     * Rockbox's 5G diagnostic identifies GPIOA bit 4 as dock mode, so Auto
+     * samples it once; On also supports passive composite leads whose dock
+     * GPIO is not asserted. */
     return (GPIOA_INPUT_VAL & 0x10) != 0 ?
            VIDEO5_DISPLAY_TV : VIDEO5_DISPLAY_LCD;
 }
 
-static bool video5_set_region(struct video5_player *player, bool fill)
+static bool video5_set_region_for_display(struct video5_player *player,
+                                          uint8_t display, bool fill)
 {
     char command[80];
 
     snprintf(command, sizeof(command),
              "mp_region display=%u dest=fullscreen mode=%s",
-             player->output_display, fill ? "fill" : "letterbox");
+             display, fill ? "fill" : "letterbox");
     return video5_gencmd(player, command);
+}
+
+static bool video5_set_region(struct video5_player *player, bool fill)
+{
+    /* Match Rockpod's 6G user-facing contract: the internal LCD remains the
+     * authoritative playback surface.  When TV output is requested, add an
+     * equivalent display-2 MPlayer region rather than replacing display 0.
+     * MPlayer therefore scales the same decoded frame and presentation mode
+     * to both outputs. */
+    if (!video5_set_region_for_display(player, VIDEO5_DISPLAY_LCD, fill))
+        return false;
+    return player->output_display != VIDEO5_DISPLAY_TV ||
+           video5_set_region_for_display(player, VIDEO5_DISPLAY_TV, fill);
 }
 
 static bool video5_enable_output(struct video5_player *player, bool fill)
@@ -752,7 +849,8 @@ static bool video5_setup_passthru(struct video5_player *player,
     deadline = current_tick + VIDEO5_COMMAND_TIMEOUT;
     while (TIME_BEFORE(current_tick, deadline))
     {
-        if (!video5_pump_hostfs(player))
+        if (!video5_pump_hostfs(player) ||
+            !video5_pump_hostreq(player))
             return false;
         if (video5_channel_receive(&player->passthru, &frame))
         {
@@ -774,6 +872,8 @@ static bool video5_setup_passthru(struct video5_player *player,
                 return player->setup_complete;
             }
         }
+        if (bcm2722_video_faulted())
+            return false;
         sleep(1);
     }
     return false;
@@ -954,12 +1054,8 @@ static bool video5_send_sample(struct video5_player *player,
     flag = bytes == remaining ? (track->sent == 0 ? 2 : 3) :
                                 (track->sent == 0 ? 0 : 1);
     memset(payload, 0, sizeof(payload));
-    video5_put_u32(payload, track->audio ? 0 : 1);
-    /* RetailOS marks every AAC access unit with one and forwards the video
-     * sample's sync flag in this halfword-derived field. */
-    video5_put_u32(payload + 4,
-                   track->audio || mp4v_is_keyframe(player->demux,
-                                                    track->sample) ? 1 : 0);
+    video5_put_u16(payload, track->audio ? 0 : 1);
+    video5_put_u16(payload + 2, 0);
     /* RetailOS's MP4 readers normalize both tracks to one millisecond clock
      * before the passthru call.  This is independent of the container's mvhd
      * edit timescale: the stock seek paths subtract literal 2000 and 20000
@@ -971,18 +1067,15 @@ static bool video5_send_sample(struct video5_player *player,
                                player->demux->timescale;
     timestamp_ms = timescale == 0 ? 0 :
         track->timing.ticks * 1000u / timescale;
-    video5_put_u32(payload + 8,
+    video5_put_u32(payload + 4,
                    timestamp_ms > UINT32_MAX ? UINT32_MAX : timestamp_ms);
-    video5_put_u32(payload + 12, track->sequence++);
-    video5_put_u32(payload + 20, bytes);
-    video5_put_u32(payload + 24, flag);
-    video5_put_u32(payload + 28, player->slot_address[slot]);
-    /* These four words are stream-crypto metadata, not a clock.  RetailOS
-     * sends zeroes for the unencrypted files produced by iTunes. */
-    video5_put_u32(payload + 32, 0);
-    video5_put_u32(payload + 36, 0);
-    video5_put_u32(payload + 40, 0);
-    video5_put_u32(payload + 44, 0);
+    video5_put_u32(payload + 8, track->sequence++);
+    video5_put_u32(payload + 12, 0);
+    video5_put_u32(payload + 16, bytes);
+    video5_put_u32(payload + 20, flag);
+    /* +24..+44 are the stream-crypto contract.  Stock unencrypted iTunes
+     * movies send zeroes.  The slot address is established by setup and is
+     * deliberately not repeated in this message. */
     if (!video5_channel_send(&player->passthru, VIDEO5_PT_SAMPLE,
                              payload, sizeof(payload), NULL))
         return false;
@@ -1029,7 +1122,7 @@ static bool video5_pump_passthru(struct video5_player *player)
     struct video5_frame frame;
 
     if (!video5_channel_receive(&player->passthru, &frame))
-        return true;
+        return !bcm2722_video_faulted();
     if (frame.opcode == VIDEO5_PT_STATUS)
     {
         uint32_t status = 4;
@@ -1068,6 +1161,7 @@ static bool video5_display_call(struct video5_player *player,
     while (TIME_BEFORE(current_tick, deadline))
     {
         if (!video5_pump_hostfs(player) ||
+            !video5_pump_hostreq(player) ||
             !video5_pump_passthru(player))
             return false;
         if (video5_channel_receive(&player->display, &frame))
@@ -1086,6 +1180,8 @@ static bool video5_display_call(struct video5_player *player,
             }
             return true;
         }
+        if (bcm2722_video_faulted())
+            return false;
         sleep(1);
     }
     return false;
@@ -1542,6 +1638,7 @@ static bool video5_parse_launch(const char *parameter,
     else if (!strncmp(parameter, "netflix-restart:", 16))
     {
         launch->style = VIDEO5_STYLE_NETFLIX;
+        launch->restart = true;
         launch->path = parameter + 16;
     }
     else if (!strncmp(parameter, "netflix:", 8))
@@ -1647,6 +1744,54 @@ static uint32_t video5_max_sample(const uint32_t *sizes, uint32_t count)
     return maximum;
 }
 
+/* The synced index stores credits start/duration in seconds (columns 25/26).
+ * Read it once before playback; completion uses only the cached timestamp. */
+static uint32_t video5_netflix_credits(const struct video5_launch *launch,
+                                      uint32_t duration_ms)
+{
+    char line[1024];
+    uint32_t credits_start = 0;
+    int fd;
+
+    if (launch->style != VIDEO5_STYLE_NETFLIX)
+        return 0;
+    fd = open(ROCKBOX_DIR "/videolist/index.tsv", O_RDONLY);
+    if (fd < 0)
+        return 0;
+    while (read_line(fd, line, sizeof(line)) > 0)
+    {
+        char *fields[27];
+        char *field = line;
+        int count;
+        const char *path = launch->path;
+        uint32_t credits_duration;
+
+        if (line[0] == '#')
+            continue;
+        for (count = 0; count < 27; count++)
+        {
+            char *tab = strchr(field, '\t');
+            fields[count] = field;
+            if (tab == NULL)
+                break;
+            *tab = '\0';
+            field = tab + 1;
+        }
+        if (*path == '/')
+            path++;
+        if (count < 26 || strcmp(fields[6], path))
+            continue;
+        credits_start = (uint32_t)MAX(0, atoi(fields[25])) * 1000u;
+        credits_duration = (uint32_t)MAX(0, atoi(fields[26])) * 1000u;
+        if (credits_start == 0 && credits_duration > 0 &&
+            duration_ms > credits_duration)
+            credits_start = duration_ms - credits_duration;
+        break;
+    }
+    close(fd);
+    return credits_start;
+}
+
 int video_h264_play(const char *parameter, void *buffer, size_t buffer_size)
 {
     static struct mp4v_demux_res demux;
@@ -1670,6 +1815,7 @@ int video_h264_play(const char *parameter, void *buffer, size_t buffer_size)
     uint32_t video_max;
     uint32_t audio_max;
     uint32_t duration_ms;
+    uint32_t credits_start_ms;
     uint32_t position_ms = 0;
     uint32_t clock_base_ms = 0;
     uint32_t overlay_second = UINT32_MAX;
@@ -1688,6 +1834,7 @@ int video_h264_play(const char *parameter, void *buffer, size_t buffer_size)
     if (parameter == NULL || buffer == NULL || buffer_size == 0 ||
         !video5_parse_launch(parameter, &launch))
         return -1;
+    video5_write_status("probe", launch.path);
     memset(&demux, 0, sizeof(demux));
     if (mp4v_demux_open(launch.path, &demux,
                         probe_video_sample, 1, probe_video_chunk, 1,
@@ -1781,18 +1928,23 @@ int video_h264_play(const char *parameter, void *buffer, size_t buffer_size)
     }
     close(vmcs_fd);
     vmcs_fd = -1;
+    cpu_boost(true);
+    cpu_boosted = true;
     if (!bcm2722_video_start(vmcs, VIDEO5_VMCS_BYTES))
     {
-        error = "VideoCore boot failed";
+        error = bcm2722_video_error();
+        video5_write_status("driver-failed", error);
         goto cleanup;
     }
     bcm_started = true;
+    video5_write_status("service-discovery", "Apple runtime started");
     if (!video5_discover_services(&player))
     {
         error = "Apple VideoCore services missing";
         goto cleanup;
     }
-    if (!video5_gencmd(&player, "set_vll_dir /VIDEOCORE/Library") ||
+    video5_write_status("mplayer-load", "/Resources/VideoCore");
+    if (!video5_gencmd(&player, "set_vll_dir /Resources/VideoCore") ||
         !video5_gencmd(&player, "load_application mplayer.vll"))
     {
         error = "Apple MPlayer load failed";
@@ -1805,6 +1957,7 @@ int video_h264_play(const char *parameter, void *buffer, size_t buffer_size)
     }
 
     duration_ms = video5_duration_ms(&demux);
+    credits_start_ms = video5_netflix_credits(&launch, duration_ms);
     if (launch.live && duration_ms > 0)
     {
         time_t now = mktime(get_time());
@@ -1813,12 +1966,12 @@ int video_h264_play(const char *parameter, void *buffer, size_t buffer_size)
 
         position_ms = elapsed % duration_ms;
     }
+    if (launch.style == VIDEO5_STYLE_NETFLIX && !launch.restart)
+        position_ms = video_resume_load(launch.path, duration_ms);
     clock_base_ms = position_ms;
     clock_start_tick = current_tick;
     overlay_until = current_tick + HZ * 2;
     video5_seek(&player, position_ms);
-    cpu_boost(true);
-    cpu_boosted = true;
     if (!video5_set_vc_playback_power(&player) ||
         !video5_gencmd(&player, "mp_selectplay passthru:rockpod 0") ||
         !video5_enable_output(&player, launch.fill) ||
@@ -1827,6 +1980,7 @@ int video_h264_play(const char *parameter, void *buffer, size_t buffer_size)
         error = "Apple MPlayer start failed";
         goto cleanup;
     }
+    video5_write_status("playing", launch.path);
     if (!video5_overlay_update(&player, surfaces, overlay_pixels,
                                &launch, paused, position_ms,
                                duration_ms, true))
@@ -1847,6 +2001,7 @@ int video_h264_play(const char *parameter, void *buffer, size_t buffer_size)
                              launch.style == VIDEO5_STYLE_NETFLIX;
 
         if (!video5_pump_hostfs(&player) ||
+            !video5_pump_hostreq(&player) ||
             !video5_pump_passthru(&player))
         {
             error = "Apple movie transport failed";
@@ -1881,7 +2036,9 @@ int video_h264_play(const char *parameter, void *buffer, size_t buffer_size)
         button = button_get_w_tmo(0);
         if (button == BUTTON_MENU || button == (BUTTON_MENU | BUTTON_REL))
         {
-            result = 1;
+            result = launch.style == VIDEO5_STYLE_NETFLIX &&
+                     video_at_completion(position_ms, duration_ms,
+                                         credits_start_ms) ? 0 : 1;
             break;
         }
         if (button == BUTTON_SCROLL_FWD ||
@@ -2004,6 +2161,13 @@ int video_h264_play(const char *parameter, void *buffer, size_t buffer_size)
     }
     if (result < 0)
         result = 0;
+    if (launch.style == VIDEO5_STYLE_NETFLIX)
+    {
+        if (result == 0)
+            video_resume_clear(launch.path);
+        else
+            video_resume_save(launch.path, position_ms, duration_ms);
+    }
 
 cleanup:
     if (bcm_started)
@@ -2021,6 +2185,7 @@ cleanup:
     video5_host_close_all();
     if (bcm_started)
         bcm2722_video_stop();
+    backlight_on();
     if (vmcs_fd >= 0)
         close(vmcs_fd);
     if (player.media_fd >= 0)
@@ -2030,9 +2195,11 @@ cleanup:
     button_clear_queue();
     if (error != NULL)
     {
+        video5_write_status("failed", error);
         splash(HZ * 3, error);
         return -1;
     }
+    video5_write_status("complete", launch.path);
     return result;
 }
 

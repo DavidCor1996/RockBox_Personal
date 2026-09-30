@@ -5,7 +5,6 @@
  *   Jukebox    |    |   (  <_> )  \___|    < | \_\ (  <_> > <  <
  *   Firmware   |____|_  /\____/ \___  >__|_ \|___  /\____/__/\_ \
  *                     \/            \/     \/    \/            \/
- * $Id: power-nano2g.c 28190 2010-10-01 18:09:10Z Buschel $
  *
  * Copyright © 2009 Bertrik Sikken
  *
@@ -26,25 +25,15 @@
 #include "panic.h"
 #include "pmu-target.h"
 #include "usb_core.h"   /* for usb_charging_maxcurrent_change */
-#include "bringup-nano3g.h"
 
 void power_init(void)
 {
-    nano3g_boottrace_log("power_init");
-
     pmu_init();
-
-    if (!nano3g_safe_mode_enabled())
-        pmu_set_usblimit(false);  /* limit to 100mA */
+    pmu_set_usblimit(false);  /* limit to 100mA */
 }
 
 void power_off(void)
 {
-    nano3g_boottrace_log("power_off");
-
-    if (nano3g_safe_mode_enabled())
-        nano3g_failsafe_halt("power_off in safe bringup");
-
     pmu_enter_standby();
     while(1);
 }
@@ -54,9 +43,6 @@ void power_off(void)
 #ifdef HAVE_USB_CHARGING_ENABLE
 void usb_charging_maxcurrent_change(int maxcurrent)
 {
-    if (nano3g_safe_mode_enabled())
-        return;
-
     bool fast_charge = (maxcurrent >= 500);
     pmu_set_usblimit(fast_charge);
 }
@@ -72,11 +58,19 @@ unsigned int power_input_status(void)
     return status;
 }
 
+/* As the original firmware decides it: the charger is
+ * enabled (CHCTL bits 1..6), not suspended (SYSCTRLA bit 2), and not done:
+ * STATUSB bits 1..2 clear. Measured: they read 0 while a 4.1 V cell
+ * charges from USB, so they are taken as the charge-complete indication;
+ * they have not been seen set. */
 bool charging_state(void)
 {
-    /* Hardware charge-status signal is still unknown on Nano 3G.
-     * Keep a conservative scaffold: report charging whenever an
-     * external charging-capable source is present. */
-    return (power_input_status() & POWER_INPUT_CHARGER) != 0;
+    if (!(power_input_status() & POWER_INPUT_CHARGER))
+        return false;
+    if (!(pmu_read(D1671_REG_CHCTL) & 0x7e))
+        return false;
+    if (pmu_read(D1671_REG_SYSCTRLA) & 0x04)
+        return false;
+    return !(pmu_read(D1671_REG_STATUSB) & 0x06);
 }
 #endif /* CONFIG_CHARGING */

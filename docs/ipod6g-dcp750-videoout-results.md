@@ -476,3 +476,172 @@ destination `(36,24) 648x432`, H/V ratios `252/142`, mixer config `0x12`, SDO
 setup, and output clocks are unchanged.  Hardware and simulator builds pass,
 as does the complete video-output gate.  Physical docked UI/video FPS
 qualification remains pending because the iPod was unavailable for this pass.
+
+## Hot-dock playback race fix
+
+Hot-plugging a qualified composite dock during audio playback could freeze
+playback, freeze Rockbox completely, or briefly flash green a few seconds after
+the output became active.  SVID startup masked all interrupts while resetting
+and programming the encoder.  The reset alone waits 10 ms, which is nearly the
+11.6 ms represented by the PCM DMA emergency buffer at 44.1 kHz.  Two linked
+PCM DMA tasks could therefore finish while only one completion remained
+latched, desynchronizing the software task queue from the stopped DMA channel.
+
+The platform clock and power-gate read-modify-writes, compositor setup, reset
+assertion, encoder/router table writes, composite selection, and pipeline start
+remain protected.  Interrupts are restored only for the 10 ms reset-settle
+delay, then masked again before reset release and all remaining SVID register
+writes.  This leaves PCM DMA refill interrupts serviceable during the long
+wait without exposing the hardware programming sequence to interleaving,
+changing playback state, borrowing audio memory, or changing any physically
+qualified video timing, layout, or color contract.
+
+Hardware firmware and ZIP builds pass, and the video-output static gate now
+requires the narrowly interruptible reset ordering.  ARM disassembly must
+confirm that the CPSR interrupt state is restored only around the 10 ms wait
+and masked again before reset release and final pipeline publication.  The
+first broad interruptible-initialization build regressed physical composite
+output and must not be used.  Physical repeated playback/hot-dock
+qualification remains pending for the narrowed build.  Its `rockbox.ipod`
+SHA-256 is
+`b9f600167ea9e86d89668f318af8da6055d1685440a4f3ef1fbe2d2ba5da1984`;
+both on-device firmware locations matched that hash after deployment and
+`sync`.
+
+## Tear-free private-planar handoff candidate
+
+The next physical report described horizontal/glitch lines through the menu
+on composite output. Source inspection found that every menu dirty rectangle
+and decoded-video rectangle was converted directly into the one 115,200-byte
+Y/Cb/Cr buffer being scanned by the VP. Cache cleaning made those partial
+writes visible to DMA immediately, so the analog frame could combine old and
+new rows.
+
+The corrective candidate uses two 115,200-byte private-planar buffers inside
+the existing 1,228,800-byte target-owned SVID framebuffer allocation. It
+copies/converts only into the inactive buffer, publishes the complete cache
+range, waits for a bounded transition of the live SDO field register, and then
+changes the three private Y/Cb/Cr descriptors in one IRQ-masked section. It
+does not allocate from plugin, codec, audio, or playback memory. It also does
+not issue the later-Samsung `VP_SHADOW_UPDATE` command: the exact RetailOS
+format-8 path does not use that command, and the repository gate continues to
+forbid it.
+
+The 6G hardware build and complete static video-output gate pass. The gate now
+requires two-buffer selection, a bounded SDO field-edge wait, full cache
+publication, and the private three-plane descriptor handoff. Physical
+qualification remains required for menu scrolling, Twitch MPEG playback,
+chat-panel animation, and repeated dock/undock. Candidate firmware SHA-256:
+`449a35576809390b4c6bbd6aa9174a9eeff74210a932b5bfb6f3a35a60345036`.
+
+## 2026-09-12: isolated high-resolution still-chart candidate
+
+This is an explicit experimental branch of the native production contract.
+The verified reference image was recovered and the host VP probe corrected to
+use RetailOS's segmented load map. Actual execution of its image and format-8
+descriptor setters accepts 640x480 dimensions and 640/320 spans; its geometry
+routine returns a complete 720x480 destination for that input. This software
+evidence does not establish a hardware pass.
+
+The test-only `IPOD6G_VIDEOOUT_HIRES_TEST` Stage 6 uses genuinely independent
+640x480 pattern samples, existing target-owned storage, destination
+`(36,24) 648x432`, stock-derived H/V 505/284, the qualified plane order, and
+unchanged interlaced mixer setup. Normal builds retain native 320x240 output.
+
+The candidate native and simulator builds, memory comparison, color conversion
+and stock-emulation checks pass. BSS and data are unchanged. Firmware SHA-256:
+`d79722bb15cccbd9d1eacaa2b6957ed505e671d7d2d3214ee69ae9ae3656f7d1`.
+
+Physical result: full-height chart reported and photographed; fine-line
+instability reported. See the observation below. Production qualification
+remains incomplete.
+See [qualification details and test steps](specs/composite-album-art-qualification.md).
+
+### Physical observation: complete chart with fine-line shimmer
+
+The user supplied a DCP750 photo and reported that the section below the
+circle appears to move. The photo shows the numbered rows 00 through 15,
+color blocks, the green circle and the lower border. There is no obvious
+repeat of the upper half in this still. This supports full-height static
+640x480 source presentation on this setup; it does not establish perceived
+resolution, aspect accuracy, update stability, or playback safety.
+
+The panel directly below the circle is deliberately alternating single-row
+black/white detail; the adjacent panel uses two-row stripes. The chart is
+written once, with mirroring disabled, so no intentional animation occurs.
+The reported motion is consistent with interlace line twitter and the
+scaler/deinterlacer's treatment of high vertical spatial frequencies. A still
+photo cannot prove its temporal cause or exclude a broader output problem.
+Ask whether the row numbers, colored blocks and circle remain steady; movement
+of those larger features would require a separate timing/field investigation.
+
+Next image-quality gate: compare real cover art with an optional mild vertical
+low-pass filter on host-prepared TV artwork. Preserve the unfiltered diagnostic
+and the qualified geometry/field setup. Do not fix a fine-line stress pattern
+by reverting to duplicated 240-line source images or changing field timing.
+The filter must be compared at the same destination scaling: 480 source rows
+are currently resampled into a 432-line viewport. Full playback/return-path
+qualification is still pending.
+
+
+## Enhanced artwork/video candidate
+
+The user confirmed static large chart features and motion confined to the thin
+stripe region. Installed isolated candidate `d944eccf92d5356de081ff3681d726e84261197edfee5443e3c8f39275e63c5f`
+with 320 filtered TV artwork sidecars and 2x decoded-frame interpolation.
+Host boundary/lifecycle gates, native/simulator builds, WPS and 10/20 navigation
+stress passed. Physical artwork/video/audio acceptance is pending. See
+[qualification details](specs/composite-art-enhanced-test.md).
+
+The user then requested normal-build installation. Normal firmware
+`beb8129bb9aec3c1fc8bf379106a417fa52b1c1c4003b3280130b0c22bce5830`
+was installed to both normal paths using the database-preserving deploy script.
+All 11 database files, personal settings and 320 TV sidecars were preserved;
+9590 package files and 222 plugin headers were verified. Disk sync completed.
+Physical motion/audio acceptance remains pending. Rollback data is recorded in
+`build-composite-personal/deployment.json`.
+
+## Normal enhanced build: far-left strip observation
+
+The user reports an intermittent, very slight downward displacement confined
+to the far-left TV strip. It occurs both on still menus and during motion.
+Do not classify this as the earlier fine-line twitter or correct it by shifting
+the whole output rectangle.
+
+The production RGB conversion gate was extended to compare whole-frame updates
+against a left strip plus its remainder for every strip width 1..17, including
+one-row repaints. All three planes match byte-for-byte under ASan/UBSan. The
+normal ELF scanout base is 0x0890e800; the two frame bases and plane offsets are
+all at least 1024-byte aligned. This rules out an obvious software rectangle
+or cache-line base misalignment, not hardware fetch/phase behavior.
+
+The field handoff still accepts any change in the full SDO field-info register
+and immediately writes three descriptors. The exact safe hardware latch phase
+is not yet established, so changing that sequence without measurement would
+be speculative. A close-up showing a horizontal line crossing the displaced
+strip is needed to identify its width and whether content is delayed, wrapped,
+or geometrically shifted. No firmware change was made for this new symptom.
+
+Two supplied close-ups show a narrow blue/purple fringe along the left active
+edge, plus colored edges around the Netflix title. The angled photographs do
+not resolve a definite vertical step in the main luminance boundaries; they
+also contain camera/display sampling patterns. This does not disprove the
+user's observed displacement. Composite color/luma separation or edge filtering
+is a candidate, not a confirmed diagnosis. Tektronix's "Solving the Component
+Puzzle" describes composite busy edges and cross-color rainbows, and Analog
+Devices' "Visual Impact of Video Parameters in Video Systems: Part 2" describes
+color/brightness delay errors. A temporary display saturation reduction can
+help distinguish the visible colored fringe from a persistent geometric step;
+it is not a conclusive source-versus-receiver test. No centering/timing register
+was changed on the strength of these photographs alone.
+
+## Left sliver: edge-buffer candidate
+
+The user corrected the photo interpretation: the status-bar boundary and blue
+selector show a localized downward step at the very left, not merely a color
+fringe. Built a targeted padded-source candidate preserving the visible image
+and TV destination. Stock setter/crop emulation and actual RGB/art/YUV guard
+checks pass. See [candidate details](specs/composite-left-edge-candidate.md).
+Normal firmware SHA256 is
+`c2917ec5915f6ac37c80c7a0fac0b7f34a204999da8640bb45a32fbdc888b842`.
+Physical correction is not yet confirmed.

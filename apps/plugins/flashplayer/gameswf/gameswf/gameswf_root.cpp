@@ -1,3 +1,4 @@
+extern "C" void flashplayer_skull_movie_tick();
 // gameswf_root.cpp	-- Thatcher Ulrich <tu@tulrich.com> 2003
 
 // This source code has been donated to the Public Domain.  Do
@@ -651,12 +652,14 @@ namespace gameswf
 			{
 				while (m_time_remainder >= m_frame_time)
 				{
+					flashplayer_skull_movie_tick();
 					m_movie->advance(m_frame_time);
 					m_time_remainder -= m_frame_time;
 				}
 			}
 			else
 			{
+				flashplayer_skull_movie_tick();
 				m_movie->advance(delta_time);
 				m_time_remainder = fmod(m_time_remainder - m_frame_time, m_frame_time);
 			}

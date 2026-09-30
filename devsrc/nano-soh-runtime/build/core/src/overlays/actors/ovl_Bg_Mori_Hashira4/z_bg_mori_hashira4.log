@@ -1,0 +1,37 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mori_Hashira4/z_bg_mori_hashira4.c:44:33: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   44 | static Gfx* sDisplayLists[] = { gMoriHashiraPlatformsDL, gMoriHashiraGateDL };
+      |                                 ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mori_Hashira4/z_bg_mori_hashira4.c:44:33: note: (near initialization for 'sDisplayLists[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mori_Hashira4/z_bg_mori_hashira4.c:44:58: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   44 | static Gfx* sDisplayLists[] = { gMoriHashiraPlatformsDL, gMoriHashiraGateDL };
+      |                                                          ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mori_Hashira4/z_bg_mori_hashira4.c:44:58: note: (near initialization for 'sDisplayLists[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mori_Hashira4/z_bg_mori_hashira4.c: In function 'BgMoriHashira4_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mori_Hashira4/z_bg_mori_hashira4.c:77:49: warning: passing argument 3 of 'BgMoriHashira4_InitDynaPoly' from incompatible pointer type [-Wincompatible-pointer-types]
+   77 |         BgMoriHashira4_InitDynaPoly(this, play, &gMoriHashira1Col, DPM_UNK3);
+      |                                                 ^~~~~~~~~~~~~~~~~
+      |                                                 |
+      |                                                 const char (*)[52]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mori_Hashira4/z_bg_mori_hashira4.c:52:90: note: expected 'CollisionHeader *' but argument is of type 'const char (*)[52]'
+   52 | void BgMoriHashira4_InitDynaPoly(BgMoriHashira4* this, PlayState* play, CollisionHeader* collision, s32 moveFlag) {
+      |                                                                         ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mori_Hashira4/z_bg_mori_hashira4.c:79:49: warning: passing argument 3 of 'BgMoriHashira4_InitDynaPoly' from incompatible pointer type [-Wincompatible-pointer-types]
+   79 |         BgMoriHashira4_InitDynaPoly(this, play, &gMoriHashira2Col, DPM_UNK);
+      |                                                 ^~~~~~~~~~~~~~~~~
+      |                                                 |
+      |                                                 const char (*)[52]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mori_Hashira4/z_bg_mori_hashira4.c:52:90: note: expected 'CollisionHeader *' but argument is of type 'const char (*)[52]'
+   52 | void BgMoriHashira4_InitDynaPoly(BgMoriHashira4* this, PlayState* play, CollisionHeader* collision, s32 moveFlag) {
+      |                                                                         ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mori_Hashira4/z_bg_mori_hashira4.c: In function 'BgMoriHashira4_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mori_Hashira4/z_bg_mori_hashira4.c:166:84: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  166 |     gSPSegment(POLY_OPA_DISP++, 0x08, play->objectCtx.status[this->moriTexObjIndex].segment);
+      |                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~
+      |                                                                                    |
+      |                                                                                    void *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mori_Hashira4/z_bg_mori_hashira4.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mori_Hashira4/z_bg_mori_hashira4.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~

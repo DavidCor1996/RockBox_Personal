@@ -1,0 +1,19 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot18_Basket/z_bg_spot18_basket.c: In function 'BgSpot18Basket_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot18_Basket/z_bg_spot18_basket.c:147:32: warning: passing argument 1 of 'CollisionHeader_GetVirtual' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  147 |     CollisionHeader_GetVirtual(&gGoronCityVaseCol, &colHeader);
+      |                                ^~~~~~~~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot18_Basket/z_bg_spot18_basket.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot18_Basket/z_bg_spot18_basket.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:673:39: note: expected 'void *' but argument is of type 'const char (*)[51]'
+  673 | void CollisionHeader_GetVirtual(void* colHeader, CollisionHeader** dest);
+      |                                 ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot18_Basket/z_bg_spot18_basket.c: In function 'BgSpot18Basket_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot18_Basket/z_bg_spot18_basket.c:463:28: warning: passing argument 2 of 'Gfx_DrawDListOpa' from incompatible pointer type [-Wincompatible-pointer-types]
+  463 |     Gfx_DrawDListOpa(play, gGoronCityVaseDL);
+      |                            ^~~~~~~~~~~~~~~~
+      |                            |
+      |                            const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:546:45: note: expected 'Gfx *' but argument is of type 'const char *'
+  546 | void Gfx_DrawDListOpa(PlayState* play, Gfx* dlist);
+      |                                        ~~~~~^~~~~

@@ -139,3 +139,13 @@ void ipodjs_trace_fast_scroll(const char *label, const char *event)
                        event ? event : "state", 0, 0, 95, 82,
                        -1, -1, -1, NULL, 0, 0);
 }
+
+/* Opt-in LCD observations also cover plugin frames without changing the
+ * plugin ABI. Called in the rendering thread, never from an SDL timer. */
+void ipodjs_trace_surface(int x, int y, int width, int height)
+{
+    const char *enabled = getenv("ROCKPOD_SIM_SURFACE_RESOURCES");
+    if (enabled && !strcmp(enabled, "1"))
+        ipodjs_trace_write("surface", "LCD", "damage", x, y, width, height,
+                           -1, -1, -1, NULL, 0, 0);
+}

@@ -1594,7 +1594,7 @@ void skin_render(struct gui_wps *gwps, unsigned refresh_mode,
         if (usb_internet_connected())
             ipodjs_ui_draw_wifi_indicator(display, 249, 3);
         else
-            ipodjs_ui_draw_bluetooth_indicator(display, 254, 2);
+            ipodjs_ui_draw_bluetooth_indicator(display, 256, 3);
     }
 #endif
     if (!inhibit_flush)

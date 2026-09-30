@@ -384,10 +384,8 @@ branch_instruction:
         }
 
         if (instr & (1 << 20)) { // S
-            int Nflag = (result & 0x80000000);
-            int Zflag = !result;
-            cpu->r[CPSR] = ((cpu->r[CPSR] & ~(CPSR_C | CPSR_N | CPSR_Z)) |
-                            (Nflag << CPSR_Nbits) | (Zflag << CPSR_Zbits));
+            cpu->r[CPSR] = (cpu->r[CPSR] & ~(CPSR_N | CPSR_Z)) |
+                (result & CPSR_N) | (result == 0 ? CPSR_Z : 0);
         }
 
         cpu->r[reg (cpu, regD)] = result;
@@ -413,17 +411,18 @@ branch_instruction:
             result = ((u64)valDhi << 32) | valDlo;
         
         if (instr & (1 << 22)) { // signed
-            s64 ress = (s64)result + (s64)valS * (s64)valM;
-            result = (u64)ress;
+            /* Sign-extend each 32-bit operand before multiplying. Keep
+             * accumulation unsigned so overflow wraps modulo 2^64. */
+            result += (u64)((s64)(s32)valS * (s64)(s32)valM);
         } else {
             result += (u64)valS * (u64)valM;
         }
 
         if (instr & (1 << 20)) { // S
-            int Nflag = (result & 0x80000000);
-            int Zflag = !result;
-            cpu->r[CPSR] = ((cpu->r[CPSR] & ~(CPSR_C | CPSR_N | CPSR_Z | CPSR_V)) |
-                            (Nflag << CPSR_Nbits) | (Zflag << CPSR_Zbits));
+            /* ARMv5 preserves C/V; N describes bit 63, not bit 31. */
+            cpu->r[CPSR] = (cpu->r[CPSR] & ~(CPSR_N | CPSR_Z)) |
+                ((u32)(result >> 32) & CPSR_N) |
+                (result == 0 ? CPSR_Z : 0);
         }
 
         cpu->r[reg (cpu, regDhi)] = (result >> 32) & 0xffffffff;
@@ -865,32 +864,36 @@ alu_instruction:
 
         case 0xA: /* CMP */
             writeres = 0;
-            opA   -= !!(cpu->r[CPSR] & CPSR_C) - 1; // counteract SBC below
         case 6: /* SBC */
-            opA   += !!(cpu->r[CPSR] & CPSR_C) - 1;
         case 2: /* SUB */
-            result = opA - opB; arith = 1;
-            ACflag = !(result > opA);
+        {
+            u32 borrow = opcode == 6 && !(cpu->r[CPSR] & CPSR_C);
+            result = opA - opB - borrow; arith = 1;
+            ACflag = opA > opB || (opA == opB && !borrow);
             Vflag  = !!((opA ^ opB) & (opA ^ result) & 0x80000000);
             break;
+        }
         case 7: /* RSC */
-            opB   += !!(cpu->r[CPSR] & CPSR_C) - 1;
         case 3: /* RSB */
-            result = opB - opA; arith = 1;
-            ACflag = !(result > opB);
+        {
+            u32 borrow = opcode == 7 && !(cpu->r[CPSR] & CPSR_C);
+            result = opB - opA - borrow; arith = 1;
+            ACflag = opB > opA || (opB == opA && !borrow);
             Vflag  = !!((opB ^ opA) & (opB ^ result) & 0x80000000);
             break;
+        }
 
         case 0xB: /* CMN */
             writeres = 0;
-            opB   -= !!(cpu->r[CPSR] & CPSR_C); /* counteract ADC below */
         case 5: /* ADC */
-            opB   += !!(cpu->r[CPSR] & CPSR_C);
         case 4: /* ADD */
-            result = opA + opB; arith = 1;
-            ACflag = (result < opA);
-            Vflag  = !!((opA ^ opB ^ 0x80000000) & (result ^ opB) & 0x80000000);
+        {
+            u32 carry = opcode == 5 && (cpu->r[CPSR] & CPSR_C);
+            result = opA + opB + carry; arith = 1;
+            ACflag = result < opA || (carry && result == opA);
+            Vflag = !!(~(opA ^ opB) & (opA ^ result) & 0x80000000);
             break;
+        }
 
         case 0xD: /* MOV */
             result = opB;
@@ -916,14 +919,14 @@ alu_instruction:
                 
                 flgmask = (((Cflag != -1) << CPSR_Cbits) |
                            ((Vflag != -1) << CPSR_Vbits) |
-                           ((Zflag != -1) << CPSR_Zbits) |
-                           ((Nflag != -1) << CPSR_Nbits));
+                           ((u32)(Zflag != -1) << CPSR_Zbits) |
+                           ((u32)(Nflag != -1) << CPSR_Nbits));
                 
                 cpu->r[CPSR] = ((cpu->r[CPSR] & ~flgmask) |
                                 ((((Cflag & 1) << CPSR_Cbits) |
                                   ((Vflag & 1) << CPSR_Vbits) |
-                                  ((Zflag & 1) << CPSR_Zbits) |
-                                  ((Nflag & 1) << CPSR_Nbits)) & flgmask));
+                                  ((u32)(Zflag & 1) << CPSR_Zbits) |
+                                  ((u32)(Nflag & 1) << CPSR_Nbits)) & flgmask));
             }
         }
         

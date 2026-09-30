@@ -1,0 +1,378 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:160:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  160 |     gPoeSistersMegBodyDL,
+      |     ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:160:5: note: (near initialization for 'D_80ADD7C8[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:161:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  161 |     gPoeSistersJoelleBodyDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:161:5: note: (near initialization for 'D_80ADD7C8[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:162:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  162 |     gPoeSistersBethBodyDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:162:5: note: (near initialization for 'D_80ADD7C8[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:163:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  163 |     gPoeSistersAmyBodyDL,
+      |     ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:163:5: note: (near initialization for 'D_80ADD7C8[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:167:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  167 |     gPoeSistersMegFaceDL,
+      |     ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:167:5: note: (near initialization for 'D_80ADD7D8[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:168:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  168 |     gPoeSistersJoelleFaceDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:168:5: note: (near initialization for 'D_80ADD7D8[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:169:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  169 |     gPoeSistersBethFaceDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:169:5: note: (near initialization for 'D_80ADD7D8[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:170:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  170 |     gPoSistersAmyFaceDL,
+      |     ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:170:5: note: (near initialization for 'D_80ADD7D8[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c: In function 'EnPoSisters_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:190:44: warning: passing argument 3 of 'SkelAnime_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  190 |     SkelAnime_Init(play, &this->skelAnime, &gPoeSistersSkel, &gPoeSistersSwayAnim, this->jointTable, this->morphTable,
+      |                                            ^~~~~~~~~~~~~~~~
+      |                                            |
+      |                                            const char (*)[49]
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1327:75: note: expected 'SkeletonHeader *' but argument is of type 'const char (*)[49]'
+ 1327 | s32 SkelAnime_Init(PlayState* play, SkelAnime* skelAnime, SkeletonHeader* skeletonHeaderSeg,
+      |                                                           ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:190:62: warning: passing argument 4 of 'SkelAnime_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  190 |     SkelAnime_Init(play, &this->skelAnime, &gPoeSistersSkel, &gPoeSistersSwayAnim, this->jointTable, this->morphTable,
+      |                                                              ^~~~~~~~~~~~~~~~~~~~
+      |                                                              |
+      |                                                              const char (*)[53]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1328:37: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[53]'
+ 1328 |                    AnimationHeader* animation, Vec3s* jointTable, Vec3s* morphTable, s32 limbCount);
+      |                    ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c: In function 'func_80AD9368':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:254:45: warning: passing argument 2 of 'Animation_MorphToLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  254 |     Animation_MorphToLoop(&this->skelAnime, &gPoeSistersSwayAnim, -3.0f);
+      |                                             ^~~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char (*)[53]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1342:67: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[53]'
+ 1342 | void Animation_MorphToLoop(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                  ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c: In function 'func_80AD93C4':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:262:49: warning: passing argument 2 of 'Animation_MorphToLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  262 |         Animation_MorphToLoop(&this->skelAnime, &gPoeSistersFloatAnim, -3.0f);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~
+      |                                                 |
+      |                                                 const char (*)[54]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1342:67: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[54]'
+ 1342 | void Animation_MorphToLoop(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                  ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c: In function 'func_80AD944C':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:278:45: warning: passing argument 2 of 'Animation_MorphToLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  278 |     Animation_MorphToLoop(&this->skelAnime, &gPoeSistersAttackAnim, -5.0f);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char (*)[55]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1342:67: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[55]'
+ 1342 | void Animation_MorphToLoop(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                  ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:280:44: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  280 |     this->unk_19A = Animation_GetLastFrame(&gPoeSistersAttackAnim) * 3 + 3;
+      |                                            ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[55]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c: In function 'func_80AD94E0':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:290:49: warning: passing argument 2 of 'Animation_MorphToLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  290 |         Animation_MorphToLoop(&this->skelAnime, &gPoeSistersAttackAnim, -5.0f);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~
+      |                                                 |
+      |                                                 const char (*)[55]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1342:67: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[55]'
+ 1342 | void Animation_MorphToLoop(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                  ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c: In function 'func_80AD9568':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:299:45: warning: passing argument 2 of 'Animation_MorphToLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  299 |     Animation_MorphToLoop(&this->skelAnime, &gPoeSistersFloatAnim, -3.0f);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char (*)[54]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1342:67: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[54]'
+ 1342 | void Animation_MorphToLoop(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                  ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c: In function 'func_80AD95D8':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:309:49: warning: passing argument 2 of 'Animation_MorphToPlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+  309 |     Animation_MorphToPlayOnce(&this->skelAnime, &gPoeSistersDamagedAnim, -3.0f);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~~
+      |                                                 |
+      |                                                 const char (*)[56]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1339:71: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[56]'
+ 1339 | void Animation_MorphToPlayOnce(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c: In function 'func_80AD96A4':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:324:45: warning: passing argument 2 of 'Animation_MorphToLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  324 |     Animation_MorphToLoop(&this->skelAnime, &gPoeSistersFleeAnim, -3.0f);
+      |                                             ^~~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char (*)[53]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1342:67: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[53]'
+ 1342 | void Animation_MorphToLoop(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                  ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c: In function 'func_80AD9718':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:334:45: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  334 |                      Animation_GetLastFrame(&gPoeSistersAppearDisappearAnim), ANIMMODE_ONCE, -3.0f);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[64]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:333:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  333 |     Animation_Change(&this->skelAnime, &gPoeSistersAppearDisappearAnim, 1.5f, 0.0f,
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[64]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[64]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c: In function 'func_80AD98F4':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:365:45: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  365 |                      Animation_GetLastFrame(&gPoeSistersAppearDisappearAnim), ANIMMODE_ONCE, -3.0f);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[64]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:364:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  364 |     Animation_Change(&this->skelAnime, &gPoeSistersAppearDisappearAnim, 1.5f, 0.0f,
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[64]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[64]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c: In function 'func_80AD9AA8':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:425:46: warning: passing argument 2 of 'Animation_PlayLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  425 |         Animation_PlayLoop(&this->skelAnime, &gPoeSistersMegCryAnim);
+      |                                              ^~~~~~~~~~~~~~~~~~~~~~
+      |                                              |
+      |                                              const char (*)[55]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1341:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[55]'
+ 1341 | void Animation_PlayLoop(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c: In function 'func_80AD9D44':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:454:46: warning: passing argument 2 of 'Animation_PlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+  454 |         Animation_PlayOnce(&this->skelAnime, &gPoeSistersAppearDisappearAnim);
+      |                                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                              |
+      |                                              const char (*)[64]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1338:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[64]'
+ 1338 | void Animation_PlayOnce(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:458:49: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  458 |                          Animation_GetLastFrame(&gPoeSistersAppearDisappearAnim), ANIMMODE_ONCE_INTERP, 0.0f);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[64]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:457:44: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  457 |         Animation_Change(&this->skelAnime, &gPoeSistersAppearDisappearAnim, 0.5f, 0.0f,
+      |                                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                            |
+      |                                            const char (*)[64]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[64]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c: In function 'func_80AD9DF0':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:466:49: warning: passing argument 2 of 'Animation_MorphToPlayOnce' from incompatible pointer type [-Wincompatible-pointer-types]
+  466 |     Animation_MorphToPlayOnce(&this->skelAnime, &gPoeSistersAppearDisappearAnim, -5.0f);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                 |
+      |                                                 const char (*)[64]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1339:71: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[64]'
+ 1339 | void Animation_MorphToPlayOnce(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c: In function 'func_80AD9E60':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:474:45: warning: passing argument 2 of 'Animation_MorphToLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  474 |     Animation_MorphToLoop(&this->skelAnime, &gPoeSistersFloatAnim, -3.0f);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char (*)[54]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1342:67: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[54]'
+ 1342 | void Animation_MorphToLoop(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                  ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:475:44: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  475 |     this->unk_19A = Animation_GetLastFrame(&gPoeSistersFloatAnim) * 7 + 7;
+      |                                            ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[54]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c: In function 'func_80AD9F1C':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:490:45: warning: passing argument 2 of 'Animation_MorphToLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  490 |     Animation_MorphToLoop(&this->skelAnime, &gPoeSistersFloatAnim, -3.0f);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char (*)[54]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1342:67: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[54]'
+ 1342 | void Animation_MorphToLoop(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                  ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c: In function 'func_80AD9F90':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:507:42: warning: passing argument 2 of 'Animation_PlayLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  507 |     Animation_PlayLoop(&this->skelAnime, &gPoeSistersFloatAnim);
+      |                                          ^~~~~~~~~~~~~~~~~~~~~
+      |                                          |
+      |                                          const char (*)[54]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1341:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[54]'
+ 1341 | void Animation_PlayLoop(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c: In function 'func_80ADA028':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:514:45: warning: passing argument 2 of 'Animation_MorphToLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  514 |     Animation_MorphToLoop(&this->skelAnime, &gPoeSistersSwayAnim, -3.0f);
+      |                                             ^~~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char (*)[53]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1342:67: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[53]'
+ 1342 | void Animation_MorphToLoop(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                  ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c: In function 'func_80ADA1B8':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:544:45: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  544 |                      Animation_GetLastFrame(&gPoeSistersAppearDisappearAnim), ANIMMODE_ONCE_INTERP, 0.0f);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[64]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:543:40: warning: passing argument 2 of 'Animation_Change' from incompatible pointer type [-Wincompatible-pointer-types]
+  543 |     Animation_Change(&this->skelAnime, &gPoeSistersAppearDisappearAnim, 0.833f, 0.0f,
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char (*)[64]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1336:62: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[64]'
+ 1336 | void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
+      |                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c: In function 'func_80ADA25C':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:556:42: warning: passing argument 2 of 'Animation_PlayLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  556 |     Animation_PlayLoop(&this->skelAnime, &gPoeSistersSwayAnim);
+      |                                          ^~~~~~~~~~~~~~~~~~~~
+      |                                          |
+      |                                          const char (*)[53]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1341:64: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[53]'
+ 1341 | void Animation_PlayLoop(SkelAnime* skelAnime, AnimationHeader* animation);
+      |                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c: In function 'func_80ADA2BC':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:564:45: warning: passing argument 2 of 'Animation_MorphToLoop' from incompatible pointer type [-Wincompatible-pointer-types]
+  564 |     Animation_MorphToLoop(&this->skelAnime, &gPoeSistersFloatAnim, -3.0f);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char (*)[54]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1342:67: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[54]'
+ 1342 | void Animation_MorphToLoop(SkelAnime* skelAnime, AnimationHeader* animation, f32 morphFrames);
+      |                                                  ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c: In function 'EnPoSisters_PostLimbDraw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:1312:35: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1312 |         gSPDisplayList((*gfxP)++, gPoSistersBurnDL);
+      |                                   ^~~~~~~~~~~~~~~~
+      |                                   |
+      |                                   const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c: In function 'EnPoSisters_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:1362:54: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1362 |         gSPSegment(POLY_OPA_DISP++, 0x09, D_80116280 + 2);
+      |                                           ~~~~~~~~~~~^~~
+      |                                                      |
+      |                                                      Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:1363:73: warning: passing argument 3 of 'SkelAnime_DrawSkeleton2' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1363 |         POLY_OPA_DISP = SkelAnime_DrawSkeleton2(play, &this->skelAnime, EnPoSisters_OverrideLimbDraw,
+      |                                                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                         |
+      |                                                                         s32 (*)(PlayState *, s32,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **) {aka long int (*)(PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **)}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1271:89: note: expected 'OverrideLimbDrawOpa' {aka 'long int (*)(struct PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *)'} but argument is of type 's32 (*)(PlayState *, s32,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **)' {aka 'long int (*)(PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **)'}
+ 1271 | Gfx* SkelAnime_DrawSkeleton2(PlayState* play, SkelAnime* skelAnime, OverrideLimbDrawOpa overrideLimbDraw,
+      |                                                                     ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:1277:5: note: 'EnPoSisters_OverrideLimbDraw' declared here
+ 1277 | s32 EnPoSisters_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, void* thisx,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64actor.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64.h:10,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:4:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64animation.h:114:15: note: 'OverrideLimbDrawOpa' declared here
+  114 | typedef s32 (*OverrideLimbDrawOpa)(struct PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot,
+      |               ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:1364:49: warning: passing argument 4 of 'SkelAnime_DrawSkeleton2' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1364 |                                                 EnPoSisters_PostLimbDraw, &this->actor, POLY_OPA_DISP);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                 |
+      |                                                 void (*)(PlayState *, s32,  Gfx **, Vec3s *, void *, Gfx **) {aka void (*)(PlayState *, long int,  Gfx **, Vec3s *, void *, Gfx **)}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1272:49: note: expected 'PostLimbDrawOpa' {aka 'void (*)(struct PlayState *, long int,  Gfx **, Vec3s *, void *)'} but argument is of type 'void (*)(PlayState *, s32,  Gfx **, Vec3s *, void *, Gfx **)' {aka 'void (*)(PlayState *, long int,  Gfx **, Vec3s *, void *, Gfx **)'}
+ 1272 |                                 PostLimbDrawOpa postLimbDraw, void* arg, Gfx* gfx);
+      |                                 ~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:1305:6: note: 'EnPoSisters_PostLimbDraw' declared here
+ 1305 | void EnPoSisters_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, void* thisx, Gfx** gfxP) {
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64animation.h:117:16: note: 'PostLimbDrawOpa' declared here
+  117 | typedef void (*PostLimbDrawOpa)(struct PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, void*);
+      |                ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:1367:43: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1367 |         gSPSegment(POLY_XLU_DISP++, 0x09, D_80116280);
+      |                                           ^~~~~~~~~~
+      |                                           |
+      |                                           Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:1368:73: warning: passing argument 3 of 'SkelAnime_DrawSkeleton2' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1368 |         POLY_XLU_DISP = SkelAnime_DrawSkeleton2(play, &this->skelAnime, EnPoSisters_OverrideLimbDraw,
+      |                                                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                         |
+      |                                                                         s32 (*)(PlayState *, s32,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **) {aka long int (*)(PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **)}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1271:89: note: expected 'OverrideLimbDrawOpa' {aka 'long int (*)(struct PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *)'} but argument is of type 's32 (*)(PlayState *, s32,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **)' {aka 'long int (*)(PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **)'}
+ 1271 | Gfx* SkelAnime_DrawSkeleton2(PlayState* play, SkelAnime* skelAnime, OverrideLimbDrawOpa overrideLimbDraw,
+      |                                                                     ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:1277:5: note: 'EnPoSisters_OverrideLimbDraw' declared here
+ 1277 | s32 EnPoSisters_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, void* thisx,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64animation.h:114:15: note: 'OverrideLimbDrawOpa' declared here
+  114 | typedef s32 (*OverrideLimbDrawOpa)(struct PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot,
+      |               ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:1369:49: warning: passing argument 4 of 'SkelAnime_DrawSkeleton2' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1369 |                                                 EnPoSisters_PostLimbDraw, &this->actor, POLY_XLU_DISP);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                 |
+      |                                                 void (*)(PlayState *, s32,  Gfx **, Vec3s *, void *, Gfx **) {aka void (*)(PlayState *, long int,  Gfx **, Vec3s *, void *, Gfx **)}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1272:49: note: expected 'PostLimbDrawOpa' {aka 'void (*)(struct PlayState *, long int,  Gfx **, Vec3s *, void *)'} but argument is of type 'void (*)(PlayState *, s32,  Gfx **, Vec3s *, void *, Gfx **)' {aka 'void (*)(PlayState *, long int,  Gfx **, Vec3s *, void *, Gfx **)'}
+ 1272 |                                 PostLimbDrawOpa postLimbDraw, void* arg, Gfx* gfx);
+      |                                 ~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:1305:6: note: 'EnPoSisters_PostLimbDraw' declared here
+ 1305 | void EnPoSisters_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, void* thisx, Gfx** gfxP) {
+      |      ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64animation.h:117:16: note: 'PostLimbDrawOpa' declared here
+  117 | typedef void (*PostLimbDrawOpa)(struct PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, void*);
+      |                ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:1374:41: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1374 |         gSPDisplayList(POLY_OPA_DISP++, gPoSistersTorchDL);
+      |                                         ^~~~~~~~~~~~~~~~~
+      |                                         |
+      |                                         const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:1377:16: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1377 |                Gfx_TwoTexScrollEx(play->state.gfxCtx, 0, 0, 0, 0x20, 0x40, 1, 0, (play->gameplayFrames * -20) % 512,
+      |                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                |
+      |                Gfx *
+ 1378 |                                   0x20, 0x80, 0, 0, 0, -20));
+      |                                   ~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.c:1418:41: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1418 |         gSPDisplayList(POLY_XLU_DISP++, gEffFire1DL);
+      |                                         ^~~~~~~~~~~
+      |                                         |
+      |                                         const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~

@@ -6,7 +6,7 @@
  *   Firmware   |____|_  /\____/ \___  >__|_ \|___  /\____/__ /  \
  *                     \/            \/     \/    \/            \/
  *
- * Netflix window for the 1920x1080 Desktop Mode host profile.
+ * Netflix window for Desktop Mode's native iPod and host profiles.
  *
  * Copyright (C) 2026 David Cor
  *
@@ -21,24 +21,57 @@
 #include "lib/pluginlib_actions.h"
 #include "lib/pluginlib_bmp.h"
 
-#if LCD_WIDTH < 1920
-#error netflix_desktop is only supported by the desktop1080 profile
-#endif
-
 static const struct button_mapping *plugin_contexts[] = { pla_main_ctx };
 
 #define NF_UNDERLAY_FILE \
     PLUGIN_APPS_DATA_DIR "/desktop_mode_netflix_underlay.raw"
 #define NF_UNDERLAY_MAGIC 0x444e4631u /* "DNF1" */
+#define NF_VIDEO_INDEX ROCKBOX_DIR "/videolist/index.tsv"
+#define NF_WATCHED_FILE ROCKBOX_DIR "/videolist/netflix-watched.tsv"
+#define NF_MAX_ROWS 96
+
+#if LCD_WIDTH < 1920
+#define NF_WINDOW_FILE \
+    PLUGIN_APPS_DATA_DIR \
+    "/desktop_mode_snow_leopard/320x240/chrome/" \
+    "window-plain.304x174x16.bmp"
+#define NF_LOGO_FILE \
+    ROCKBOX_DIR "/ipodjs/netflix/netflix-logo-2001.91x42x24.bmp"
+#define NF_LOGO_W 91
+#define NF_LOGO_H 42
+#define NF_WIN_W 304
+#define NF_WIN_H 174
+#define NF_WIN_X ((LCD_WIDTH - NF_WIN_W) / 2)
+#define NF_WIN_Y 21
+#define NF_TITLE_H 24
+#define NF_TOOLBAR_H 0
+#define NF_STATUS_H 0
+#define NF_BODY_X (NF_WIN_X + 1)
+#define NF_BODY_Y (NF_WIN_Y + NF_TITLE_H)
+#define NF_BODY_W (NF_WIN_W - 2)
+#define NF_BODY_H (NF_WIN_H - NF_TITLE_H)
+#define NF_HEADER_H 26
+#define NF_VISIBLE 3
+#define NF_POSTER_W 72
+#define NF_POSTER_H 108
+#define NF_HERO_W NF_POSTER_W
+#define NF_HERO_H NF_POSTER_H
+#define NF_CARD_STEP 0
+#define NF_CARD_X 0
+#define NF_CARD_Y 0
+#define NF_PLAY_X (NF_BODY_X + 86)
+#define NF_PLAY_Y (NF_BODY_Y + 108)
+#define NF_PLAY_W 58
+#define NF_PLAY_H 20
+#else
 #define NF_WINDOW_FILE \
     PLUGIN_APPS_DATA_DIR \
     "/desktop_mode_snow_leopard/1920x1080/chrome/" \
     "window-plain.897x671x16.bmp"
 #define NF_LOGO_FILE \
     ROCKBOX_DIR "/ipodjs/netflix/netflix-logo-2001.150x70x24.bmp"
-#define NF_VIDEO_INDEX ROCKBOX_DIR "/videolist/index.tsv"
-#define NF_WATCHED_FILE ROCKBOX_DIR "/videolist/netflix-watched.tsv"
-
+#define NF_LOGO_W 150
+#define NF_LOGO_H 70
 #define NF_WIN_W 897
 #define NF_WIN_H 671
 #define NF_WIN_X ((LCD_WIDTH - NF_WIN_W) / 2)
@@ -53,7 +86,6 @@ static const struct button_mapping *plugin_contexts[] = { pla_main_ctx };
     (NF_WIN_H - NF_TITLE_H - NF_TOOLBAR_H - NF_STATUS_H)
 #define NF_HEADER_H 72
 
-#define NF_MAX_ROWS 96
 #define NF_VISIBLE 5
 #define NF_POSTER_W 96
 #define NF_POSTER_H 144
@@ -66,6 +98,7 @@ static const struct button_mapping *plugin_contexts[] = { pla_main_ctx };
 #define NF_PLAY_Y (NF_BODY_Y + 282)
 #define NF_PLAY_W 126
 #define NF_PLAY_H 36
+#endif
 
 #define NF_RED LCD_RGBPACK(180, 19, 29)
 #define NF_RED_DARK LCD_RGBPACK(112, 12, 18)
@@ -145,6 +178,11 @@ static const char * const nf_category_names[NF_CATEGORY_COUNT] =
     "HOME", "MOVIES", "TV SHOWS", "MUSIC VIDEOS", "HOME VIDEOS"
 };
 
+static const char * const nf_category_short[NF_CATEGORY_COUNT] =
+{
+    "ALL", "MOV", "TV", "MUSIC", "HOME"
+};
+
 static void *nf_alloc(size_t bytes)
 {
     size_t aligned = ALIGN_UP(bytes, 4);
@@ -203,7 +241,8 @@ static bool nf_init_desktop(void)
     nf_underlay = nf_alloc(screen_bytes);
     nf_window = nf_alloc(BM_SIZE(NF_WIN_W, NF_WIN_H,
                                  FORMAT_NATIVE, false));
-    nf_logo = nf_alloc(BM_SIZE(150, 70, FORMAT_NATIVE, false));
+    nf_logo = nf_alloc(BM_SIZE(NF_LOGO_W, NF_LOGO_H,
+                               FORMAT_NATIVE, false));
     nf_hero = nf_alloc(BM_SIZE(NF_HERO_W, NF_HERO_H,
                                FORMAT_NATIVE, false));
     for (index = 0; index < NF_VISIBLE; ++index)
@@ -234,7 +273,8 @@ static bool nf_init_desktop(void)
 
     if (!nf_load_bitmap(NF_WINDOW_FILE, nf_window, NF_WIN_W, NF_WIN_H))
         return false;
-    nf_logo_valid = nf_load_bitmap(NF_LOGO_FILE, nf_logo, 150, 70);
+    nf_logo_valid = nf_load_bitmap(NF_LOGO_FILE, nf_logo,
+                                   NF_LOGO_W, NF_LOGO_H);
     return true;
 }
 
@@ -304,6 +344,25 @@ static enum nf_kind nf_parse_kind(const char *kind)
 
 static const char *nf_category_poster(enum nf_kind kind, bool locked)
 {
+#if LCD_WIDTH < 1920
+    if (locked)
+        return ROCKBOX_DIR "/ipodjs/netflix/locked.72x108x24.bmp";
+    switch (kind)
+    {
+        case NF_KIND_SHOW:
+            return ROCKBOX_DIR
+                "/ipodjs/netflix/categories/tv-shows.72x108x24.bmp";
+        case NF_KIND_MUSIC_VIDEO:
+            return ROCKBOX_DIR
+                "/ipodjs/netflix/categories/music-videos.72x108x24.bmp";
+        case NF_KIND_HOME_VIDEO:
+            return ROCKBOX_DIR
+                "/ipodjs/netflix/categories/home-videos.72x108x24.bmp";
+        default:
+            return ROCKBOX_DIR
+                "/ipodjs/netflix/categories/movies.72x108x24.bmp";
+    }
+#else
     if (locked)
         return ROCKBOX_DIR "/ipodjs/netflix/locked.96x144x24.bmp";
     switch (kind)
@@ -321,6 +380,7 @@ static const char *nf_category_poster(enum nf_kind kind, bool locked)
             return ROCKBOX_DIR
                 "/ipodjs/netflix/categories/movies.96x144x24.bmp";
     }
+#endif
 }
 
 static void nf_manifest_path(char *destination, size_t size,
@@ -476,8 +536,13 @@ static void nf_scale_hero(const fb_data *source)
 
     for (y = 0; y < NF_HERO_H; ++y)
         for (x = 0; x < NF_HERO_W; ++x)
+#if LCD_WIDTH < 1920
+            nf_hero[y * NF_HERO_W + x] =
+                source[y * NF_POSTER_W + x];
+#else
             nf_hero[y * NF_HERO_W + x] =
                 source[(y / 2) * NF_POSTER_W + x / 2];
+#endif
     nf_hero_valid = true;
 }
 
@@ -698,6 +763,80 @@ static void nf_draw(void)
     char status[96];
     int index;
 
+#if LCD_WIDTH < 1920
+    rb->lcd_bitmap(nf_underlay, 0, 0, LCD_WIDTH, LCD_HEIGHT);
+    rb->lcd_bitmap(nf_window, NF_WIN_X, NF_WIN_Y, NF_WIN_W, NF_WIN_H);
+    nf_center_text(NF_WIN_X, NF_WIN_Y + 5, NF_WIN_W,
+                   LCD_RGBPACK(60, 60, 60), "Netflix");
+    rb->lcd_set_foreground(NF_BLACK);
+    rb->lcd_fillrect(NF_BODY_X, NF_BODY_Y, NF_BODY_W, NF_BODY_H);
+    rb->lcd_set_foreground(NF_RED);
+    rb->lcd_fillrect(NF_BODY_X, NF_BODY_Y, NF_BODY_W, NF_HEADER_H);
+    if (nf_logo_valid)
+        rb->lcd_bitmap(nf_logo, NF_BODY_X + 3, NF_BODY_Y + 1,
+                       NF_LOGO_W, NF_LOGO_H);
+    for (index = 0; index < NF_CATEGORY_COUNT; ++index)
+    {
+        int x = NF_BODY_X + 99 + index * 39;
+        bool selected = index == (int)nf_category;
+        bool hovered = nf_pointer_in(x, NF_BODY_Y + 3, 37, 20);
+
+        if (selected || hovered)
+        {
+            rb->lcd_set_foreground(selected ? NF_RED_DARK :
+                                              LCD_RGBPACK(150, 16, 24));
+            rb->lcd_fillrect(x, NF_BODY_Y + 3, 37, 20);
+        }
+        nf_center_text(x, NF_BODY_Y + 7, 37,
+                       selected || hovered ? NF_WHITE :
+                                            LCD_RGBPACK(70, 4, 6),
+                       nf_category_short[index]);
+    }
+    if (nf_selected >= 0)
+    {
+        const struct nf_row *row = &nf_rows[nf_selected];
+        int poster_x = NF_BODY_X + 7;
+        int poster_y = NF_BODY_Y + 32;
+        int text_x = NF_BODY_X + 86;
+
+        rb->lcd_set_foreground(NF_RULE);
+        rb->lcd_fillrect(poster_x - 2, poster_y - 2,
+                         NF_HERO_W + 4, NF_HERO_H + 4);
+        if (nf_hero_valid)
+            rb->lcd_bitmap(nf_hero, poster_x, poster_y,
+                           NF_HERO_W, NF_HERO_H);
+        nf_text(text_x, poster_y, NF_WHITE, row->title);
+        rb->snprintf(metadata, sizeof(metadata), "%s%s%d%s%s",
+                     nf_kind_label(row->kind), row->year ? "  " : "",
+                     row->year, row->genre[0] ? "  " : "", row->genre);
+        if (!row->year)
+            rb->snprintf(metadata, sizeof(metadata), "%s%s%s",
+                         nf_kind_label(row->kind),
+                         row->genre[0] ? "  " : "", row->genre);
+        nf_text(text_x, poster_y + 18, NF_DIM, metadata);
+        nf_wrapped_text(text_x, poster_y + 36, 205, 3, NF_WHITE,
+                        row->plot[0] ? row->plot :
+                        "Synced from your iPod video library.");
+        rb->lcd_set_foreground(row->locked ? NF_RULE :
+            nf_pointer_in(NF_PLAY_X, NF_PLAY_Y, NF_PLAY_W, NF_PLAY_H) ?
+            LCD_RGBPACK(222, 28, 40) : NF_RED);
+        rb->lcd_fillrect(NF_PLAY_X, NF_PLAY_Y, NF_PLAY_W, NF_PLAY_H);
+        nf_center_text(NF_PLAY_X, NF_PLAY_Y + 4, NF_PLAY_W, NF_WHITE,
+                       row->locked ? "LOCKED" : "PLAY");
+        rb->snprintf(status, sizeof(status), "%d/%d  %s",
+                     nf_selected + 1, nf_row_count,
+                     row->watched ? "WATCHED" : "VIDEO SYNC");
+        nf_text(NF_PLAY_X + NF_PLAY_W + 8, NF_PLAY_Y + 4,
+                row->watched ? NF_RED : NF_DIM, status);
+    }
+    else
+    {
+        nf_center_text(NF_BODY_X, NF_BODY_Y + 72, NF_BODY_W, NF_WHITE,
+                       "No matching Video Sync titles");
+    }
+    nf_draw_pointer();
+    rb->lcd_update();
+#else
     rb->lcd_bitmap(nf_underlay, 0, 0, LCD_WIDTH, LCD_HEIGHT);
     rb->lcd_bitmap(nf_window, NF_WIN_X, NF_WIN_Y, NF_WIN_W, NF_WIN_H);
     nf_center_text(NF_WIN_X, NF_WIN_Y + 5, NF_WIN_W,
@@ -822,6 +961,7 @@ static void nf_draw(void)
                    NF_WIN_W, LCD_RGBPACK(70, 70, 70), status);
     nf_draw_pointer();
     rb->lcd_update();
+#endif
 }
 
 static int nf_open_selected(void)
@@ -850,7 +990,13 @@ static int nf_open_selected(void)
     extension = rb->strrchr(row->path, '.');
     if (extension &&
         (!rb->strcasecmp(extension, ".rvp") ||
-         !rb->strcasecmp(extension, ".h264")))
+         !rb->strcasecmp(extension, ".h264")
+#if defined(IPOD_6G) || defined(IPOD_VIDEO)
+         || !rb->strcasecmp(extension, ".mp4")
+         || !rb->strcasecmp(extension, ".m4v")
+         || !rb->strcasecmp(extension, ".mov")
+#endif
+        ))
         plugin = ROCKBOX_DIR "/rocks/viewers/openh264_player.rock";
     else if (extension &&
              (!rb->strcasecmp(extension, ".mpg") ||
@@ -882,9 +1028,15 @@ static int nf_handle_click(int x, int y)
         return PLUGIN_GOTO_ROOT;
     for (index = 0; index < NF_CATEGORY_COUNT; ++index)
     {
+#if LCD_WIDTH < 1920
+        int left = NF_BODY_X + 99 + index * 39;
+
+        if (nf_point_in(x, y, left, NF_BODY_Y + 3, 37, 20))
+#else
         int left = NF_BODY_X + 173 + index * 136;
 
         if (nf_point_in(x, y, left, NF_BODY_Y + 20, 130, 32))
+#endif
         {
             nf_set_category(index);
             return PLUGIN_OK;
@@ -893,6 +1045,7 @@ static int nf_handle_click(int x, int y)
     if (nf_point_in(x, y, NF_PLAY_X, NF_PLAY_Y,
                     NF_PLAY_W, NF_PLAY_H))
         return nf_open_selected();
+#if LCD_WIDTH >= 1920
     for (index = 0; index < nf_visible_count; ++index)
     {
         int left = NF_CARD_X + index * NF_CARD_STEP - 3;
@@ -913,6 +1066,7 @@ static int nf_handle_click(int x, int y)
                          NF_CARD_X + NF_VISIBLE * NF_CARD_STEP,
                          NF_CARD_Y + 45, 50, 60))
         nf_select_step(1);
+#endif
     return PLUGIN_OK;
 }
 

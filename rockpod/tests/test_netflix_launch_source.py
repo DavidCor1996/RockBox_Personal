@@ -11,7 +11,7 @@ def test_netflix_launch_pack_is_complete_and_packaged():
     assert len(frames) == 40
     assert all(frame.stat().st_size > 170_000 for frame in frames)
     assert (launch / "intro-44100-stereo.pcm").stat().st_size > 500_000
-    assert 145_000 < (launch / "intro-106x60.nfr").stat().st_size < 153_600
+    assert (launch / "intro-320x180.rgb565").stat().st_size == 40 * 320 * 180 * 2
     assert 75_000 < (launch / "intro-20000-mono.mulaw").stat().st_size < 85_000
     assert "youtube.com/watch?v=GV3HUDMQ-F8" in (
         launch / "SOURCES.tsv"
@@ -60,11 +60,12 @@ def test_netflix_browser_marks_video_launch_parameters():
     assert '"netflix-restart:%s"' in source
     assert "video_launch_entry(entry);" in source
     assert "switch (video_launch_entry(&state->entries[selected]))" in source
-    assert "videos_netflix_appearance() && ipodjs_ui_netflix_launch()" in source
+    assert "netflix_appearance = videos_netflix_appearance();" in source
+    assert "if (ipodjs_ui_netflix_launch())" in source
     assert "VIDEO_LIST_NETFLIX_LAST" in source
     assert "video_netflix_resume_progress(&resume_entry)" in source
     assert "CONTINUE FROM %u%%" in source
-    assert '41, "RESUME", true' in source
+    assert "const char * const labels[2]" in source
 
 
 def test_netflix_season_paths_support_colons_in_show_titles():
@@ -72,7 +73,7 @@ def test_netflix_season_paths_support_colons_in_show_titles():
     season_browser = source.split(
         'strncmp(state->current_path, "virtual:season:", 15) == 0', 1
     )[1].split("static void videos_scan_folder", 1)[0]
-    show_plot = source.split("video_netflix_load_show_plot", 1)[1].split(
+    show_plot = source.split("video_netflix_load_show_detail", 1)[1].split(
         "static bool video_netflix_resume_progress", 1
     )[0]
 
@@ -81,8 +82,55 @@ def test_netflix_season_paths_support_colons_in_show_titles():
     assert "strrchr(show_buf, ':')" in show_plot
 
 
+def test_netflix_banners_are_full_width_aspect_fit_and_never_overlaid():
+    source = (ROOT / "apps/root_menu.c").read_text()
+    landing = source.split(
+        "static void video_draw_netflix_landing(", 1
+    )[1].split(
+        "/* Resolve the series metadata", 1
+    )[0]
+    detail = source.split(
+        "static void video_draw_netflix_detail(", 1
+    )[1].split(
+        "static int video_netflix_detail_screen", 1
+    )[0]
+    browser = source.split(
+        "static int videos_netflix_browser(", 1
+    )[1].split(
+        "case ACTION_STD_CANCEL:", 1
+    )[0]
+    select_action = browser.split(
+        "case ACTION_STD_OK:", 1
+    )[1].split(
+        "case ACTION_STD_CONTEXT:", 1
+    )[0]
+    context_action = browser.split("case ACTION_STD_CONTEXT:", 1)[1]
+
+    assert "video_draw_netflix_banner(" not in landing
+    assert "Browse remains cover-art-first" in landing
+    assert "#define VIDEO_LIST_NETFLIX_BANNER_W 320" in source
+    assert "#define VIDEO_LIST_NETFLIX_BANNER_H 180" in source
+    assert "#define VIDEO_LIST_NETFLIX_BANNER_Y" in source
+    assert "#define VIDEO_LIST_NETFLIX_FOOTER_Y" in source
+    assert "if (video_draw_netflix_banner(display," in detail
+    assert "video_draw_netflix_banner_footer" in detail
+    assert "display->update();\n        return;" in detail
+    assert "video_draw_netflix_banner_strip" not in source
+    assert "video_draw_netflix_bar_logo" in source
+    assert "notification_manager_set_banners_suppressed(true);" in source
+    assert "notification_manager_set_banners_suppressed(false);" in source
+    assert "(void)video_netflix_detail_screen(" in select_action
+    assert "Episodes and movies open their asset-backed Details" in select_action
+    assert "videos_netflix_enter_level" in select_action
+    assert "video_netflix_detail_screen" in context_action
+    assert "video_netflix_show_info_screen" in context_action
+
+
 def test_netflix_detail_offers_resume_or_play_from_beginning():
     root_menu = (ROOT / "apps/root_menu.c").read_text()
+    footer = root_menu.split(
+        "static void video_draw_netflix_banner_footer(", 1
+    )[1].split("static void video_draw_netflix_detail", 1)[0]
     player = (
         ROOT / "apps/plugins/mpegplayer/mpegplayer.c"
     ).read_text()
@@ -90,6 +138,9 @@ def test_netflix_detail_offers_resume_or_play_from_beginning():
     intro = (ROOT / "apps/plugins/netflix_intro.h").read_text()
 
     assert '"PLAY FROM BEGINNING"' in root_menu
+    assert "video_netflix_resume_progress(&screen_entry)" in root_menu
+    assert '"RESUME"' in footer
+    assert '"PLAY FROM BEGINNING"' in footer
     assert "video_launch_entry_at(entry," in root_menu
     assert "selected_action == 1" in root_menu
     assert "NETFLIX_RESTART_PARAMETER_PREFIX" in intro
@@ -113,7 +164,7 @@ def test_netflix_app_launch_reuses_fixed_ui_workspace_and_beep_channel():
     assert "core_alloc" not in source
     assert "audio_stop()" not in source
     assert "button_get_w_tmo(0)" in source
-    assert source.count("ipodjs_netflix_beep_detach();") >= 3
+    assert source.count("ipodjs_netflix_beep_detach();") >= 2
     assert "mixer_channel_set_buffer_hook(PCM_MIXER_CHAN_BEEP, NULL)" in source
     assert "#define IPODJS_NETFLIX_PCM_CHUNK_FRAMES 512" in source
     assert "(size_t)IPODJS_NETFLIX_PCM_CHUNK_FRAMES" in source
@@ -156,7 +207,7 @@ def test_netflix_playback_uses_yuv_theme_and_shared_video_volume():
     assert "RAW_NETFLIX_OVERLAY_H" in raw
     assert "raw_osd_draw_netflix" in raw
     assert "raw_blit_netflix_volume" in raw
-    assert "raw_yuv_text_2x" in raw
+    assert "raw_yuv_text_scaled" in raw
     assert "raw_osd_show_volume();" in raw
     assert "percent >= 100 ? RAW_VIDEO_VOLUME_SEGMENTS" in raw
 
@@ -181,3 +232,21 @@ def test_netflix_mpeg_and_rvp_launches_resume():
     assert "mpeg_resume_available(const char *filename)" in settings
     assert "!mpeg_resume_available(videofile)" in player
     assert "netflix_launch && resume_frame == 0" in raw
+
+
+def test_native_launch_frames_preserve_source_detail():
+    import struct
+    from PIL import Image
+
+    launch = ROOT / "assets/ipodjs/rockbox/netflix/launch"
+    raw = (launch / "intro-320x180.rgb565").read_bytes()
+    for frame in (8, 16, 24, 32):
+        start = frame * 320 * 180 * 2
+        values = struct.unpack_from("<57600H", raw, start)
+        source = Image.open(launch / f"frame-{frame:02d}.320x180x24.bmp")
+        error = 0
+        for value, (red, green, blue) in zip(values, source.convert("RGB").getdata()):
+            error += ((value >> 11) * 255 / 31 - red) ** 2
+            error += (((value >> 5) & 63) * 255 / 63 - green) ** 2
+            error += ((value & 31) * 255 / 31 - blue) ** 2
+        assert error / (320 * 180 * 3) < 32

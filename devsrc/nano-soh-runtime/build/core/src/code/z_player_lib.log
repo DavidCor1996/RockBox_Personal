@@ -1,0 +1,958 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:27:46: warning: initialization of 'FlexSkeletonHeader *' from incompatible pointer type 'const char (*)[46]' [-Wincompatible-pointer-types]
+   27 | FlexSkeletonHeader* gPlayerSkelHeaders[] = { &gLinkAdultSkel, &gLinkChildSkel };
+      |                                              ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:27:46: note: (near initialization for 'gPlayerSkelHeaders[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:27:63: warning: initialization of 'FlexSkeletonHeader *' from incompatible pointer type 'const char (*)[48]' [-Wincompatible-pointer-types]
+   27 | FlexSkeletonHeader* gPlayerSkelHeaders[] = { &gLinkAdultSkel, &gLinkChildSkel };
+      |                                                               ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:27:63: note: (near initialization for 'gPlayerSkelHeaders[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:170:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  170 |     gLinkAdultRightHandClosedNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:170:5: note: (near initialization for 'sPlayerRightHandShieldDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:171:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  171 |     gLinkChildRightHandClosedNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:171:5: note: (near initialization for 'sPlayerRightHandShieldDLs[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:172:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  172 |     gLinkAdultRightHandClosedFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:172:5: note: (near initialization for 'sPlayerRightHandShieldDLs[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:173:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  173 |     gLinkChildRightHandClosedFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:173:5: note: (near initialization for 'sPlayerRightHandShieldDLs[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:175:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  175 |     gLinkAdultRightHandClosedNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:175:5: note: (near initialization for 'sPlayerRightHandShieldDLs[4]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:176:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  176 |     gLinkChildRightFistAndDekuShieldNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:176:5: note: (near initialization for 'sPlayerRightHandShieldDLs[5]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:177:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  177 |     gLinkAdultRightHandClosedFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:177:5: note: (near initialization for 'sPlayerRightHandShieldDLs[6]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:178:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  178 |     gLinkChildRightFistAndDekuShieldFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:178:5: note: (near initialization for 'sPlayerRightHandShieldDLs[7]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:180:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  180 |     gLinkAdultRightHandHoldingHylianShieldNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:180:5: note: (near initialization for 'sPlayerRightHandShieldDLs[8]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:181:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  181 |     gLinkChildRightHandClosedNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:181:5: note: (near initialization for 'sPlayerRightHandShieldDLs[9]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:182:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  182 |     gLinkAdultRightHandHoldingHylianShieldFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:182:5: note: (near initialization for 'sPlayerRightHandShieldDLs[10]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:183:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  183 |     gLinkChildRightHandClosedFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:183:5: note: (near initialization for 'sPlayerRightHandShieldDLs[11]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:185:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  185 |     gLinkAdultRightHandHoldingMirrorShieldNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:185:5: note: (near initialization for 'sPlayerRightHandShieldDLs[12]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:186:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  186 |     gLinkChildRightHandClosedNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:186:5: note: (near initialization for 'sPlayerRightHandShieldDLs[13]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:187:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  187 |     gLinkAdultRightHandHoldingMirrorShieldFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:187:5: note: (near initialization for 'sPlayerRightHandShieldDLs[14]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:188:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  188 |     gLinkChildRightHandClosedFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:188:5: note: (near initialization for 'sPlayerRightHandShieldDLs[15]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:193:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  193 |     gLinkAdultMasterSwordAndSheathNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:193:5: note: (near initialization for 'sSheathWithSwordDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:194:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  194 |     gLinkChildSwordAndSheathNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:194:5: note: (near initialization for 'sSheathWithSwordDLs[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:195:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  195 |     gLinkAdultMasterSwordAndSheathFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:195:5: note: (near initialization for 'sSheathWithSwordDLs[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:196:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  196 |     gLinkChildSwordAndSheathFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:196:5: note: (near initialization for 'sSheathWithSwordDLs[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:198:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  198 |     gLinkAdultMasterSwordAndSheathNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:198:5: note: (near initialization for 'sSheathWithSwordDLs[4]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:199:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  199 |     gLinkChildDekuShieldSwordAndSheathNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:199:5: note: (near initialization for 'sSheathWithSwordDLs[5]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:200:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  200 |     gLinkAdultMasterSwordAndSheathFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:200:5: note: (near initialization for 'sSheathWithSwordDLs[6]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:201:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  201 |     gLinkChildDekuShieldSwordAndSheathFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:201:5: note: (near initialization for 'sSheathWithSwordDLs[7]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:203:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  203 |     gLinkAdultHylianShieldSwordAndSheathNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:203:5: note: (near initialization for 'sSheathWithSwordDLs[8]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:204:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  204 |     gLinkChildHylianShieldSwordAndSheathNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:204:5: note: (near initialization for 'sSheathWithSwordDLs[9]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:205:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  205 |     gLinkAdultHylianShieldSwordAndSheathFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:205:5: note: (near initialization for 'sSheathWithSwordDLs[10]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:206:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  206 |     gLinkChildHylianShieldSwordAndSheathFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:206:5: note: (near initialization for 'sSheathWithSwordDLs[11]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:208:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  208 |     gLinkAdultMirrorShieldSwordAndSheathNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:208:5: note: (near initialization for 'sSheathWithSwordDLs[12]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:209:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  209 |     gLinkChildSwordAndSheathNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:209:5: note: (near initialization for 'sSheathWithSwordDLs[13]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:210:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  210 |     gLinkAdultMirrorShieldSwordAndSheathFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:210:5: note: (near initialization for 'sSheathWithSwordDLs[14]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:211:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  211 |     gLinkChildSwordAndSheathFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:211:5: note: (near initialization for 'sSheathWithSwordDLs[15]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:219:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  219 |     gLinkChildDekuShieldWithMatrixDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:219:5: note: (near initialization for 'sSheathWithSwordDLs[21]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:221:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  221 |     gLinkChildDekuShieldWithMatrixDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:221:5: note: (near initialization for 'sSheathWithSwordDLs[23]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:226:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  226 |     gLinkAdultSheathNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:226:5: note: (near initialization for 'sSheathWithoutSwordDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:227:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  227 |     gLinkChildSheathNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:227:5: note: (near initialization for 'sSheathWithoutSwordDLs[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:228:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  228 |     gLinkAdultSheathFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:228:5: note: (near initialization for 'sSheathWithoutSwordDLs[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:229:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  229 |     gLinkChildSheathFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:229:5: note: (near initialization for 'sSheathWithoutSwordDLs[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:231:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  231 |     gLinkAdultSheathNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:231:5: note: (near initialization for 'sSheathWithoutSwordDLs[4]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:232:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  232 |     gLinkChildDekuShieldAndSheathNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:232:5: note: (near initialization for 'sSheathWithoutSwordDLs[5]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:233:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  233 |     gLinkAdultSheathFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:233:5: note: (near initialization for 'sSheathWithoutSwordDLs[6]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:234:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  234 |     gLinkChildDekuShieldAndSheathFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:234:5: note: (near initialization for 'sSheathWithoutSwordDLs[7]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:236:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  236 |     gLinkAdultHylianShieldAndSheathNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:236:5: note: (near initialization for 'sSheathWithoutSwordDLs[8]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:237:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  237 |     gLinkChildHylianShieldAndSheathNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:237:5: note: (near initialization for 'sSheathWithoutSwordDLs[9]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:238:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  238 |     gLinkAdultHylianShieldAndSheathFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:238:5: note: (near initialization for 'sSheathWithoutSwordDLs[10]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:239:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  239 |     gLinkChildHylianShieldAndSheathFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:239:5: note: (near initialization for 'sSheathWithoutSwordDLs[11]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:241:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  241 |     gLinkAdultMirrorShieldAndSheathNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:241:5: note: (near initialization for 'sSheathWithoutSwordDLs[12]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:242:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  242 |     gLinkChildSheathNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:242:5: note: (near initialization for 'sSheathWithoutSwordDLs[13]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:243:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  243 |     gLinkAdultMirrorShieldAndSheathFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:243:5: note: (near initialization for 'sSheathWithoutSwordDLs[14]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:244:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  244 |     gLinkChildSheathFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:244:5: note: (near initialization for 'sSheathWithoutSwordDLs[15]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:251:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  251 |     gLinkAdultSheathNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:251:5: note: (near initialization for 'sSheathWithoutSwordDLs[20]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:252:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  252 |     gLinkChildDekuShieldWithMatrixDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:252:5: note: (near initialization for 'sSheathWithoutSwordDLs[21]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:253:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  253 |     gLinkAdultSheathNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:253:5: note: (near initialization for 'sSheathWithoutSwordDLs[22]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:254:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  254 |     gLinkChildDekuShieldWithMatrixDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:254:5: note: (near initialization for 'sSheathWithoutSwordDLs[23]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:259:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  259 |     gLinkAdultLeftHandHoldingBgsNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:259:5: note: (near initialization for 'gPlayerLeftHandBgsDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:260:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  260 |     gLinkChildLeftHandHoldingMasterSwordDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:260:5: note: (near initialization for 'gPlayerLeftHandBgsDLs[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:261:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  261 |     gLinkAdultLeftHandHoldingBgsFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:261:5: note: (near initialization for 'gPlayerLeftHandBgsDLs[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:262:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  262 |     gLinkChildLeftHandHoldingMasterSwordDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:262:5: note: (near initialization for 'gPlayerLeftHandBgsDLs[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:264:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  264 |     gLinkAdultHandHoldingBrokenGiantsKnifeDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:264:5: note: (near initialization for 'gPlayerLeftHandBgsDLs[4]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:265:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  265 |     gLinkChildLeftHandHoldingMasterSwordDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:265:5: note: (near initialization for 'gPlayerLeftHandBgsDLs[5]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:266:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  266 |     gLinkAdultHandHoldingBrokenGiantsKnifeFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:266:5: note: (near initialization for 'gPlayerLeftHandBgsDLs[6]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:267:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  267 |     gLinkChildLeftHandHoldingMasterSwordDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:267:5: note: (near initialization for 'gPlayerLeftHandBgsDLs[7]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:271:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  271 |     gLinkAdultLeftHandNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:271:5: note: (near initialization for 'gPlayerLeftHandOpenDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:272:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  272 |     gLinkChildLeftHandNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:272:5: note: (near initialization for 'gPlayerLeftHandOpenDLs[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:273:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  273 |     gLinkAdultLeftHandFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:273:5: note: (near initialization for 'gPlayerLeftHandOpenDLs[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:274:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  274 |     gLinkChildLeftHandFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:274:5: note: (near initialization for 'gPlayerLeftHandOpenDLs[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:278:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  278 |     gLinkAdultLeftHandClosedNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:278:5: note: (near initialization for 'gPlayerLeftHandClosedDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:279:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  279 |     gLinkChildLeftFistNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:279:5: note: (near initialization for 'gPlayerLeftHandClosedDLs[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:280:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  280 |     gLinkAdultLeftHandClosedFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:280:5: note: (near initialization for 'gPlayerLeftHandClosedDLs[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:281:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  281 |     gLinkChildLeftFistFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:281:5: note: (near initialization for 'gPlayerLeftHandClosedDLs[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:285:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  285 |     gLinkAdultLeftHandHoldingMasterSwordNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:285:5: note: (near initialization for 'sPlayerLeftHandSwordDLs2[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:286:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  286 |     gLinkChildLeftFistAndKokiriSwordNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:286:5: note: (near initialization for 'sPlayerLeftHandSwordDLs2[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:287:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  287 |     gLinkAdultLeftHandHoldingMasterSwordFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:287:5: note: (near initialization for 'sPlayerLeftHandSwordDLs2[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:288:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  288 |     gLinkChildLeftFistAndKokiriSwordFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:288:5: note: (near initialization for 'sPlayerLeftHandSwordDLs2[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:292:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  292 |     gLinkAdultLeftHandHoldingMasterSwordNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:292:5: note: (near initialization for 'sPlayerLeftHandSwordDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:293:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  293 |     gLinkChildLeftFistAndKokiriSwordNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:293:5: note: (near initialization for 'sPlayerLeftHandSwordDLs[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:294:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  294 |     gLinkAdultLeftHandHoldingMasterSwordFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:294:5: note: (near initialization for 'sPlayerLeftHandSwordDLs[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:295:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  295 |     gLinkChildLeftFistAndKokiriSwordFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:295:5: note: (near initialization for 'sPlayerLeftHandSwordDLs[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:299:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  299 |     gLinkAdultRightHandNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:299:5: note: (near initialization for 'sPlayerRightHandOpenDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:300:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  300 |     gLinkChildRightHandNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:300:5: note: (near initialization for 'sPlayerRightHandOpenDLs[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:301:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  301 |     gLinkAdultRightHandFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:301:5: note: (near initialization for 'sPlayerRightHandOpenDLs[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:302:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  302 |     gLinkChildRightHandFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:302:5: note: (near initialization for 'sPlayerRightHandOpenDLs[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:306:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  306 |     gLinkAdultRightHandClosedNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:306:5: note: (near initialization for 'sPlayerRightHandClosedDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:307:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  307 |     gLinkChildRightHandClosedNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:307:5: note: (near initialization for 'sPlayerRightHandClosedDLs[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:308:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  308 |     gLinkAdultRightHandClosedFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:308:5: note: (near initialization for 'sPlayerRightHandClosedDLs[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:309:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  309 |     gLinkChildRightHandClosedFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:309:5: note: (near initialization for 'sPlayerRightHandClosedDLs[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:313:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  313 |     gLinkAdultRightHandHoldingBowNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:313:5: note: (near initialization for 'sPlayerRightHandBowSlingshotDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:314:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  314 |     gLinkChildRightHandHoldingSlingshotNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:314:5: note: (near initialization for 'sPlayerRightHandBowSlingshotDLs[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:315:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  315 |     gLinkAdultRightHandHoldingBowFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:315:5: note: (near initialization for 'sPlayerRightHandBowSlingshotDLs[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:316:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  316 |     gLinkChildRightHandHoldingSlingshotFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:316:5: note: (near initialization for 'sPlayerRightHandBowSlingshotDLs[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:320:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  320 |     gLinkAdultMasterSwordAndSheathNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:320:5: note: (near initialization for 'sSwordAndSheathDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:321:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  321 |     gLinkChildSwordAndSheathNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:321:5: note: (near initialization for 'sSwordAndSheathDLs[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:322:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  322 |     gLinkAdultMasterSwordAndSheathFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:322:5: note: (near initialization for 'sSwordAndSheathDLs[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:323:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  323 |     gLinkChildSwordAndSheathFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:323:5: note: (near initialization for 'sSwordAndSheathDLs[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:327:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  327 |     gLinkAdultSheathNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:327:5: note: (near initialization for 'sSheathDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:328:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  328 |     gLinkChildSheathNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:328:5: note: (near initialization for 'sSheathDLs[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:329:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  329 |     gLinkAdultSheathFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:329:5: note: (near initialization for 'sSheathDLs[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:330:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  330 |     gLinkChildSheathFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:330:5: note: (near initialization for 'sSheathDLs[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:334:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  334 |     gLinkAdultWaistNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:334:5: note: (near initialization for 'sPlayerWaistDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:335:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  335 |     gLinkChildWaistNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:335:5: note: (near initialization for 'sPlayerWaistDLs[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:336:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  336 |     gLinkAdultWaistFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:336:5: note: (near initialization for 'sPlayerWaistDLs[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:337:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  337 |     gLinkChildWaistFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:337:5: note: (near initialization for 'sPlayerWaistDLs[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:341:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  341 |     gLinkAdultRightHandHoldingBowNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:341:5: note: (near initialization for 'sPlayerRightHandBowSlingshotDLs2[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:342:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  342 |     gLinkChildRightHandHoldingSlingshotNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:342:5: note: (near initialization for 'sPlayerRightHandBowSlingshotDLs2[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:343:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  343 |     gLinkAdultRightHandHoldingBowFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:343:5: note: (near initialization for 'sPlayerRightHandBowSlingshotDLs2[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:344:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  344 |     gLinkChildRightHandHoldingSlingshotFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:344:5: note: (near initialization for 'sPlayerRightHandBowSlingshotDLs2[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:348:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  348 |     gLinkAdultRightHandHoldingOotNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:348:5: note: (near initialization for 'sPlayerRightHandOcarinaDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:349:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  349 |     gLinkChildRightHandHoldingFairyOcarinaNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:349:5: note: (near initialization for 'sPlayerRightHandOcarinaDLs[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:350:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  350 |     gLinkAdultRightHandHoldingOotFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:350:5: note: (near initialization for 'sPlayerRightHandOcarinaDLs[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:351:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  351 |     gLinkChildRightHandHoldingFairyOcarinaFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:351:5: note: (near initialization for 'sPlayerRightHandOcarinaDLs[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:355:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  355 |     gLinkAdultRightHandHoldingOotNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:355:5: note: (near initialization for 'sPlayerRightHandOotDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:356:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  356 |     gLinkChildRightHandAndOotNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:356:5: note: (near initialization for 'sPlayerRightHandOotDLs[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:357:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  357 |     gLinkAdultRightHandHoldingOotFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:357:5: note: (near initialization for 'sPlayerRightHandOotDLs[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:358:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  358 |     gLinkChildRightHandHoldingOOTFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:358:5: note: (near initialization for 'sPlayerRightHandOotDLs[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:362:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  362 |     gLinkAdultRightHandHoldingHookshotNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:362:5: note: (near initialization for 'sPlayerRightHandHookshotDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:363:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  363 |     gLinkChildRightHandNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:363:5: note: (near initialization for 'sPlayerRightHandHookshotDLs[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:364:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  364 |     gLinkAdultRightHandHoldingHookshotNearDL, // The 'far' display list exists but is not used
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:364:5: note: (near initialization for 'sPlayerRightHandHookshotDLs[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:365:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  365 |     gLinkChildRightHandFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:365:5: note: (near initialization for 'sPlayerRightHandHookshotDLs[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:369:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  369 |     gLinkAdultLeftHandHoldingHammerNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:369:5: note: (near initialization for 'sPlayerLeftHandHammerDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:370:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  370 |     gLinkChildLeftHandNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:370:5: note: (near initialization for 'sPlayerLeftHandHammerDLs[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:371:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  371 |     gLinkAdultLeftHandHoldingHammerFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:371:5: note: (near initialization for 'sPlayerLeftHandHammerDLs[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:372:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  372 |     gLinkChildLeftHandFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:372:5: note: (near initialization for 'sPlayerLeftHandHammerDLs[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:376:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  376 |     gLinkAdultLeftHandNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:376:5: note: (near initialization for 'gPlayerLeftHandBoomerangDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:377:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  377 |     gLinkChildLeftFistAndBoomerangNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:377:5: note: (near initialization for 'gPlayerLeftHandBoomerangDLs[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:378:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  378 |     gLinkAdultLeftHandFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:378:5: note: (near initialization for 'gPlayerLeftHandBoomerangDLs[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:379:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  379 |     gLinkChildLeftFistAndBoomerangFarDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:379:5: note: (near initialization for 'gPlayerLeftHandBoomerangDLs[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:383:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  383 |     gLinkAdultLeftHandOutNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:383:5: note: (near initialization for 'sPlayerLeftHandBottleDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:384:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  384 |     gLinkChildLeftHandUpNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:384:5: note: (near initialization for 'sPlayerLeftHandBottleDLs[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:385:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  385 |     gLinkAdultLeftHandOutNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:385:5: note: (near initialization for 'sPlayerLeftHandBottleDLs[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:386:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  386 |     gLinkChildLeftHandUpNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:386:5: note: (near initialization for 'sPlayerLeftHandBottleDLs[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:390:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  390 |     gLinkAdultRightArmOutNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:390:5: note: (near initialization for 'sFirstPersonLeftForearmDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:395:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  395 |     gLinkAdultRightHandOutNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:395:5: note: (near initialization for 'sFirstPersonLeftHandDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:400:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  400 |     gLinkAdultRightShoulderNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:400:5: note: (near initialization for 'sFirstPersonRightShoulderDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:401:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  401 |     gLinkChildRightShoulderNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:401:5: note: (near initialization for 'sFirstPersonRightShoulderDLs[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:405:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  405 |     gLinkAdultLeftArmOutNearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:405:5: note: (near initialization for 'sFirstPersonForearmDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:410:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  410 |     gLinkAdultRightHandHoldingBowFirstPersonDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:410:5: note: (near initialization for 'sFirstPersonRightHandHoldingWeaponDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:411:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  411 |     gLinkChildRightArmStretchedSlingshotDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:411:5: note: (near initialization for 'sFirstPersonRightHandHoldingWeaponDLs[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:981:7: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  981 |     { gLinkAdultEyesOpenTex, gLinkAdultEyesHalfTex, gLinkAdultEyesClosedfTex, gLinkAdultEyesRollLeftTex,
+      |       ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:981:30: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  981 |     { gLinkAdultEyesOpenTex, gLinkAdultEyesHalfTex, gLinkAdultEyesClosedfTex, gLinkAdultEyesRollLeftTex,
+      |                              ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:981:53: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  981 |     { gLinkAdultEyesOpenTex, gLinkAdultEyesHalfTex, gLinkAdultEyesClosedfTex, gLinkAdultEyesRollLeftTex,
+      |                                                     ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:981:79: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  981 |     { gLinkAdultEyesOpenTex, gLinkAdultEyesHalfTex, gLinkAdultEyesClosedfTex, gLinkAdultEyesRollLeftTex,
+      |                                                                               ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:982:7: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  982 |       gLinkAdultEyesRollRightTex, gLinkAdultEyesShockTex, gLinkAdultEyesUnk1Tex, gLinkAdultEyesUnk2Tex },
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:982:35: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  982 |       gLinkAdultEyesRollRightTex, gLinkAdultEyesShockTex, gLinkAdultEyesUnk1Tex, gLinkAdultEyesUnk2Tex },
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:982:59: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  982 |       gLinkAdultEyesRollRightTex, gLinkAdultEyesShockTex, gLinkAdultEyesUnk1Tex, gLinkAdultEyesUnk2Tex },
+      |                                                           ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:982:82: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  982 |       gLinkAdultEyesRollRightTex, gLinkAdultEyesShockTex, gLinkAdultEyesUnk1Tex, gLinkAdultEyesUnk2Tex },
+      |                                                                                  ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:983:7: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  983 |     { gLinkChildEyesOpenTex, gLinkChildEyesHalfTex, gLinkChildEyesClosedfTex, gLinkChildEyesRollLeftTex,
+      |       ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:983:30: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  983 |     { gLinkChildEyesOpenTex, gLinkChildEyesHalfTex, gLinkChildEyesClosedfTex, gLinkChildEyesRollLeftTex,
+      |                              ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:983:53: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  983 |     { gLinkChildEyesOpenTex, gLinkChildEyesHalfTex, gLinkChildEyesClosedfTex, gLinkChildEyesRollLeftTex,
+      |                                                     ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:983:79: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  983 |     { gLinkChildEyesOpenTex, gLinkChildEyesHalfTex, gLinkChildEyesClosedfTex, gLinkChildEyesRollLeftTex,
+      |                                                                               ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:984:7: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  984 |       gLinkChildEyesRollRightTex, gLinkChildEyesShockTex, gLinkChildEyesUnk1Tex, gLinkChildEyesUnk2Tex },
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:984:35: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  984 |       gLinkChildEyesRollRightTex, gLinkChildEyesShockTex, gLinkChildEyesUnk1Tex, gLinkChildEyesUnk2Tex },
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:984:59: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  984 |       gLinkChildEyesRollRightTex, gLinkChildEyesShockTex, gLinkChildEyesUnk1Tex, gLinkChildEyesUnk2Tex },
+      |                                                           ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:984:82: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  984 |       gLinkChildEyesRollRightTex, gLinkChildEyesShockTex, gLinkChildEyesUnk1Tex, gLinkChildEyesUnk2Tex },
+      |                                                                                  ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:997:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  997 |         gLinkAdultMouth1Tex,
+      |         ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:998:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  998 |         gLinkAdultMouth2Tex,
+      |         ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:999:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  999 |         gLinkAdultMouth3Tex,
+      |         ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1000:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1000 |         gLinkAdultMouth4Tex,
+      |         ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1003:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1003 |         gLinkChildMouth1Tex,
+      |         ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1004:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1004 |         gLinkChildMouth2Tex,
+      |         ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1005:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1005 |         gLinkChildMouth3Tex,
+      |         ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1006:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1006 |         gLinkChildMouth4Tex,
+      |         ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1035:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+ 1035 |     { gLinkAdultLeftIronBootDL, gLinkAdultRightIronBootDL },   // PLAYER_BOOTS_IRON
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1035:7: note: (near initialization for 'sBootDListGroups[0][0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1035:33: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+ 1035 |     { gLinkAdultLeftIronBootDL, gLinkAdultRightIronBootDL },   // PLAYER_BOOTS_IRON
+      |                                 ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1035:33: note: (near initialization for 'sBootDListGroups[0][1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1036:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+ 1036 |     { gLinkAdultLeftHoverBootDL, gLinkAdultRightHoverBootDL }, // PLAYER_BOOTS_HOVER
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1036:7: note: (near initialization for 'sBootDListGroups[1][0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1036:34: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+ 1036 |     { gLinkAdultLeftHoverBootDL, gLinkAdultRightHoverBootDL }, // PLAYER_BOOTS_HOVER
+      |                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1036:34: note: (near initialization for 'sBootDListGroups[1][1]')
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:10,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c: In function 'Player_DrawImpl':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1055:94: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1055 |     gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(sEyeTextures[gSaveContext.linkAge][eyeIndex]));
+      |                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~
+      |                                                                                              |
+      |                                                                                              void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1067:96: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1067 |     gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(sMouthTextures[gSaveContext.linkAge][mouthIndex]));
+      |                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+      |                                                                                                |
+      |                                                                                                void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1121:49: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1121 |                 gSPDisplayList(POLY_OPA_DISP++, gLinkAdultLeftGauntletPlate1DL);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                 |
+      |                                                 const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1122:49: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1122 |                 gSPDisplayList(POLY_OPA_DISP++, gLinkAdultRightGauntletPlate1DL);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                 |
+      |                                                 const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1125:53: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1123 |                 gSPDisplayList(POLY_OPA_DISP++, (sLeftHandType == PLAYER_MODELTYPE_LH_OPEN)
+      |                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 1124 |                                                     ? gLinkAdultLeftGauntletPlate2DL
+      |                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 1125 |                                                     : gLinkAdultLeftGauntletPlate3DL);
+      |                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                     |
+      |                                                     const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1128:53: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1126 |                 gSPDisplayList(POLY_OPA_DISP++, (sRightHandType == PLAYER_MODELTYPE_RH_OPEN)
+      |                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 1127 |                                                     ? gLinkAdultRightGauntletPlate2DL
+      |                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 1128 |                                                     : gLinkAdultRightGauntletPlate3DL);
+      |                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                     |
+      |                                                     const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1139:49: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1139 |                 gSPDisplayList(POLY_OPA_DISP++, gLinkChildGoronBraceletDL);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                 |
+      |                                                 const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c: In function 'Player_OverrideLimbDrawGameplayDefault':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1396:54: warning: passing argument 1 of 'ResourceMgr_LoadGfxByName' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1396 |             *dList = ResourceMgr_LoadGfxByName(dLists[sDListsLodOffset]);
+      |                                                ~~~~~~^~~~~~~~~~~~~~~~~~
+      |                                                      |
+      |                                                      Gfx *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:12:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:52:44: note: expected 'const char *' but argument is of type 'Gfx *'
+   52 | Gfx* ResourceMgr_LoadGfxByName(const char* path);
+      |                                ~~~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1408:54: warning: passing argument 1 of 'ResourceMgr_LoadGfxByName' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1408 |             *dList = ResourceMgr_LoadGfxByName(dLists[sDListsLodOffset]);
+      |                                                ~~~~~~^~~~~~~~~~~~~~~~~~
+      |                                                      |
+      |                                                      Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:52:44: note: expected 'const char *' but argument is of type 'Gfx *'
+   52 | Gfx* ResourceMgr_LoadGfxByName(const char* path);
+      |                                ~~~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1432:58: warning: passing argument 1 of 'ResourceMgr_LoadGfxByName' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1432 |                 *dList = ResourceMgr_LoadGfxByName(dLists[sDListsLodOffset]);
+      |                                                    ~~~~~~^~~~~~~~~~~~~~~~~~
+      |                                                          |
+      |                                                          Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:52:44: note: expected 'const char *' but argument is of type 'Gfx *'
+   52 | Gfx* ResourceMgr_LoadGfxByName(const char* path);
+      |                                ~~~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1441:38: warning: passing argument 1 of 'ResourceMgr_LoadGfxByName' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1441 |                     this->waistDLists[sDListsLodOffset]); // NOTE: This needs to be disabled when using custom
+      |                     ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~
+      |                                      |
+      |                                      Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:52:44: note: expected 'const char *' but argument is of type 'Gfx *'
+   52 | Gfx* ResourceMgr_LoadGfxByName(const char* path);
+      |                                ~~~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c: In function 'Player_OverrideLimbDrawGameplayFirstPerson':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1489:49: warning: pointer type mismatch in conditional expression [-Wincompatible-pointer-types]
+ 1489 |                                                 : sFirstPersonRightHandHoldingWeaponDLs[firstPersonWeaponIndex];
+      |                                                 ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1488:51: note: first expression has type 'const char *'
+ 1488 |             *dList = Player_HoldsHookshot(this) ? gLinkAdultRightHandHoldingHookshotFarDL
+      |                                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1489:51: note: second expression has type 'Gfx *'
+ 1489 |                                                 : sFirstPersonRightHandHoldingWeaponDLs[firstPersonWeaponIndex];
+      |                                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c: In function 'Player_DrawGetItemIceTrap':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1617:24: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1617 |                        Gfx_TwoTexScrollEx(play->state.gfxCtx, 0, 0, (0 - play->gameplayFrames) % 128, 32, 32, 1, 0,
+      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                        |
+      |                        Gfx *
+ 1618 |                                           (play->gameplayFrames * -2) % 128, 32, 32, 0, -1, 0, -2));
+      |                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1624:45: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1624 |             gSPDisplayList(POLY_XLU_DISP++, gEffIceFragment3DL);
+      |                                             ^~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c: In function 'Player_DrawGetItemImpl':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1653:43: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1653 |     gSPSegment(POLY_OPA_DISP++, 0x06, this->giObjectSegment);
+      |                                       ~~~~^~~~~~~~~~~~~~~~~
+      |                                           |
+      |                                           void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1654:43: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1654 |     gSPSegment(POLY_XLU_DISP++, 0x06, this->giObjectSegment);
+      |                                       ~~~~^~~~~~~~~~~~~~~~~
+      |                                           |
+      |                                           void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c: In function 'Player_DrawHookshotReticle':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1729:94: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1729 |             gSPSegment(OVERLAY_DISP++, 0x06, play->objectCtx.status[this->actor.objBankIndex].segment);
+      |                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~
+      |                                                                                              |
+      |                                                                                              void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1730:44: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1730 |             gSPDisplayList(OVERLAY_DISP++, gLinkAdultHookshotReticleDL);
+      |                                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                            |
+      |                                            const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c: At top level:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1749:26: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+ 1749 | Gfx* sBottleDLists[] = { gLinkAdultBottleDL, gLinkChildBottleDL };
+      |                          ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1749:26: note: (near initialization for 'sBottleDLists[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1749:46: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+ 1749 | Gfx* sBottleDLists[] = { gLinkAdultBottleDL, gLinkChildBottleDL };
+      |                                              ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1749:46: note: (near initialization for 'sBottleDLists[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1760:7: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1760 |     { gLinkAdultBowStringDL, { 0.0f, -360.4f, 0.0f } },        // bow
+      |       ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1761:7: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1761 |     { gLinkChildSlingshotStringDL, { 606.0f, 236.0f, 0.0f } }, // slingshot
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c: In function 'Player_PostLimbDrawGameplay':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:1823:45: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1823 |             gSPDisplayList(POLY_OPA_DISP++, gLinkChildLinkDekuStickDL);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c: In function 'func_80091738':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2015:83: warning: passing argument 4 of 'SkelAnime_InitLink' from incompatible pointer type [-Wincompatible-pointer-types]
+ 2015 |     SkelAnime_InitLink(play, skelAnime, gPlayerSkelHeaders[gSaveContext.linkAge], &gPlayerAnim_link_normal_wait, 9, ptr,
+      |                                                                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                                   |
+      |                                                                                   const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1300:46: note: expected 'LinkAnimationHeader *' but argument is of type 'const char (*)[58]'
+ 1300 |                         LinkAnimationHeader* animation, s32 initFlags, Vec3s* jointTable, Vec3s* morphTable,
+      |                         ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c: In function 'Pause_DrawTriforceSpot':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2097:33: warning: passing argument 1 of 'DemoEffect_DrawTriforceSpot' from incompatible pointer type [-Wincompatible-pointer-types]
+ 2097 |     DemoEffect_DrawTriforceSpot(&triforce, play);
+      |                                 ^~~~~~~~~
+      |                                 |
+      |                                 DemoEffect *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2086:41: note: expected 'Actor *' but argument is of type 'DemoEffect *'
+ 2086 | void DemoEffect_DrawTriforceSpot(Actor* thisx, PlayState* play);
+      |                                  ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c: In function 'Player_DrawPauseImpl':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2135:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 2135 |     gSPSegment(POLY_OPA_DISP++, 0x00, NULL);
+      |                                       ^~~~
+      |                                       |
+      |                                       void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2198:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 2198 |     gSPSegment(POLY_OPA_DISP++, 0x04, gameplayKeep);
+      |                                       ^~~~~~~~~~~~
+      |                                       |
+      |                                       void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2199:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 2199 |     gSPSegment(POLY_OPA_DISP++, 0x06, linkObject);
+      |                                       ^~~~~~~~~~
+      |                                       |
+      |                                       void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2209:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 2209 |     gSPSegment(POLY_OPA_DISP++, 0x0C, gCullBackDList);
+      |                                       ^~~~~~~~~~~~~~
+      |                                       |
+      |                                       Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c: In function 'Player_DrawPause':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2251:40: warning: initialization of 'uintptr_t *' {aka 'unsigned int *'} from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+ 2251 |                                        gPlayerAnim_link_normal_wait, gPlayerAnim_link_fighter_wait_long,
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2251:40: note: (near initialization for 'PauseMenuAnimSet[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2251:70: warning: initialization of 'uintptr_t *' {aka 'unsigned int *'} from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+ 2251 |                                        gPlayerAnim_link_normal_wait, gPlayerAnim_link_fighter_wait_long,
+      |                                                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2251:70: note: (near initialization for 'PauseMenuAnimSet[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2252:40: warning: initialization of 'uintptr_t *' {aka 'unsigned int *'} from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+ 2252 |                                        gPlayerAnim_link_normal_wait_free, gPlayerAnim_link_normal_wait_free
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2252:40: note: (near initialization for 'PauseMenuAnimSet[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2252:75: warning: initialization of 'uintptr_t *' {aka 'unsigned int *'} from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+ 2252 |                                        gPlayerAnim_link_normal_wait_free, gPlayerAnim_link_normal_wait_free
+      |                                                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2252:75: note: (near initialization for 'PauseMenuAnimSet[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2272:18: warning: assignment to 'uintptr_t' {aka 'unsigned int'} from 'uintptr_t *' {aka 'unsigned int *'} makes integer from pointer without a cast [-Wint-conversion]
+ 2272 |             anim = PauseMenuAnimSet[EquipedStance];
+      |                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2274:18: warning: assignment to 'uintptr_t' {aka 'unsigned int'} from 'const char *' makes integer from pointer without a cast [-Wint-conversion]
+ 2274 |             anim = gPlayerAnim_link_magic_kaze2;
+      |                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2279:34: warning: comparison between pointer and integer
+ 2279 |         if (skelAnime->animation != anim) {
+      |                                  ^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2280:92: warning: passing argument 1 of 'Animation_GetLastFrame' makes pointer from integer without a cast [-Wint-conversion]
+ 2280 |             LinkAnimation_Change(play, skelAnime, anim, 1.0f, 0.0f, Animation_GetLastFrame(anim), ANIMMODE_LOOP, -6.0f);
+      |                                                                                            ^~~~
+      |                                                                                            |
+      |                                                                                            uintptr_t {aka unsigned int}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'uintptr_t' {aka 'unsigned int'}
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2280:51: warning: passing argument 3 of 'LinkAnimation_Change' makes pointer from integer without a cast [-Wint-conversion]
+ 2280 |             LinkAnimation_Change(play, skelAnime, anim, 1.0f, 0.0f, Animation_GetLastFrame(anim), ANIMMODE_LOOP, -6.0f);
+      |                                                   ^~~~
+      |                                                   |
+      |                                                   uintptr_t {aka unsigned int}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1306:87: note: expected 'LinkAnimationHeader *' but argument is of type 'uintptr_t' {aka 'unsigned int'}
+ 1306 | void LinkAnimation_Change(PlayState* play, SkelAnime* skelAnime, LinkAnimationHeader* animation, f32 playSpeed,
+      |                                                                  ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2293:26: warning: assignment to 'Vec3s *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+ 2293 |                 srcTable = gLinkPauseChildDekuShieldJointTable;
+      |                          ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2295:26: warning: assignment to 'Vec3s *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+ 2295 |                 srcTable = gLinkPauseChildJointTable;
+      |                          ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2299:26: warning: assignment to 'Vec3s *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+ 2299 |                 srcTable = gLinkPauseAdultBgsJointTable;
+      |                          ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2301:26: warning: assignment to 'Vec3s *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+ 2301 |                 srcTable = gLinkPauseAdultShieldJointTable;
+      |                          ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2303:26: warning: assignment to 'Vec3s *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+ 2303 |                 srcTable = gLinkPauseAdultJointTable;
+      |                          ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2307:55: warning: passing argument 1 of 'ResourceMgr_LoadArrayByNameAsVec3s' from incompatible pointer type [-Wincompatible-pointer-types]
+ 2307 |         srcTable = ResourceMgr_LoadArrayByNameAsVec3s(srcTable);
+      |                                                       ^~~~~~~~
+      |                                                       |
+      |                                                       Vec3s *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:57:54: note: expected 'const char *' but argument is of type 'Vec3s *'
+   57 | char* ResourceMgr_LoadArrayByNameAsVec3s(const char* path);
+      |                                          ~~~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_player_lib.c:2307:18: warning: assignment to 'Vec3s *' from incompatible pointer type 'char *' [-Wincompatible-pointer-types]
+ 2307 |         srcTable = ResourceMgr_LoadArrayByNameAsVec3s(srcTable);
+      |                  ^

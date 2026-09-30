@@ -629,6 +629,40 @@ class TestMetadataReaderDiagnostics:
         assert track.video_kind == "movie"
         assert "basic metadata only" not in info["warnings"]
 
+    def test_known_movie_title_is_not_home_video_spirited_away(self, tmp_dir):
+        path = os.path.join(
+            tmp_dir,
+            "Home Videos",
+            "Spirited Away (2001).mkv",
+        )
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "wb") as f:
+            f.write(b"video")
+
+        track, info = read_metadata_details(path, mutagen_file_func=lambda _path: None)
+
+        assert track.video_kind == "movie"
+        assert track.title == "Spirited Away"
+        assert info["parsed_ok"] is False
+        assert "metadata read failure" in info["warnings"]
+
+    def test_known_movie_title_is_not_home_video_kiki_service_typo(self, tmp_dir):
+        path = os.path.join(
+            tmp_dir,
+            "Home Videos",
+            "Kiki's Devlivery Service (1989).mp4",
+        )
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "wb") as f:
+            f.write(b"video")
+
+        track, info = read_metadata_details(path, mutagen_file_func=lambda _path: None)
+
+        assert track.video_kind == "movie"
+        assert track.title == "Kiki's Devlivery Service"
+        assert info["parsed_ok"] is False
+        assert "metadata read failure" in info["warnings"]
+
     def test_movie_release_filename_is_normalized(self, tmp_dir):
         path = os.path.join(tmp_dir, "Movies", "Flow.2024.2160p.4K.WEB.x265.10bit.AAC5.1.mkv")
         os.makedirs(os.path.dirname(path), exist_ok=True)

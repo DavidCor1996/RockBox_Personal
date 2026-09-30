@@ -21,6 +21,7 @@
 #include "config.h"
 #include "system.h"
 #include "font.h"
+#include "notification_manager.h"
 #include "lcd.h"
 #include "bmp.h"
 #include "file.h"
@@ -36,10 +37,14 @@
 #include "pcm_mixer.h"
 #include "rbpaths.h"
 #include "string-extra.h"
+#include "timefuncs.h"
 #include "rbunicode.h"
 #include "usb.h"
 #include "ipodjs_trace.h"
+#include "ipodjs_retailos.h"
 #include "ipodjs_ui.h"
+#include "viewport.h"
+#include "scroll_engine.h"
 
 /* Bitmap payloads are handed to the BMP decoder as bm->data, which casts them
  * to fb_data * and writes them with halfword stores.  A plain char array only
@@ -54,8 +59,9 @@
 #define IPODJS_UI_HEADER_BOTTOM    LCD_RGBPACK(174, 178, 183)
 #define IPODJS_UI_SCREEN_BG        LCD_RGBPACK(255, 255, 255)
 #define IPODJS_UI_TEXT             LCD_RGBPACK(0, 0, 0)
-#define IPODJS_UI_ACTIVE_TOP       LCD_RGBPACK(107, 200, 254)
-#define IPODJS_UI_ACTIVE_MID       LCD_RGBPACK(38, 146, 226)
+/* Sampled from Apple's RetailOS MainMenu_Template render at native LCD
+ * resolution. The first highlighted pixel is part of the selection gloss;
+ * these stops describe the blue body of the selected row. */
 #define IPODJS_UI_ACTIVE_BOTTOM    LCD_RGBPACK(0, 92, 192)
 #define IPODJS_UI_GRAPHITE         LCD_RGBPACK(84, 90, 100)
 #define IPODJS_UI_U2_RED           LCD_RGBPACK(182, 24, 35)
@@ -83,32 +89,60 @@
 #define IPODJS_CHARGE_DAMAGE_W     165
 #define IPODJS_CHARGE_DAMAGE_H     130
 #define IPODJS_CHARGE_FPS          20
-#define IPODJS_STATUS_ICON_SIZE    12
-#define IPODJS_APPLE_BATTERY_W     26
-#define IPODJS_APPLE_BATTERY_H     65
-#define IPODJS_FAST_SCROLL_W       95
-#define IPODJS_FAST_SCROLL_H       82
-#define IPODJS_FAST_SCROLL_ALPHA_BYTES \
-    ((IPODJS_FAST_SCROLL_W + 1) / 2 * IPODJS_FAST_SCROLL_H)
-#define IPODJS_STOCK_PLAYING_W     20
-#define IPODJS_STOCK_PLAYING_H     32
-#define IPODJS_STOCK_HOLD_W        12
-#define IPODJS_STOCK_HOLD_H        15
-#define IPODJS_STOCK_HEADER_W      320
-#define IPODJS_STOCK_HEADER_H      24
-#define IPODJS_STOCK_REPEAT_W      21
-#define IPODJS_STOCK_REPEAT_H      38
-#define IPODJS_STOCK_SHUFFLE_W     21
-#define IPODJS_STOCK_SHUFFLE_H     19
-#define IPODJS_STOCK_BLUETOOTH_W   12
-#define IPODJS_STOCK_BLUETOOTH_H   19
+#define IPODJS_RETAIL_CHARGE_X      63
+#define IPODJS_RETAIL_CHARGE_Y      53
+#define IPODJS_RETAIL_CHARGE_MIDDLE_W 123
+#define IPODJS_RETAIL_CHARGE_W \
+    (38 + IPODJS_RETAIL_CHARGE_MIDDLE_W + 45)
+#define IPODJS_RETAIL_BATTERY_W    26
+#define IPODJS_RETAIL_BATTERY_H    13
+#define IPODJS_RETAIL_BATTERY_FRAMES 25
+#define IPODJS_RETAIL_BATTERY_ATLAS_H \
+    (IPODJS_RETAIL_BATTERY_H * IPODJS_RETAIL_BATTERY_FRAMES)
+#define IPODJS_RETAIL_WPS_EQUALIZER_W 130
+#define IPODJS_RETAIL_WPS_EQUALIZER_H 79
+#define IPODJS_RETAIL_WPS_EQUALIZER_FRAMES 22
+#define IPODJS_RETAIL_WPS_EQUALIZER_FRAME_BYTES 6004
+#define IPODJS_RETAIL_WPS_EQUALIZER_FPS 10
+#define IPODJS_RETAIL_WPS_PAUSED_W 72
+#define IPODJS_RETAIL_WPS_PAUSED_H 71
+#define IPODJS_RETAIL_IDLE_DIGIT_W 39
+#define IPODJS_RETAIL_IDLE_DIGIT_H 76
+#define IPODJS_RETAIL_IDLE_COLON_W 15
+#define IPODJS_RETAIL_IDLE_BATTERY_W 72
+#define IPODJS_RETAIL_IDLE_BATTERY_H 40
+#define IPODJS_RETAIL_IDLE_BATTERY_FRAMES 8
+#define IPODJS_RETAIL_IDLE_TIME_Y 54
+#define IPODJS_RETAIL_IDLE_ICON_CX 106
+#define IPODJS_RETAIL_IDLE_ICON_CY 170
+#define IPODJS_RETAIL_IDLE_BATTERY_X 159
+#define IPODJS_RETAIL_IDLE_BATTERY_Y 150
+#define IPODJS_RETAIL_QUICK_SCROLL_W 74
+#define IPODJS_RETAIL_QUICK_SCROLL_H 70
+#define IPODJS_RETAIL_OPTIONBAR_STYLE_COUNT 3
+#define IPODJS_RETAIL_OPTIONBAR_LAYER_COUNT 2
+#define IPODJS_RETAIL_OPTIONBAR_PART_COUNT 3
+#define IPODJS_RETAIL_OPTIONBAR_MAX_W 8
+#define IPODJS_RETAIL_OPTIONBAR_MAX_H 29
+#define IPODJS_RETAIL_CONTROL_ICON_COUNT 6
+#define IPODJS_RETAIL_CONTROL_ICON_MAX_W 19
+#define IPODJS_RETAIL_CONTROL_ICON_MAX_H 17
+#define IPODJS_RETAIL_PROGRESS_LAYER_COUNT 2
+#define IPODJS_RETAIL_PROGRESS_PART_COUNT 3
+#define IPODJS_RETAIL_PROGRESS_MAX_W 12
+#define IPODJS_RETAIL_PROGRESS_H 7
+#define IPODJS_RETAIL_INPUT_PART_COUNT 3
+#define IPODJS_RETAIL_INPUT_PART_W 10
+#define IPODJS_RETAIL_INPUT_H 26
+#define IPODJS_RETAIL_SELECTION_W 5
+#define IPODJS_RETAIL_SELECTION_H 22
+#define IPODJS_STOCK_BLUETOOTH_W   9
+#define IPODJS_STOCK_BLUETOOTH_H   14
 #define IPODJS_STOCK_WIFI_W         18
 #define IPODJS_STOCK_WIFI_H         13
 #define IPODJS_AIRPODS_W           124
 #define IPODJS_AIRPODS_H           109
 #define IPODJS_AIRPODS_ANIMATION_FPS 20
-#define IPODJS_SEARCH_SURFACE_W     97
-#define IPODJS_SEARCH_SURFACE_H     32
 
 struct ipodjs_ui_label_cache_entry {
     bool valid;
@@ -145,8 +179,10 @@ static int ipodjs_ui_preview_fade_h;
  */
 #if defined(IPOD_6G) && LCD_DEPTH >= 16 && \
     LCD_STRIDEFORMAT == HORIZONTAL_STRIDE
-static fb_data ipodjs_ui_animation_old[FRAMEBUFFER_SIZE / sizeof(fb_data)];
-static fb_data ipodjs_ui_animation_new[FRAMEBUFFER_SIZE / sizeof(fb_data)];
+static fb_data ipodjs_ui_animation_frames[2]
+    [FRAMEBUFFER_SIZE / sizeof(fb_data)];
+#define ipodjs_ui_animation_old ipodjs_ui_animation_frames[0]
+#define ipodjs_ui_animation_new ipodjs_ui_animation_frames[1]
 #define IPODJS_UI_HAS_ANIMATION_WORKSPACE
 #endif
 
@@ -164,6 +200,22 @@ static void ipodjs_ui_animation_wait(long start_tick, int frame)
         sleep(delay);
 }
 
+/* Position follows elapsed time, not the number of LCD updates delivered.
+ * Endpoint samples remain exact even when a frame misses its deadline.
+ * This is the port's bounded easing, not a recovered Apple timing table. */
+static int ipodjs_ui_animation_position(long start_tick, int frame, int extent)
+{
+    if (frame == 0)
+        return 0;
+    if (frame == IPODJS_UI_ANIMATION_SAMPLES - 1)
+        return extent;
+    long elapsed = current_tick - start_tick;
+    int t = MIN(MAX(elapsed, 0), IPODJS_UI_ANIMATION_TICKS);
+    int duration = IPODJS_UI_ANIMATION_TICKS;
+    return extent * t * t * (3 * duration - 2 * t) /
+        (duration * duration * duration);
+}
+
 void ipodjs_ui_transition_cancel(void)
 {
     ipodjs_ui_transition_direction = 0;
@@ -173,27 +225,19 @@ void ipodjs_ui_transition_cancel(void)
 
 #ifdef IPODJS_UI_HAS_ANIMATION_WORKSPACE
 #define IPODJS_NETFLIX_DIR ROCKBOX_DIR "/ipodjs/netflix/launch"
-#define IPODJS_NETFLIX_PACK IPODJS_NETFLIX_DIR "/intro-106x60.nfr"
+#define IPODJS_NETFLIX_PACK IPODJS_NETFLIX_DIR "/intro-320x180.rgb565"
+#define IPODJS_NETFLIX_WIDTH 320
+#define IPODJS_NETFLIX_HEIGHT 180
+#define IPODJS_NETFLIX_FRAME_BYTES (320 * 180 * 2)
+#define IPODJS_NETFLIX_FRAMES 40
 #define IPODJS_NETFLIX_SOUND \
     IPODJS_NETFLIX_DIR "/intro-20000-mono.mulaw"
 #define IPODJS_NETFLIX_OUTPUT_WIDTH LCD_WIDTH
 #define IPODJS_NETFLIX_OUTPUT_HEIGHT LCD_HEIGHT
 #define IPODJS_NETFLIX_SOURCE_RATE 20000
-#define IPODJS_NETFLIX_PACK_HEADER 16
 #define IPODJS_NETFLIX_PCM_CHUNK_FRAMES 512
 #define IPODJS_NETFLIX_INDEX_BYTES \
     (IPODJS_NETFLIX_OUTPUT_WIDTH * IPODJS_NETFLIX_OUTPUT_HEIGHT / 2)
-
-static uint16_t ipodjs_netflix_read_le16(const unsigned char *data)
-{
-    return data[0] | (data[1] << 8);
-}
-
-static uint32_t ipodjs_netflix_read_le32(const unsigned char *data)
-{
-    return (uint32_t)data[0] | ((uint32_t)data[1] << 8) |
-           ((uint32_t)data[2] << 16) | ((uint32_t)data[3] << 24);
-}
 
 static bool ipodjs_netflix_read_file(const char *path, unsigned char *buffer,
                                      size_t capacity, size_t *size)
@@ -227,188 +271,38 @@ static bool ipodjs_netflix_read_file(const char *path, unsigned char *buffer,
     return true;
 }
 
-static unsigned int ipodjs_netflix_index_get(const unsigned char *indices,
-                                              size_t position)
+/* Service one independent native-resolution frame in the existing 153600-byte
+ * transition workspace. No playback allocation and no I/O in the renderer.
+ * Independent frames allow late frames to be skipped without delta replay. */
+static bool ipodjs_netflix_load_frame(int fd, int frame, fb_data *pixels)
 {
-    unsigned char packed = indices[position / 2];
-    return position & 1 ? packed & 15 : packed >> 4;
-}
+    unsigned char *bytes = (unsigned char *)pixels;
+    size_t done = 0;
+    off_t offset = (off_t)frame * IPODJS_NETFLIX_FRAME_BYTES;
 
-static void ipodjs_netflix_index_set(unsigned char *indices, size_t position,
-                                     unsigned int value)
-{
-    unsigned char *packed = &indices[position / 2];
-
-    if (position & 1)
-        *packed = (*packed & 0xf0) | value;
-    else
-        *packed = (*packed & 0x0f) | (value << 4);
-}
-
-static bool ipodjs_netflix_decode_indices(const unsigned char *pack,
-                                           size_t pack_size, int frame,
-                                           unsigned char *indices)
-{
-    size_t offsets_at;
-    size_t position = 0;
-    size_t cursor;
-    size_t end;
-    int palette_count;
-    int frame_count;
-    int width;
-    int height;
-    bool rgb565;
-
-    if (pack_size < IPODJS_NETFLIX_PACK_HEADER ||
-        (memcmp(pack, "NFX1", 4) && memcmp(pack, "NFR1", 4)))
+    if (lseek(fd, offset, SEEK_SET) != offset)
         return false;
-    rgb565 = !memcmp(pack, "NFR1", 4);
-    width = ipodjs_netflix_read_le16(pack + 4);
-    height = ipodjs_netflix_read_le16(pack + 6);
-    frame_count = ipodjs_netflix_read_le16(pack + 8);
-    palette_count = ipodjs_netflix_read_le16(pack + 12);
-    if (frame < 0 || frame >= frame_count ||
-        frame_count <= 0 || frame_count > 64 ||
-        width <= 0 || width > IPODJS_NETFLIX_OUTPUT_WIDTH ||
-        height <= 0 || height > IPODJS_NETFLIX_OUTPUT_HEIGHT ||
-        (width * height) & 1 ||
-        (rgb565 ? palette_count != 0 :
-                  palette_count <= 0 || palette_count > 16))
-        return false;
-    offsets_at = IPODJS_NETFLIX_PACK_HEADER + palette_count * 2;
-    if (offsets_at + (frame_count + 1) * 4 > pack_size)
-        return false;
-    cursor = ipodjs_netflix_read_le32(pack + offsets_at + frame * 4);
-    end = ipodjs_netflix_read_le32(pack + offsets_at + (frame + 1) * 4);
-    if (cursor >= end || end > pack_size)
-        return false;
-
-    while (cursor + 2 <= end &&
-           position < (size_t)width * height)
+    while (done < IPODJS_NETFLIX_FRAME_BYTES)
     {
-        unsigned int token = ipodjs_netflix_read_le16(pack + cursor);
-        size_t count = token & 0x7fff;
-
-        cursor += 2;
-        if (count == 0 ||
-            position + count > (size_t)width * height)
+        ssize_t count = read(fd, bytes + done,
+                            IPODJS_NETFLIX_FRAME_BYTES - done);
+        if (count <= 0)
             return false;
-        if (token & 0x8000)
-        {
-            position += count;
-            continue;
-        }
-        if (rgb565)
-        {
-            if (cursor + count * 2 > end)
-                return false;
-            for (size_t pixel = 0; pixel < count; ++pixel)
-                ((fb_data *)indices)[position + pixel] =
-                    (fb_data)ipodjs_netflix_read_le16(
-                        pack + cursor + pixel * 2);
-            cursor += count * 2;
-        }
-        else
-        {
-            if (cursor + (count + 1) / 2 > end)
-                return false;
-            for (size_t pixel = 0; pixel < count; ++pixel)
-            {
-                unsigned char packed = pack[cursor + pixel / 2];
-                unsigned int color = pixel & 1 ? packed & 15 : packed >> 4;
-
-                if (color >= (unsigned int)palette_count)
-                    return false;
-                ipodjs_netflix_index_set(indices, position + pixel, color);
-            }
-            cursor += (count + 1) / 2;
-        }
-        position += count;
+        done += count;
+        yield();
     }
-    return position == (size_t)width * height &&
-           cursor == end;
+    for (size_t i = 0; i < IPODJS_NETFLIX_WIDTH * IPODJS_NETFLIX_HEIGHT; ++i)
+        pixels[i] = (fb_data)(bytes[2 * i] | (bytes[2 * i + 1] << 8));
+    return true;
 }
 
-static void ipodjs_netflix_render(const unsigned char *pack,
-                                  const unsigned char *indices)
+static void ipodjs_netflix_render(const fb_data *pixels)
 {
-    static unsigned short source_x_map[IPODJS_NETFLIX_OUTPUT_WIDTH];
-    static int mapped_width;
-    static int mapped_height;
-    fb_data palette[16];
-    fb_data *output = FBADDR(0, 0);
-    int width = ipodjs_netflix_read_le16(pack + 4);
-    int height = ipodjs_netflix_read_le16(pack + 6);
-    int palette_count = ipodjs_netflix_read_le16(pack + 12);
-    bool rgb565 = !memcmp(pack, "NFR1", 4);
-    int crop_x = 0;
-    int crop_y = 0;
-    int crop_width = width;
-    int crop_height = height;
-    int previous_source_y = -1;
-
-    /* Fill 320x240 without distorting the 16:9 source.  The source is wider
-     * than the LCD, so retain its full height and crop equal amounts from the
-     * left and right before nearest-neighbour scaling. */
-    if (width * IPODJS_NETFLIX_OUTPUT_HEIGHT >
-        height * IPODJS_NETFLIX_OUTPUT_WIDTH)
-    {
-        crop_width = height * IPODJS_NETFLIX_OUTPUT_WIDTH /
-                     IPODJS_NETFLIX_OUTPUT_HEIGHT;
-        crop_x = (width - crop_width) / 2;
-    }
-    else if (width * IPODJS_NETFLIX_OUTPUT_HEIGHT <
-             height * IPODJS_NETFLIX_OUTPUT_WIDTH)
-    {
-        crop_height = width * IPODJS_NETFLIX_OUTPUT_HEIGHT /
-                      IPODJS_NETFLIX_OUTPUT_WIDTH;
-        crop_y = (height - crop_height) / 2;
-    }
-
-    if (mapped_width != width || mapped_height != height)
-    {
-        for (int x = 0; x < IPODJS_NETFLIX_OUTPUT_WIDTH; ++x)
-            source_x_map[x] = crop_x + x * crop_width /
-                IPODJS_NETFLIX_OUTPUT_WIDTH;
-        mapped_width = width;
-        mapped_height = height;
-    }
-    for (int index = 0; index < palette_count; ++index)
-        palette[index] = (fb_data)ipodjs_netflix_read_le16(
-            pack + IPODJS_NETFLIX_PACK_HEADER + index * 2);
-    for (int y = 0; y < IPODJS_NETFLIX_OUTPUT_HEIGHT; ++y)
-    {
-        int source_y = crop_y + y * crop_height /
-            IPODJS_NETFLIX_OUTPUT_HEIGHT;
-        size_t source_row = (size_t)source_y * width;
-        fb_data *destination =
-            output + (size_t)y * IPODJS_NETFLIX_OUTPUT_WIDTH;
-
-        if (rgb565 && source_y == previous_source_y)
-        {
-            memcpy(destination,
-                   destination - IPODJS_NETFLIX_OUTPUT_WIDTH,
-                   IPODJS_NETFLIX_OUTPUT_WIDTH * sizeof(fb_data));
-            continue;
-        }
-        for (int x = 0; x < IPODJS_NETFLIX_OUTPUT_WIDTH; ++x)
-        {
-            if (rgb565)
-            {
-                const fb_data *pixels = (const fb_data *)indices;
-
-                destination[x] =
-                    pixels[source_row + source_x_map[x]];
-            }
-            else
-            {
-                size_t source = source_row + source_x_map[x];
-                destination[x] =
-                    palette[ipodjs_netflix_index_get(indices, source)];
-            }
-        }
-        previous_source_y = source_y;
-    }
+    /* Native 320x180, centered on the 320x240 LCD: preserve the entire
+     * 16:9 image without enlarging pixels, cropping or stretching. */
+    lcd_bitmap(pixels, (LCD_WIDTH - IPODJS_NETFLIX_WIDTH) / 2,
+               (LCD_HEIGHT - IPODJS_NETFLIX_HEIGHT) / 2,
+               IPODJS_NETFLIX_WIDTH, IPODJS_NETFLIX_HEIGHT);
     screens[SCREEN_MAIN].update();
 }
 
@@ -489,14 +383,13 @@ bool ipodjs_ui_netflix_launch(void)
 {
 #ifdef IPODJS_UI_HAS_ANIMATION_WORKSPACE
     struct screen *display = &screens[SCREEN_MAIN];
-    unsigned char *pack = (unsigned char *)ipodjs_ui_animation_old;
+    fb_data *pixels = ipodjs_ui_animation_old;
+    int frame_fd;
     unsigned char *sound = (unsigned char *)ipodjs_ui_animation_new;
-    size_t pack_size;
     size_t sound_size = 0;
     size_t index_offset;
-    unsigned char *current_indices;
-    int frame_count;
-    int frame_ms;
+    const int frame_count = IPODJS_NETFLIX_FRAMES;
+    const int frame_ms = 100;
     bool usb = false;
     long started;
 
@@ -506,17 +399,16 @@ bool ipodjs_ui_netflix_launch(void)
     ipodjs_netflix_beep_detach();
 #endif
     ipodjs_ui_transition_cancel();
-    if (!ipodjs_netflix_read_file(IPODJS_NETFLIX_PACK, pack,
-                                   sizeof(ipodjs_ui_animation_old),
-                                   &pack_size) ||
-        pack_size < IPODJS_NETFLIX_PACK_HEADER ||
-        (memcmp(pack, "NFX1", 4) && memcmp(pack, "NFR1", 4)))
+    frame_fd = open(IPODJS_NETFLIX_PACK, O_RDONLY);
+    if (frame_fd < 0)
         return false;
-    frame_count = ipodjs_netflix_read_le16(pack + 8);
-    frame_ms = ipodjs_netflix_read_le16(pack + 10);
-    if (frame_count <= 0 || frame_count > 64 ||
-        frame_ms < 40 || frame_ms > 500)
+    if (filesize(frame_fd) !=
+        (off_t)IPODJS_NETFLIX_FRAMES * IPODJS_NETFLIX_FRAME_BYTES ||
+        !ipodjs_netflix_load_frame(frame_fd, 0, pixels))
+    {
+        close(frame_fd);
         return false;
+    }
 #ifndef HAVE_HARDWARE_BEEP
     if (ipodjs_netflix_read_file(
             IPODJS_NETFLIX_SOUND, sound,
@@ -532,10 +424,9 @@ bool ipodjs_ui_netflix_launch(void)
     }
 #endif
     index_offset = (sound_size + 3) & ~(size_t)3;
-    current_indices = sound + index_offset;
 #ifndef HAVE_HARDWARE_BEEP
     ipodjs_netflix_pcm =
-        (int16_t *)(current_indices + IPODJS_NETFLIX_INDEX_BYTES);
+        (int16_t *)(sound + index_offset + IPODJS_NETFLIX_INDEX_BYTES);
     ipodjs_netflix_pcm_frames =
         MIN((sizeof(ipodjs_ui_animation_new) -
              (index_offset + IPODJS_NETFLIX_INDEX_BYTES)) /
@@ -547,16 +438,7 @@ bool ipodjs_ui_netflix_launch(void)
     display->set_viewport(NULL);
     display->set_background(LCD_BLACK);
     display->clear_display();
-    memset(current_indices, 0, IPODJS_NETFLIX_INDEX_BYTES);
-    if (!ipodjs_netflix_decode_indices(
-            pack, pack_size, 0, current_indices))
-    {
-#ifndef HAVE_HARDWARE_BEEP
-        ipodjs_netflix_beep_detach();
-#endif
-        return false;
-    }
-    ipodjs_netflix_render(pack, current_indices);
+    ipodjs_netflix_render(pixels);
 
 #ifndef HAVE_HARDWARE_BEEP
     if (sound_size > 0 && ipodjs_netflix_output_rate > 0 &&
@@ -595,12 +477,13 @@ bool ipodjs_ui_netflix_launch(void)
                 goto stop;
             }
         }
-        if (!ipodjs_netflix_decode_indices(
-                pack, pack_size, frame, current_indices))
-            goto stop;
         if (frame + 1 == frame_count ||
             TIME_BEFORE(current_tick, following_target))
-            ipodjs_netflix_render(pack, current_indices);
+        {
+            if (!ipodjs_netflix_load_frame(frame_fd, frame, pixels))
+                goto stop;
+            ipodjs_netflix_render(pixels);
+        }
         else
             yield();
     }
@@ -624,6 +507,7 @@ bool ipodjs_ui_netflix_launch(void)
 #endif
 
 stop:
+    close(frame_fd);
 #ifndef HAVE_HARDWARE_BEEP
     ipodjs_netflix_beep_detach();
 #endif
@@ -640,6 +524,8 @@ static void ipodjs_ui_transition_begin_mode(int direction, bool vertical)
     ipodjs_ui_transition_cancel();
     if (!ipodjs_ui_enabled(SCREEN_MAIN) || direction == 0 || button_hold())
         return;
+
+    ipodjs_ui_stop_menu_text_scroll();
 
     screens[SCREEN_MAIN].set_viewport(NULL);
     memcpy(ipodjs_ui_animation_old, FBADDR(0, 0), FRAMEBUFFER_SIZE);
@@ -681,6 +567,13 @@ bool ipodjs_ui_transition_present(struct screen *display)
     }
     direction = ipodjs_ui_transition_direction;
     vertical = direction < -1 || direction > 1;
+    /* Leave queued actions intact for the owner. No queue-count heuristic,
+     * navigation-history rewrite or discard of Select/Menu/system events. */
+    if (!vertical && (!button_queue_empty() || button_hold()))
+    {
+        ipodjs_ui_transition_cancel();
+        return false;
+    }
     display->set_viewport(NULL);
     memcpy(ipodjs_ui_animation_new, FBADDR(0, 0), FRAMEBUFFER_SIZE);
     start_tick = current_tick;
@@ -696,6 +589,10 @@ bool ipodjs_ui_transition_present(struct screen *display)
                      progress / divisor;
 
         ipodjs_ui_animation_wait(start_tick, frame);
+        if (!vertical)
+            reveal = ipodjs_ui_animation_position(start_tick, frame, LCD_WIDTH);
+        if (!vertical && reveal == LCD_WIDTH)
+            frame = IPODJS_UI_ANIMATION_SAMPLES - 1;
 
         if (vertical && direction > 0)
         {
@@ -800,6 +697,11 @@ bool ipodjs_ui_preview_fade_present(struct screen *display)
     if (!display || display->screen_type != SCREEN_MAIN ||
         !ipodjs_ui_preview_fade_active)
         return false;
+    if (!button_queue_empty() || button_hold())
+    {
+        ipodjs_ui_preview_fade_active = false;
+        return false;
+    }
 
     x = ipodjs_ui_preview_fade_x;
     y = ipodjs_ui_preview_fade_y;
@@ -815,14 +717,10 @@ bool ipodjs_ui_preview_fade_present(struct screen *display)
 
     for (int frame = 0; frame < IPODJS_UI_ANIMATION_SAMPLES; frame++)
     {
-        int progress = frame * frame *
-            (3 * (IPODJS_UI_ANIMATION_SAMPLES - 1) - 2 * frame);
-        int divisor = (IPODJS_UI_ANIMATION_SAMPLES - 1) *
-            (IPODJS_UI_ANIMATION_SAMPLES - 1) *
-            (IPODJS_UI_ANIMATION_SAMPLES - 1);
-        int alpha = 256 * progress / divisor;
-
         ipodjs_ui_animation_wait(start_tick, frame);
+        int alpha = ipodjs_ui_animation_position(start_tick, frame, 256);
+        if (alpha == 256)
+            frame = IPODJS_UI_ANIMATION_SAMPLES - 1;
         for (int row = y; row < y + height; row++)
         {
             fb_data *dst = FBADDR(x, row);
@@ -862,47 +760,13 @@ bool ipodjs_ui_preview_fade_present(struct screen *display)
 #endif
 }
 
-struct ipodjs_ui_status_icon_cache {
-    struct bitmap bm;
-    unsigned char data[
-        BM_SIZE(IPODJS_STATUS_ICON_SIZE, IPODJS_STATUS_ICON_SIZE,
-                FORMAT_NATIVE, false)];
-    bool tried;
-    bool valid;
-};
-
-static struct ipodjs_ui_status_icon_cache
-    ipodjs_ui_status_icons[2][2];
-
 struct ipodjs_ui_stock_status_cache {
-    struct bitmap battery;
-    unsigned char battery_data[
-        BM_SIZE(IPODJS_APPLE_BATTERY_W, IPODJS_APPLE_BATTERY_H,
-                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
-    struct bitmap playing;
-    unsigned char playing_data[
-        BM_SIZE(IPODJS_STOCK_PLAYING_W, IPODJS_STOCK_PLAYING_H,
-                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
-    struct bitmap hold;
-    unsigned char hold_data[
-        BM_SIZE(IPODJS_STOCK_HOLD_W, IPODJS_STOCK_HOLD_H,
-                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
-    struct bitmap header;
-    unsigned char header_data[
-        BM_SIZE(IPODJS_STOCK_HEADER_W, IPODJS_STOCK_HEADER_H,
-                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
-    struct bitmap repeat;
-    unsigned char repeat_data[
-        BM_SIZE(IPODJS_STOCK_REPEAT_W, IPODJS_STOCK_REPEAT_H,
-                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
-    struct bitmap shuffle;
-    unsigned char shuffle_data[
-        BM_SIZE(IPODJS_STOCK_SHUFFLE_W, IPODJS_STOCK_SHUFFLE_H,
-                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
     struct bitmap bluetooth;
     unsigned char bluetooth_data[
         BM_SIZE(IPODJS_STOCK_BLUETOOTH_W, IPODJS_STOCK_BLUETOOTH_H,
-                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
+                FORMAT_NATIVE, false) +
+        ALIGN_UP(IPODJS_STOCK_BLUETOOTH_W, 2) *
+            IPODJS_STOCK_BLUETOOTH_H / 2] IPODJS_BM_ALIGN;
     struct bitmap wifi;
     unsigned char wifi_data[
         BM_SIZE(IPODJS_STOCK_WIFI_W, IPODJS_STOCK_WIFI_H,
@@ -911,40 +775,423 @@ struct ipodjs_ui_stock_status_cache {
     unsigned char airpods_data[
         BM_SIZE(IPODJS_AIRPODS_W, IPODJS_AIRPODS_H,
                 FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
-    bool battery_tried, battery_valid;
-    bool playing_tried, playing_valid;
-    bool hold_tried, hold_valid;
-    bool header_tried, header_valid;
-    bool repeat_tried, repeat_valid;
-    bool shuffle_tried, shuffle_valid;
     bool bluetooth_tried, bluetooth_valid;
     bool wifi_tried, wifi_valid;
     bool airpods_tried, airpods_valid;
 };
 
 static struct ipodjs_ui_stock_status_cache ipodjs_ui_stock_status;
-static struct bitmap ipodjs_ui_fast_scroll_overlay;
-static unsigned char ipodjs_ui_fast_scroll_overlay_data[
-    BM_SIZE(IPODJS_FAST_SCROLL_W, IPODJS_FAST_SCROLL_H,
-            FORMAT_NATIVE, false) + IPODJS_FAST_SCROLL_ALPHA_BYTES] IPODJS_BM_ALIGN;
-static bool ipodjs_ui_fast_scroll_overlay_tried[2];
-static bool ipodjs_ui_fast_scroll_overlay_valid;
-static int ipodjs_ui_fast_scroll_overlay_kind = -1;
 
-struct ipodjs_ui_search_surface_cache {
-    struct bitmap field;
-    unsigned char field_data[
-        BM_SIZE(IPODJS_SEARCH_SURFACE_W, IPODJS_SEARCH_SURFACE_H,
-                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
-    struct bitmap selected;
-    unsigned char selected_data[
-        BM_SIZE(IPODJS_SEARCH_SURFACE_W, IPODJS_SEARCH_SURFACE_H,
-                FORMAT_NATIVE, false)] IPODJS_BM_ALIGN;
-    bool field_tried, field_valid;
-    bool selected_tried, selected_valid;
+/*
+ * This is the complete status-bar subset from iPod35 RetailOS 2.0.4.  It is
+ * prepared once at a native-screen entry point and draw functions below only
+ * blend cached pixels.  Both 25-frame battery atlases are retained intact:
+ * levels 0..22, plug, then charge.  Its pixel payload is 125,142 bytes and
+ * never borrows playback/core memory.
+ */
+struct ipodjs_ui_retail_status_cache
+{
+    struct ipodjs_retailos_image light_background;
+    struct ipodjs_retailos_image hold_background;
+    struct ipodjs_retailos_image black_background;
+    struct ipodjs_retailos_image status_play;
+    struct ipodjs_retailos_image white_battery;
+    struct ipodjs_retailos_image black_battery;
+    struct ipodjs_retailos_image white_lock;
+    struct ipodjs_retailos_image black_lock;
+    struct ipodjs_retailos_image white_play;
+    struct ipodjs_retailos_image white_pause;
+    struct ipodjs_retailos_image black_play;
+    struct ipodjs_retailos_image black_pause;
+    struct ipodjs_retailos_image white_repeat;
+    struct ipodjs_retailos_image white_repeat_once;
+    struct ipodjs_retailos_image black_repeat;
+    struct ipodjs_retailos_image black_repeat_once;
+    struct ipodjs_retailos_image white_shuffle;
+    struct ipodjs_retailos_image black_shuffle;
+    unsigned char light_background_data[
+        IPODJS_RETAILOS_RGA_BYTES(320, 20)];
+    unsigned char hold_background_data[
+        IPODJS_RETAILOS_RGA_BYTES(320, 24)];
+    unsigned char black_background_data[
+        IPODJS_RETAILOS_RGA_BYTES(320, 24)];
+    unsigned char status_play_data[IPODJS_RETAILOS_RGA_BYTES(14, 16)];
+    unsigned char white_battery_data[
+        IPODJS_RETAILOS_RGA_BYTES(26, 13 * 25)];
+    unsigned char black_battery_data[
+        IPODJS_RETAILOS_RGA_BYTES(26, 13 * 25)];
+    unsigned char white_lock_data[IPODJS_RETAILOS_RGA_BYTES(11, 16)];
+    unsigned char black_lock_data[IPODJS_RETAILOS_RGA_BYTES(13, 16)];
+    unsigned char white_play_data[IPODJS_RETAILOS_RGA_BYTES(14, 16)];
+    unsigned char white_pause_data[IPODJS_RETAILOS_RGA_BYTES(14, 16)];
+    unsigned char black_play_data[IPODJS_RETAILOS_RGA_BYTES(14, 16)];
+    unsigned char black_pause_data[IPODJS_RETAILOS_RGA_BYTES(14, 16)];
+    unsigned char white_repeat_data[IPODJS_RETAILOS_RGA_BYTES(20, 14)];
+    unsigned char white_repeat_once_data[
+        IPODJS_RETAILOS_RGA_BYTES(24, 16)];
+    unsigned char black_repeat_data[IPODJS_RETAILOS_RGA_BYTES(19, 15)];
+    unsigned char black_repeat_once_data[
+        IPODJS_RETAILOS_RGA_BYTES(19, 15)];
+    unsigned char white_shuffle_data[IPODJS_RETAILOS_RGA_BYTES(18, 16)];
+    unsigned char black_shuffle_data[IPODJS_RETAILOS_RGA_BYTES(18, 14)];
+    bool tried;
+    bool valid;
 };
 
-static struct ipodjs_ui_search_surface_cache ipodjs_ui_search_surfaces;
+static struct ipodjs_ui_retail_status_cache ipodjs_ui_retail_status;
+
+/* The official charging archive supplies compositing components rather than
+ * a hidden set of full-screen frames.  Retain every component, including the
+ * distinct moving-fill cap and critical-battery surface, in fixed BSS. */
+struct ipodjs_ui_retail_charge_cache
+{
+    struct ipodjs_retailos_image empty_left;
+    struct ipodjs_retailos_image empty_right;
+    struct ipodjs_retailos_image empty_middle;
+    struct ipodjs_retailos_image green_left;
+    struct ipodjs_retailos_image green_right;
+    struct ipodjs_retailos_image green_middle;
+    struct ipodjs_retailos_image green_middle_cap;
+    struct ipodjs_retailos_image critical;
+    struct ipodjs_retailos_frame_pack bolt;
+    struct ipodjs_retailos_frame_pack plug;
+    unsigned char empty_left_data[IPODJS_RETAILOS_RGA_BYTES(38, 142)];
+    unsigned char empty_right_data[IPODJS_RETAILOS_RGA_BYTES(45, 142)];
+    unsigned char empty_middle_data[IPODJS_RETAILOS_RGA_BYTES(8, 142)];
+    unsigned char green_left_data[IPODJS_RETAILOS_RGA_BYTES(38, 142)];
+    unsigned char green_right_data[IPODJS_RETAILOS_RGA_BYTES(45, 142)];
+    unsigned char green_middle_data[IPODJS_RETAILOS_RGA_BYTES(8, 142)];
+    unsigned char green_middle_cap_data[
+        IPODJS_RETAILOS_RGA_BYTES(8, 142)];
+    unsigned char critical_data[IPODJS_RETAILOS_RGA_BYTES(205, 163)];
+    unsigned char bolt_data[24 * 57];
+    unsigned char plug_data[36 * 29];
+    bool tried;
+    bool valid;
+};
+
+static struct ipodjs_ui_retail_charge_cache ipodjs_ui_retail_charge;
+
+/* Disk Mode owns this buffer only while the USB screen is active.  The pack
+ * is the complete 18-frame RetailOS SyncArrow1..35 (odd-numbered) sequence;
+ * draw-time code only reads the cached source masks. */
+struct ipodjs_ui_retail_usb_cache
+{
+    struct ipodjs_retailos_frame_pack sync_arrows;
+    struct ipodjs_retailos_image badge;
+    struct ipodjs_retailos_image disconnect;
+    bool disconnect_valid;
+    bool ejected;
+    unsigned char sync_arrow_data[18 * 3648];
+    long started;
+    int last_frame;
+    bool tried;
+    bool valid;
+    bool presented;
+};
+
+static struct ipodjs_ui_retail_usb_cache ipodjs_ui_retail_usb;
+
+/* Retain the archived equalizer resources, but WPS no longer exposes them.
+ * WPS uses the original music-note cover until playback art is ready.
+ * Preparation is separate from all cached draw and animation callbacks. */
+struct ipodjs_ui_retail_wps_cache
+{
+    /* White music strips add 3,195 fixed pixel bytes. Header is shared. */
+    struct ipodjs_retailos_image progress[2];
+    struct ipodjs_retailos_image star;
+    struct ipodjs_retailos_image rating_star, rating_dot;
+    unsigned char music_progress_data[2][
+        IPODJS_RETAILOS_RGA_BYTES(16, 28)];
+    unsigned char star_data[IPODJS_RETAILOS_RGA_BYTES(13, 13)];
+    unsigned char rating_star_data[IPODJS_RETAILOS_RGA_BYTES(22, 26)];
+    unsigned char rating_dot_data[IPODJS_RETAILOS_RGA_BYTES(22, 26)];
+    bool chrome_valid;
+    struct bitmap cover;
+    fb_data cover_data[128 * 128] IPODJS_BM_ALIGN;
+    struct ipodjs_retailos_image scrub, shuffle;
+    unsigned char scrub_data[IPODJS_RETAILOS_RGA_BYTES(13, 28)];
+    unsigned char shuffle_data[IPODJS_RETAILOS_RGA_BYTES(25, 19)];
+    bool cover_valid, scrub_valid, shuffle_valid;
+    struct ipodjs_retailos_frame_pack equalizer;
+    struct ipodjs_retailos_image paused;
+    unsigned char equalizer_data[
+        IPODJS_RETAIL_WPS_EQUALIZER_FRAMES *
+        IPODJS_RETAIL_WPS_EQUALIZER_FRAME_BYTES];
+    unsigned char paused_data[
+        IPODJS_RETAILOS_RGA_BYTES(IPODJS_RETAIL_WPS_PAUSED_W,
+                                  IPODJS_RETAIL_WPS_PAUSED_H)];
+    long started;
+    bool tried;
+    bool equalizer_valid;
+    bool paused_valid;
+};
+
+static struct ipodjs_ui_retail_wps_cache ipodjs_ui_retail_wps;
+
+/* The low-power Now Playing screen is assembled from the exact RetailOS
+ * component images: ten proportional digits, colon, all eight battery
+ * states, and the lock/play/radio state marks.  These fixed buffers are
+ * intentionally independent of the audio and album-art buffers. */
+struct ipodjs_ui_retail_idle_cache
+{
+    struct ipodjs_retailos_image digits[10];
+    struct ipodjs_retailos_image colon;
+    struct ipodjs_retailos_image battery;
+    struct ipodjs_retailos_image lock;
+    struct ipodjs_retailos_image play;
+    struct ipodjs_retailos_image radio;
+    unsigned char digit_data[10][
+        IPODJS_RETAILOS_RGA_BYTES(IPODJS_RETAIL_IDLE_DIGIT_W,
+                                  IPODJS_RETAIL_IDLE_DIGIT_H)];
+    unsigned char colon_data[
+        IPODJS_RETAILOS_RGA_BYTES(IPODJS_RETAIL_IDLE_COLON_W,
+                                  IPODJS_RETAIL_IDLE_DIGIT_H)];
+    unsigned char battery_data[
+        IPODJS_RETAILOS_RGA_BYTES(IPODJS_RETAIL_IDLE_BATTERY_W,
+                                  IPODJS_RETAIL_IDLE_BATTERY_H *
+                                  IPODJS_RETAIL_IDLE_BATTERY_FRAMES)];
+    unsigned char lock_data[IPODJS_RETAILOS_RGA_BYTES(25, 38)];
+    unsigned char play_data[IPODJS_RETAILOS_RGA_BYTES(41, 43)];
+    unsigned char radio_data[IPODJS_RETAILOS_RGA_BYTES(67, 40)];
+    int last_hour;
+    int last_minute;
+    int last_battery_frame;
+    int last_icon;
+    bool tried;
+    bool valid;
+    bool presented;
+};
+
+static struct ipodjs_ui_retail_idle_cache ipodjs_ui_retail_idle;
+
+/* Exact RetailOS system controls used by the existing iPodJS interaction
+ * paths.  The three option-bar families, WPS progress pieces, two quick-
+ * scroll plates, input-field pieces, and six endpoint icons are all loaded
+ * at screen entry.  The deliberately padded slots keep the storage fixed and
+ * make every subsequent draw a cached-pixel operation. */
+struct ipodjs_ui_retail_controls_cache
+{
+    struct ipodjs_retailos_image submenu;
+    unsigned char submenu_data[IPODJS_RETAILOS_RGA_BYTES(10, 15)];
+    bool submenu_valid;
+    struct ipodjs_retailos_image optionbar[
+        IPODJS_RETAIL_OPTIONBAR_STYLE_COUNT]
+        [IPODJS_RETAIL_OPTIONBAR_LAYER_COUNT]
+        [IPODJS_RETAIL_OPTIONBAR_PART_COUNT];
+    unsigned char optionbar_data[
+        IPODJS_RETAIL_OPTIONBAR_STYLE_COUNT]
+        [IPODJS_RETAIL_OPTIONBAR_LAYER_COUNT]
+        [IPODJS_RETAIL_OPTIONBAR_PART_COUNT]
+        [IPODJS_RETAILOS_RGA_BYTES(IPODJS_RETAIL_OPTIONBAR_MAX_W,
+                                    IPODJS_RETAIL_OPTIONBAR_MAX_H)];
+    struct ipodjs_retailos_image icons[IPODJS_RETAIL_CONTROL_ICON_COUNT];
+    unsigned char icon_data[IPODJS_RETAIL_CONTROL_ICON_COUNT]
+        [IPODJS_RETAILOS_RGA_BYTES(IPODJS_RETAIL_CONTROL_ICON_MAX_W,
+                                    IPODJS_RETAIL_CONTROL_ICON_MAX_H)];
+    struct ipodjs_retailos_image progress[
+        IPODJS_RETAIL_PROGRESS_LAYER_COUNT]
+        [IPODJS_RETAIL_PROGRESS_PART_COUNT];
+    unsigned char progress_data[
+        IPODJS_RETAIL_PROGRESS_LAYER_COUNT]
+        [IPODJS_RETAIL_PROGRESS_PART_COUNT]
+        [IPODJS_RETAILOS_RGA_BYTES(IPODJS_RETAIL_PROGRESS_MAX_W,
+                                    IPODJS_RETAIL_PROGRESS_H)];
+    struct ipodjs_retailos_image quick_scroll[2];
+    unsigned char quick_scroll_data[2]
+        [IPODJS_RETAILOS_RGA_BYTES(IPODJS_RETAIL_QUICK_SCROLL_W,
+                                    IPODJS_RETAIL_QUICK_SCROLL_H)];
+    struct ipodjs_retailos_image input[IPODJS_RETAIL_INPUT_PART_COUNT];
+    unsigned char input_data[IPODJS_RETAIL_INPUT_PART_COUNT]
+        [IPODJS_RETAILOS_RGA_BYTES(IPODJS_RETAIL_INPUT_PART_W,
+                                    IPODJS_RETAIL_INPUT_H)];
+    bool tried;
+    bool optionbar_valid;
+    bool icons_valid;
+    bool progress_valid;
+    bool quick_scroll_valid;
+    bool input_valid;
+};
+
+static struct ipodjs_ui_retail_controls_cache ipodjs_ui_retail_controls;
+
+/* One opaque source background shared by full About and split previews.
+ * RGB565 drops the redundant alpha plane; no compositor copy is added. */
+static struct {
+    bool tried, controls_valid, preview_valid;
+    struct ipodjs_retailos_image scrollbar[3], check[2];
+    struct ipodjs_retailos_image selection[3];
+    struct ipodjs_retailos_image panel;
+    struct ipodjs_retailos_frame_pack main_menu, logo;
+    struct ipodjs_retailos_image capacity[2][3];
+    unsigned char scrollbar_data[3][IPODJS_RETAILOS_RGA_BYTES(6, 10)];
+    unsigned char check_data[2][IPODJS_RETAILOS_RGA_BYTES(14, 12)];
+    unsigned char selection_data[2][
+        IPODJS_RETAILOS_RGA_BYTES(IPODJS_RETAIL_SELECTION_W,
+                                  IPODJS_RETAIL_SELECTION_H)];
+    unsigned char selection_fill_data[
+        IPODJS_RETAILOS_RGA_BYTES(1, IPODJS_RETAIL_SELECTION_H)];
+    bool selection_valid;
+    uint16_t background_data[320 * 240];
+    unsigned char panel_data[IPODJS_RETAILOS_RGA_BYTES(78, 121)];
+    unsigned char main_menu_data[52 * 121];
+    unsigned char logo_data[120 * 119];
+    unsigned char capacity_data[2][3][IPODJS_RETAILOS_RGA_BYTES(9, 13)];
+} ipodjs_ui_retail_menu;
+
+const uint16_t *ipodjs_ui_tv_background(void)
+{
+    return ipodjs_ui_retail_menu.preview_valid ?
+        ipodjs_ui_retail_menu.background_data : NULL;
+}
+
+const struct ipodjs_retailos_image *ipodjs_ui_tv_asset(enum ipodjs_tv_asset asset)
+{
+    const struct ipodjs_ui_retail_controls_cache *c = &ipodjs_ui_retail_controls;
+    const struct ipodjs_ui_retail_status_cache *s = &ipodjs_ui_retail_status;
+    switch (asset)
+    {
+        case IPODJS_TV_SELECTION:
+            return c->optionbar_valid ? c->optionbar[0][1] : NULL;
+        case IPODJS_TV_PROGRESS:
+            return c->progress_valid ? c->progress[0] : NULL;
+        case IPODJS_TV_PROGRESS_FILL:
+            return c->progress_valid ? c->progress[1] : NULL;
+        default: break;
+    }
+    if (!s->valid) return NULL;
+    switch (asset)
+    {
+        case IPODJS_TV_HEADER: return &s->light_background;
+        case IPODJS_TV_PLAY: return &s->black_play;
+        case IPODJS_TV_PAUSE: return &s->black_pause;
+        case IPODJS_TV_SHUFFLE: return &s->white_shuffle;
+        case IPODJS_TV_REPEAT: return &s->white_repeat;
+        case IPODJS_TV_REPEAT_ONE: return &s->white_repeat_once;
+        default: return NULL;
+    }
+}
+
+bool ipodjs_ui_prepare_retailos_menu(void)
+{
+    static const uint8_t heights[3] = { 10, 8, 9 };
+    static const uint8_t widths[2][3] = { { 9, 1, 9 }, { 7, 1, 7 } };
+    bool valid = true;
+    bool selection_valid = true;
+
+    if (ipodjs_ui_retail_menu.tried)
+        return ipodjs_ui_retail_menu.preview_valid;
+    /* No late font/allocation or artwork work from music/navigation. */
+    if (audio_status())
+        return false;
+    ipodjs_ui_retail_menu.tried = true;
+    selection_valid &= ipodjs_retailos_load_resource_rga(89,
+        ipodjs_ui_retail_menu.selection_data[0],
+        sizeof(ipodjs_ui_retail_menu.selection_data[0]),
+        IPODJS_RETAIL_SELECTION_W, IPODJS_RETAIL_SELECTION_H,
+        &ipodjs_ui_retail_menu.selection[0]);
+    selection_valid &= ipodjs_retailos_load_resource_rga(91,
+        ipodjs_ui_retail_menu.selection_fill_data,
+        sizeof(ipodjs_ui_retail_menu.selection_fill_data),
+        1, IPODJS_RETAIL_SELECTION_H,
+        &ipodjs_ui_retail_menu.selection[1]);
+    selection_valid &= ipodjs_retailos_load_resource_rga(90,
+        ipodjs_ui_retail_menu.selection_data[1],
+        sizeof(ipodjs_ui_retail_menu.selection_data[1]),
+        IPODJS_RETAIL_SELECTION_W, IPODJS_RETAIL_SELECTION_H,
+        &ipodjs_ui_retail_menu.selection[2]);
+    ipodjs_ui_retail_menu.selection_valid = selection_valid;
+    for (int part = 0; part < 3; part++)
+        valid &= ipodjs_retailos_load_resource_rga(part,
+            ipodjs_ui_retail_menu.scrollbar_data[part],
+            sizeof(ipodjs_ui_retail_menu.scrollbar_data[part]),
+            6, heights[part], &ipodjs_ui_retail_menu.scrollbar[part]);
+    for (int state = 0; state < 2; state++)
+        valid &= ipodjs_retailos_load_resource_rga(448 + state,
+            ipodjs_ui_retail_menu.check_data[state],
+            sizeof(ipodjs_ui_retail_menu.check_data[state]),
+            14, 12, &ipodjs_ui_retail_menu.check[state]);
+    ipodjs_ui_retail_menu.controls_valid = valid;
+    valid = ipodjs_retailos_load_opaque(11,
+        ipodjs_ui_retail_menu.background_data,
+        ARRAYLEN(ipodjs_ui_retail_menu.background_data), 320, 240);
+    valid &= ipodjs_retailos_load_resource_rga(429,
+        ipodjs_ui_retail_menu.panel_data,
+        sizeof(ipodjs_ui_retail_menu.panel_data),
+        78, 121, &ipodjs_ui_retail_menu.panel);
+    valid &= ipodjs_retailos_load_named_raw("settings-main-menu",
+        ipodjs_ui_retail_menu.main_menu_data,
+        sizeof(ipodjs_ui_retail_menu.main_menu_data),
+        78, 121, 52, 0x0004, 52 * 121, 0x0dad0bc0,
+        &ipodjs_ui_retail_menu.main_menu);
+    valid &= ipodjs_retailos_load_named_raw("settings-apple-logo",
+        ipodjs_ui_retail_menu.logo_data,
+        sizeof(ipodjs_ui_retail_menu.logo_data),
+        119, 119, 120, 0x0008, 120 * 119, 0x0dad0bb8,
+        &ipodjs_ui_retail_menu.logo);
+    for (int layer = 0; layer < 2; layer++)
+        for (int part = 0; part < 3; part++)
+            valid &= ipodjs_retailos_load_resource_rga(401 + layer * 3 + part,
+                ipodjs_ui_retail_menu.capacity_data[layer][part],
+                sizeof(ipodjs_ui_retail_menu.capacity_data[layer][part]),
+                widths[layer][part], 13,
+                &ipodjs_ui_retail_menu.capacity[layer][part]);
+    ipodjs_ui_retail_menu.preview_valid = valid;
+    return valid;
+}
+
+bool ipodjs_ui_draw_retailos_background(struct screen *display)
+{
+    return ipodjs_ui_draw_retailos_background_rect(display, 0, 0, 320, 240);
+}
+
+bool ipodjs_ui_draw_retailos_background_rect(struct screen *display,
+    int x, int y, int width, int height)
+{
+    if (!ipodjs_ui_retail_menu.preview_valid)
+        return false;
+    if (x < 0 || y < 0 || width <= 0 || height <= 0 ||
+        x + width > 320 || y + height > 240)
+        return false;
+    ipodjs_retailos_blit_opaque(display,
+        ipodjs_ui_retail_menu.background_data + y * 320 + x,
+        320, x, y, width, height);
+    return true;
+}
+
+void ipodjs_ui_draw_retailos_check(struct screen *display, int x, int y,
+                                  bool selected)
+{
+    if (ipodjs_ui_retail_menu.controls_valid)
+        ipodjs_retailos_blit(display,
+            &ipodjs_ui_retail_menu.check[selected ? 1 : 0], x, y);
+    else
+    {
+        /* Preserve the enabled state when the private asset pack is absent. */
+        display->setfont(ipodjs_ui_retailos_font(false));
+        display->putsxy(x, y, "On");
+        display->setfont(ipodjs_ui_retailos_menu_font());
+    }
+}
+
+void ipodjs_ui_draw_retailos_scrollbar(struct screen *display, int right,
+    int y, int height, int first, int visible, int count)
+{
+    if (!ipodjs_ui_retail_menu.controls_valid || count <= visible ||
+        visible <= 0 || height < 19)
+        return;
+    int size = MAX(19, height * visible / count);
+    int top = y + (height - size) * MAX(0, MIN(first, count - visible)) /
+        (count - visible);
+    int x = right - 6;
+    ipodjs_retailos_blit(display, &ipodjs_ui_retail_menu.scrollbar[0], x, top);
+    for (int row = 10; row < size - 9; row += 8)
+        ipodjs_retailos_blit_part(display,
+            &ipodjs_ui_retail_menu.scrollbar[1], 0, 0, x, top + row,
+            6, MIN(8, size - 9 - row));
+    ipodjs_retailos_blit(display, &ipodjs_ui_retail_menu.scrollbar[2],
+        x, top + size - 9);
+}
 
 static struct bitmap *ipodjs_ui_load_stock_status(const char *path,
                                                    struct bitmap *bm,
@@ -977,81 +1224,1078 @@ static struct bitmap *ipodjs_ui_load_stock_status(const char *path,
     return bm;
 }
 
-static struct bitmap *ipodjs_ui_apple_battery(void)
+bool ipodjs_ui_prepare_retailos_status(void)
 {
-    return ipodjs_ui_load_stock_status(
-        IPODJS_UI_APPLE_ASSET_DIR
-            "/status-battery.apple.26x65x24.bmp",
-        &ipodjs_ui_stock_status.battery,
-        ipodjs_ui_stock_status.battery_data,
-        sizeof(ipodjs_ui_stock_status.battery_data),
-        IPODJS_APPLE_BATTERY_W, IPODJS_APPLE_BATTERY_H,
-        &ipodjs_ui_stock_status.battery_tried,
-        &ipodjs_ui_stock_status.battery_valid);
+    struct ipodjs_ui_retail_status_cache *cache =
+        &ipodjs_ui_retail_status;
+    bool valid = true;
+
+    if (cache->valid)
+        return true;
+    if (cache->tried)
+        return false;
+    cache->tried = true;
+
+    /* Apple's Classic guide, "Using iPod classic menus", shows resource 8:
+     * a light silver 20px bar with black text. Resource 10 is the dark bar,
+     * used by the preserved Hold presentation and RetailOS USB screen. */
+    valid &= ipodjs_retailos_load_named_rga(
+        "statusbar-white-background", cache->light_background_data,
+        sizeof(cache->light_background_data), 320, 20,
+        &cache->light_background);
+    valid &= ipodjs_retailos_load_named_rga(
+        "statusbar-black-background", cache->hold_background_data,
+        sizeof(cache->hold_background_data), 320, 24,
+        &cache->hold_background);
+    valid &= ipodjs_retailos_load_named_rga(
+        "now-playing-statusbar", cache->black_background_data,
+        sizeof(cache->black_background_data), 320, 24,
+        &cache->black_background);
+    valid &= ipodjs_retailos_load_named_rga(
+        "statusbar-white-play-status", cache->status_play_data,
+        sizeof(cache->status_play_data), 14, 16, &cache->status_play);
+    valid &= ipodjs_retailos_load_animation_rga(
+        IPODJS_RETAILOS_STATUSBAR_WHITE_BATTERY,
+        cache->white_battery_data, sizeof(cache->white_battery_data),
+        &cache->white_battery);
+    valid &= ipodjs_retailos_load_animation_rga(
+        IPODJS_RETAILOS_STATUSBAR_BLACK_BATTERY,
+        cache->black_battery_data, sizeof(cache->black_battery_data),
+        &cache->black_battery);
+    valid &= ipodjs_retailos_load_named_rga(
+        "statusbar-black-lock", cache->white_lock_data,
+        sizeof(cache->white_lock_data), 11, 16, &cache->white_lock);
+    valid &= ipodjs_retailos_load_named_rga(
+        "statusbar-white-lock", cache->black_lock_data,
+        sizeof(cache->black_lock_data), 13, 16, &cache->black_lock);
+    valid &= ipodjs_retailos_load_named_rga(
+        "now-playing-black-play", cache->white_play_data,
+        sizeof(cache->white_play_data), 14, 16, &cache->white_play);
+    valid &= ipodjs_retailos_load_named_rga(
+        "now-playing-black-pause", cache->white_pause_data,
+        sizeof(cache->white_pause_data), 14, 16, &cache->white_pause);
+    valid &= ipodjs_retailos_load_named_rga(
+        "now-playing-white-play", cache->black_play_data,
+        sizeof(cache->black_play_data), 14, 16, &cache->black_play);
+    valid &= ipodjs_retailos_load_named_rga(
+        "now-playing-white-pause", cache->black_pause_data,
+        sizeof(cache->black_pause_data), 14, 16, &cache->black_pause);
+    valid &= ipodjs_retailos_load_named_rga(
+        "now-playing-white-repeat", cache->white_repeat_data,
+        sizeof(cache->white_repeat_data), 20, 14,
+        &cache->white_repeat);
+    valid &= ipodjs_retailos_load_named_rga(
+        "now-playing-white-repeat-once", cache->white_repeat_once_data,
+        sizeof(cache->white_repeat_once_data), 24, 16,
+        &cache->white_repeat_once);
+    valid &= ipodjs_retailos_load_named_rga(
+        "now-playing-black-repeat", cache->black_repeat_data,
+        sizeof(cache->black_repeat_data), 19, 15,
+        &cache->black_repeat);
+    valid &= ipodjs_retailos_load_named_rga(
+        "now-playing-black-repeat-once", cache->black_repeat_once_data,
+        sizeof(cache->black_repeat_once_data), 19, 15,
+        &cache->black_repeat_once);
+    valid &= ipodjs_retailos_load_named_rga(
+        "now-playing-white-shuffle", cache->white_shuffle_data,
+        sizeof(cache->white_shuffle_data), 18, 16,
+        &cache->white_shuffle);
+    valid &= ipodjs_retailos_load_named_rga(
+        "now-playing-black-shuffle", cache->black_shuffle_data,
+        sizeof(cache->black_shuffle_data), 18, 14,
+        &cache->black_shuffle);
+
+    cache->valid = valid;
+    return valid;
 }
 
-static struct bitmap *ipodjs_ui_stock_playing(void)
+bool ipodjs_ui_prepare_retailos_controls(void)
 {
-    return ipodjs_ui_load_stock_status(
-        IPODJS_UI_APPLE_ASSET_DIR
-            "/status-playback.apple.20x32x24.bmp",
-        &ipodjs_ui_stock_status.playing,
-        ipodjs_ui_stock_status.playing_data,
-        sizeof(ipodjs_ui_stock_status.playing_data),
-        IPODJS_STOCK_PLAYING_W, IPODJS_STOCK_PLAYING_H,
-        &ipodjs_ui_stock_status.playing_tried,
-        &ipodjs_ui_stock_status.playing_valid);
+    static const char * const optionbar_names
+        [IPODJS_RETAIL_OPTIONBAR_STYLE_COUNT]
+        [IPODJS_RETAIL_OPTIONBAR_LAYER_COUNT]
+        [IPODJS_RETAIL_OPTIONBAR_PART_COUNT] =
+    {
+        {
+            { "optionbar-white-well-left",
+              "optionbar-white-well-center",
+              "optionbar-white-well-right" },
+            { "optionbar-white-thumb-left",
+              "optionbar-white-thumb-center",
+              "optionbar-white-thumb-right" },
+        },
+        {
+            { "optionbar-black-well-left",
+              "optionbar-black-well-center",
+              "optionbar-black-well-right" },
+            { "optionbar-black-thumb-left",
+              "optionbar-black-thumb-center",
+              "optionbar-black-thumb-right" },
+        },
+        {
+            { "optionbar-now-playing-well-left",
+              "optionbar-now-playing-well-center",
+              "optionbar-now-playing-well-right" },
+            { "optionbar-now-playing-thumb-left",
+              "optionbar-now-playing-thumb-center",
+              "optionbar-now-playing-thumb-right" },
+        },
+    };
+    static const uint8_t optionbar_widths
+        [IPODJS_RETAIL_OPTIONBAR_STYLE_COUNT]
+        [IPODJS_RETAIL_OPTIONBAR_PART_COUNT] =
+    {
+        { 8, 1, 8 },
+        { 6, 1, 6 },
+        { 8, 1, 8 },
+    };
+    static const uint8_t optionbar_heights
+        [IPODJS_RETAIL_OPTIONBAR_STYLE_COUNT] = { 29, 26, 27 };
+    static const char * const icon_names[IPODJS_RETAIL_CONTROL_ICON_COUNT] =
+    {
+        "system-overlay-brightness-less",
+        "system-overlay-brightness-more",
+        "system-overlay-volume-left",
+        "system-overlay-volume-right",
+        "now-playing-white-volume-low",
+        "now-playing-white-volume-high",
+    };
+    static const uint8_t icon_widths[IPODJS_RETAIL_CONTROL_ICON_COUNT] =
+        { 12, 17, 15, 19, 9, 19 };
+    static const uint8_t icon_heights[IPODJS_RETAIL_CONTROL_ICON_COUNT] =
+        { 13, 17, 13, 17, 17, 17 };
+    static const char * const progress_names
+        [IPODJS_RETAIL_PROGRESS_LAYER_COUNT]
+        [IPODJS_RETAIL_PROGRESS_PART_COUNT] =
+    {
+        { "now-playing-progressbar-left",
+          "now-playing-progressbar-growth",
+          "now-playing-progressbar-right" },
+        { "now-playing-progressfill-left",
+          "now-playing-progressfill-growth",
+          "now-playing-progressfill-right" },
+    };
+    static const uint8_t progress_widths
+        [IPODJS_RETAIL_PROGRESS_LAYER_COUNT]
+        [IPODJS_RETAIL_PROGRESS_PART_COUNT] =
+    {
+        { 12, 5, 12 },
+        { 3, 2, 4 },
+    };
+    static const char * const quick_scroll_names[2] =
+        { "system-quick-scroll", "system-quick-scroll-123" };
+    static const char * const input_names[IPODJS_RETAIL_INPUT_PART_COUNT] =
+        { "system-input-field-left", "system-input-field-middle",
+          "system-input-field-right" };
+    struct ipodjs_ui_retail_controls_cache *cache =
+        &ipodjs_ui_retail_controls;
+    bool valid;
+    int style;
+    int layer;
+    int part;
+    int icon;
+
+    if (cache->tried)
+        return cache->optionbar_valid && cache->icons_valid &&
+               cache->progress_valid && cache->quick_scroll_valid &&
+               cache->input_valid;
+    cache->tried = true;
+
+    cache->submenu_valid = ipodjs_retailos_load_named_rga(
+        "system-submenu", cache->submenu_data,
+        sizeof(cache->submenu_data), 10, 15, &cache->submenu);
+    valid = true;
+    for (style = 0; style < IPODJS_RETAIL_OPTIONBAR_STYLE_COUNT; style++)
+    {
+        for (layer = 0; layer < IPODJS_RETAIL_OPTIONBAR_LAYER_COUNT;
+             layer++)
+        {
+            for (part = 0; part < IPODJS_RETAIL_OPTIONBAR_PART_COUNT;
+                 part++)
+            {
+                valid &= ipodjs_retailos_load_named_rga(
+                    optionbar_names[style][layer][part],
+                    cache->optionbar_data[style][layer][part],
+                    sizeof(cache->optionbar_data[style][layer][part]),
+                    optionbar_widths[style][part],
+                    optionbar_heights[style],
+                    &cache->optionbar[style][layer][part]);
+            }
+        }
+    }
+    cache->optionbar_valid = valid;
+
+    valid = true;
+    for (icon = 0; icon < IPODJS_RETAIL_CONTROL_ICON_COUNT; icon++)
+    {
+        valid &= ipodjs_retailos_load_named_rga(
+            icon_names[icon], cache->icon_data[icon],
+            sizeof(cache->icon_data[icon]), icon_widths[icon],
+            icon_heights[icon], &cache->icons[icon]);
+    }
+    cache->icons_valid = valid;
+
+    valid = true;
+    for (layer = 0; layer < IPODJS_RETAIL_PROGRESS_LAYER_COUNT; layer++)
+    {
+        for (part = 0; part < IPODJS_RETAIL_PROGRESS_PART_COUNT; part++)
+        {
+            valid &= ipodjs_retailos_load_named_rga(
+                progress_names[layer][part],
+                cache->progress_data[layer][part],
+                sizeof(cache->progress_data[layer][part]),
+                progress_widths[layer][part], IPODJS_RETAIL_PROGRESS_H,
+                &cache->progress[layer][part]);
+        }
+    }
+    cache->progress_valid = valid;
+
+    valid = true;
+    for (part = 0; part < 2; part++)
+    {
+        valid &= ipodjs_retailos_load_named_rga(
+            quick_scroll_names[part], cache->quick_scroll_data[part],
+            sizeof(cache->quick_scroll_data[part]),
+            IPODJS_RETAIL_QUICK_SCROLL_W,
+            IPODJS_RETAIL_QUICK_SCROLL_H,
+            &cache->quick_scroll[part]);
+    }
+    cache->quick_scroll_valid = valid;
+
+    valid = true;
+    for (part = 0; part < IPODJS_RETAIL_INPUT_PART_COUNT; part++)
+    {
+        valid &= ipodjs_retailos_load_named_rga(
+            input_names[part], cache->input_data[part],
+            sizeof(cache->input_data[part]), IPODJS_RETAIL_INPUT_PART_W,
+            IPODJS_RETAIL_INPUT_H, &cache->input[part]);
+    }
+    cache->input_valid = valid;
+
+    return cache->optionbar_valid && cache->icons_valid &&
+           cache->progress_valid && cache->quick_scroll_valid &&
+           cache->input_valid;
 }
 
-static struct bitmap *ipodjs_ui_stock_hold(void)
+static bool ipodjs_ui_draw_retailos_horizontal_parts(
+    struct screen *display, const struct ipodjs_retailos_image parts[3],
+    int x, int y, int width)
 {
-    return ipodjs_ui_load_stock_status(
-        IPODJS_UI_APPLE_ASSET_DIR "/status-hold.apple.12x15x24.bmp",
-        &ipodjs_ui_stock_status.hold, ipodjs_ui_stock_status.hold_data,
-        sizeof(ipodjs_ui_stock_status.hold_data),
-        IPODJS_STOCK_HOLD_W, IPODJS_STOCK_HOLD_H,
-        &ipodjs_ui_stock_status.hold_tried,
-        &ipodjs_ui_stock_status.hold_valid);
+    int center_width;
+    int drawn;
+
+    if (!display || !parts[0].pixels || !parts[1].pixels ||
+        !parts[2].pixels || parts[0].height != parts[1].height ||
+        parts[0].height != parts[2].height || parts[1].width == 0 ||
+        width < parts[0].width + parts[2].width)
+        return false;
+
+    ipodjs_retailos_blit(display, &parts[0], x, y);
+    center_width = width - parts[0].width - parts[2].width;
+    drawn = 0;
+    while (drawn < center_width)
+    {
+        int part_width = MIN((int)parts[1].width, center_width - drawn);
+
+        ipodjs_retailos_blit_part(
+            display, &parts[1], 0, 0,
+            x + parts[0].width + drawn, y,
+            part_width, parts[1].height);
+        drawn += part_width;
+    }
+    ipodjs_retailos_blit(display, &parts[2],
+                         x + width - parts[2].width, y);
+    return true;
 }
 
-static struct bitmap *ipodjs_ui_stock_header(void)
+static bool ipodjs_ui_draw_retailos_horizontal_parts_color(
+    struct screen *display, const struct ipodjs_retailos_image parts[3],
+    int x, int y, int width, fb_data color)
 {
-    return ipodjs_ui_load_stock_status(
-        IPODJS_UI_APPLE_ASSET_DIR "/status-header.apple.320x24x24.bmp",
-        &ipodjs_ui_stock_status.header, ipodjs_ui_stock_status.header_data,
-        sizeof(ipodjs_ui_stock_status.header_data),
-        IPODJS_STOCK_HEADER_W, IPODJS_STOCK_HEADER_H,
-        &ipodjs_ui_stock_status.header_tried,
-        &ipodjs_ui_stock_status.header_valid);
+    int center_width;
+    int drawn = 0;
+
+    if (!display || !parts[0].pixels || !parts[1].pixels ||
+        !parts[2].pixels || parts[0].height != parts[1].height ||
+        parts[0].height != parts[2].height || parts[1].width == 0 ||
+        width < parts[0].width + parts[2].width)
+        return false;
+
+    ipodjs_retailos_blit_color(display, &parts[0], x, y, color);
+    center_width = width - parts[0].width - parts[2].width;
+    while (drawn < center_width)
+    {
+        int part_width = MIN((int)parts[1].width, center_width - drawn);
+
+        ipodjs_retailos_blit_color_part(display, &parts[1], 0, 0,
+            x + parts[0].width + drawn, y, part_width, parts[1].height,
+            color);
+        drawn += part_width;
+    }
+    ipodjs_retailos_blit_color(display, &parts[2],
+        x + width - parts[2].width, y, color);
+    return true;
 }
 
-static struct bitmap *ipodjs_ui_stock_repeat(void)
+bool ipodjs_ui_draw_retailos_settings_preview(struct screen *display,
+    int x, int y, int width, int height, bool main_menu,
+    const char *title, const char *detail, int used_percent)
 {
-    return ipodjs_ui_load_stock_status(
-        IPODJS_UI_APPLE_ASSET_DIR "/status-repeat.apple.21x38x24.bmp",
-        &ipodjs_ui_stock_status.repeat, ipodjs_ui_stock_status.repeat_data,
-        sizeof(ipodjs_ui_stock_status.repeat_data),
-        IPODJS_STOCK_REPEAT_W, IPODJS_STOCK_REPEAT_H,
-        &ipodjs_ui_stock_status.repeat_tried,
-        &ipodjs_ui_stock_status.repeat_valid);
+    if (!display || !ipodjs_ui_retail_menu.preview_valid ||
+        x != 160 || width != 160 || y < 0 || y + height > 240)
+        return false;
+    ipodjs_retailos_blit_opaque(display,
+        ipodjs_ui_retail_menu.background_data + y * 320 + x,
+        320, x, y, width, height);
+    if (main_menu)
+    {
+        /* SettingsInfo_Template and MainMenu layout: native 78x121 layers,
+         * including the source reflection, at absolute LCD (202,81). */
+        ipodjs_retailos_blit(display, &ipodjs_ui_retail_menu.panel, 202, 81);
+        ipodjs_retailos_blit_mask(display,
+            &ipodjs_ui_retail_menu.main_menu, 0, 202, 81,
+            FB_RGBPACK(238, 238, 238));
+    }
+    else
+    {
+        ipodjs_retailos_blit_mask(display, &ipodjs_ui_retail_menu.logo,
+            0, 180, 45, FB_RGBPACK(255, 255, 255));
+        /* SettingsInfo_About: the simple capacity view is 130x13, not
+         * the 30-pixel detailed About capacity strip. */
+        ipodjs_ui_draw_retailos_horizontal_parts(display,
+            ipodjs_ui_retail_menu.capacity[0], 179, 173, 130);
+        int filled = 130 * MAX(0, MIN(used_percent, 100)) / 100;
+        if (filled >= 14)
+            ipodjs_ui_draw_retailos_horizontal_parts(display,
+                ipodjs_ui_retail_menu.capacity[1], 179, 173, filled);
+        else if (filled > 0)
+        {
+            int left = (filled + 1) / 2;
+            int right = filled - left;
+            ipodjs_retailos_blit_part(display,
+                &ipodjs_ui_retail_menu.capacity[1][0], 0, 0,
+                179, 173, left, 13);
+            if (right)
+                ipodjs_retailos_blit_part(display,
+                    &ipodjs_ui_retail_menu.capacity[1][2], 7 - right, 0,
+                    179 + left, 173, right, 13);
+        }
+    }
+    int old_mode = lcd_get_drawmode();
+    display->set_drawmode(DRMODE_FG);
+    display->set_foreground(LCD_RGBPACK(255, 255, 255));
+    display->setfont(ipodjs_ui_retailos_font(true));
+    ipodjs_ui_puts_fit(display, 170, 20, 140, title, true);
+    /* About's free-space label is System_Font, unlike the small Main Menu
+     * explanatory text. SettingsInfo_About_Template, word offset 516. */
+    display->setfont(ipodjs_ui_retailos_font(!main_menu));
+    ipodjs_ui_puts_fit(display, 165, main_menu ? 207 : 199,
+        150, detail, true);
+    display->set_drawmode(old_mode);
+    return true;
 }
 
-static struct bitmap *ipodjs_ui_stock_shuffle(void)
+bool ipodjs_ui_draw_retailos_optionbar(
+    struct screen *display, int x, int y, int width, int percent,
+    enum ipodjs_ui_retailos_optionbar_style style)
 {
-    return ipodjs_ui_load_stock_status(
-        IPODJS_UI_APPLE_ASSET_DIR "/status-shuffle.apple.21x19x24.bmp",
-        &ipodjs_ui_stock_status.shuffle, ipodjs_ui_stock_status.shuffle_data,
-        sizeof(ipodjs_ui_stock_status.shuffle_data),
-        IPODJS_STOCK_SHUFFLE_W, IPODJS_STOCK_SHUFFLE_H,
-        &ipodjs_ui_stock_status.shuffle_tried,
-        &ipodjs_ui_stock_status.shuffle_valid);
+    struct ipodjs_ui_retail_controls_cache *cache =
+        &ipodjs_ui_retail_controls;
+    const struct ipodjs_retailos_image *well;
+    const struct ipodjs_retailos_image *thumb;
+    int filled;
+
+    if (!display || display != &screens[SCREEN_MAIN] ||
+        !cache->optionbar_valid ||
+        style < 0 || style >= IPODJS_RETAIL_OPTIONBAR_STYLE_COUNT)
+        return false;
+
+    well = cache->optionbar[style][0];
+    thumb = cache->optionbar[style][1];
+    if (!ipodjs_ui_draw_retailos_horizontal_parts(
+            display, well, x, y, width))
+        return false;
+
+    percent = MAX(0, MIN(100, percent));
+    if (percent == 0)
+        return true;
+    filled = width * percent / 100;
+    filled = MAX((int)thumb[0].width + thumb[2].width, filled);
+    filled = MIN(width, filled);
+    return ipodjs_ui_draw_retailos_horizontal_parts_color(
+        display, thumb, x, y, filled, ipodjs_ui_accent());
+}
+
+bool ipodjs_ui_draw_retailos_adjustment(
+    struct screen *display, int x, int y, int width, int percent,
+    bool brightness, bool now_playing)
+{
+    struct ipodjs_ui_retail_controls_cache *cache =
+        &ipodjs_ui_retail_controls;
+    enum ipodjs_ui_retailos_optionbar_style style;
+    const struct ipodjs_retailos_image *left;
+    const struct ipodjs_retailos_image *right;
+    int height;
+
+    if (!cache->optionbar_valid || !cache->icons_valid)
+        return false;
+    if (now_playing)
+    {
+        style = IPODJS_UI_RETAILOS_OPTIONBAR_NOW_PLAYING;
+        left = &cache->icons[4];
+        right = &cache->icons[5];
+    }
+    else
+    {
+        style = global_settings.ui_engine_dark_mode ?
+            IPODJS_UI_RETAILOS_OPTIONBAR_BLACK :
+            IPODJS_UI_RETAILOS_OPTIONBAR_WHITE;
+        left = &cache->icons[brightness ? 0 : 2];
+        right = &cache->icons[brightness ? 1 : 3];
+    }
+    height = cache->optionbar[style][0][0].height;
+    if (!ipodjs_ui_draw_retailos_optionbar(
+            display, x, y, width, percent, style))
+        return false;
+
+    ipodjs_retailos_blit(display, left, x - 10 - left->width,
+                         y + (height - left->height) / 2);
+    ipodjs_retailos_blit(display, right, x + width + 10,
+                         y + (height - right->height) / 2);
+    return true;
+}
+
+bool ipodjs_ui_draw_retailos_control_icon(
+    struct screen *display, int x, int y, bool brightness, bool high,
+    bool now_playing)
+{
+    struct ipodjs_ui_retail_controls_cache *cache =
+        &ipodjs_ui_retail_controls;
+    int icon;
+
+    if (!display || display != &screens[SCREEN_MAIN] ||
+        !cache->icons_valid || (brightness && now_playing))
+        return false;
+    if (now_playing)
+        icon = high ? 5 : 4;
+    else if (brightness)
+        icon = high ? 1 : 0;
+    else
+        icon = high ? 3 : 2;
+    ipodjs_retailos_blit(display, &cache->icons[icon], x, y);
+    return true;
+}
+
+bool ipodjs_ui_draw_retailos_progress(
+    struct screen *display, int x, int y, int width, int height,
+    int percent)
+{
+    struct ipodjs_ui_retail_controls_cache *cache =
+        &ipodjs_ui_retail_controls;
+    int track_y;
+    int filled;
+
+    if (!display || display != &screens[SCREEN_MAIN] ||
+        !cache->progress_valid || height < IPODJS_RETAIL_PROGRESS_H)
+        return false;
+
+    track_y = y + (height - IPODJS_RETAIL_PROGRESS_H) / 2;
+    if (!ipodjs_ui_draw_retailos_horizontal_parts(
+            display, cache->progress[0], x, track_y, width))
+        return false;
+
+    percent = MAX(0, MIN(100, percent));
+    if (percent == 0)
+        return true;
+    filled = width * percent / 100;
+    filled = MAX((int)cache->progress[1][0].width +
+                 cache->progress[1][2].width, filled);
+    filled = MIN(width, filled);
+    return ipodjs_ui_draw_retailos_horizontal_parts_color(
+        display, cache->progress[1], x, track_y, filled,
+        ipodjs_ui_accent());
+}
+
+static bool ipodjs_ui_prepare_retailos_charging(void)
+{
+    struct ipodjs_ui_retail_charge_cache *cache =
+        &ipodjs_ui_retail_charge;
+    bool valid = true;
+
+    if (cache->valid)
+        return true;
+    if (cache->tried)
+        return false;
+    cache->tried = true;
+
+    valid &= ipodjs_retailos_load_named_rga(
+        "charging-empty-cap-left", cache->empty_left_data,
+        sizeof(cache->empty_left_data), 38, 142, &cache->empty_left);
+    valid &= ipodjs_retailos_load_named_rga(
+        "charging-empty-cap-right", cache->empty_right_data,
+        sizeof(cache->empty_right_data), 45, 142, &cache->empty_right);
+    valid &= ipodjs_retailos_load_named_rga(
+        "charging-empty-middle", cache->empty_middle_data,
+        sizeof(cache->empty_middle_data), 8, 142, &cache->empty_middle);
+    valid &= ipodjs_retailos_load_named_rga(
+        "charging-green-cap-left", cache->green_left_data,
+        sizeof(cache->green_left_data), 38, 142, &cache->green_left);
+    valid &= ipodjs_retailos_load_named_rga(
+        "charging-green-cap-right", cache->green_right_data,
+        sizeof(cache->green_right_data), 45, 142, &cache->green_right);
+    valid &= ipodjs_retailos_load_named_rga(
+        "charging-green-middle", cache->green_middle_data,
+        sizeof(cache->green_middle_data), 8, 142,
+        &cache->green_middle);
+    valid &= ipodjs_retailos_load_named_rga(
+        "charging-green-middle-cap", cache->green_middle_cap_data,
+        sizeof(cache->green_middle_cap_data), 8, 142,
+        &cache->green_middle_cap);
+    valid &= ipodjs_retailos_load_named_rga(
+        "charging-critical", cache->critical_data,
+        sizeof(cache->critical_data), 205, 163, &cache->critical);
+    valid &= ipodjs_retailos_load_named_raw(
+        "charging-charge", cache->bolt_data, sizeof(cache->bolt_data),
+        23, 57, 24, 0x0004, sizeof(cache->bolt_data),
+        0x0dad0df1, &cache->bolt);
+    valid &= ipodjs_retailos_load_named_raw(
+        "charging-plug", cache->plug_data, sizeof(cache->plug_data),
+        47, 29, 36, 0x0004, sizeof(cache->plug_data),
+        0x0dad0df2, &cache->plug);
+
+    cache->valid = valid;
+    return valid;
+}
+
+static bool ipodjs_ui_prepare_retailos_usb(void)
+{
+    struct ipodjs_ui_retail_usb_cache *cache = &ipodjs_ui_retail_usb;
+    cache->valid = false;
+    cache->presented = false;
+    cache->ejected = false;
+    cache->disconnect_valid = false;
+#ifdef IPODJS_UI_HAS_ANIMATION_WORKSPACE
+    struct ipodjs_retailos_image background;
+    unsigned char *raw = (unsigned char *)ipodjs_ui_animation_frames;
+
+    /* USB owns the LCD until disconnect. Reuse the inactive transition pair:
+     * load the opaque source RGA, then compact/expand it in place to native
+     * pixels. No playback arena allocation or additional full-screen cache. */
+    ipodjs_ui_transition_cancel();
+    if (!ipodjs_retailos_load_resource_rga(
+            11, raw, sizeof(ipodjs_ui_animation_frames),
+            LCD_WIDTH, LCD_HEIGHT, &background))
+        return false;
+    for (int i = 0; i < LCD_WIDTH * LCD_HEIGHT; i++)
+        if (raw[i * 3 + 2] != 255)
+            return false;
+    for (int step = 0; step < LCD_WIDTH * LCD_HEIGHT; step++)
+    {
+        int i = sizeof(fb_data) > 3 ?
+            LCD_WIDTH * LCD_HEIGHT - 1 - step : step;
+        unsigned pixel = raw[i * 3] | (raw[i * 3 + 1] << 8);
+        ipodjs_ui_animation_old[i] = FB_RGBPACK(
+            ((pixel >> 11) & 31) * 255 / 31,
+            ((pixel >> 5) & 63) * 255 / 63,
+            (pixel & 31) * 255 / 31);
+    }
+    /* Resource 392 is DiskModeImage_SyncIcon: the original gold badge.
+     * Resource 562 is only the connector mask, not this shared background. */
+    cache->valid = ipodjs_retailos_load_resource_rga(
+        392, ipodjs_ui_animation_new, sizeof(ipodjs_ui_animation_new),
+        112, 112, &cache->badge);
+    /* Keep the original disconnect artwork beside the badge in the
+     * existing transition workspace, before USB takes storage away. */
+    size_t badge_bytes = IPODJS_RETAILOS_RGA_BYTES(112, 112);
+    cache->disconnect_valid = ipodjs_retailos_load_resource_rga(
+        563, (unsigned char *)ipodjs_ui_animation_new + badge_bytes,
+        sizeof(ipodjs_ui_animation_new) - badge_bytes,
+        112, 112, &cache->disconnect);
+    cache->valid &= ipodjs_retailos_load_animation_raw(
+            IPODJS_RETAILOS_DISK_MODE_SYNC_ARROWS,
+            cache->sync_arrow_data, sizeof(cache->sync_arrow_data),
+            &cache->sync_arrows);
+    cache->valid &= ipodjs_ui_prepare_retailos_status();
+#endif
+    cache->started = current_tick;
+    cache->last_frame = -1;
+    return cache->valid;
+}
+
+bool ipodjs_ui_prepare_retailos_playback(void)
+{
+    static const char * const digit_names[10] =
+    {
+        "now-playing-idle-digit-0", "now-playing-idle-digit-1",
+        "now-playing-idle-digit-2", "now-playing-idle-digit-3",
+        "now-playing-idle-digit-4", "now-playing-idle-digit-5",
+        "now-playing-idle-digit-6", "now-playing-idle-digit-7",
+        "now-playing-idle-digit-8", "now-playing-idle-digit-9",
+    };
+    static const uint16_t digit_widths[10] =
+        { 38, 27, 39, 38, 38, 38, 38, 38, 38, 38 };
+    struct ipodjs_ui_retail_wps_cache *wps = &ipodjs_ui_retail_wps;
+    struct ipodjs_ui_retail_idle_cache *idle = &ipodjs_ui_retail_idle;
+    bool wps_valid;
+    bool idle_valid;
+    int digit;
+
+    if (!wps->tried)
+    {
+        wps->tried = true;
+        /* Original CoverFlow_Proxy_Image. Decode into fixed storage before
+         * rendering; expand backwards for simulators with 32-bit pixels. */
+        wps->cover_valid = ipodjs_retailos_load_opaque(6,
+            (uint16_t *)wps->cover_data, 128 * 128, 128, 128);
+#if LCD_DEPTH > 16
+        if (wps->cover_valid)
+            for (int i = 128 * 128 - 1; i >= 0; i--)
+            {
+                unsigned pixel = ((uint16_t *)wps->cover_data)[i];
+                wps->cover_data[i] = FB_RGBPACK(
+                    ((pixel >> 11) & 31) * 255 / 31,
+                    ((pixel >> 5) & 63) * 255 / 63,
+                    (pixel & 31) * 255 / 31);
+            }
+#endif
+        wps->cover.width = wps->cover.height = 128;
+        wps->cover.format = FORMAT_NATIVE;
+        wps->cover.data = (unsigned char *)wps->cover_data;
+        wps->scrub_valid = ipodjs_retailos_load_resource_rga(
+            298, wps->scrub_data, sizeof(wps->scrub_data),
+            13, 28, &wps->scrub);
+        wps->shuffle_valid = ipodjs_retailos_load_resource_rga(
+            293, wps->shuffle_data, sizeof(wps->shuffle_data),
+            25, 19, &wps->shuffle);
+        wps->chrome_valid = true;
+        for (int layer = 0; layer < 2; layer++)
+            wps->chrome_valid &= ipodjs_retailos_load_resource_rga(
+                296 + layer, wps->music_progress_data[layer],
+                sizeof(wps->music_progress_data[layer]),
+                16, 28, &wps->progress[layer]);
+        wps->chrome_valid &= ipodjs_retailos_load_resource_rga(
+            300, wps->star_data, sizeof(wps->star_data),
+            13, 13, &wps->star);
+        wps->chrome_valid &= ipodjs_retailos_load_resource_rga(
+            301, wps->rating_star_data, sizeof(wps->rating_star_data),
+            22, 26, &wps->rating_star);
+        wps->chrome_valid &= ipodjs_retailos_load_resource_rga(
+            302, wps->rating_dot_data, sizeof(wps->rating_dot_data),
+            22, 26, &wps->rating_dot);
+        wps->equalizer_valid = ipodjs_retailos_load_animation_raw(
+            IPODJS_RETAILOS_NOW_PLAYING_EQUALIZER,
+            wps->equalizer_data, sizeof(wps->equalizer_data),
+            &wps->equalizer);
+        wps->paused_valid = ipodjs_retailos_load_named_rga(
+            "now-playing-paused", wps->paused_data,
+            sizeof(wps->paused_data), IPODJS_RETAIL_WPS_PAUSED_W,
+            IPODJS_RETAIL_WPS_PAUSED_H, &wps->paused);
+    }
+
+    if (!idle->tried)
+    {
+        idle->tried = true;
+        idle_valid = true;
+        for (digit = 0; digit < 10; digit++)
+        {
+            idle_valid &= ipodjs_retailos_load_named_rga(
+                digit_names[digit], idle->digit_data[digit],
+                sizeof(idle->digit_data[digit]), digit_widths[digit],
+                IPODJS_RETAIL_IDLE_DIGIT_H, &idle->digits[digit]);
+        }
+        idle_valid &= ipodjs_retailos_load_named_rga(
+            "now-playing-idle-colon", idle->colon_data,
+            sizeof(idle->colon_data), IPODJS_RETAIL_IDLE_COLON_W,
+            IPODJS_RETAIL_IDLE_DIGIT_H, &idle->colon);
+        idle_valid &= ipodjs_retailos_load_animation_rga(
+            IPODJS_RETAILOS_NOW_PLAYING_IDLE_BATTERY,
+            idle->battery_data, sizeof(idle->battery_data),
+            &idle->battery);
+        idle_valid &= ipodjs_retailos_load_named_rga(
+            "now-playing-idle-lock", idle->lock_data,
+            sizeof(idle->lock_data), 25, 38, &idle->lock);
+        idle_valid &= ipodjs_retailos_load_named_rga(
+            "now-playing-idle-play", idle->play_data,
+            sizeof(idle->play_data), 41, 43, &idle->play);
+        idle_valid &= ipodjs_retailos_load_named_rga(
+            "now-playing-idle-radio", idle->radio_data,
+            sizeof(idle->radio_data), 67, 40, &idle->radio);
+        idle->valid = idle_valid;
+    }
+
+    wps->started = current_tick;
+    idle->presented = false;
+    idle->last_hour = -1;
+    idle->last_minute = -1;
+    idle->last_battery_frame = -1;
+    idle->last_icon = -1;
+    wps_valid = wps->equalizer_valid && wps->paused_valid &&
+                wps->chrome_valid;
+    return wps_valid && idle->valid;
+}
+
+static void ipodjs_ui_draw_retailos_battery(
+    struct screen *display, const struct ipodjs_retailos_image *atlas,
+    int x, int y)
+{
+    int level = MAX(0, MIN(100, battery_level()));
+    int frame = level * 22 / 100;
+    bool connected = charger_inserted();
+
+    /* Frames 23/24 contain only the plug/bolt, not a battery casing.
+     * Composite them over the complete level frame at the same origin.
+     * Keep the explicitly protected Hold presentation unchanged. */
+    if (!connected || !button_hold())
+        ipodjs_retailos_blit_part(display, atlas,
+            0, frame * IPODJS_RETAIL_BATTERY_H, x, y,
+            IPODJS_RETAIL_BATTERY_W, IPODJS_RETAIL_BATTERY_H);
+    if (connected)
+    {
+        frame = !charging_state() && level >= 99 ? 23 : 24;
+        ipodjs_retailos_blit_part(display, atlas,
+            0, frame * IPODJS_RETAIL_BATTERY_H, x, y,
+            IPODJS_RETAIL_BATTERY_W, IPODJS_RETAIL_BATTERY_H);
+    }
+}
+
+static void ipodjs_ui_draw_retailos_status_glyph(
+    struct screen *display, const struct ipodjs_retailos_image *image,
+    int x, int y)
+{
+    if (global_settings.ui_engine_accent == UI_ENGINE_ACCENT_BLUE)
+        ipodjs_retailos_blit(display, image, x, y);
+    else
+        ipodjs_retailos_blit_tint_part(display, image,
+            0, 0, x, y, image->width, image->height, ipodjs_ui_accent());
+}
+
+bool ipodjs_ui_draw_retailos_music_header(struct screen *display)
+{
+    struct ipodjs_ui_retail_status_cache *status = &ipodjs_ui_retail_status;
+    int playback = audio_status();
+    bool dark = global_settings.ui_engine_dark_mode;
+
+    if (!display || !status->valid)
+        return false;
+    display->set_foreground(LCD_RGBPACK(255, 255, 255));
+    display->fillrect(0, 0, LCD_WIDTH, IPODJS_UI_HEADER_HEIGHT);
+    ipodjs_retailos_blit(display, dark ? &status->black_background :
+                         &status->light_background, 0, 0);
+    ipodjs_ui_draw_retailos_battery(display,
+                                   dark ? &status->black_battery :
+                                          &status->white_battery,
+                                   LCD_WIDTH - 31, 3);
+    if (playback & AUDIO_STATUS_PLAY)
+        ipodjs_ui_draw_playback_indicator(display, LCD_WIDTH - 50, 2);
+    return true;
+}
+
+void ipodjs_ui_draw_retailos_music_modes(struct screen *display,
+                                         bool shuffle, int repeat)
+{
+    struct ipodjs_ui_retail_status_cache *status = &ipodjs_ui_retail_status;
+
+    if (!display || !status->valid)
+        return;
+    if (shuffle)
+        ipodjs_retailos_blit(display,
+            global_settings.ui_engine_dark_mode ? &status->white_shuffle :
+                                                  &status->black_shuffle,
+            273, 25);
+    if (repeat != REPEAT_OFF)
+        ipodjs_retailos_blit(display, repeat == REPEAT_ONE ?
+            (global_settings.ui_engine_dark_mode ?
+                &status->white_repeat_once : &status->black_repeat_once) :
+            (global_settings.ui_engine_dark_mode ? &status->white_repeat :
+                                                   &status->black_repeat),
+            296, 25);
+}
+
+bool ipodjs_ui_draw_retailos_music_progress(struct screen *display,
+                                            int x, int y, int width,
+                                            int percent)
+{
+    struct ipodjs_ui_retail_wps_cache *wps = &ipodjs_ui_retail_wps;
+    int filled = width * MAX(0, MIN(100, percent)) / 100;
+
+    if (!display || !wps->chrome_valid || width <= 0)
+        return false;
+    /* These source strips include their own reflection. Tile horizontally
+     * without scaling, recolouring, or synthesizing highlight rows. */
+    for (int dx = 0; dx < width;)
+    {
+        int layer = dx < filled ? 1 : 0;
+        int extent = layer ? filled : width;
+        int count = MIN(16, extent - dx);
+
+        if (layer)
+        {
+            int source_x = dx % wps->progress[layer].width;
+            int tile = MIN(count, wps->progress[layer].width - source_x);
+            ipodjs_retailos_blit_color_part(display,
+                &wps->progress[layer], source_x, 0, x + dx, y,
+                tile, 28, ipodjs_ui_accent());
+            count = tile;
+        }
+        else if (global_settings.ui_engine_dark_mode)
+        {
+            int source_x = dx % wps->progress[layer].width;
+            int tile = MIN(count, wps->progress[layer].width - source_x);
+            ipodjs_retailos_blit_color_part(display,
+                &wps->progress[layer], source_x, 0, x + dx, y,
+                tile, 28, LCD_RGBPACK(70, 78, 90));
+            count = tile;
+        }
+        else
+            ipodjs_retailos_blit_part(display, &wps->progress[layer],
+                0, 0, x + dx, y, count, 28);
+        dx += count;
+    }
+    return true;
+}
+
+void ipodjs_ui_draw_retailos_music_rating(struct screen *display,
+                                          int x, int y, int stars)
+{
+    if (!display || !ipodjs_ui_retail_wps.chrome_valid)
+        return;
+    for (int star = 0; star < MIN(5, MAX(0, stars)); star++)
+        ipodjs_retailos_blit(display, &ipodjs_ui_retail_wps.star,
+                             x + star * 13, y);
+}
+
+void ipodjs_ui_draw_retailos_rating_editor(struct screen *display, int stars)
+{
+    if (!display || !ipodjs_ui_retail_wps.chrome_valid)
+        return;
+    stars = MIN(5, MAX(0, stars));
+    display->set_foreground(ipodjs_ui_panel());
+    display->fillrect(95, 200, 130, 26);
+    for (int i = 0; i < 5; i++)
+        ipodjs_retailos_blit(display, i < stars ?
+            &ipodjs_ui_retail_wps.rating_star : &ipodjs_ui_retail_wps.rating_dot,
+            97 + i * 26, 200);
+}
+
+struct bitmap *ipodjs_ui_retailos_music_cover(void)
+{
+    return ipodjs_ui_retail_wps.cover_valid ?
+        &ipodjs_ui_retail_wps.cover : NULL;
+}
+
+void ipodjs_ui_draw_retailos_scrubber(struct screen *display, int percent)
+{
+    struct ipodjs_ui_retail_wps_cache *wps = &ipodjs_ui_retail_wps;
+    if (!display || !wps->scrub_valid || !wps->chrome_valid)
+        return;
+
+    /* Seek mode uses the original empty rail and diamond, not a filled
+     * progress bar underneath it. Position the diamond's centre on the
+     * playhead, including the two endpoints; retain the source reflection. */
+    ipodjs_ui_draw_retailos_music_progress(display, 58, 207, 204, 0);
+    ipodjs_retailos_blit(display, &wps->scrub,
+        58 + 203 * MAX(0, MIN(100, percent)) / 100 - wps->scrub.width / 2,
+        207);
+}
+
+void ipodjs_ui_draw_retailos_shuffle_selector(struct screen *display,
+                                              bool enabled)
+{
+    struct ipodjs_ui_retail_controls_cache *cache =
+        &ipodjs_ui_retail_controls;
+    if (!display || !cache->optionbar_valid)
+        return;
+    const struct ipodjs_retailos_image *well =
+        cache->optionbar[IPODJS_UI_RETAILOS_OPTIONBAR_NOW_PLAYING][0];
+    const struct ipodjs_retailos_image *thumb =
+        cache->optionbar[IPODJS_UI_RETAILOS_OPTIONBAR_WHITE][1];
+    ipodjs_ui_draw_retailos_horizontal_parts(display, well, 72, 200, 176);
+    ipodjs_ui_draw_retailos_horizontal_parts(display, thumb,
+        72 + (enabled ? 88 : 0), 200, 88);
+    if (ipodjs_ui_retail_wps.shuffle_valid)
+        ipodjs_retailos_blit(display, &ipodjs_ui_retail_wps.shuffle, 32, 201);
+    display->setfont(ipodjs_ui_retailos_font(false));
+    display->set_drawmode(DRMODE_FG);
+    display->set_foreground(enabled ? LCD_RGBPACK(61, 61, 61) :
+                                      LCD_RGBPACK(255, 255, 255));
+    ipodjs_ui_puts_fit(display, 72, 205, 88, "Off", true);
+    display->set_foreground(enabled ? LCD_RGBPACK(255, 255, 255) :
+                                      LCD_RGBPACK(61, 61, 61));
+    ipodjs_ui_puts_fit(display, 160, 205, 88, "Songs", true);
+    display->set_drawmode(DRMODE_SOLID);
+}
+
+bool ipodjs_ui_retailos_now_playing_animation_available(void)
+{
+    return ipodjs_ui_retail_wps.equalizer_valid;
+}
+
+int ipodjs_ui_retailos_now_playing_frame(void)
+{
+    struct ipodjs_ui_retail_wps_cache *cache = &ipodjs_ui_retail_wps;
+    unsigned long elapsed;
+    unsigned long cycle_ticks;
+
+    if (!cache->equalizer_valid || cache->equalizer.frame_count == 0)
+        return -1;
+
+    elapsed = (unsigned long)(current_tick - cache->started);
+    cycle_ticks = (unsigned long)HZ * cache->equalizer.frame_count;
+    elapsed %= cycle_ticks;
+    return (elapsed * IPODJS_RETAIL_WPS_EQUALIZER_FPS / HZ) %
+           cache->equalizer.frame_count;
+}
+
+bool ipodjs_ui_draw_retailos_now_playing_activity(
+    struct screen *display, int x, int y, int size, bool paused, int frame)
+{
+    struct ipodjs_ui_retail_wps_cache *cache = &ipodjs_ui_retail_wps;
+
+    if (!display || display != &screens[SCREEN_MAIN])
+        return false;
+    if (paused)
+    {
+        if (!cache->paused_valid)
+            return false;
+        ipodjs_retailos_blit(
+            display, &cache->paused,
+            x + (size - cache->paused.width) / 2,
+            y + (size - cache->paused.height) / 2);
+        return true;
+    }
+    if (!cache->equalizer_valid || frame < 0 ||
+        frame >= cache->equalizer.frame_count)
+        return false;
+
+    ipodjs_retailos_blit_gray(
+        display, &cache->equalizer, frame,
+        x + (size - cache->equalizer.width) / 2,
+        y + (size - cache->equalizer.height) / 2);
+    return true;
+}
+
+enum ipodjs_ui_retail_idle_icon
+{
+    IPODJS_RETAIL_IDLE_PLAY = 0,
+    IPODJS_RETAIL_IDLE_LOCK,
+    IPODJS_RETAIL_IDLE_RADIO,
+};
+
+static const struct ipodjs_retailos_image *
+ipodjs_ui_retail_idle_icon(struct ipodjs_ui_retail_idle_cache *cache,
+                           int icon)
+{
+    if (icon == IPODJS_RETAIL_IDLE_LOCK)
+        return &cache->lock;
+    if (icon == IPODJS_RETAIL_IDLE_RADIO)
+        return &cache->radio;
+    return &cache->play;
+}
+
+bool ipodjs_ui_draw_retailos_playback_idle(struct screen *display)
+{
+    struct ipodjs_ui_retail_idle_cache *cache = &ipodjs_ui_retail_idle;
+    const struct ipodjs_retailos_image *time_images[5];
+    const struct ipodjs_retailos_image *icon_image;
+    struct viewport *last_vp;
+    struct tm *now;
+    int status = audio_status();
+    int level;
+    int battery_frame;
+    int icon;
+    int hour;
+    int minute;
+    int count = 0;
+    int width = 0;
+    int x;
+    int index;
+
+    if (!global_settings.ui_engine_playback_screensaver ||
+        !display || display != &screens[SCREEN_MAIN] || !cache->valid ||
+        display->is_backlight_on(false) ||
+        !(status & AUDIO_STATUS_PLAY) || (status & AUDIO_STATUS_PAUSE))
+    {
+        cache->presented = false;
+        return false;
+    }
+
+    now = get_time();
+    hour = now->tm_hour % 12;
+    if (hour == 0)
+        hour = 12;
+    minute = now->tm_min;
+    level = battery_level();
+    if (level < 0)
+        level = 0;
+    battery_frame = (MIN(level, 100) *
+                     (IPODJS_RETAIL_IDLE_BATTERY_FRAMES - 1) + 50) / 100;
+    if (button_hold())
+        icon = IPODJS_RETAIL_IDLE_LOCK;
+    else if (get_current_activity() == ACTIVITY_FM)
+        icon = IPODJS_RETAIL_IDLE_RADIO;
+    else
+        icon = IPODJS_RETAIL_IDLE_PLAY;
+
+    if (cache->presented && cache->last_hour == hour &&
+        cache->last_minute == minute &&
+        cache->last_battery_frame == battery_frame &&
+        cache->last_icon == icon)
+        return true;
+
+    if (hour >= 10)
+        time_images[count++] = &cache->digits[hour / 10];
+    time_images[count++] = &cache->digits[hour % 10];
+    time_images[count++] = &cache->colon;
+    time_images[count++] = &cache->digits[minute / 10];
+    time_images[count++] = &cache->digits[minute % 10];
+    for (index = 0; index < count; index++)
+        width += time_images[index]->width;
+
+    last_vp = display->set_viewport(NULL);
+    display->set_drawmode(DRMODE_SOLID);
+    display->set_background(LCD_RGBPACK(255, 255, 255));
+    display->set_foreground(LCD_RGBPACK(255, 255, 255));
+    display->clear_display();
+
+    x = (display->lcdwidth - width) / 2;
+    for (index = 0; index < count; index++)
+    {
+        ipodjs_retailos_blit(display, time_images[index], x,
+                             IPODJS_RETAIL_IDLE_TIME_Y);
+        x += time_images[index]->width;
+    }
+
+    icon_image = ipodjs_ui_retail_idle_icon(cache, icon);
+    ipodjs_retailos_blit(
+        display, icon_image,
+        IPODJS_RETAIL_IDLE_ICON_CX - icon_image->width / 2,
+        IPODJS_RETAIL_IDLE_ICON_CY - icon_image->height / 2);
+    ipodjs_retailos_blit_part(
+        display, &cache->battery, 0,
+        battery_frame * IPODJS_RETAIL_IDLE_BATTERY_H,
+        IPODJS_RETAIL_IDLE_BATTERY_X, IPODJS_RETAIL_IDLE_BATTERY_Y,
+        IPODJS_RETAIL_IDLE_BATTERY_W, IPODJS_RETAIL_IDLE_BATTERY_H);
+    display->update();
+    display->set_viewport(last_vp);
+
+    cache->presented = true;
+    cache->last_hour = hour;
+    cache->last_minute = minute;
+    cache->last_battery_frame = battery_frame;
+    cache->last_icon = icon;
+    return true;
+}
+
+void ipodjs_ui_retailos_playback_leave(void)
+{
+    ipodjs_ui_retail_idle.presented = false;
 }
 
 static struct bitmap *ipodjs_ui_stock_bluetooth(void)
 {
     return ipodjs_ui_load_stock_status(
         IPODJS_UI_APPLE_ASSET_DIR
-            "/status-bluetooth.apple.12x19x24.bmp",
+            "/status-bluetooth.apple.9x14x32.bmp",
         &ipodjs_ui_stock_status.bluetooth,
         ipodjs_ui_stock_status.bluetooth_data,
         sizeof(ipodjs_ui_stock_status.bluetooth_data),
@@ -1085,195 +2329,159 @@ static struct bitmap *ipodjs_ui_airpods(void)
         &ipodjs_ui_stock_status.airpods_valid);
 }
 
-static struct bitmap *ipodjs_ui_fast_scroll_overlay_asset(bool digits)
-{
-    int kind = digits ? 1 : 0;
-    const char *path = digits ?
-        IPODJS_UI_APPLE_ASSET_DIR
-            "/fast-scroll-123.apple.95x82x32.bmp" :
-        IPODJS_UI_APPLE_ASSET_DIR
-            "/fast-scroll-blank.apple.95x82x32.bmp";
-    int rc;
-
-    if (ipodjs_ui_fast_scroll_overlay_valid &&
-        ipodjs_ui_fast_scroll_overlay_kind == kind)
-        return &ipodjs_ui_fast_scroll_overlay;
-    if (ipodjs_ui_fast_scroll_overlay_tried[kind] && !file_exists(path))
-        return NULL;
-
-    ipodjs_ui_fast_scroll_overlay_tried[kind] = true;
-    ipodjs_ui_fast_scroll_overlay_valid = false;
-    if (!file_exists(path))
-        return NULL;
-
-    memset(&ipodjs_ui_fast_scroll_overlay, 0,
-           sizeof(ipodjs_ui_fast_scroll_overlay));
-    ipodjs_ui_fast_scroll_overlay.width = IPODJS_FAST_SCROLL_W;
-    ipodjs_ui_fast_scroll_overlay.height = IPODJS_FAST_SCROLL_H;
-    ipodjs_ui_fast_scroll_overlay.format = FORMAT_NATIVE;
-    ipodjs_ui_fast_scroll_overlay.data =
-        ipodjs_ui_fast_scroll_overlay_data;
-    rc = read_bmp_file(path, &ipodjs_ui_fast_scroll_overlay,
-                       sizeof(ipodjs_ui_fast_scroll_overlay_data),
-                       FORMAT_NATIVE | FORMAT_DITHER | FORMAT_TRANSPARENT,
-                       NULL);
-    if (rc < 0 ||
-        ipodjs_ui_fast_scroll_overlay.width != IPODJS_FAST_SCROLL_W ||
-        ipodjs_ui_fast_scroll_overlay.height != IPODJS_FAST_SCROLL_H)
-        return NULL;
-
-    ipodjs_ui_fast_scroll_overlay_kind = kind;
-    ipodjs_ui_fast_scroll_overlay_valid = true;
-    return &ipodjs_ui_fast_scroll_overlay;
-}
-
-static struct bitmap *ipodjs_ui_search_surface_asset(
-    enum ipodjs_ui_search_surface surface)
-{
-    if (surface == IPODJS_UI_SEARCH_PANEL)
-        return ipodjs_ui_fast_scroll_overlay_asset(false);
-    if (surface == IPODJS_UI_SEARCH_FIELD)
-    {
-        return ipodjs_ui_load_stock_status(
-            IPODJS_UI_APPLE_ASSET_DIR
-                "/search-field.apple.97x32x24.bmp",
-            &ipodjs_ui_search_surfaces.field,
-            ipodjs_ui_search_surfaces.field_data,
-            sizeof(ipodjs_ui_search_surfaces.field_data),
-            IPODJS_SEARCH_SURFACE_W, IPODJS_SEARCH_SURFACE_H,
-            &ipodjs_ui_search_surfaces.field_tried,
-            &ipodjs_ui_search_surfaces.field_valid);
-    }
-    if (surface == IPODJS_UI_SEARCH_SELECTED)
-    {
-        return ipodjs_ui_load_stock_status(
-            IPODJS_UI_APPLE_ASSET_DIR
-                "/search-selected.apple.97x32x24.bmp",
-            &ipodjs_ui_search_surfaces.selected,
-            ipodjs_ui_search_surfaces.selected_data,
-            sizeof(ipodjs_ui_search_surfaces.selected_data),
-            IPODJS_SEARCH_SURFACE_W, IPODJS_SEARCH_SURFACE_H,
-            &ipodjs_ui_search_surfaces.selected_tried,
-            &ipodjs_ui_search_surfaces.selected_valid);
-    }
-    return NULL;
-}
-
 bool ipodjs_ui_search_surfaces_available(void)
 {
-    return file_exists(IPODJS_UI_APPLE_ASSET_DIR
-                       "/fast-scroll-blank.apple.95x82x32.bmp") &&
-           file_exists(IPODJS_UI_APPLE_ASSET_DIR
-                       "/search-field.apple.97x32x24.bmp") &&
-           file_exists(IPODJS_UI_APPLE_ASSET_DIR
-                       "/search-selected.apple.97x32x24.bmp");
+    struct ipodjs_ui_retail_controls_cache *cache =
+        &ipodjs_ui_retail_controls;
+
+    if (!cache->tried)
+        (void)ipodjs_ui_prepare_retailos_controls();
+    return cache->quick_scroll_valid && cache->input_valid &&
+           cache->optionbar_valid;
 }
 
 bool ipodjs_ui_prepare_search_surfaces(void)
 {
-    return ipodjs_ui_search_surface_asset(IPODJS_UI_SEARCH_PANEL) != NULL &&
-           ipodjs_ui_search_surface_asset(IPODJS_UI_SEARCH_FIELD) != NULL &&
-           ipodjs_ui_search_surface_asset(IPODJS_UI_SEARCH_SELECTED) != NULL;
+    (void)ipodjs_ui_prepare_retailos_controls();
+    return ipodjs_ui_search_surfaces_available();
 }
 
-static struct bitmap *ipodjs_ui_search_surface_cached(
-    enum ipodjs_ui_search_surface surface)
-{
-    if (surface == IPODJS_UI_SEARCH_PANEL)
-    {
-        return ipodjs_ui_fast_scroll_overlay_valid ?
-            &ipodjs_ui_fast_scroll_overlay : NULL;
-    }
-    if (surface == IPODJS_UI_SEARCH_FIELD)
-    {
-        return ipodjs_ui_search_surfaces.field_valid ?
-            &ipodjs_ui_search_surfaces.field : NULL;
-    }
-    if (surface == IPODJS_UI_SEARCH_SELECTED)
-    {
-        return ipodjs_ui_search_surfaces.selected_valid ?
-            &ipodjs_ui_search_surfaces.selected : NULL;
-    }
-    return NULL;
-}
-
-static void ipodjs_ui_draw_tiled_part(struct screen *display,
-                                      struct bitmap *bm,
-                                      int src_x, int src_y,
-                                      int src_w, int src_h,
-                                      int x, int y, int width, int height)
+static void ipodjs_ui_retailos_blit_tiled_part(
+    struct screen *display, const struct ipodjs_retailos_image *image,
+    int source_x, int source_y, int source_width, int source_height,
+    int x, int y, int width, int height)
 {
     int drawn_y = 0;
 
     while (drawn_y < height)
     {
-        int part_h = MIN(src_h, height - drawn_y);
-        int part_src_y = src_y + (src_h - part_h) / 2;
+        int part_height = MIN(source_height, height - drawn_y);
         int drawn_x = 0;
 
         while (drawn_x < width)
         {
-            int part_w = MIN(src_w, width - drawn_x);
-            int part_src_x = src_x + (src_w - part_w) / 2;
+            int part_width = MIN(source_width, width - drawn_x);
 
-            display->bmp_part(bm, part_src_x, part_src_y,
-                              x + drawn_x, y + drawn_y,
-                              part_w, part_h);
-            drawn_x += part_w;
+            ipodjs_retailos_blit_part(
+                display, image, source_x, source_y,
+                x + drawn_x, y + drawn_y, part_width, part_height);
+            drawn_x += part_width;
         }
-        drawn_y += part_h;
+        drawn_y += part_height;
     }
+}
+
+static bool ipodjs_ui_draw_retailos_nine_slice(
+    struct screen *display, const struct ipodjs_retailos_image *image,
+    int x, int y, int width, int height, int border)
+{
+    int center_width;
+    int center_height;
+
+    if (!display || !image || !image->pixels || border <= 0 ||
+        image->width <= border * 2 || image->height <= border * 2 ||
+        width < border * 2 || height < border * 2)
+        return false;
+
+    center_width = width - border * 2;
+    center_height = height - border * 2;
+    ipodjs_retailos_blit_part(display, image, 0, 0,
+                              x, y, border, border);
+    ipodjs_retailos_blit_part(
+        display, image, image->width - border, 0,
+        x + width - border, y, border, border);
+    ipodjs_retailos_blit_part(
+        display, image, 0, image->height - border,
+        x, y + height - border, border, border);
+    ipodjs_retailos_blit_part(
+        display, image, image->width - border, image->height - border,
+        x + width - border, y + height - border, border, border);
+    ipodjs_ui_retailos_blit_tiled_part(
+        display, image, border, 0, image->width - border * 2, border,
+        x + border, y, center_width, border);
+    ipodjs_ui_retailos_blit_tiled_part(
+        display, image, border, image->height - border,
+        image->width - border * 2, border,
+        x + border, y + height - border, center_width, border);
+    ipodjs_ui_retailos_blit_tiled_part(
+        display, image, 0, border, border, image->height - border * 2,
+        x, y + border, border, center_height);
+    ipodjs_ui_retailos_blit_tiled_part(
+        display, image, image->width - border, border,
+        border, image->height - border * 2,
+        x + width - border, y + border, border, center_height);
+    ipodjs_ui_retailos_blit_tiled_part(
+        display, image, border, border,
+        image->width - border * 2, image->height - border * 2,
+        x + border, y + border, center_width, center_height);
+    return true;
+}
+
+static bool ipodjs_ui_draw_retailos_horizontal_parts_cropped(
+    struct screen *display, const struct ipodjs_retailos_image parts[3],
+    int x, int y, int width, int height)
+{
+    int draw_height;
+    int source_y;
+    int target_y;
+    int center_width;
+    int drawn;
+
+    if (!display || !parts[0].pixels || !parts[1].pixels ||
+        !parts[2].pixels || parts[0].height != parts[1].height ||
+        parts[0].height != parts[2].height || parts[1].width == 0 ||
+        width < parts[0].width + parts[2].width || height <= 0)
+        return false;
+
+    draw_height = MIN(height, (int)parts[0].height);
+    source_y = (parts[0].height - draw_height) / 2;
+    target_y = y + (height - draw_height) / 2;
+    ipodjs_retailos_blit_part(display, &parts[0], 0, source_y,
+                              x, target_y, parts[0].width, draw_height);
+    center_width = width - parts[0].width - parts[2].width;
+    drawn = 0;
+    while (drawn < center_width)
+    {
+        int part_width = MIN((int)parts[1].width, center_width - drawn);
+
+        ipodjs_retailos_blit_part(
+            display, &parts[1], 0, source_y,
+            x + parts[0].width + drawn, target_y,
+            part_width, draw_height);
+        drawn += part_width;
+    }
+    ipodjs_retailos_blit_part(
+        display, &parts[2], 0, source_y,
+        x + width - parts[2].width, target_y,
+        parts[2].width, draw_height);
+    return true;
 }
 
 bool ipodjs_ui_draw_search_surface(struct screen *display,
                                    enum ipodjs_ui_search_surface surface,
                                    int x, int y, int width, int height)
 {
-    struct bitmap *bm = ipodjs_ui_search_surface_cached(surface);
-    /* The Apple fast-scroll plate has a roughly 16 px corner radius.  Cutting
-     * it at 8 px tiles part of each curve into the horizontal Search strip,
-     * leaving visible shoulders at both ends. */
-    int border = surface == IPODJS_UI_SEARCH_PANEL ? 16 : 6;
-    int center_w;
-    int center_h;
+    struct ipodjs_ui_retail_controls_cache *cache =
+        &ipodjs_ui_retail_controls;
 
-    if (!display || !bm || width < border * 2 || height < border * 2)
+    if (!display || display != &screens[SCREEN_MAIN])
         return false;
-
-    center_w = width - border * 2;
-    center_h = height - border * 2;
-    display->set_drawmode(DRMODE_FG);
-
-    display->bmp_part(bm, 0, 0, x, y, border, border);
-    display->bmp_part(bm, bm->width - border, 0,
-                      x + width - border, y, border, border);
-    display->bmp_part(bm, 0, bm->height - border,
-                      x, y + height - border, border, border);
-    display->bmp_part(bm, bm->width - border, bm->height - border,
-                      x + width - border, y + height - border,
-                      border, border);
-
-    ipodjs_ui_draw_tiled_part(display, bm, border, 0,
-                              bm->width - border * 2, border,
-                              x + border, y, center_w, border);
-    ipodjs_ui_draw_tiled_part(display, bm, border, bm->height - border,
-                              bm->width - border * 2, border,
-                              x + border, y + height - border,
-                              center_w, border);
-    ipodjs_ui_draw_tiled_part(display, bm, 0, border,
-                              border, bm->height - border * 2,
-                              x, y + border, border, center_h);
-    ipodjs_ui_draw_tiled_part(display, bm, bm->width - border, border,
-                              border, bm->height - border * 2,
-                              x + width - border, y + border,
-                              border, center_h);
-    ipodjs_ui_draw_tiled_part(display, bm, border, border,
-                              bm->width - border * 2,
-                              bm->height - border * 2,
-                              x + border, y + border,
-                              center_w, center_h);
-    display->set_drawmode(DRMODE_SOLID);
-    return true;
+    if (surface == IPODJS_UI_SEARCH_PANEL)
+        return cache->quick_scroll_valid &&
+            ipodjs_ui_draw_retailos_nine_slice(
+                display, &cache->quick_scroll[0], x, y,
+                width, height, 16);
+    if (surface == IPODJS_UI_SEARCH_FIELD)
+        return cache->input_valid &&
+            ipodjs_ui_draw_retailos_horizontal_parts_cropped(
+                display, cache->input, x, y, width, height);
+    if (surface == IPODJS_UI_SEARCH_SELECTED)
+        return cache->optionbar_valid &&
+            ipodjs_ui_draw_retailos_horizontal_parts_cropped(
+                display,
+                cache->optionbar[IPODJS_UI_RETAILOS_OPTIONBAR_WHITE][1],
+                x, y, width, height);
+    return false;
 }
 
 bool ipodjs_ui_enabled(enum screen_type screen)
@@ -1349,6 +2557,80 @@ int ipodjs_ui_font(void)
     return *fontp >= 0 ? *fontp : FONT_SYSFIXED;
 }
 
+static int ipodjs_ui_retail_fonts[5] = { -1, -1, -1, -1, -1 };
+static int ipodjs_ui_fast_font = -1;
+
+void ipodjs_ui_prepare_retailos_fonts(void)
+{
+    static const char * const paths[5] = {
+        IPODJS_UI_APPLE_ASSET_DIR
+            "/retailos-fonts/15-Helvetica-Bold-RetailOS-Apple.fnt",
+        IPODJS_UI_APPLE_ASSET_DIR
+            "/retailos-fonts/19-Helvetica-Bold-RetailOS-Apple.fnt",
+        IPODJS_UI_APPLE_ASSET_DIR
+            "/retailos-fonts/23-Helvetica-Bold-RetailOS-Apple.fnt",
+        IPODJS_UI_APPLE_ASSET_DIR
+            "/retailos-fonts/16-Helvetica-RetailOS-Apple.fnt",
+        IPODJS_UI_APPLE_ASSET_DIR
+            "/retailos-fonts/15-Helvetica-RetailOS-Apple.fnt",
+    };
+
+    if (audio_status())
+        return;
+    notification_manager_prepare_visuals();
+    /* Preserve the legacy menu font for Hold and the application grid. */
+    (void)ipodjs_ui_font();
+    for (int face = 0; face < 5; face++)
+    {
+        if (ipodjs_ui_retail_fonts[face] >= 0)
+            continue;
+        int id = font_load_ex(paths[face], 0, 96);
+        if (id >= 0)
+        {
+            font_lock(id, true);
+            ipodjs_ui_retail_fonts[face] = id;
+        }
+    }
+    /* Preserve Apple's embedded bitmap strike for the quick-scroll plate,
+     * but prepare it here rather than allocating on the first fast scroll. */
+    if (ipodjs_ui_fast_font < 0)
+    {
+        int id = font_load_ex(IPODJS_UI_APPLE_ASSET_DIR
+            "/23-Helvetica-Apple.fnt", 0, 96);
+        if (id >= 0)
+        {
+            font_lock(id, true);
+            ipodjs_ui_fast_font = id;
+        }
+    }
+}
+
+int ipodjs_ui_retailos_font(bool title)
+{
+    int id = ipodjs_ui_retail_fonts[title ? 1 : 0];
+    return id >= 0 ? id : FONT_UI;
+}
+
+int ipodjs_ui_tv_font(int size)
+{
+    int id = ipodjs_ui_retail_fonts[MAX(0, MIN(2, size))];
+    return id >= 0 ? id : FONT_UI;
+}
+
+int ipodjs_ui_retailos_menu_font(void)
+{
+    int face = global_settings.ui_engine_font_scale == UI_ENGINE_FONT_SMALL ?
+        0 : global_settings.ui_engine_font_scale == UI_ENGINE_FONT_LARGE ? 2 : 1;
+    int id = ipodjs_ui_retail_fonts[face];
+    return id >= 0 ? id : FONT_UI;
+}
+
+int ipodjs_ui_retailos_detail_font(void)
+{
+    int id = ipodjs_ui_retail_fonts[4];
+    return id >= 0 ? id : FONT_UI;
+}
+
 int ipodjs_ui_text_y_offset(void)
 {
     if (global_settings.ui_engine_font_scale == UI_ENGINE_FONT_SMALL)
@@ -1391,14 +2673,38 @@ static bool ipodjs_ui_dark(void)
 
 unsigned ipodjs_ui_screen_bg(void)
 {
-    return ipodjs_ui_dark() ? LCD_RGBPACK(18, 20, 24) :
-                              IPODJS_UI_SCREEN_BG;
+    if (ipodjs_ui_dark())
+    {
+        if (global_settings.ui_engine_surface ==
+            UI_ENGINE_SURFACE_TRANSPARENT)
+            return LCD_RGBPACK(22, 24, 28);
+        return LCD_RGBPACK(18, 20, 24);
+    }
+
+    if (global_settings.ui_engine_surface == UI_ENGINE_SURFACE_SOFT)
+        return LCD_RGBPACK(246, 247, 249);
+    if (global_settings.ui_engine_surface == UI_ENGINE_SURFACE_TRANSPARENT)
+        return LCD_RGBPACK(239, 244, 249);
+    return IPODJS_UI_SCREEN_BG;
 }
 
 unsigned ipodjs_ui_row_bg(void)
 {
-    return ipodjs_ui_dark() ? LCD_RGBPACK(24, 27, 32) :
-                              IPODJS_UI_SCREEN_BG;
+    if (ipodjs_ui_dark())
+    {
+        if (global_settings.ui_engine_surface ==
+            UI_ENGINE_SURFACE_TRANSPARENT)
+            return LCD_RGBPACK(28, 31, 36);
+        if (global_settings.ui_engine_surface == UI_ENGINE_SURFACE_SOFT)
+            return LCD_RGBPACK(31, 34, 40);
+        return LCD_RGBPACK(24, 27, 32);
+    }
+
+    if (global_settings.ui_engine_surface == UI_ENGINE_SURFACE_SOFT)
+        return LCD_RGBPACK(250, 251, 252);
+    if (global_settings.ui_engine_surface == UI_ENGINE_SURFACE_TRANSPARENT)
+        return LCD_RGBPACK(247, 249, 251);
+    return IPODJS_UI_SCREEN_BG;
 }
 
 unsigned ipodjs_ui_text(void)
@@ -1415,12 +2721,18 @@ unsigned ipodjs_ui_muted_text(void)
 
 unsigned ipodjs_ui_header_text(void)
 {
+    if (ipodjs_ui_retail_status.valid)
+        return ipodjs_ui_dark() || button_hold() ?
+            LCD_RGBPACK(255, 255, 255) : LCD_RGBPACK(0, 0, 0);
     return ipodjs_ui_dark() ? LCD_RGBPACK(246, 248, 250) :
                               IPODJS_UI_TEXT;
 }
 
 unsigned ipodjs_ui_header_bg(void)
 {
+    if (ipodjs_ui_retail_status.valid)
+        return ipodjs_ui_dark() || button_hold() ?
+            LCD_RGBPACK(12, 12, 12) : LCD_RGBPACK(255, 255, 255);
     return ipodjs_ui_dark() ? LCD_RGBPACK(24, 29, 38) :
                               IPODJS_UI_HEADER_BOTTOM;
 }
@@ -1428,9 +2740,16 @@ unsigned ipodjs_ui_header_bg(void)
 unsigned ipodjs_ui_panel(void)
 {
     if (ipodjs_ui_dark())
+    {
+        if (global_settings.ui_engine_surface ==
+            UI_ENGINE_SURFACE_TRANSPARENT)
+            return LCD_RGBPACK(34, 38, 44);
+        if (global_settings.ui_engine_surface == UI_ENGINE_SURFACE_SOFT)
+            return LCD_RGBPACK(38, 42, 49);
         return LCD_RGBPACK(24, 27, 32);
+    }
     if (global_settings.ui_engine_surface == UI_ENGINE_SURFACE_TRANSPARENT)
-        return LCD_RGBPACK(248, 249, 250);
+        return LCD_RGBPACK(242, 246, 250);
     if (global_settings.ui_engine_surface == UI_ENGINE_SURFACE_SOFT)
         return LCD_RGBPACK(236, 238, 241);
     return IPODJS_UI_SCREEN_BG;
@@ -1608,31 +2927,87 @@ void ipodjs_ui_selection_gradient(struct screen *display, int x, int y,
                                   int w, int h, unsigned *midp)
 {
     unsigned accent = ipodjs_ui_accent();
-    unsigned top;
-    unsigned bottom;
+    const struct ipodjs_retailos_image *fill;
+    bool recolor = global_settings.ui_engine_accent != UI_ENGINE_ACCENT_BLUE;
 
-    if (global_settings.ui_engine_accent == UI_ENGINE_ACCENT_BLUE)
-    {
-        ipodjs_ui_glass_gradient(display, x, y, w, h,
-                                 IPODJS_UI_ACTIVE_TOP,
-                                 IPODJS_UI_ACTIVE_MID,
-                                 IPODJS_UI_ACTIVE_BOTTOM);
-        if (midp)
-            *midp = IPODJS_UI_ACTIVE_MID;
+    if (!display || !ipodjs_ui_retail_menu.selection_valid ||
+        w <= 0 || h <= 0)
         return;
-    }
 
-    top = ipodjs_ui_rgb_blend(FB_UNPACK_RED(accent),
-                              FB_UNPACK_GREEN(accent),
-                              FB_UNPACK_BLUE(accent),
-                              255, 255, 255, 112);
-    bottom = ipodjs_ui_rgb_blend(FB_UNPACK_RED(accent),
-                                 FB_UNPACK_GREEN(accent),
-                                 FB_UNPACK_BLUE(accent),
-                                 0, 0, 0, 70);
-    ipodjs_ui_glass_gradient(display, x, y, w, h, top, accent, bottom);
+    fill = &ipodjs_ui_retail_menu.selection[1];
+    if (!fill->pixels || fill->width != 1 || fill->height == 0)
+        return;
+
+    /* List rows are rectangular in RetailOS. Use the genuine one-pixel
+     * center gradient from Apple's selector asset across the row; the cap
+     * pieces belong to pill controls and round the corners incorrectly here.
+     * Scale the complete strip for taller artwork rows instead of clipping
+     * the selection to the stock text-row height. */
+    int step = h == fill->height ? h : 1;
+
+    for (int row = 0; row < h; row += step)
+    {
+        int source_y = h > 1 ? row * (fill->height - 1) / (h - 1) : 0;
+
+        for (int offset = 0; offset < w; offset++)
+        {
+            if (recolor)
+                ipodjs_retailos_blit_tint_part(display, fill, 0, source_y,
+                    x + offset, y + row, 1, step, accent);
+            else
+                ipodjs_retailos_blit_part(display, fill, 0, source_y,
+                    x + offset, y + row, 1, step);
+        }
+    }
     if (midp)
         *midp = accent;
+}
+
+/* One selected menu label, using Rockbox's existing scrolling scheduler.
+ * Static viewport lifetime and explicit owner teardown prevent stale labels
+ * from painting over a different screen. No reduced face size or ellipsis. */
+static struct viewport ipodjs_ui_menu_scroll_vp;
+static int ipodjs_ui_menu_scroll_row_y, ipodjs_ui_menu_scroll_row_h;
+
+void ipodjs_ui_stop_menu_text_scroll(void)
+{
+    screens[SCREEN_MAIN].scroll_stop_viewport(&ipodjs_ui_menu_scroll_vp);
+}
+
+static void ipodjs_ui_menu_scroll_draw(struct scrollinfo *scroll)
+{
+    if (!scroll->line || button_hold()) return;
+    struct screen *display = &screens[SCREEN_MAIN];
+    ipodjs_ui_selection_gradient(display, 0, ipodjs_ui_menu_scroll_row_y,
+        ipodjs_ui_menu_scroll_vp.width, ipodjs_ui_menu_scroll_row_h, NULL);
+    display->set_drawmode(DRMODE_FG);
+    display->set_foreground(LCD_RGBPACK(255,255,255));
+    display->putsxy(-scroll->offset, 0, scroll->line);
+}
+
+void ipodjs_ui_menu_text_scroll(struct screen *display, int x, int y,
+    int width, int row_y, int row_height, const char *text)
+{
+    ipodjs_ui_stop_menu_text_scroll();
+    if (!display || display->screen_type != SCREEN_MAIN || button_hold() ||
+        !ipodjs_ui_enabled(SCREEN_MAIN) || width <= 0)
+        return;
+    int pixels, height;
+    display->getstringsize(text, &pixels, &height);
+    if (pixels <= width) return;
+    viewport_set_defaults(&ipodjs_ui_menu_scroll_vp, SCREEN_MAIN);
+    ipodjs_ui_menu_scroll_vp.font = lcd_getfont();
+    ipodjs_ui_menu_scroll_vp.x = x; ipodjs_ui_menu_scroll_vp.y = y;
+    ipodjs_ui_menu_scroll_vp.width = width;
+    ipodjs_ui_menu_scroll_vp.height = height;
+    ipodjs_ui_menu_scroll_row_y = row_y - y;
+    ipodjs_ui_menu_scroll_row_h = row_height;
+    struct viewport *saved = display->set_viewport(&ipodjs_ui_menu_scroll_vp);
+    ipodjs_ui_selection_gradient(display, 0, row_y - y, width, row_height, NULL);
+    display->set_drawmode(DRMODE_FG);
+    display->set_foreground(LCD_RGBPACK(255,255,255));
+    display->putsxy_scroll_func(0, 0, text, ipodjs_ui_menu_scroll_draw, NULL, 0);
+    display->set_viewport(saved);
 }
 
 static struct ipodjs_ui_label_cache_entry *ipodjs_ui_label_cache_find(
@@ -1821,6 +3196,13 @@ void ipodjs_ui_draw_arrow(struct screen *display, int x, int y,
     if (!display)
         return;
 
+    if (ipodjs_ui_retail_controls.submenu_valid && !button_hold() &&
+        color == LCD_RGBPACK(255, 255, 255))
+    {
+        ipodjs_retailos_blit(display, &ipodjs_ui_retail_controls.submenu,
+                             x, y - 4);
+        return;
+    }
     display->set_foreground(color);
     display->fillrect(x, y + 1, 2, 1);
     display->fillrect(x + 2, y + 2, 2, 1);
@@ -1829,63 +3211,34 @@ void ipodjs_ui_draw_arrow(struct screen *display, int x, int y,
     display->fillrect(x, y + 5, 2, 1);
 }
 
-static struct bitmap *ipodjs_ui_status_icon(bool paused)
-{
-    bool dark = global_settings.ui_engine_dark_mode;
-    struct ipodjs_ui_status_icon_cache *cache =
-        &ipodjs_ui_status_icons[dark ? 1 : 0][paused ? 1 : 0];
-    const char *path;
-    int rc;
-
-    if (cache->valid)
-        return &cache->bm;
-    if (cache->tried)
-        return NULL;
-
-    if (paused)
-        path = dark ? IPODJS_UI_ASSET_DIR "/pause.12x12x24-dark.bmp" :
-                      IPODJS_UI_ASSET_DIR "/pause.12x12x24.bmp";
-    else
-        path = dark ? IPODJS_UI_ASSET_DIR "/play.12x12x24-dark.bmp" :
-                      IPODJS_UI_ASSET_DIR "/play.12x12x24.bmp";
-
-    cache->tried = true;
-    if (!file_exists(path))
-        return NULL;
-
-    memset(&cache->bm, 0, sizeof(cache->bm));
-    cache->bm.width = IPODJS_STATUS_ICON_SIZE;
-    cache->bm.height = IPODJS_STATUS_ICON_SIZE;
-    cache->bm.format = FORMAT_NATIVE;
-    cache->bm.data = cache->data;
-    rc = read_bmp_file(path, &cache->bm, sizeof(cache->data),
-                       FORMAT_NATIVE | FORMAT_DITHER | FORMAT_TRANSPARENT,
-                       NULL);
-    if (rc < 0)
-        return NULL;
-
-    cache->valid = true;
-    return &cache->bm;
-}
-
 void ipodjs_ui_draw_header_background(struct screen *display, int width)
 {
-    struct bitmap *header;
+    const struct ipodjs_retailos_image *header;
 
     if (!display)
         return;
     width = MAX(0, MIN(width, display->lcdwidth));
-    header = global_settings.ui_engine_dark_mode ? NULL :
-             ipodjs_ui_stock_header();
-    if (header)
+    header = global_settings.ui_engine_dark_mode ?
+        &ipodjs_ui_retail_status.black_background :
+        button_hold() ? &ipodjs_ui_retail_status.hold_background :
+                        &ipodjs_ui_retail_status.light_background;
+    if (ipodjs_ui_retail_status.valid)
     {
-        display->bmp_part(header, 0, 0, 0, 0, width,
-                          IPODJS_UI_HEADER_HEIGHT);
+        display->set_foreground(global_settings.ui_engine_dark_mode ?
+            LCD_RGBPACK(0, 0, 0) : LCD_RGBPACK(255, 255, 255));
+        /* Light RetailOS headers are 20px; the Hold/dark headers are 24px.
+         * Clearing 24 rows behind a 20px asset erases the body's first four
+         * rows on full-screen About and Applications. */
+        display->fillrect(0, 0, width,
+            MIN(header->height, IPODJS_UI_HEADER_HEIGHT));
+        ipodjs_retailos_blit_part(display, header, 0, 0, 0, 0,
+            width, MIN(header->height, IPODJS_UI_HEADER_HEIGHT));
         return;
     }
 
     ipodjs_ui_glass_gradient(display, 0, 0, width,
-        IPODJS_UI_HEADER_HEIGHT,
+        global_settings.ui_engine_dark_mode || button_hold() ?
+            IPODJS_UI_HEADER_HEIGHT : IPODJS_UI_RETAIL_MENU_HEADER_HEIGHT,
         global_settings.ui_engine_dark_mode ? LCD_RGBPACK(92, 98, 108) :
                                               IPODJS_UI_HEADER_TOP,
         global_settings.ui_engine_dark_mode ? LCD_RGBPACK(50, 56, 66) :
@@ -1897,8 +3250,7 @@ void ipodjs_ui_draw_playback_indicator(struct screen *display, int x, int y)
 {
     int status;
     bool paused;
-    struct bitmap *bm;
-    unsigned color;
+    const struct ipodjs_retailos_image *image;
 
     if (!display)
         return;
@@ -1908,81 +3260,83 @@ void ipodjs_ui_draw_playback_indicator(struct screen *display, int x, int y)
         return;
 
     paused = (status & AUDIO_STATUS_PAUSE) != 0;
-    if (!global_settings.ui_engine_dark_mode)
+    if (!ipodjs_ui_retail_status.valid)
+        return;
+
+    if (!paused)
     {
-        bm = ipodjs_ui_stock_playing();
-        if (bm)
-        {
-            display->bmp_part(bm, 0, paused ? 16 : 0, x, y, 20, 16);
-            return;
-        }
-    }
-    bm = ipodjs_ui_status_icon(paused);
-    if (bm)
-    {
-        display->bmp(bm, x, y);
+        ipodjs_ui_draw_retailos_status_glyph(display,
+            &ipodjs_ui_retail_status.status_play, x, y);
         return;
     }
 
-    color = global_settings.ui_engine_dark_mode ?
-        LCD_RGBPACK(116, 191, 234) : LCD_RGBPACK(43, 153, 213);
-    display->set_foreground(color);
-    if (paused)
-    {
-        display->fillrect(x + 2, y + 2, 2, 8);
-        display->fillrect(x + 7, y + 2, 2, 8);
-    }
+    /* The light-bar retail pause sprite contains Apple's shaded blue ink.
+     * Keep those pixels for the default theme and tint their luminance for
+     * custom accents, just like the retail play sprite. The white Hold
+     * sprite is a separate translucent asset, not a recoloring mask. */
+    if (button_hold())
+        image = &ipodjs_ui_retail_status.white_pause;
     else
-    {
-        display->vline(x + 3, y + 1, y + 10);
-        display->vline(x + 4, y + 2, y + 9);
-        display->vline(x + 5, y + 3, y + 8);
-        display->vline(x + 6, y + 4, y + 7);
-        display->vline(x + 7, y + 5, y + 6);
-    }
+        image = &ipodjs_ui_retail_status.black_pause;
+    if (button_hold())
+        ipodjs_retailos_blit(display, image, x, y);
+    else
+        ipodjs_ui_draw_retailos_status_glyph(display, image, x, y);
 }
 
 void ipodjs_ui_draw_hold_indicator(struct screen *display, int x, int y)
 {
-    struct bitmap *bm;
+    const struct ipodjs_retailos_image *image;
 
     if (!display || !button_hold())
         return;
-    bm = ipodjs_ui_stock_hold();
-    if (bm)
-        display->bmp(bm, x, y);
+    if (!ipodjs_ui_retail_status.valid)
+        return;
+    image = global_settings.ui_engine_dark_mode ?
+        &ipodjs_ui_retail_status.black_lock :
+        &ipodjs_ui_retail_status.white_lock;
+    ipodjs_retailos_blit(display, image, x, y);
 }
 
 void ipodjs_ui_draw_repeat_indicator(struct screen *display, int x, int y,
                                      int repeat_mode)
 {
-    struct bitmap *bm;
-    int frame = 0;
+    const struct ipodjs_retailos_image *image;
 
     if (!display || repeat_mode == REPEAT_OFF)
         return;
-    bm = ipodjs_ui_stock_repeat();
-    if (!bm)
+    if (!ipodjs_ui_retail_status.valid)
         return;
-    if (repeat_mode == REPEAT_ONE)
-        frame = 1;
-    display->bmp_part(bm, 0, frame * 19, x, y, 21, 19);
+    if (global_settings.ui_engine_dark_mode || !button_hold())
+        image = repeat_mode == REPEAT_ONE ?
+            &ipodjs_ui_retail_status.black_repeat_once :
+            &ipodjs_ui_retail_status.black_repeat;
+    else
+        image = repeat_mode == REPEAT_ONE ?
+            &ipodjs_ui_retail_status.white_repeat_once :
+            &ipodjs_ui_retail_status.white_repeat;
+    ipodjs_retailos_blit(display, image, x, y);
 }
 
 void ipodjs_ui_draw_shuffle_indicator(struct screen *display, int x, int y)
 {
-    struct bitmap *bm;
+    const struct ipodjs_retailos_image *image;
 
     if (!display)
         return;
-    bm = ipodjs_ui_stock_shuffle();
-    if (bm)
-        display->bmp(bm, x, y);
+    if (!ipodjs_ui_retail_status.valid)
+        return;
+    image = global_settings.ui_engine_dark_mode || !button_hold() ?
+        &ipodjs_ui_retail_status.black_shuffle :
+        &ipodjs_ui_retail_status.white_shuffle;
+    ipodjs_retailos_blit(display, image, x, y);
 }
 
 void ipodjs_ui_prepare_bluetooth_indicator(void)
 {
     /* Screen-entry service point: the draw path below remains I/O-free. */
+    ipodjs_ui_prepare_retailos_status();
+    ipodjs_ui_prepare_retailos_controls();
     ipodjs_ui_stock_bluetooth();
     ipodjs_ui_stock_wifi();
     ipodjs_ui_airpods();
@@ -2003,7 +3357,11 @@ void ipodjs_ui_draw_bluetooth_indicator(struct screen *display, int x, int y)
     if (!display || !ipodjs_ui_stock_status.bluetooth_valid)
         return;
 
+    /* Blend alpha over the painted header, not the solid background color. */
+    int old_mode = (*display->current_viewport)->drawmode;
+    display->set_drawmode(DRMODE_FG);
     display->bmp(&ipodjs_ui_stock_status.bluetooth, x, y);
+    display->set_drawmode(old_mode);
 }
 
 static void ipodjs_ui_fill_connection_sheet(struct screen *display,
@@ -2036,9 +3394,11 @@ static void ipodjs_ui_draw_connection_spinner(struct screen *display,
     for (int index = 0; index < 8; index++)
     {
         int distance = (index - phase + 8) & 7;
-        unsigned color = distance == 0 ? LCD_RGBPACK(0, 122, 255) :
-            distance <= 2 ? LCD_RGBPACK(105, 179, 255) :
-            LCD_RGBPACK(205, 226, 248);
+        unsigned accent = ipodjs_ui_accent();
+        unsigned color = ipodjs_ui_rgb_blend(250, 250, 252,
+            RGB_UNPACK_RED(accent), RGB_UNPACK_GREEN(accent),
+            RGB_UNPACK_BLUE(accent),
+            distance == 0 ? 255 : distance <= 2 ? 150 : 50);
 
         display->set_foreground(color);
         display->fillrect(x + points[index][0] - 1,
@@ -2049,7 +3409,7 @@ static void ipodjs_ui_draw_connection_spinner(struct screen *display,
 static void ipodjs_ui_draw_connection_check(struct screen *display,
                                              int x, int y)
 {
-    display->set_foreground(LCD_RGBPACK(0, 122, 255));
+    display->set_foreground(ipodjs_ui_accent());
     display->fillrect(x - 9, y - 9, 19, 19);
     display->set_foreground(LCD_RGBPACK(255, 255, 255));
     display->hline(x - 5, x - 2, y);
@@ -2162,7 +3522,7 @@ void ipodjs_ui_airpods_connected_animation(void)
         ipodjs_ui_puts_fit(display, 24, sheet_y + 127,
                           LCD_WIDTH - 48, "AirPods Pro", true);
         display->set_foreground(connected ?
-            LCD_RGBPACK(0, 122, 255) : LCD_RGBPACK(105, 107, 112));
+            ipodjs_ui_accent() : LCD_RGBPACK(105, 107, 112));
         ipodjs_ui_puts_fit(display, 24, sheet_y + 151,
                           LCD_WIDTH - 48,
                           connected ? "Connected" : "Connecting...", true);
@@ -2216,32 +3576,23 @@ void ipodjs_ui_draw_header_battery(struct screen *display, int x, int y)
     unsigned shine;
     unsigned shade;
 
-    struct bitmap *stock;
+    const struct ipodjs_retailos_image *atlas;
 
     if (!display)
         return;
 
     level = MAX(0, MIN(100, battery_level()));
-    stock = global_settings.ui_engine_dark_mode ? NULL :
-            ipodjs_ui_apple_battery();
-    if (stock)
+    if (ipodjs_ui_retail_status.valid)
     {
-        int frame;
-
-        if (charger_inserted())
-            frame = level >= 100 ? 4 : 3;
-        else if (level <= 20)
-            frame = 0;
-        else if (level < 80)
-            frame = 1;
-        else
-            frame = 2;
-        /* These five 26x13 states are the lossless images embedded in
-         * Apple's iPod classic 120GB User Guide.  Sparse documented states
-         * are preferable to inventing intermediate pixels. */
-        display->bmp_part(stock, 0, frame * 13, x, y, 26, 13);
+        atlas = global_settings.ui_engine_dark_mode ?
+            &ipodjs_ui_retail_status.black_battery :
+            &ipodjs_ui_retail_status.white_battery;
+        ipodjs_ui_draw_retailos_battery(display, atlas, x, y);
         return;
     }
+
+    /* Unbranded Rockbox fallback.  It is never presented as Apple artwork;
+     * personal Classic packages use the complete official 25-state atlas. */
     draw_level = MAX(15, level);
     fill_w = inner_w * draw_level / 100;
     charging = charger_inserted();
@@ -2280,29 +3631,18 @@ void ipodjs_ui_draw_header_battery(struct screen *display, int x, int y)
 
 static int ipodjs_ui_fast_scroll_font(void)
 {
-    static int fast_font = -2;
-    const char *path =
-        IPODJS_UI_APPLE_ASSET_DIR "/23-Helvetica-Apple.fnt";
-
-    if (fast_font < 0 && file_exists(path))
-        fast_font = font_load(path);
-    if (fast_font >= 0)
-        font_lock(fast_font, true);
-
-    return fast_font >= 0 ? fast_font : ipodjs_ui_font();
+    return ipodjs_ui_fast_font >= 0 ? ipodjs_ui_fast_font : FONT_UI;
 }
 
 bool ipodjs_ui_fast_scroll_available(void)
 {
-    /* Never expose a text-only or recreated approximation.  Both frames are
-     * direct paMB extractions from verified Apple firmware and the font is
-     * converted from that firmware's Helvetica_23.ttf. */
-    return file_exists(IPODJS_UI_APPLE_ASSET_DIR
-                       "/fast-scroll-blank.apple.95x82x32.bmp") &&
-           file_exists(IPODJS_UI_APPLE_ASSET_DIR
-                       "/fast-scroll-123.apple.95x82x32.bmp") &&
-           file_exists(IPODJS_UI_APPLE_ASSET_DIR
-                       "/23-Helvetica-Apple.fnt");
+    struct ipodjs_ui_retail_controls_cache *cache =
+        &ipodjs_ui_retail_controls;
+
+    /* Never expose a text-only or recreated approximation.  Both plates are
+     * the exact 74x70 iPod35 RetailOS resources.  The font remains Apple's
+     * direct embedded-bitmap strike and is not rasterized from an outline. */
+    return cache->quick_scroll_valid && ipodjs_ui_fast_font >= 0;
 }
 
 static int ipodjs_ui_latin_bucket(ucschar_t ch)
@@ -2399,7 +3739,12 @@ bool ipodjs_ui_fast_scroll_active(void)
 bool ipodjs_ui_fast_scroll_take_expired(void)
 {
     if (ipodjs_ui_fast_scroll_visible &&
-        TIME_AFTER(current_tick, ipodjs_ui_fast_scroll_deadline))
+        (TIME_AFTER(current_tick, ipodjs_ui_fast_scroll_deadline)
+#ifdef HAVE_WHEEL_POSITION
+         /* Drain already queued wheel detents before observing finger lift. */
+         || (button_queue_empty() && wheel_status() < 0)
+#endif
+        ))
     {
         ipodjs_trace_fast_scroll(ipodjs_ui_fast_scroll_label, "expired");
         ipodjs_ui_fast_scroll_visible = false;
@@ -2410,7 +3755,9 @@ bool ipodjs_ui_fast_scroll_take_expired(void)
 
 void ipodjs_ui_draw_fast_scroll(struct screen *display)
 {
-    struct bitmap *overlay;
+    struct ipodjs_ui_retail_controls_cache *cache =
+        &ipodjs_ui_retail_controls;
+    const struct ipodjs_retailos_image *overlay;
     int font;
     int width;
     int height;
@@ -2418,19 +3765,15 @@ void ipodjs_ui_draw_fast_scroll(struct screen *display)
     if (!display || !ipodjs_ui_fast_scroll_visible)
         return;
 
-    overlay = ipodjs_ui_fast_scroll_overlay_asset(
-        ipodjs_ui_fast_scroll_label[0] == '#');
-    if (!overlay)
+    if (!cache->quick_scroll_valid)
         return;
-    /* Alpha bitmaps in DRMODE_SOLID blend against the viewport's background
-     * pattern, which list row callbacks may leave set to arbitrary colors.
-     * FG|IMG blends Apple's translucent overlay with the pixels already on
-     * screen, matching the stock compositing behavior. */
-    display->set_drawmode(DRMODE_FG);
-    display->bmp(overlay, (display->lcdwidth - overlay->width) / 2,
-                 IPODJS_UI_HEADER_HEIGHT +
-                 (display->lcdheight - IPODJS_UI_HEADER_HEIGHT -
-                  overlay->height) / 2);
+    overlay = &cache->quick_scroll[
+        ipodjs_ui_fast_scroll_label[0] == '#' ? 1 : 0];
+    ipodjs_retailos_blit(
+        display, overlay, (display->lcdwidth - overlay->width) / 2,
+        IPODJS_UI_HEADER_HEIGHT +
+        (display->lcdheight - IPODJS_UI_HEADER_HEIGHT -
+         overlay->height) / 2);
 
     if (ipodjs_ui_fast_scroll_label[0] == '#')
     {
@@ -2443,6 +3786,7 @@ void ipodjs_ui_draw_fast_scroll(struct screen *display)
     display->getstringsize((const unsigned char *)ipodjs_ui_fast_scroll_label,
                            &width, &height);
     display->set_foreground(LCD_RGBPACK(255, 255, 255));
+    display->set_drawmode(DRMODE_FG);
     display->putsxy((display->lcdwidth - width) / 2,
                     IPODJS_UI_HEADER_HEIGHT +
                     (display->lcdheight - IPODJS_UI_HEADER_HEIGHT - height) / 2,
@@ -2457,18 +3801,7 @@ struct ipodjs_ui_point {
 
 static int ipodjs_ui_charge_font(void)
 {
-    static int charge_font = -2;
-    const char *path = IPODJS_UI_ASSET_DIR "/14-Adobe-Helvetica-Bold.fnt";
-    const char *fallback = FONT_DIR "/14-Adobe-Helvetica-Bold.fnt";
-
-    if (charge_font < 0 && file_exists(path))
-        charge_font = font_load(path);
-    if (charge_font < 0 && file_exists(fallback))
-        charge_font = font_load(fallback);
-    if (charge_font >= 0)
-        font_lock(charge_font, true);
-
-    return charge_font >= 0 ? charge_font : FONT_SYSFIXED;
+    return ipodjs_ui_retailos_font(false);
 }
 
 static void ipodjs_ui_fill_polygon(struct screen *display,
@@ -2602,156 +3935,142 @@ static void ipodjs_ui_charge_rounded_gradient(struct screen *display,
     }
 }
 
-static void ipodjs_ui_draw_usb_battery(struct screen *display, int x, int y)
+static int ipodjs_ui_usb_small_font(void)
 {
-    int level = MAX(0, MIN(100, battery_level()));
-    int fill = 16 * level / 100;
-
-    display->set_foreground(LCD_RGBPACK(218, 222, 226));
-    display->drawrect(x, y, 21, 9);
-    display->fillrect(x + 21, y + 3, 2, 4);
-    display->set_foreground(LCD_RGBPACK(38, 43, 48));
-    display->fillrect(x + 2, y + 2, 16, 5);
-    if (fill > 0)
-    {
-        display->set_foreground(level <= 15 ?
-            LCD_RGBPACK(220, 54, 48) : LCD_RGBPACK(122, 190, 76));
-        display->fillrect(x + 2, y + 2, fill, 5);
-    }
-}
-
-static void ipodjs_ui_draw_usb_lock(struct screen *display, int x, int y)
-{
-    unsigned color = LCD_RGBPACK(222, 225, 229);
-
-    display->set_foreground(color);
-    display->drawrect(x + 2, y, 7, 7);
-    display->fillrect(x, y + 5, 11, 8);
-    display->set_foreground(LCD_RGBPACK(42, 47, 52));
-    display->fillrect(x + 5, y + 8, 1, 3);
-}
-
-static void ipodjs_ui_draw_thick_segment(struct screen *display,
-                                         int x1, int y1, int x2, int y2,
-                                         unsigned color)
-{
-    display->set_foreground(color);
-    for (int offset = -3; offset <= 3; offset++)
-    {
-        display->drawline(x1 + offset, y1, x2 + offset, y2);
-        display->drawline(x1, y1 + offset, x2, y2 + offset);
-    }
-}
-
-static void ipodjs_ui_draw_usb_sync_mark(struct screen *display, int cx,
-                                         int cy, bool dark)
-{
-    static const struct ipodjs_ui_point upper_arrow[] = {
-        { 13, -10 }, { 27, -8 }, { 20, 5 }
-    };
-    static const struct ipodjs_ui_point lower_arrow[] = {
-        { -13, 10 }, { -27, 8 }, { -20, -5 }
-    };
-    unsigned mark = dark ? LCD_RGBPACK(22, 25, 29) :
-                           LCD_RGBPACK(34, 37, 40);
-
-    ipodjs_ui_draw_thick_segment(display, cx - 20, cy - 5,
-                                 cx - 17, cy - 14, mark);
-    ipodjs_ui_draw_thick_segment(display, cx - 17, cy - 14,
-                                 cx - 9, cy - 20, mark);
-    ipodjs_ui_draw_thick_segment(display, cx - 9, cy - 20,
-                                 cx + 3, cy - 22, mark);
-    ipodjs_ui_draw_thick_segment(display, cx + 3, cy - 22,
-                                 cx + 15, cy - 17, mark);
-    ipodjs_ui_draw_thick_segment(display, cx + 15, cy - 17,
-                                 cx + 20, cy - 8, mark);
-    ipodjs_ui_fill_polygon(display, upper_arrow,
-                           ARRAYLEN(upper_arrow), cx, cy, mark);
-
-    ipodjs_ui_draw_thick_segment(display, cx + 20, cy + 5,
-                                 cx + 17, cy + 14, mark);
-    ipodjs_ui_draw_thick_segment(display, cx + 17, cy + 14,
-                                 cx + 9, cy + 20, mark);
-    ipodjs_ui_draw_thick_segment(display, cx + 9, cy + 20,
-                                 cx - 3, cy + 22, mark);
-    ipodjs_ui_draw_thick_segment(display, cx - 3, cy + 22,
-                                 cx - 15, cy + 17, mark);
-    ipodjs_ui_draw_thick_segment(display, cx - 15, cy + 17,
-                                 cx - 20, cy + 8, mark);
-    ipodjs_ui_fill_polygon(display, lower_arrow,
-                           ARRAYLEN(lower_arrow), cx, cy, mark);
+    int id = ipodjs_ui_retail_fonts[3];
+    return id >= 0 ? id : FONT_UI;
 }
 
 void ipodjs_ui_usb_prepare(void)
 {
-    int normal = ipodjs_ui_font();
-    int bold = ipodjs_ui_charge_font();
+    ipodjs_ui_prepare_retailos_fonts();
+    int normal = ipodjs_ui_usb_small_font();
+    int bold = ipodjs_ui_retailos_font(true);
 
-    font_getstringsize("iPod", NULL, NULL, normal);
+    ipodjs_ui_prepare_retailos_usb();
+    /* Warm every fixed label before USB closes font descriptors. */
+    font_getstringsize("iPod", NULL, NULL, ipodjs_ui_retailos_font(false));
+    font_getstringsize("USB", NULL, NULL, ipodjs_ui_retailos_font(false));
     font_getstringsize("Connected", NULL, NULL, bold);
-    font_getstringsize("Eject Before Disconnecting", NULL, NULL, normal);
+    font_getstringsize("OK to disconnect.", NULL, NULL, bold);
+    font_getstringsize("Eject before disconnecting.", NULL, NULL, normal);
+}
+
+void ipodjs_ui_usb_set_ejected(bool ejected)
+{
+    if (ipodjs_ui_retail_usb.ejected != ejected)
+    {
+        ipodjs_ui_retail_usb.ejected = ejected;
+        ipodjs_ui_retail_usb.presented = false;
+    }
+}
+
+bool ipodjs_ui_usb_animation_active(void)
+{
+    return ipodjs_ui_retail_usb.valid && !ipodjs_ui_retail_usb.ejected;
+}
+
+static int ipodjs_ui_usb_sync_frame(void)
+{
+    struct ipodjs_ui_retail_usb_cache *cache = &ipodjs_ui_retail_usb;
+    unsigned long elapsed = (unsigned long)(current_tick - cache->started);
+    unsigned long cycle_ticks =
+        (unsigned long)HZ * cache->sync_arrows.frame_count;
+
+    elapsed %= cycle_ticks;
+    return (elapsed * 12u / HZ) % cache->sync_arrows.frame_count;
+}
+
+static void ipodjs_ui_draw_usb_sync_asset(struct screen *display)
+{
+    struct ipodjs_ui_retail_usb_cache *cache = &ipodjs_ui_retail_usb;
+    int frame = ipodjs_ui_usb_sync_frame();
+
+    /* DiskMode_Arrows_Color is 0x00000000 in the source RLOC table.
+     * All 18 source masks are used at native size; never rotate a substitute. */
+    ipodjs_retailos_blit_mask(display, &cache->sync_arrows, frame,
+                              122, 62, FB_RGBPACK(0, 0, 0));
+    cache->last_frame = frame;
+    ipodjs_trace_screen("USB Connected", "source-frame", frame, 0,
+                        cache->sync_arrows.frame_count, 122, 62, 76, 76);
 }
 
 void ipodjs_ui_draw_usb_connected(struct screen *display)
 {
     struct viewport *last_vp;
-    bool dark = global_settings.ui_engine_dark_mode;
-    int cx = display->lcdwidth / 2;
-    int icon_cy = 101;
-    int normal = ipodjs_ui_font();
-    int bold = ipodjs_ui_charge_font();
+    struct ipodjs_ui_retail_usb_cache *cache = &ipodjs_ui_retail_usb;
+    int normal = ipodjs_ui_usb_small_font();
+    int bold = ipodjs_ui_retailos_font(true);
 
     last_vp = display->set_viewport(NULL);
+#ifdef IPODJS_UI_HAS_ANIMATION_WORKSPACE
+    if (cache->valid && cache->presented)
+    {
+        if (!cache->ejected &&
+            ipodjs_ui_usb_sync_frame() != cache->last_frame)
+        {
+            /* The USB-exclusive transition buffer contains the completed
+             * static screen, including the real badge and its background.
+             * Restore only the mask rectangle: no I/O or decode after ACK. */
+            display->bitmap_part(ipodjs_ui_animation_old,
+                                 122, 62, LCD_WIDTH, 122, 62, 76, 76);
+            ipodjs_ui_draw_usb_sync_asset(display);
+            display->update_rect(122, 62, 76, 76);
+        }
+        display->set_viewport(last_vp);
+        return;
+    }
+#endif
+
     display->set_drawmode(DRMODE_SOLID);
-    display->set_background(dark ? LCD_RGBPACK(3, 12, 21) :
-                                   LCD_RGBPACK(4, 43, 64));
+    display->set_background(LCD_RGBPACK(0, 0, 0));
     display->clear_display();
-    ipodjs_ui_glass_gradient(display, 0, 23, display->lcdwidth,
-                             display->lcdheight - 23,
-                             dark ? LCD_RGBPACK(18, 91, 128) :
-                                    LCD_RGBPACK(29, 137, 181),
-                             dark ? LCD_RGBPACK(5, 49, 76) :
-                                    LCD_RGBPACK(5, 91, 132),
-                             dark ? LCD_RGBPACK(1, 13, 24) :
-                                    LCD_RGBPACK(1, 29, 48));
-
-    ipodjs_ui_glass_gradient(display, 0, 0, display->lcdwidth, 23,
-                             LCD_RGBPACK(70, 70, 70),
-                             LCD_RGBPACK(32, 36, 40),
-                             LCD_RGBPACK(8, 14, 19));
-    display->set_foreground(LCD_RGBPACK(106, 116, 124));
-    display->hline(0, display->lcdwidth - 1, 22);
-    display->setfont(normal);
-    display->set_foreground(LCD_RGBPACK(234, 237, 240));
-    ipodjs_ui_puts_fit(display, 90, 3, display->lcdwidth - 180,
-                       "iPod", true);
-    ipodjs_ui_draw_usb_battery(display, display->lcdwidth - 32, 7);
-    if (button_hold())
-        ipodjs_ui_draw_usb_lock(display, 8, 5);
-
-    ipodjs_ui_charge_rounded_gradient(display, cx - 43, icon_cy - 42,
-                                      88, 88, 44,
-                                      LCD_RGBPACK(10, 27, 36),
-                                      LCD_RGBPACK(3, 14, 21),
-                                      LCD_RGBPACK(1, 8, 13),
-                                      cx - 43, 88);
-    ipodjs_ui_charge_rounded_gradient(display, cx - 44, icon_cy - 44,
-                                      88, 88, 44,
-                                      LCD_RGBPACK(254, 223, 125),
-                                      LCD_RGBPACK(222, 165, 55),
-                                      LCD_RGBPACK(160, 100, 18),
-                                      cx - 44, 88);
-    ipodjs_ui_draw_usb_sync_mark(display, cx, icon_cy, dark);
-
+#ifdef IPODJS_UI_HAS_ANIMATION_WORKSPACE
+    if (cache->valid)
+    {
+        display->bitmap(ipodjs_ui_animation_old, 0, 0,
+                        LCD_WIDTH, LCD_HEIGHT);
+        ipodjs_retailos_blit(display,
+                            &ipodjs_ui_retail_status.hold_background, 0, 0);
+        ipodjs_ui_draw_retailos_battery(
+            display, &ipodjs_ui_retail_status.black_battery,
+            display->lcdwidth - 31, 4);
+        if (button_hold())
+            ipodjs_retailos_blit(display,
+                                &ipodjs_ui_retail_status.white_lock, 8, 4);
+        ipodjs_retailos_blit(display, &cache->badge, 104, 46);
+        /* Cache chrome without labels or either foreground icon, so eject
+         * can replace the Connected screen without disk access. */
+        memcpy(ipodjs_ui_animation_old, FBADDR(0, 0), FRAMEBUFFER_SIZE);
+        if (cache->ejected && cache->disconnect_valid)
+            ipodjs_retailos_blit(display, &cache->disconnect, 104, 46);
+    }
+#endif
+    /* An incomplete private archive gets a plain unbranded text screen,
+     * never the previous procedural Apple-looking substitute. */
+    display->set_drawmode(DRMODE_FG);
+    display->set_foreground(LCD_RGBPACK(255, 255, 255));
+    display->setfont(ipodjs_ui_retailos_font(false));
+    ipodjs_ui_puts_fit(display, 40, 4, display->lcdwidth - 80,
+                       cache->valid ? "iPod" : "USB", true);
     display->setfont(bold);
-    display->set_foreground(LCD_RGBPACK(246, 248, 250));
-    ipodjs_ui_puts_fit(display, 24, 167, display->lcdwidth - 48,
-                       "Connected", true);
+    ipodjs_ui_puts_fit(display, 10, 174, display->lcdwidth - 20,
+                       cache->ejected ? "OK to disconnect." : "Connected",
+                       true);
     display->setfont(normal);
-    display->set_foreground(LCD_RGBPACK(224, 233, 239));
-    ipodjs_ui_puts_fit(display, 20, 190, display->lcdwidth - 40,
-                       "Eject Before Disconnecting", true);
+    if (!cache->ejected)
+        ipodjs_ui_puts_fit(display, 10, 191, display->lcdwidth - 20,
+                           "Eject before disconnecting.", true);
+    display->set_drawmode(DRMODE_SOLID);
 
+#ifdef IPODJS_UI_HAS_ANIMATION_WORKSPACE
+    if (cache->valid)
+    {
+        if (!cache->ejected)
+            ipodjs_ui_draw_usb_sync_asset(display);
+        cache->presented = true;
+    }
+#endif
     display->update();
     display->set_viewport(last_vp);
 }
@@ -2939,6 +4258,111 @@ static void ipodjs_ui_draw_charge_reflection(struct screen *display,
     }
 }
 
+static void ipodjs_ui_draw_retail_charge_frame(struct screen *display,
+                                                bool full, int fill_width,
+                                                bool first)
+{
+    struct ipodjs_ui_retail_charge_cache *cache =
+        &ipodjs_ui_retail_charge;
+    struct viewport *last_vp = display->set_viewport(NULL);
+    /* Native cap positions measured in Apple's Classic guide, page 12.
+     * Charging and Charged references have distinct visual origins. */
+    const int origin_x = full ? 60 : IPODJS_RETAIL_CHARGE_X;
+    const int origin_y = full ? 63 : IPODJS_RETAIL_CHARGE_Y;
+    const int middle_x = origin_x + 38;
+    const int right_x = middle_x + IPODJS_RETAIL_CHARGE_MIDDLE_W;
+    /* Source casing: x=22 through right-cap x=14, y=22..96.
+     * Exclude transparent padding, the terminal and the reflection when
+     * centering the native masks; the 142px sprite is not the body height. */
+    const int body_x = origin_x + 22;
+    const int body_y = origin_y + 22;
+    const int body_w = IPODJS_RETAIL_CHARGE_W - 22 - 30;
+    const int body_h = 75;
+    bool dark = global_settings.ui_engine_dark_mode;
+    int middle_width;
+    int index;
+
+    fill_width = MAX(0, MIN(fill_width, IPODJS_CHARGE_WELL_W));
+    middle_width = (fill_width * IPODJS_RETAIL_CHARGE_MIDDLE_W +
+                    IPODJS_CHARGE_WELL_W - 1) /
+                   IPODJS_CHARGE_WELL_W;
+    if (full)
+        middle_width = IPODJS_RETAIL_CHARGE_MIDDLE_W;
+
+    display->set_drawmode(DRMODE_SOLID);
+    if (first)
+        ipodjs_ui_draw_charge_background(display, 0, 0,
+                                          display->lcdwidth,
+                                          display->lcdheight, dark);
+    else
+        ipodjs_ui_draw_charge_background(display, 50, 48, 220, 174, dark);
+
+    ipodjs_ui_glass_gradient(display, 0, 0, display->lcdwidth, 23,
+                             LCD_RGBPACK(68, 68, 68),
+                             LCD_RGBPACK(31, 35, 38),
+                             LCD_RGBPACK(9, 16, 21));
+    display->set_foreground(LCD_RGBPACK(105, 116, 125));
+    display->hline(0, display->lcdwidth - 1, 22);
+    display->setfont(ipodjs_ui_charge_font());
+    display->set_foreground(LCD_RGBPACK(244, 246, 248));
+    ipodjs_ui_puts_fit(display, 10, 3, display->lcdwidth - 20,
+                       full ? "Charged" : "Charging", true);
+
+    if (!full && battery_level() >= 0 && battery_level() <= 2)
+    {
+        ipodjs_retailos_blit(display, &cache->critical,
+                             (LCD_WIDTH - 205) / 2, 48);
+    }
+    else
+    {
+        ipodjs_retailos_blit(display, &cache->empty_left,
+                             origin_x, origin_y);
+        for (index = 0; index < IPODJS_RETAIL_CHARGE_MIDDLE_W; index += 8)
+            ipodjs_retailos_blit_part(display, &cache->empty_middle, 0, 0,
+                middle_x + index, origin_y,
+                MIN(8, IPODJS_RETAIL_CHARGE_MIDDLE_W - index), 142);
+        ipodjs_retailos_blit(display, &cache->empty_right, right_x,
+                             origin_y);
+
+        if (middle_width > 0)
+        {
+            ipodjs_retailos_blit(display, &cache->green_left,
+                                 origin_x, origin_y);
+            for (index = 0; index < middle_width; index += 8)
+                ipodjs_retailos_blit_part(display, &cache->green_middle, 0, 0,
+                    middle_x + index, origin_y,
+                    MIN(8, middle_width - index), 142);
+            if (middle_width == IPODJS_RETAIL_CHARGE_MIDDLE_W)
+                ipodjs_retailos_blit(display, &cache->green_right,
+                                     right_x, origin_y);
+            else
+                ipodjs_retailos_blit_part(display, &cache->green_middle_cap,
+                    0, 0, middle_x + middle_width, origin_y,
+                    MIN(8, IPODJS_RETAIL_CHARGE_MIDDLE_W - middle_width), 142);
+        }
+
+        if (full)
+            ipodjs_retailos_blit_mask(
+                display, &cache->plug, 0, body_x + (body_w - 47) / 2,
+                body_y + (body_h - 29) / 2,
+                FB_RGBPACK(0, 0, 0));
+        else
+            ipodjs_retailos_blit_mask(
+                display, &cache->bolt, 0, body_x + (body_w - 23) / 2,
+                body_y + (body_h - 57) / 2,
+                FB_RGBPACK(0, 0, 0));
+    }
+
+    if (first)
+        display->update();
+    else
+    {
+        display->update_rect(0, 0, display->lcdwidth, 23);
+        display->update_rect(50, 48, 220, 174);
+    }
+    display->set_viewport(last_vp);
+}
+
 static void ipodjs_ui_draw_charge_frame(struct screen *display, bool full,
                                         int fill_width, bool first)
 {
@@ -2968,6 +4392,12 @@ static void ipodjs_ui_draw_charge_frame(struct screen *display, bool full,
                           LCD_RGBPACK(234, 236, 239);
     struct viewport *last_vp;
     int font;
+
+    if (ipodjs_ui_retail_charge.valid)
+    {
+        ipodjs_ui_draw_retail_charge_frame(display, full, fill_width, first);
+        return;
+    }
 
     fill_width = MAX(0, MIN(fill_width, IPODJS_CHARGE_WELL_W));
     if (full)
@@ -3140,6 +4570,10 @@ void ipodjs_ui_charging_screen(bool classify_usb)
             goto charging_done;
     }
 
+    /* Bounded screen-entry service point.  No asset or font I/O occurs in
+     * ipodjs_ui_draw_charge_frame() or on an animation tick. */
+    ipodjs_ui_prepare_retailos_charging();
+    (void)ipodjs_ui_charge_font();
     animation_start = current_tick;
 
     while (charger_inserted())

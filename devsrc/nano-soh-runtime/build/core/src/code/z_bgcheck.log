@@ -1,0 +1,18 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_bgcheck.c: In function 'CollisionHeader_SegmentedToVirtual':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_bgcheck.c:3797:33: warning: passing argument 1 of 'ResourceMgr_OTRSigCheck' from incompatible pointer type [-Wincompatible-pointer-types]
+ 3797 |     if (ResourceMgr_OTRSigCheck(colHeader))
+      |                                 ^~~~~~~~~
+      |                                 |
+      |                                 CollisionHeader *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_bgcheck.c:5:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:70:35: note: expected 'char *' but argument is of type 'CollisionHeader *'
+   70 | int ResourceMgr_OTRSigCheck(char* imgData);
+      |                             ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_bgcheck.c:3798:47: warning: passing argument 1 of 'ResourceMgr_LoadColByName' from incompatible pointer type [-Wincompatible-pointer-types]
+ 3798 |         colHeader = ResourceMgr_LoadColByName(colHeader);
+      |                                               ^~~~~~~~~
+      |                                               |
+      |                                               CollisionHeader *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:64:56: note: expected 'const char *' but argument is of type 'CollisionHeader *'
+   64 | CollisionHeader* ResourceMgr_LoadColByName(const char* path);
+      |                                            ~~~~~~~~~~~~^~~~

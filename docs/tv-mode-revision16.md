@@ -1,0 +1,7 @@
+# Lock dock volume in TV Home and guide
+
+Revision 15 protected the Rockbox volume variable from some incoming echoes but still exported the navigation cursor as volume through iap_volume_byte. It also deliberately sent a midpoint volume at cursor endpoints. A dock that applies these replies to its own output can change listening volume without changing the Rockbox setting.
+
+Outgoing volume now always represents real audio gain. TV Home and guide ownership explicitly protect initial volume sync, later absolute commands and mute as well as button requests. After a requested volume change, the dock receives the unchanged real level; a matching echo receives no extra reply. Directional requests in those screens are relative to that fixed level, with the existing tap/hold filter retained. Fullscreen releases the UI lock and its existing player buttons adjust gain, which is reported normally. Other players retain their raw-button volume controls. No plugin ABI change.
+
+Focused tests execute the production lock predicate, packet handlers, volume reply builder and guide loop. They cover both Home and guide, a dock deriving its next command from the returned level, six taps/six moves, sync/mute, release/hold controls, fullscreen gain reporting and non-dock paths. Native Classic build precedes deployment. Physical listening confirmation remains with the user; broader playback testing is deferred as requested. Leave the Classic mounted.

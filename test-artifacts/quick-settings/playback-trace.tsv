@@ -1,0 +1,729 @@
+seq	tick	kind	name	update	x	y	w	h	selected	first	items	audio	playlist_index	playlist_count	elapsed_ms	duration_ms	art	art_w	art_h	path	core_available	core_allocatable	rockbox_open_files
+1	130	screen	Home	full	0	0	320	240	0	0	9	0	1	0	0	0	0	0	0		64933928	64933928	11
+2	152	screen	Home	full	0	0	320	240	0	0	9	0	1	0	0	0	0	0	0		64933928	64933928	11
+3	225	screen	Home	rows	0	20	160	48	1	0	9	0	1	0	0	0	0	0	0		64933928	64933928	11
+4	276	screen	Preview Fade	crossfade	160	0	160	240	0	0	8	0	1	0	0	0	0	0	0		64933928	64933928	11
+5	280	screen	Preview Fade	crossfade	160	0	160	240	17	1	8	0	1	0	0	0	0	0	0		64933928	64933928	11
+6	284	screen	Preview Fade	crossfade	160	0	160	240	61	2	8	0	1	0	0	0	0	0	0		64933928	64933928	11
+7	287	screen	Preview Fade	crossfade	160	0	160	240	105	3	8	0	1	0	0	0	0	0	0		64933928	64933928	11
+8	291	screen	Preview Fade	crossfade	160	0	160	240	165	4	8	0	1	0	0	0	0	0	0		64933928	64933928	11
+9	294	screen	Preview Fade	crossfade	160	0	160	240	207	5	8	0	1	0	0	0	0	0	0		64933928	64933928	11
+10	298	screen	Preview Fade	crossfade	160	0	160	240	245	6	8	0	1	0	0	0	0	0	0		64933928	64933928	11
+11	302	screen	Preview Fade	crossfade	160	0	160	240	256	7	8	0	1	0	0	0	0	0	0		64933928	64933928	11
+12	305	list	Music	full	0	0	320	240	0	0	15	0	1	0	0	0	0	0	0		64933928	64933928	11
+13	307	list	Music	row-old	0	20	320	24	1	0	15	0	1	0	0	0	0	0	0		64933928	64933928	11
+14	308	list	Music	row-new	0	44	320	24	1	0	15	0	1	0	0	0	0	0	0		64933928	64933928	11
+15	315	list	Music	full	0	0	320	240	1	0	15	0	1	0	0	0	0	0	0		64933928	64933928	11
+16	320	list	Music	full	0	0	320	240	1	0	15	0	1	0	0	0	0	0	0		64933928	64933928	11
+17	325	list	Music	full	0	0	320	240	1	0	15	0	1	0	0	0	0	0	0		64933928	64933928	11
+18	328	list	Music	full	0	0	320	240	1	0	15	0	1	0	0	0	0	0	0		64933928	64933928	11
+19	333	list	Music	full	0	0	320	240	1	0	15	0	1	0	0	0	0	0	0		64933928	64933928	11
+20	338	list	Music	full	0	0	320	240	1	0	15	0	1	0	0	0	0	0	0		64933928	64933928	11
+21	348	list	Music	full	0	0	320	240	1	0	15	0	1	0	0	0	0	0	0		64933928	64933928	11
+22	353	list	Music	full	0	0	320	240	1	0	15	0	1	0	0	0	0	0	0		64933928	64933928	11
+23	358	list	Music	full	0	0	320	240	1	0	15	0	1	0	0	0	0	0	0		64933928	64933928	11
+24	360	screen	Transition	forward	0	0	320	240	0	0	8	0	1	0	0	0	0	0	0		64933928	64933928	11
+25	364	screen	Transition	forward	0	0	320	240	21	1	8	0	1	0	0	0	0	0	0		64933928	64933928	11
+26	368	screen	Transition	forward	0	0	320	240	77	2	8	0	1	0	0	0	0	0	0		64933928	64933928	11
+27	371	screen	Transition	forward	0	0	320	240	131	3	8	0	1	0	0	0	0	0	0		64933928	64933928	11
+28	375	screen	Transition	forward	0	0	320	240	207	4	8	0	1	0	0	0	0	0	0		64933928	64933928	11
+29	378	screen	Transition	forward	0	0	320	240	258	5	8	0	1	0	0	0	0	0	0		64933928	64933928	11
+30	382	screen	Transition	forward	0	0	320	240	307	6	8	0	1	0	0	0	0	0	0		64933928	64933928	11
+31	386	screen	Transition	forward	0	0	320	240	320	7	8	0	1	0	0	0	0	0	0		64933928	64933928	11
+32	387	list	Artist	full	0	0	320	240	0	0	3	0	1	0	0	0	0	0	0		64933928	64933928	11
+33	394	list	Artist	full	0	0	320	240	0	0	3	0	1	0	0	0	0	0	0		64933928	64933928	11
+34	399	list	Artist	full	0	0	320	240	0	0	3	0	1	0	0	0	0	0	0		64933928	64933928	11
+35	400	screen	Transition	forward	0	0	320	240	0	0	8	0	1	0	0	0	0	0	0		64933928	64933928	11
+36	404	screen	Transition	forward	0	0	320	240	21	1	8	0	1	0	0	0	0	0	0		64933928	64933928	11
+37	408	screen	Transition	forward	0	0	320	240	77	2	8	0	1	0	0	0	0	0	0		64933928	64933928	11
+38	411	screen	Transition	forward	0	0	320	240	131	3	8	0	1	0	0	0	0	0	0		64933928	64933928	11
+39	415	screen	Transition	forward	0	0	320	240	207	4	8	0	1	0	0	0	0	0	0		64933928	64933928	11
+40	418	screen	Transition	forward	0	0	320	240	258	5	8	0	1	0	0	0	0	0	0		64933928	64933928	11
+41	422	screen	Transition	forward	0	0	320	240	307	6	8	0	1	0	0	0	0	0	0		64933928	64933928	11
+42	426	screen	Transition	forward	0	0	320	240	320	7	8	0	1	0	0	0	0	0	0		64933928	64933928	11
+43	427	list	[All tracks]	full	0	0	320	240	0	0	1	0	1	0	0	0	0	0	0		64933928	64933928	11
+44	432	list	[All tracks]	full	0	0	320	240	0	0	1	0	1	0	0	0	0	0	0		64933928	64933928	11
+45	437	list	[All tracks]	full	0	0	320	240	0	0	1	0	1	0	0	0	0	0	0		64933928	64933928	11
+46	440	origin	push screen=1 origin=1 depth=1	state	0	0	0	0	-1	-1	-1	1	1	1	0	600032	0	0	0	/Music/test.mp3	0	0	12
+47	440	wps	Now Playing	lifecycle-full	0	0	320	240	-1	-1	-1	1	1	1	0	600032	0	0	0	/Music/test.mp3	0	0	12
+48	479	screen	WPS Select	page	0	0	320	240	1	0	3	1	1	1	262	600032	0	0	0	/Music/test.mp3	0	0	12
+49	525	origin	pop screen=1 origin=1 depth=0	state	0	0	0	0	-1	-1	-1	1	1	1	601	600032	0	0	0	/Music/test.mp3	0	0	12
+50	525	screen	Tagtree Cache	reused	0	0	320	240	1	2	1	1	1	1	601	600032	0	0	0	/Music/test.mp3	0	0	12
+51	525	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	601	600032	0	0	0	/Music/test.mp3	0	0	12
+52	529	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	601	600032	0	0	0	/Music/test.mp3	0	0	12
+53	533	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	654	600032	0	0	0	/Music/test.mp3	0	0	12
+54	536	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	654	600032	0	0	0	/Music/test.mp3	0	0	12
+55	540	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	680	600032	0	0	0	/Music/test.mp3	0	0	12
+56	543	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	680	600032	0	0	0	/Music/test.mp3	0	0	12
+57	547	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	732	600032	0	0	0	/Music/test.mp3	0	0	12
+58	551	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	784	600032	0	0	0	/Music/test.mp3	0	0	12
+59	552	list	[All tracks]	full	0	0	320	240	0	0	1	1	1	1	784	600032	0	0	0	/Music/test.mp3	0	0	12
+60	553	list	[All tracks]	full	0	0	320	240	0	0	1	1	1	1	784	600032	0	0	0	/Music/test.mp3	0	0	12
+61	558	list	[All tracks]	full	0	0	320	240	0	0	1	1	1	1	836	600032	0	0	0	/Music/test.mp3	0	0	12
+62	563	list	[All tracks]	full	0	0	320	240	0	0	1	1	1	1	836	600032	0	0	0	/Music/test.mp3	0	0	12
+63	569	list	[All tracks]	full	0	0	320	240	0	0	1	1	1	1	863	600032	0	0	0	/Music/test.mp3	0	0	12
+64	574	list	[All tracks]	full	0	0	320	240	0	0	1	1	1	1	915	600032	0	0	0	/Music/test.mp3	0	0	12
+65	579	list	[All tracks]	full	0	0	320	240	0	0	1	1	1	1	967	600032	0	0	0	/Music/test.mp3	0	0	12
+66	582	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	967	600032	0	0	0	/Music/test.mp3	0	0	12
+67	586	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	1019	600032	0	0	0	/Music/test.mp3	0	0	12
+68	590	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	1019	600032	0	0	0	/Music/test.mp3	0	0	12
+69	593	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	1072	600032	0	0	0	/Music/test.mp3	0	0	12
+70	597	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	1072	600032	0	0	0	/Music/test.mp3	0	0	12
+71	600	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	1098	600032	0	0	0	/Music/test.mp3	0	0	12
+72	604	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	1098	600032	0	0	0	/Music/test.mp3	0	0	12
+73	608	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	1150	600032	0	0	0	/Music/test.mp3	0	0	12
+74	609	list	Artist	full	0	0	320	240	0	0	3	1	1	1	1150	600032	0	0	0	/Music/test.mp3	0	0	12
+75	614	list	Artist	full	0	0	320	240	0	0	3	1	1	1	1202	600032	0	0	0	/Music/test.mp3	0	0	12
+76	619	list	Artist	full	0	0	320	240	0	0	3	1	1	1	1202	600032	0	0	0	/Music/test.mp3	0	0	12
+77	622	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	1254	600032	0	0	0	/Music/test.mp3	0	0	12
+78	626	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	1254	600032	0	0	0	/Music/test.mp3	0	0	12
+79	630	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	1281	600032	0	0	0	/Music/test.mp3	0	0	12
+80	633	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	1281	600032	0	0	0	/Music/test.mp3	0	0	12
+81	637	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	1333	600032	0	0	0	/Music/test.mp3	0	0	12
+82	640	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	1385	600032	0	0	0	/Music/test.mp3	0	0	12
+83	644	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	1385	600032	0	0	0	/Music/test.mp3	0	0	12
+84	648	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	1437	600032	0	0	0	/Music/test.mp3	0	0	12
+85	649	list	Music	full	0	0	320	240	1	0	15	1	1	1	1437	600032	0	0	0	/Music/test.mp3	0	0	12
+86	654	list	Music	full	0	0	320	240	1	0	15	1	1	1	1490	600032	0	0	0	/Music/test.mp3	0	0	12
+87	659	list	Music	full	0	0	320	240	1	0	15	1	1	1	1490	600032	0	0	0	/Music/test.mp3	0	0	12
+88	661	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	1516	600032	0	0	0	/Music/test.mp3	0	0	12
+89	665	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	1516	600032	0	0	0	/Music/test.mp3	0	0	12
+90	669	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	1568	600032	0	0	0	/Music/test.mp3	0	0	12
+91	672	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	1568	600032	0	0	0	/Music/test.mp3	0	0	12
+92	676	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	1620	600032	0	0	0	/Music/test.mp3	0	0	12
+93	679	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	1620	600032	0	0	0	/Music/test.mp3	0	0	12
+94	683	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	1672	600032	0	0	0	/Music/test.mp3	0	0	12
+95	687	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	1672	600032	0	0	0	/Music/test.mp3	0	0	12
+96	687	screen	Home	full	0	0	320	240	1	0	9	1	1	1	1672	600032	0	0	0	/Music/test.mp3	0	0	12
+97	803	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	2456	600032	0	0	0	/Music/test.mp3	0	0	12
+98	807	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	2508	600032	0	0	0	/Music/test.mp3	0	0	12
+99	811	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	2534	600032	0	0	0	/Music/test.mp3	0	0	12
+100	814	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	2534	600032	0	0	0	/Music/test.mp3	0	0	12
+101	818	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	2587	600032	0	0	0	/Music/test.mp3	0	0	12
+102	821	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	2587	600032	0	0	0	/Music/test.mp3	0	0	12
+103	825	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	2639	600032	0	0	0	/Music/test.mp3	0	0	12
+104	829	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	2639	600032	0	0	0	/Music/test.mp3	0	0	12
+105	829	screen	Quick Settings	full	0	20	320	202	0	0	16	1	1	1	2639	600032	0	0	0	/Music/test.mp3	0	0	12
+106	830	screen	Quick Settings	full	0	20	320	202	0	0	16	1	1	1	2639	600032	0	0	0	/Music/test.mp3	0	0	12
+107	937	screen	Quick Settings	full	0	20	320	202	0	0	16	1	1	1	3370	600032	0	0	0	/Music/test.mp3	0	0	12
+108	970	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	3605	600032	0	0	0	/Music/test.mp3	0	0	12
+109	974	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	3605	600032	0	0	0	/Music/test.mp3	0	0	12
+110	978	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	3658	600032	0	0	0	/Music/test.mp3	0	0	12
+111	981	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	3658	600032	0	0	0	/Music/test.mp3	0	0	12
+112	985	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	3710	600032	0	0	0	/Music/test.mp3	0	0	12
+113	988	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	3710	600032	0	0	0	/Music/test.mp3	0	0	12
+114	992	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	3762	600032	0	0	0	/Music/test.mp3	0	0	12
+115	996	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	3788	600032	0	0	0	/Music/test.mp3	0	0	12
+116	997	screen	Volume	apple-slider	0	90	320	80	19	0	101	1	1	1	3788	600032	0	0	0	/Music/test.mp3	0	0	12
+117	1033	screen	Volume	apple-slider	0	90	320	80	19	0	101	1	1	1	4023	600032	0	0	0	/Music/test.mp3	0	0	12
+118	1062	screen	Volume	slider-delta	0	90	320	80	18	0	101	1	1	1	4206	600032	0	0	0	/Music/test.mp3	0	0	12
+119	1134	screen	Volume	apple-slider	0	90	320	80	18	0	101	1	1	1	4729	600032	0	0	0	/Music/test.mp3	0	0	12
+120	1138	screen	Volume	slider-delta	0	90	320	80	19	0	101	1	1	1	4781	600032	0	0	0	/Music/test.mp3	0	0	12
+121	1196	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	5147	600032	0	0	0	/Music/test.mp3	0	0	12
+122	1200	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	5199	600032	0	0	0	/Music/test.mp3	0	0	12
+123	1204	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	5199	600032	0	0	0	/Music/test.mp3	0	0	12
+124	1207	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	5251	600032	0	0	0	/Music/test.mp3	0	0	12
+125	1211	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	5251	600032	0	0	0	/Music/test.mp3	0	0	12
+126	1214	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	5277	600032	0	0	0	/Music/test.mp3	0	0	12
+127	1218	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	5277	600032	0	0	0	/Music/test.mp3	0	0	12
+128	1222	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	5330	600032	0	0	0	/Music/test.mp3	0	0	12
+129	1223	screen	Quick Settings	full	0	20	320	202	0	0	16	1	1	1	5330	600032	0	0	0	/Music/test.mp3	0	0	12
+130	1228	screen	Quick Settings	row-delta	0	20	320	202	1	0	16	1	1	1	5382	600032	0	0	0	/Music/test.mp3	0	0	12
+131	1240	screen	Quick Settings	full	0	20	320	202	1	0	16	1	1	1	5434	600032	0	0	0	/Music/test.mp3	0	0	12
+132	1266	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	5617	600032	0	0	0	/Music/test.mp3	0	0	12
+133	1270	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	5669	600032	0	0	0	/Music/test.mp3	0	0	12
+134	1274	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	5669	600032	0	0	0	/Music/test.mp3	0	0	12
+135	1277	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	5695	600032	0	0	0	/Music/test.mp3	0	0	12
+136	1281	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	5695	600032	0	0	0	/Music/test.mp3	0	0	12
+137	1284	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	5748	600032	0	0	0	/Music/test.mp3	0	0	12
+138	1288	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	5800	600032	0	0	0	/Music/test.mp3	0	0	12
+139	1292	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	5800	600032	0	0	0	/Music/test.mp3	0	0	12
+140	1293	screen	Brightness	apple-slider	0	90	320	80	100	0	101	1	1	1	5800	600032	0	0	0	/Music/test.mp3	0	0	12
+141	1341	screen	Brightness	apple-slider	0	90	320	80	100	0	101	1	1	1	6113	600032	0	0	0	/Music/test.mp3	0	0	12
+142	1360	screen	Brightness	slider-delta	0	90	320	80	95	0	101	1	1	1	6270	600032	0	0	0	/Music/test.mp3	0	0	12
+143	1436	screen	Brightness	slider-delta	0	90	320	80	100	0	101	1	1	1	6766	600032	0	0	0	/Music/test.mp3	0	0	12
+144	1448	screen	Brightness	apple-slider	0	90	320	80	100	0	101	1	1	1	6871	600032	0	0	0	/Music/test.mp3	0	0	12
+145	1494	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	7184	600032	0	0	0	/Music/test.mp3	0	0	12
+146	1498	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	7184	600032	0	0	0	/Music/test.mp3	0	0	12
+147	1502	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	7236	600032	0	0	0	/Music/test.mp3	0	0	12
+148	1505	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	7236	600032	0	0	0	/Music/test.mp3	0	0	12
+149	1509	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	7289	600032	0	0	0	/Music/test.mp3	0	0	12
+150	1512	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	7289	600032	0	0	0	/Music/test.mp3	0	0	12
+151	1516	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	7341	600032	0	0	0	/Music/test.mp3	0	0	12
+152	1520	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	7341	600032	0	0	0	/Music/test.mp3	0	0	12
+153	1521	screen	Quick Settings	full	0	20	320	202	1	0	16	1	1	1	7367	600032	0	0	0	/Music/test.mp3	0	0	12
+154	1526	screen	Quick Settings	row-delta	0	20	320	202	2	0	16	1	1	1	7367	600032	0	0	0	/Music/test.mp3	0	0	12
+155	1547	screen	Quick Settings	full	0	20	320	202	3	0	16	1	1	1	7524	600032	0	0	0	/Music/test.mp3	0	0	12
+156	1580	screen	Quick Settings	row-delta	0	20	320	202	4	0	16	1	1	1	7759	600032	0	0	0	/Music/test.mp3	0	0	12
+157	1611	screen	Quick Settings	row-delta	0	20	320	202	5	0	16	1	1	1	7968	600032	0	0	0	/Music/test.mp3	0	0	12
+158	1643	screen	Quick Settings	row-delta	0	20	320	202	6	0	16	1	1	1	8177	600032	0	0	0	/Music/test.mp3	0	0	12
+159	1655	screen	Quick Settings	full	0	20	320	202	6	0	16	1	1	1	8255	600032	0	0	0	/Music/test.mp3	0	0	12
+160	1673	screen	Quick Settings	row-delta	0	20	320	202	7	0	16	1	1	1	8386	600032	0	0	0	/Music/test.mp3	0	0	12
+161	1703	screen	Quick Settings	list-delta	0	20	320	202	8	1	16	1	1	1	8595	600032	0	0	0	/Music/test.mp3	0	0	12
+162	1735	screen	Quick Settings	list-delta	0	20	320	202	9	2	16	1	1	1	8804	600032	0	0	0	/Music/test.mp3	0	0	12
+163	1747	screen	Quick Settings	full	0	20	320	202	9	2	16	1	1	1	8908	600032	0	0	0	/Music/test.mp3	0	0	12
+164	1766	screen	Quick Settings	list-delta	0	20	320	202	10	3	16	1	1	1	9039	600032	0	0	0	/Music/test.mp3	0	0	12
+165	1798	screen	Quick Settings	list-delta	0	20	320	202	11	4	16	1	1	1	9222	600032	0	0	0	/Music/test.mp3	0	0	12
+166	1830	screen	Quick Settings	list-delta	0	20	320	202	12	5	16	1	1	1	9457	600032	0	0	0	/Music/test.mp3	0	0	12
+167	1854	screen	Quick Settings	full	0	20	320	202	12	5	16	1	1	1	9614	600032	0	0	0	/Music/test.mp3	0	0	12
+168	1859	screen	Quick Settings	list-delta	0	20	320	202	13	6	16	1	1	1	9640	600032	0	0	0	/Music/test.mp3	0	0	12
+169	1891	screen	Quick Settings	list-delta	0	20	320	202	14	7	16	1	1	1	9875	600032	0	0	0	/Music/test.mp3	0	0	12
+170	1923	screen	Quick Settings	list-delta	0	20	320	202	15	8	16	1	1	1	10058	600032	0	0	0	/Music/test.mp3	0	0	12
+171	1952	screen	Quick Settings	full	0	20	320	202	0	0	16	1	1	1	10293	600032	0	0	0	/Music/test.mp3	0	0	12
+172	1985	screen	Quick Settings	list-delta	0	20	320	202	15	8	16	1	1	1	10476	600032	0	0	0	/Music/test.mp3	0	0	12
+173	2057	screen	Quick Settings	full	0	20	320	202	15	8	16	1	1	1	10998	600032	0	0	0	/Music/test.mp3	0	0	12
+174	2061	screen	Quick Settings	list-delta	0	20	320	202	0	0	16	1	1	1	11050	600032	0	0	0	/Music/test.mp3	0	0	12
+175	2103	screen	Quick Settings	row-delta	0	20	320	202	1	0	16	1	1	1	11312	600032	0	0	0	/Music/test.mp3	0	0	12
+176	2132	screen	Quick Settings	row-delta	0	20	320	202	2	0	16	1	1	1	11521	600032	0	0	0	/Music/test.mp3	0	0	12
+177	2156	screen	Quick Settings	full	0	20	320	202	2	0	16	1	1	1	11703	600032	0	0	0	/Music/test.mp3	0	0	12
+178	2165	screen	Quick Settings	row-delta	0	20	320	202	3	0	16	1	1	1	11730	600032	0	0	0	/Music/test.mp3	0	0	12
+179	2196	screen	Quick Settings	row-delta	0	20	320	202	4	0	16	1	1	1	11912	600032	0	0	0	/Music/test.mp3	0	0	12
+180	2227	screen	Quick Settings	row-delta	0	20	320	202	5	0	16	1	1	1	12148	600032	0	0	0	/Music/test.mp3	0	0	12
+181	2259	screen	Quick Settings	row-delta	0	20	320	202	6	0	16	1	1	1	12383	600032	0	0	0	/Music/test.mp3	0	0	12
+182	2271	screen	Quick Settings	full	0	20	320	202	6	0	16	1	1	1	12435	600032	0	0	0	/Music/test.mp3	0	0	12
+183	2289	screen	Quick Settings	row-delta	0	20	320	202	7	0	16	1	1	1	12565	600032	0	0	0	/Music/test.mp3	0	0	12
+184	2319	screen	Quick Settings	list-delta	0	20	320	202	8	1	16	1	1	1	12801	600032	0	0	0	/Music/test.mp3	0	0	12
+185	2350	screen	Quick Settings	list-delta	0	20	320	202	9	2	16	1	1	1	12983	600032	0	0	0	/Music/test.mp3	0	0	12
+186	2362	screen	Quick Settings	full	0	20	320	202	9	2	16	1	1	1	13088	600032	0	0	0	/Music/test.mp3	0	0	12
+187	2383	screen	Quick Settings	list-delta	0	20	320	202	10	3	16	1	1	1	13219	600032	0	0	0	/Music/test.mp3	0	0	12
+188	2414	screen	Quick Settings	list-delta	0	20	320	202	11	4	16	1	1	1	13401	600032	0	0	0	/Music/test.mp3	0	0	12
+189	2444	screen	Quick Settings	list-delta	0	20	320	202	12	5	16	1	1	1	13636	600032	0	0	0	/Music/test.mp3	0	0	12
+190	2468	screen	Quick Settings	full	0	20	320	202	12	5	16	1	1	1	13793	600032	0	0	0	/Music/test.mp3	0	0	12
+191	2476	screen	Quick Settings	list-delta	0	20	320	202	13	6	16	1	1	1	13872	600032	0	0	0	/Music/test.mp3	0	0	12
+192	2507	screen	Quick Settings	list-delta	0	20	320	202	14	7	16	1	1	1	14054	600032	0	0	0	/Music/test.mp3	0	0	12
+193	2555	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	14394	600032	0	0	0	/Music/test.mp3	0	0	12
+194	2559	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	14446	600032	0	0	0	/Music/test.mp3	0	0	12
+195	2563	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	14446	600032	0	0	0	/Music/test.mp3	0	0	12
+196	2566	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	14472	600032	0	0	0	/Music/test.mp3	0	0	12
+197	2570	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	14472	600032	0	0	0	/Music/test.mp3	0	0	12
+198	2573	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	14525	600032	0	0	0	/Music/test.mp3	0	0	12
+199	2577	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	14525	600032	0	0	0	/Music/test.mp3	0	0	12
+200	2581	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	14577	600032	0	0	0	/Music/test.mp3	0	0	12
+201	3045	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	17738	600032	0	0	0	/Music/test.mp3	0	0	12
+202	3049	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	17738	600032	0	0	0	/Music/test.mp3	0	0	12
+203	3053	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	17790	600032	0	0	0	/Music/test.mp3	0	0	12
+204	3056	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	17816	600032	0	0	0	/Music/test.mp3	0	0	12
+205	3060	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	17816	600032	0	0	0	/Music/test.mp3	0	0	12
+206	3063	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	17842	600032	0	0	0	/Music/test.mp3	0	0	12
+207	3067	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	17842	600032	0	0	0	/Music/test.mp3	0	0	12
+208	3071	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	17921	600032	0	0	0	/Music/test.mp3	0	0	12
+209	3120	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	18234	600032	0	0	0	/Music/test.mp3	0	0	12
+210	3124	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	18234	600032	0	0	0	/Music/test.mp3	0	0	12
+211	3128	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	18286	600032	0	0	0	/Music/test.mp3	0	0	12
+212	3131	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	18339	600032	0	0	0	/Music/test.mp3	0	0	12
+213	3135	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	18339	600032	0	0	0	/Music/test.mp3	0	0	12
+214	3138	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	18391	600032	0	0	0	/Music/test.mp3	0	0	12
+215	3142	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	18391	600032	0	0	0	/Music/test.mp3	0	0	12
+216	3146	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	18417	600032	0	0	0	/Music/test.mp3	0	0	12
+217	3159	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	18521	600032	0	0	0	/Music/test.mp3	0	0	12
+218	3163	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	18521	600032	0	0	0	/Music/test.mp3	0	0	12
+219	3167	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	18574	600032	0	0	0	/Music/test.mp3	0	0	12
+220	3170	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	18574	600032	0	0	0	/Music/test.mp3	0	0	12
+221	3174	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	18626	600032	0	0	0	/Music/test.mp3	0	0	12
+222	3177	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	18626	600032	0	0	0	/Music/test.mp3	0	0	12
+223	3181	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	18652	600032	0	0	0	/Music/test.mp3	0	0	12
+224	3185	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	18704	600032	0	0	0	/Music/test.mp3	0	0	12
+225	3185	screen	Quick Settings	full	0	20	320	202	14	7	16	1	1	1	18704	600032	0	0	0	/Music/test.mp3	0	0	12
+226	3187	screen	Quick Settings	full	0	20	320	202	15	8	16	1	1	1	18704	600032	0	0	0	/Music/test.mp3	0	0	12
+227	3214	screen	Quick Settings	list-delta	0	20	320	202	0	0	16	1	1	1	18887	600032	0	0	0	/Music/test.mp3	0	0	12
+228	3245	screen	Quick Settings	row-delta	0	20	320	202	1	0	16	1	1	1	19070	600032	0	0	0	/Music/test.mp3	0	0	12
+229	3276	screen	Quick Settings	row-delta	0	20	320	202	2	0	16	1	1	1	19305	600032	0	0	0	/Music/test.mp3	0	0	12
+230	3288	screen	Quick Settings	full	0	20	320	202	2	0	16	1	1	1	19410	600032	0	0	0	/Music/test.mp3	0	0	12
+231	3323	screen	Quick Settings	full	0	24	320	198	2	0	16	1	1	1	19645	600032	0	0	0	/Music/test.mp3	0	0	12
+232	3384	screen	Quick Settings	row-delta	0	24	320	198	3	0	16	1	1	1	20063	600032	0	0	0	/Music/test.mp3	0	0	12
+233	3396	screen	Quick Settings	full	0	24	320	198	3	0	16	1	1	1	20089	600032	0	0	0	/Music/test.mp3	0	0	12
+234	3415	screen	Quick Settings	row-delta	0	24	320	198	4	0	16	1	1	1	20245	600032	0	0	0	/Music/test.mp3	0	0	12
+235	3446	screen	Quick Settings	row-delta	0	24	320	198	5	0	16	1	1	1	20481	600032	0	0	0	/Music/test.mp3	0	0	12
+236	3478	screen	Quick Settings	row-delta	0	24	320	198	6	0	16	1	1	1	20716	600032	0	0	0	/Music/test.mp3	0	0	12
+237	3490	screen	Quick Settings	full	0	24	320	198	6	0	16	1	1	1	20742	600032	0	0	0	/Music/test.mp3	0	0	12
+238	3508	screen	Quick Settings	row-delta	0	24	320	198	7	0	16	1	1	1	20899	600032	0	0	0	/Music/test.mp3	0	0	12
+239	3538	screen	Quick Settings	list-delta	0	24	320	198	8	1	16	1	1	1	21081	600032	0	0	0	/Music/test.mp3	0	0	12
+240	3586	screen	Quick Settings	full	0	24	320	198	8	2	16	1	1	1	21395	600032	0	0	0	/Music/test.mp3	0	0	12
+241	3598	screen	Quick Settings	full	0	24	320	198	8	2	16	1	1	1	21499	600032	0	0	0	/Music/test.mp3	0	0	12
+242	3663	screen	Quick Settings	full	0	24	320	198	8	2	16	1	1	1	21970	600032	0	0	0	/Music/test.mp3	0	0	12
+243	3699	screen	Quick Settings	full	0	24	320	198	8	2	16	1	1	1	22179	600032	0	0	0	/Music/test.mp3	0	0	12
+244	3740	screen	Quick Settings	full	0	24	320	198	8	2	16	1	1	1	22466	600032	0	0	0	/Music/test.mp3	0	0	12
+245	3798	screen	Quick Settings	full	0	24	320	198	9	2	16	1	1	1	22832	600032	0	0	0	/Music/test.mp3	0	0	12
+246	3831	screen	Quick Settings	list-delta	0	24	320	198	10	3	16	1	1	1	23067	600032	0	0	0	/Music/test.mp3	0	0	12
+247	3863	screen	Quick Settings	list-delta	0	24	320	198	11	4	16	1	1	1	23302	600032	0	0	0	/Music/test.mp3	0	0	12
+248	3892	screen	Quick Settings	list-delta	0	24	320	198	12	5	16	1	1	1	23485	600032	0	0	0	/Music/test.mp3	0	0	12
+249	3904	screen	Quick Settings	full	0	24	320	198	12	5	16	1	1	1	23589	600032	0	0	0	/Music/test.mp3	0	0	12
+250	3925	screen	Quick Settings	list-delta	0	24	320	198	13	6	16	1	1	1	23720	600032	0	0	0	/Music/test.mp3	0	0	12
+251	3956	screen	Quick Settings	list-delta	0	24	320	198	14	7	16	1	1	1	23955	600032	0	0	0	/Music/test.mp3	0	0	12
+252	3987	screen	Quick Settings	list-delta	0	24	320	198	15	8	16	1	1	1	24138	600032	0	0	0	/Music/test.mp3	0	0	12
+253	3999	screen	Quick Settings	full	0	24	320	198	15	8	16	1	1	1	24242	600032	0	0	0	/Music/test.mp3	0	0	12
+254	4018	screen	Quick Settings	list-delta	0	24	320	198	0	0	16	1	1	1	24373	600032	0	0	0	/Music/test.mp3	0	0	12
+255	4051	screen	Quick Settings	row-delta	0	24	320	198	1	0	16	1	1	1	24608	600032	0	0	0	/Music/test.mp3	0	0	12
+256	4082	screen	Quick Settings	row-delta	0	24	320	198	2	0	16	1	1	1	24791	600032	0	0	0	/Music/test.mp3	0	0	12
+257	4106	screen	Quick Settings	full	0	24	320	198	2	0	16	1	1	1	24921	600032	0	0	0	/Music/test.mp3	0	0	12
+258	4115	screen	Quick Settings	row-delta	0	24	320	198	3	0	16	1	1	1	25026	600032	0	0	0	/Music/test.mp3	0	0	12
+259	4144	screen	Quick Settings	row-delta	0	24	320	198	4	0	16	1	1	1	25209	600032	0	0	0	/Music/test.mp3	0	0	12
+260	4176	screen	Quick Settings	row-delta	0	24	320	198	5	0	16	1	1	1	25444	600032	0	0	0	/Music/test.mp3	0	0	12
+261	4208	screen	Quick Settings	row-delta	0	24	320	198	6	0	16	1	1	1	25627	600032	0	0	0	/Music/test.mp3	0	0	12
+262	4220	screen	Quick Settings	full	0	24	320	198	6	0	16	1	1	1	25731	600032	0	0	0	/Music/test.mp3	0	0	12
+263	4239	screen	Quick Settings	row-delta	0	24	320	198	7	0	16	1	1	1	25862	600032	0	0	0	/Music/test.mp3	0	0	12
+264	4286	screen	Quick Settings	full	0	24	320	198	7	0	16	1	1	1	26175	600032	0	0	0	/Music/test.mp3	0	0	12
+265	4310	screen	Quick Settings	full	0	24	320	198	7	0	16	1	1	1	26332	600032	0	0	0	/Music/test.mp3	0	0	12
+266	4362	screen	Quick Settings	full	0	24	320	198	7	0	16	1	1	1	26698	600032	0	0	0	/Music/test.mp3	0	0	12
+267	4384	screen	Quick Settings	list-delta	0	24	320	198	8	1	16	1	1	1	26828	600032	0	0	0	/Music/test.mp3	0	0	12
+268	4414	screen	Quick Settings	full	0	24	320	198	9	2	16	1	1	1	27063	600032	0	0	0	/Music/test.mp3	0	0	12
+269	4448	screen	Quick Settings	list-delta	0	24	320	198	10	3	16	1	1	1	27299	600032	0	0	0	/Music/test.mp3	0	0	12
+270	4479	screen	Quick Settings	list-delta	0	24	320	198	11	4	16	1	1	1	27481	600032	0	0	0	/Music/test.mp3	0	0	12
+271	4510	screen	Quick Settings	list-delta	0	24	320	198	12	5	16	1	1	1	27716	600032	0	0	0	/Music/test.mp3	0	0	12
+272	4522	screen	Quick Settings	full	0	24	320	198	12	5	16	1	1	1	27769	600032	0	0	0	/Music/test.mp3	0	0	12
+273	4541	screen	Quick Settings	list-delta	0	24	320	198	13	6	16	1	1	1	27899	600032	0	0	0	/Music/test.mp3	0	0	12
+274	4573	screen	Quick Settings	list-delta	0	24	320	198	14	7	16	1	1	1	28134	600032	0	0	0	/Music/test.mp3	0	0	12
+275	4604	screen	Quick Settings	list-delta	0	24	320	198	15	8	16	1	1	1	28370	600032	0	0	0	/Music/test.mp3	0	0	12
+276	4616	screen	Quick Settings	full	0	24	320	198	15	8	16	1	1	1	28422	600032	0	0	0	/Music/test.mp3	0	0	12
+277	4636	screen	Quick Settings	list-delta	0	24	320	198	0	0	16	1	1	1	28552	600032	0	0	0	/Music/test.mp3	0	0	12
+278	4667	screen	Quick Settings	row-delta	0	24	320	198	1	0	16	1	1	1	28788	600032	0	0	0	/Music/test.mp3	0	0	12
+279	4699	screen	Quick Settings	row-delta	0	24	320	198	2	0	16	1	1	1	28970	600032	0	0	0	/Music/test.mp3	0	0	12
+280	4723	screen	Quick Settings	full	0	24	320	198	2	0	16	1	1	1	29153	600032	0	0	0	/Music/test.mp3	0	0	12
+281	4745	screen	Quick Settings	full	0	20	320	202	2	0	16	1	1	1	29284	600032	0	0	0	/Music/test.mp3	0	0	12
+282	4805	screen	Lockscreen	full	0	0	320	240	0	0	0	1	1	1	29702	600032	0	0	0	/Music/test.mp3	0	0	12
+283	4805	screen	Quick Settings	full	0	20	320	202	2	0	16	1	1	1	29702	600032	0	0	0	/Music/test.mp3	0	0	12
+284	4817	screen	Lockscreen	full	0	0	320	240	0	0	0	1	1	1	29806	600032	0	0	0	/Music/test.mp3	0	0	12
+285	4817	screen	Quick Settings	full	0	20	320	202	2	0	16	1	1	1	29806	600032	0	0	0	/Music/test.mp3	0	0	12
+286	4829	screen	Lockscreen	full	0	0	320	240	0	0	0	1	1	1	29859	600032	0	0	0	/Music/test.mp3	0	0	12
+287	4829	screen	Quick Settings	full	0	20	320	202	2	0	16	1	1	1	29859	600032	0	0	0	/Music/test.mp3	0	0	12
+288	4901	screen	Quick Settings	full	0	20	320	202	2	0	16	1	1	1	30355	600032	0	0	0	/Music/test.mp3	0	0	12
+289	4925	screen	Quick Settings	full	0	20	320	202	2	0	16	1	1	1	30512	600032	0	0	0	/Music/test.mp3	0	0	12
+290	4960	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	30773	600032	0	0	0	/Music/test.mp3	0	0	12
+291	4964	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	30773	600032	0	0	0	/Music/test.mp3	0	0	12
+292	4968	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	30825	600032	0	0	0	/Music/test.mp3	0	0	12
+293	4971	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	30825	600032	0	0	0	/Music/test.mp3	0	0	12
+294	4975	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	30877	600032	0	0	0	/Music/test.mp3	0	0	12
+295	4978	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	30877	600032	0	0	0	/Music/test.mp3	0	0	12
+296	4982	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	30930	600032	0	0	0	/Music/test.mp3	0	0	12
+297	4986	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	30930	600032	0	0	0	/Music/test.mp3	0	0	12
+298	4987	screen	Home	full	0	0	320	240	1	0	9	1	1	1	30956	600032	0	0	0	/Music/test.mp3	0	0	12
+299	5100	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	31713	600032	0	0	0	/Music/test.mp3	0	0	12
+300	5104	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	31765	600032	0	0	0	/Music/test.mp3	0	0	12
+301	5108	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	31765	600032	0	0	0	/Music/test.mp3	0	0	12
+302	5111	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	31792	600032	0	0	0	/Music/test.mp3	0	0	12
+303	5115	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	31792	600032	0	0	0	/Music/test.mp3	0	0	12
+304	5118	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	31844	600032	0	0	0	/Music/test.mp3	0	0	12
+305	5122	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	31844	600032	0	0	0	/Music/test.mp3	0	0	12
+306	5126	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	31896	600032	0	0	0	/Music/test.mp3	0	0	12
+307	5127	screen	Quick Settings	full	0	20	320	202	0	0	16	1	1	1	31896	600032	0	0	0	/Music/test.mp3	0	0	12
+308	5128	screen	Quick Settings	full	0	20	320	202	0	0	16	1	1	1	31896	600032	0	0	0	/Music/test.mp3	0	0	12
+309	5130	screen	Quick Settings	full	0	20	320	202	0	0	16	1	1	1	31948	600032	0	0	0	/Music/test.mp3	0	0	12
+310	5189	screen	Quick Settings	row-delta	0	20	320	202	1	0	16	1	1	1	32314	600032	0	0	0	/Music/test.mp3	0	0	12
+311	5230	screen	Quick Settings	full	0	20	320	202	1	0	16	1	1	1	32601	600032	0	0	0	/Music/test.mp3	0	0	12
+312	5235	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	32628	600032	0	0	0	/Music/test.mp3	0	0	12
+313	5239	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	32628	600032	0	0	0	/Music/test.mp3	0	0	12
+314	5243	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	32680	600032	0	0	0	/Music/test.mp3	0	0	12
+315	5246	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	32706	600032	0	0	0	/Music/test.mp3	0	0	12
+316	5250	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	32706	600032	0	0	0	/Music/test.mp3	0	0	12
+317	5253	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	32784	600032	0	0	0	/Music/test.mp3	0	0	12
+318	5257	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	32784	600032	0	0	0	/Music/test.mp3	0	0	12
+319	5261	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	32836	600032	0	0	0	/Music/test.mp3	0	0	12
+320	5261	screen	Brightness	apple-slider	0	90	320	80	100	0	101	1	1	1	32836	600032	0	0	0	/Music/test.mp3	0	0	12
+321	5263	screen	Brightness	slider-delta	0	90	320	80	95	0	101	1	1	1	32836	600032	0	0	0	/Music/test.mp3	0	0	12
+322	5296	screen	Brightness	slider-delta	0	90	320	80	100	0	101	1	1	1	33045	600032	0	0	0	/Music/test.mp3	0	0	12
+323	5332	screen	Brightness	apple-slider	0	90	320	80	100	0	101	1	1	1	33281	600032	0	0	0	/Music/test.mp3	0	0	12
+324	5353	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	33437	600032	0	0	0	/Music/test.mp3	0	0	12
+325	5357	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	33463	600032	0	0	0	/Music/test.mp3	0	0	12
+326	5361	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	33463	600032	0	0	0	/Music/test.mp3	0	0	12
+327	5364	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	33516	600032	0	0	0	/Music/test.mp3	0	0	12
+328	5368	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	33516	600032	0	0	0	/Music/test.mp3	0	0	12
+329	5371	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	33568	600032	0	0	0	/Music/test.mp3	0	0	12
+330	5375	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	33568	600032	0	0	0	/Music/test.mp3	0	0	12
+331	5379	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	33620	600032	0	0	0	/Music/test.mp3	0	0	12
+332	5380	screen	Quick Settings	full	0	20	320	202	1	0	16	1	1	1	33620	600032	0	0	0	/Music/test.mp3	0	0	12
+333	5392	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	33699	600032	0	0	0	/Music/test.mp3	0	0	12
+334	5396	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	33699	600032	0	0	0	/Music/test.mp3	0	0	12
+335	5400	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	33751	600032	0	0	0	/Music/test.mp3	0	0	12
+336	5403	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	33751	600032	0	0	0	/Music/test.mp3	0	0	12
+337	5407	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	33803	600032	0	0	0	/Music/test.mp3	0	0	12
+338	5410	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	33855	600032	0	0	0	/Music/test.mp3	0	0	12
+339	5414	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	33855	600032	0	0	0	/Music/test.mp3	0	0	12
+340	5418	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	33881	600032	0	0	0	/Music/test.mp3	0	0	12
+341	5418	screen	Home	full	0	0	320	240	1	0	9	1	1	1	33881	600032	0	0	0	/Music/test.mp3	0	0	12
+342	5531	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	34639	600032	0	0	0	/Music/test.mp3	0	0	12
+343	5535	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	34691	600032	0	0	0	/Music/test.mp3	0	0	12
+344	5539	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	34691	600032	0	0	0	/Music/test.mp3	0	0	12
+345	5542	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	34717	600032	0	0	0	/Music/test.mp3	0	0	12
+346	5546	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	34717	600032	0	0	0	/Music/test.mp3	0	0	12
+347	5549	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	34770	600032	0	0	0	/Music/test.mp3	0	0	12
+348	5553	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	34770	600032	0	0	0	/Music/test.mp3	0	0	12
+349	5557	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	34822	600032	0	0	0	/Music/test.mp3	0	0	12
+350	5557	screen	Quick Settings	full	0	20	320	202	0	0	16	1	1	1	34822	600032	0	0	0	/Music/test.mp3	0	0	12
+351	5558	screen	Quick Settings	full	0	20	320	202	0	0	16	1	1	1	34822	600032	0	0	0	/Music/test.mp3	0	0	12
+352	5620	screen	Quick Settings	row-delta	0	20	320	202	1	0	16	1	1	1	35240	600032	0	0	0	/Music/test.mp3	0	0	12
+353	5644	screen	Quick Settings	full	0	20	320	202	1	0	16	1	1	1	35423	600032	0	0	0	/Music/test.mp3	0	0	12
+354	5666	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	35553	600032	0	0	0	/Music/test.mp3	0	0	12
+355	5670	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	35605	600032	0	0	0	/Music/test.mp3	0	0	12
+356	5674	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	35605	600032	0	0	0	/Music/test.mp3	0	0	12
+357	5677	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	35658	600032	0	0	0	/Music/test.mp3	0	0	12
+358	5681	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	35658	600032	0	0	0	/Music/test.mp3	0	0	12
+359	5684	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	35684	600032	0	0	0	/Music/test.mp3	0	0	12
+360	5688	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	35684	600032	0	0	0	/Music/test.mp3	0	0	12
+361	5692	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	35762	600032	0	0	0	/Music/test.mp3	0	0	12
+362	5693	screen	Brightness	apple-slider	0	90	320	80	100	0	101	1	1	1	35762	600032	0	0	0	/Music/test.mp3	0	0	12
+363	5695	screen	Brightness	slider-delta	0	90	320	80	95	0	101	1	1	1	35762	600032	0	0	0	/Music/test.mp3	0	0	12
+364	5726	screen	Brightness	slider-delta	0	90	320	80	100	0	101	1	1	1	35971	600032	0	0	0	/Music/test.mp3	0	0	12
+365	5738	screen	Brightness	apple-slider	0	90	320	80	100	0	101	1	1	1	36076	600032	0	0	0	/Music/test.mp3	0	0	12
+366	5783	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	36363	600032	0	0	0	/Music/test.mp3	0	0	12
+367	5787	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	36389	600032	0	0	0	/Music/test.mp3	0	0	12
+368	5791	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	36389	600032	0	0	0	/Music/test.mp3	0	0	12
+369	5794	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	36441	600032	0	0	0	/Music/test.mp3	0	0	12
+370	5798	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	36441	600032	0	0	0	/Music/test.mp3	0	0	12
+371	5801	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	36494	600032	0	0	0	/Music/test.mp3	0	0	12
+372	5805	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	36494	600032	0	0	0	/Music/test.mp3	0	0	12
+373	5809	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	36546	600032	0	0	0	/Music/test.mp3	0	0	12
+374	5809	screen	Quick Settings	full	0	20	320	202	1	0	16	1	1	1	36546	600032	0	0	0	/Music/test.mp3	0	0	12
+375	5822	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	36624	600032	0	0	0	/Music/test.mp3	0	0	12
+376	5826	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	36676	600032	0	0	0	/Music/test.mp3	0	0	12
+377	5830	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	36676	600032	0	0	0	/Music/test.mp3	0	0	12
+378	5833	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	36729	600032	0	0	0	/Music/test.mp3	0	0	12
+379	5837	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	36729	600032	0	0	0	/Music/test.mp3	0	0	12
+380	5840	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	36781	600032	0	0	0	/Music/test.mp3	0	0	12
+381	5844	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	36781	600032	0	0	0	/Music/test.mp3	0	0	12
+382	5848	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	36807	600032	0	0	0	/Music/test.mp3	0	0	12
+383	5848	screen	Home	full	0	0	320	240	1	0	9	1	1	1	36807	600032	0	0	0	/Music/test.mp3	0	0	12
+384	5962	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	37565	600032	0	0	0	/Music/test.mp3	0	0	12
+385	5966	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	37617	600032	0	0	0	/Music/test.mp3	0	0	12
+386	5970	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	37643	600032	0	0	0	/Music/test.mp3	0	0	12
+387	5973	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	37643	600032	0	0	0	/Music/test.mp3	0	0	12
+388	5977	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	37695	600032	0	0	0	/Music/test.mp3	0	0	12
+389	5980	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	37695	600032	0	0	0	/Music/test.mp3	0	0	12
+390	5984	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	37748	600032	0	0	0	/Music/test.mp3	0	0	12
+391	5988	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	37748	600032	0	0	0	/Music/test.mp3	0	0	12
+392	5988	screen	Quick Settings	full	0	20	320	202	0	0	16	1	1	1	37748	600032	0	0	0	/Music/test.mp3	0	0	12
+393	6046	screen	Quick Settings	full	0	20	320	202	1	0	16	1	1	1	38165	600032	0	0	0	/Music/test.mp3	0	0	12
+394	6096	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	38479	600032	0	0	0	/Music/test.mp3	0	0	12
+395	6100	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	38531	600032	0	0	0	/Music/test.mp3	0	0	12
+396	6104	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	38531	600032	0	0	0	/Music/test.mp3	0	0	12
+397	6107	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	38583	600032	0	0	0	/Music/test.mp3	0	0	12
+398	6111	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	38583	600032	0	0	0	/Music/test.mp3	0	0	12
+399	6114	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	38636	600032	0	0	0	/Music/test.mp3	0	0	12
+400	6118	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	38636	600032	0	0	0	/Music/test.mp3	0	0	12
+401	6122	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	38662	600032	0	0	0	/Music/test.mp3	0	0	12
+402	6122	screen	Brightness	apple-slider	0	90	320	80	100	0	101	1	1	1	38662	600032	0	0	0	/Music/test.mp3	0	0	12
+403	6124	screen	Brightness	slider-delta	0	90	320	80	95	0	101	1	1	1	38662	600032	0	0	0	/Music/test.mp3	0	0	12
+404	6148	screen	Brightness	apple-slider	0	90	320	80	95	0	101	1	1	1	38871	600032	0	0	0	/Music/test.mp3	0	0	12
+405	6156	screen	Brightness	slider-delta	0	90	320	80	100	0	101	1	1	1	38897	600032	0	0	0	/Music/test.mp3	0	0	12
+406	6214	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	39289	600032	0	0	0	/Music/test.mp3	0	0	12
+407	6218	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	39315	600032	0	0	0	/Music/test.mp3	0	0	12
+408	6222	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	39367	600032	0	0	0	/Music/test.mp3	0	0	12
+409	6225	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	39367	600032	0	0	0	/Music/test.mp3	0	0	12
+410	6229	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	39419	600032	0	0	0	/Music/test.mp3	0	0	12
+411	6232	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	39419	600032	0	0	0	/Music/test.mp3	0	0	12
+412	6236	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	39472	600032	0	0	0	/Music/test.mp3	0	0	12
+413	6240	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	39472	600032	0	0	0	/Music/test.mp3	0	0	12
+414	6241	screen	Quick Settings	full	0	20	320	202	1	0	16	1	1	1	39472	600032	0	0	0	/Music/test.mp3	0	0	12
+415	6253	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	39550	600032	0	0	0	/Music/test.mp3	0	0	12
+416	6257	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	39602	600032	0	0	0	/Music/test.mp3	0	0	12
+417	6261	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	39602	600032	0	0	0	/Music/test.mp3	0	0	12
+418	6264	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	39654	600032	0	0	0	/Music/test.mp3	0	0	12
+419	6268	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	39654	600032	0	0	0	/Music/test.mp3	0	0	12
+420	6271	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	39707	600032	0	0	0	/Music/test.mp3	0	0	12
+421	6275	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	39707	600032	0	0	0	/Music/test.mp3	0	0	12
+422	6279	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	39733	600032	0	0	0	/Music/test.mp3	0	0	12
+423	6279	screen	Home	full	0	0	320	240	1	0	9	1	1	1	39733	600032	0	0	0	/Music/test.mp3	0	0	12
+424	6392	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	40490	600032	0	0	0	/Music/test.mp3	0	0	12
+425	6396	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	40543	600032	0	0	0	/Music/test.mp3	0	0	12
+426	6400	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	40569	600032	0	0	0	/Music/test.mp3	0	0	12
+427	6403	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	40569	600032	0	0	0	/Music/test.mp3	0	0	12
+428	6407	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	40621	600032	0	0	0	/Music/test.mp3	0	0	12
+429	6410	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	40621	600032	0	0	0	/Music/test.mp3	0	0	12
+430	6414	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	40673	600032	0	0	0	/Music/test.mp3	0	0	12
+431	6418	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	40673	600032	0	0	0	/Music/test.mp3	0	0	12
+432	6419	screen	Quick Settings	full	0	20	320	202	0	0	16	1	1	1	40673	600032	0	0	0	/Music/test.mp3	0	0	12
+433	6454	screen	Quick Settings	full	0	20	320	202	0	0	16	1	1	1	40961	600032	0	0	0	/Music/test.mp3	0	0	12
+434	6480	screen	Quick Settings	row-delta	0	20	320	202	1	0	16	1	1	1	41143	600032	0	0	0	/Music/test.mp3	0	0	12
+435	6528	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	41405	600032	0	0	0	/Music/test.mp3	0	0	12
+436	6532	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	41457	600032	0	0	0	/Music/test.mp3	0	0	12
+437	6536	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	41457	600032	0	0	0	/Music/test.mp3	0	0	12
+438	6539	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	41509	600032	0	0	0	/Music/test.mp3	0	0	12
+439	6543	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	41509	600032	0	0	0	/Music/test.mp3	0	0	12
+440	6546	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	41561	600032	0	0	0	/Music/test.mp3	0	0	12
+441	6550	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	41614	600032	0	0	0	/Music/test.mp3	0	0	12
+442	6554	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	41614	600032	0	0	0	/Music/test.mp3	0	0	12
+443	6555	screen	Brightness	apple-slider	0	90	320	80	100	0	101	1	1	1	41614	600032	0	0	0	/Music/test.mp3	0	0	12
+444	6556	screen	Brightness	apple-slider	0	90	320	80	95	0	101	1	1	1	41614	600032	0	0	0	/Music/test.mp3	0	0	12
+445	6588	screen	Brightness	slider-delta	0	90	320	80	100	0	101	1	1	1	41823	600032	0	0	0	/Music/test.mp3	0	0	12
+446	6645	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	42214	600032	0	0	0	/Music/test.mp3	0	0	12
+447	6649	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	42241	600032	0	0	0	/Music/test.mp3	0	0	12
+448	6653	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	42293	600032	0	0	0	/Music/test.mp3	0	0	12
+449	6656	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	42293	600032	0	0	0	/Music/test.mp3	0	0	12
+450	6660	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	42345	600032	0	0	0	/Music/test.mp3	0	0	12
+451	6663	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	42345	600032	0	0	0	/Music/test.mp3	0	0	12
+452	6667	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	42397	600032	0	0	0	/Music/test.mp3	0	0	12
+453	6671	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	42397	600032	0	0	0	/Music/test.mp3	0	0	12
+454	6671	screen	Quick Settings	full	0	20	320	202	1	0	16	1	1	1	42397	600032	0	0	0	/Music/test.mp3	0	0	12
+455	6672	screen	Quick Settings	full	0	20	320	202	1	0	16	1	1	1	42450	600032	0	0	0	/Music/test.mp3	0	0	12
+456	6684	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	42476	600032	0	0	0	/Music/test.mp3	0	0	12
+457	6688	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	42528	600032	0	0	0	/Music/test.mp3	0	0	12
+458	6692	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	42528	600032	0	0	0	/Music/test.mp3	0	0	12
+459	6695	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	42580	600032	0	0	0	/Music/test.mp3	0	0	12
+460	6699	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	42580	600032	0	0	0	/Music/test.mp3	0	0	12
+461	6702	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	42632	600032	0	0	0	/Music/test.mp3	0	0	12
+462	6706	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	42632	600032	0	0	0	/Music/test.mp3	0	0	12
+463	6710	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	42659	600032	0	0	0	/Music/test.mp3	0	0	12
+464	6711	screen	Home	full	0	0	320	240	1	0	9	1	1	1	42659	600032	0	0	0	/Music/test.mp3	0	0	12
+465	6823	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	43468	600032	0	0	0	/Music/test.mp3	0	0	12
+466	6827	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	43468	600032	0	0	0	/Music/test.mp3	0	0	12
+467	6831	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	43494	600032	0	0	0	/Music/test.mp3	0	0	12
+468	6834	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	43494	600032	0	0	0	/Music/test.mp3	0	0	12
+469	6838	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	43547	600032	0	0	0	/Music/test.mp3	0	0	12
+470	6841	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	43547	600032	0	0	0	/Music/test.mp3	0	0	12
+471	6845	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	43599	600032	0	0	0	/Music/test.mp3	0	0	12
+472	6849	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	43599	600032	0	0	0	/Music/test.mp3	0	0	12
+473	6849	screen	Quick Settings	full	0	20	320	202	0	0	16	1	1	1	43599	600032	0	0	0	/Music/test.mp3	0	0	12
+474	6862	screen	Quick Settings	full	0	20	320	202	0	0	16	1	1	1	43703	600032	0	0	0	/Music/test.mp3	0	0	12
+475	6912	screen	Quick Settings	row-delta	0	20	320	202	1	0	16	1	1	1	44069	600032	0	0	0	/Music/test.mp3	0	0	12
+476	6959	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	44330	600032	0	0	0	/Music/test.mp3	0	0	12
+477	6963	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	44383	600032	0	0	0	/Music/test.mp3	0	0	12
+478	6967	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	44435	600032	0	0	0	/Music/test.mp3	0	0	12
+479	6970	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	44435	600032	0	0	0	/Music/test.mp3	0	0	12
+480	6974	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	44487	600032	0	0	0	/Music/test.mp3	0	0	12
+481	6977	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	44487	600032	0	0	0	/Music/test.mp3	0	0	12
+482	6981	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	44539	600032	0	0	0	/Music/test.mp3	0	0	12
+483	6985	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	44539	600032	0	0	0	/Music/test.mp3	0	0	12
+484	6985	screen	Brightness	apple-slider	0	90	320	80	100	0	101	1	1	1	44539	600032	0	0	0	/Music/test.mp3	0	0	12
+485	6987	screen	Brightness	apple-slider	0	90	320	80	95	0	101	1	1	1	44565	600032	0	0	0	/Music/test.mp3	0	0	12
+486	7018	screen	Brightness	slider-delta	0	90	320	80	100	0	101	1	1	1	44748	600032	0	0	0	/Music/test.mp3	0	0	12
+487	7071	screen	Brightness	apple-slider	0	90	320	80	100	0	101	1	1	1	45140	600032	0	0	0	/Music/test.mp3	0	0	12
+488	7076	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	45166	600032	0	0	0	/Music/test.mp3	0	0	12
+489	7080	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	45166	600032	0	0	0	/Music/test.mp3	0	0	12
+490	7084	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	45219	600032	0	0	0	/Music/test.mp3	0	0	12
+491	7087	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	45219	600032	0	0	0	/Music/test.mp3	0	0	12
+492	7091	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	45271	600032	0	0	0	/Music/test.mp3	0	0	12
+493	7094	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	45271	600032	0	0	0	/Music/test.mp3	0	0	12
+494	7099	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	45323	600032	0	0	0	/Music/test.mp3	0	0	12
+495	7102	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	45375	600032	0	0	0	/Music/test.mp3	0	0	12
+496	7102	screen	Quick Settings	full	0	20	320	202	1	0	16	1	1	1	45375	600032	0	0	0	/Music/test.mp3	0	0	12
+497	7115	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	45401	600032	0	0	0	/Music/test.mp3	0	0	12
+498	7119	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	45454	600032	0	0	0	/Music/test.mp3	0	0	12
+499	7123	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	45506	600032	0	0	0	/Music/test.mp3	0	0	12
+500	7126	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	45506	600032	0	0	0	/Music/test.mp3	0	0	12
+501	7130	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	45558	600032	0	0	0	/Music/test.mp3	0	0	12
+502	7133	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	45558	600032	0	0	0	/Music/test.mp3	0	0	12
+503	7137	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	45584	600032	0	0	0	/Music/test.mp3	0	0	12
+504	7141	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	45584	600032	0	0	0	/Music/test.mp3	0	0	12
+505	7142	screen	Home	full	0	0	320	240	1	0	9	1	1	1	45584	600032	0	0	0	/Music/test.mp3	0	0	12
+506	7167	screen	Home	full	0	0	320	240	1	0	9	1	1	1	45793	600032	0	0	0	/Music/test.mp3	0	0	12
+507	7254	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	46394	600032	0	0	0	/Music/test.mp3	0	0	12
+508	7258	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	46394	600032	0	0	0	/Music/test.mp3	0	0	12
+509	7262	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	46420	600032	0	0	0	/Music/test.mp3	0	0	12
+510	7265	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	46420	600032	0	0	0	/Music/test.mp3	0	0	12
+511	7269	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	46472	600032	0	0	0	/Music/test.mp3	0	0	12
+512	7272	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	46472	600032	0	0	0	/Music/test.mp3	0	0	12
+513	7276	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	46525	600032	0	0	0	/Music/test.mp3	0	0	12
+514	7280	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	46577	600032	0	0	0	/Music/test.mp3	0	0	12
+515	7280	screen	Quick Settings	full	0	20	320	202	0	0	16	1	1	1	46577	600032	0	0	0	/Music/test.mp3	0	0	12
+516	7282	screen	Quick Settings	full	0	20	320	202	0	0	16	1	1	1	46577	600032	0	0	0	/Music/test.mp3	0	0	12
+517	7342	screen	Quick Settings	row-delta	0	20	320	202	1	0	16	1	1	1	46995	600032	0	0	0	/Music/test.mp3	0	0	12
+518	7373	screen	Quick Settings	full	0	20	320	202	1	0	16	1	1	1	47178	600032	0	0	0	/Music/test.mp3	0	0	12
+519	7390	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	47308	600032	0	0	0	/Music/test.mp3	0	0	12
+520	7394	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	47308	600032	0	0	0	/Music/test.mp3	0	0	12
+521	7398	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	47361	600032	0	0	0	/Music/test.mp3	0	0	12
+522	7401	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	47361	600032	0	0	0	/Music/test.mp3	0	0	12
+523	7405	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	47413	600032	0	0	0	/Music/test.mp3	0	0	12
+524	7408	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	47413	600032	0	0	0	/Music/test.mp3	0	0	12
+525	7412	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	47465	600032	0	0	0	/Music/test.mp3	0	0	12
+526	7416	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	47491	600032	0	0	0	/Music/test.mp3	0	0	12
+527	7416	screen	Brightness	apple-slider	0	90	320	80	100	0	101	1	1	1	47491	600032	0	0	0	/Music/test.mp3	0	0	12
+528	7418	screen	Brightness	slider-delta	0	90	320	80	95	0	101	1	1	1	47491	600032	0	0	0	/Music/test.mp3	0	0	12
+529	7449	screen	Brightness	slider-delta	0	90	320	80	100	0	101	1	1	1	47674	600032	0	0	0	/Music/test.mp3	0	0	12
+530	7473	screen	Brightness	apple-slider	0	90	320	80	100	0	101	1	1	1	47883	600032	0	0	0	/Music/test.mp3	0	0	12
+531	7507	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	48092	600032	0	0	0	/Music/test.mp3	0	0	12
+532	7511	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	48092	600032	0	0	0	/Music/test.mp3	0	0	12
+533	7515	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	48144	600032	0	0	0	/Music/test.mp3	0	0	12
+534	7518	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	48144	600032	0	0	0	/Music/test.mp3	0	0	12
+535	7522	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	48196	600032	0	0	0	/Music/test.mp3	0	0	12
+536	7525	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	48196	600032	0	0	0	/Music/test.mp3	0	0	12
+537	7529	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	48249	600032	0	0	0	/Music/test.mp3	0	0	12
+538	7533	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	48301	600032	0	0	0	/Music/test.mp3	0	0	12
+539	7533	screen	Quick Settings	full	0	20	320	202	1	0	16	1	1	1	48301	600032	0	0	0	/Music/test.mp3	0	0	12
+540	7546	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	48379	600032	0	0	0	/Music/test.mp3	0	0	12
+541	7550	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	48379	600032	0	0	0	/Music/test.mp3	0	0	12
+542	7554	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	48432	600032	0	0	0	/Music/test.mp3	0	0	12
+543	7557	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	48432	600032	0	0	0	/Music/test.mp3	0	0	12
+544	7561	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	48484	600032	0	0	0	/Music/test.mp3	0	0	12
+545	7564	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	48484	600032	0	0	0	/Music/test.mp3	0	0	12
+546	7568	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	48510	600032	0	0	0	/Music/test.mp3	0	0	12
+547	7572	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	48510	600032	0	0	0	/Music/test.mp3	0	0	12
+548	7573	screen	Home	full	0	0	320	240	1	0	9	1	1	1	48562	600032	0	0	0	/Music/test.mp3	0	0	12
+549	7686	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	49320	600032	0	0	0	/Music/test.mp3	0	0	12
+550	7690	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	49346	600032	0	0	0	/Music/test.mp3	0	0	12
+551	7694	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	49346	600032	0	0	0	/Music/test.mp3	0	0	12
+552	7697	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	49398	600032	0	0	0	/Music/test.mp3	0	0	12
+553	7701	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	49398	600032	0	0	0	/Music/test.mp3	0	0	12
+554	7704	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	49450	600032	0	0	0	/Music/test.mp3	0	0	12
+555	7708	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	49450	600032	0	0	0	/Music/test.mp3	0	0	12
+556	7712	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	49503	600032	0	0	0	/Music/test.mp3	0	0	12
+557	7712	screen	Quick Settings	full	0	20	320	202	0	0	16	1	1	1	49503	600032	0	0	0	/Music/test.mp3	0	0	12
+558	7774	screen	Quick Settings	row-delta	0	20	320	202	1	0	16	1	1	1	49921	600032	0	0	0	/Music/test.mp3	0	0	12
+559	7786	screen	Quick Settings	full	0	20	320	202	1	0	16	1	1	1	49999	600032	0	0	0	/Music/test.mp3	0	0	12
+560	7821	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	50234	600032	0	0	0	/Music/test.mp3	0	0	12
+561	7825	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	50234	600032	0	0	0	/Music/test.mp3	0	0	12
+562	7829	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	50286	600032	0	0	0	/Music/test.mp3	0	0	12
+563	7832	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	50286	600032	0	0	0	/Music/test.mp3	0	0	12
+564	7836	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	50339	600032	0	0	0	/Music/test.mp3	0	0	12
+565	7839	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	50339	600032	0	0	0	/Music/test.mp3	0	0	12
+566	7843	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	50391	600032	0	0	0	/Music/test.mp3	0	0	12
+567	7847	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	50391	600032	0	0	0	/Music/test.mp3	0	0	12
+568	7848	screen	Brightness	apple-slider	0	90	320	80	100	0	101	1	1	1	50417	600032	0	0	0	/Music/test.mp3	0	0	12
+569	7850	screen	Brightness	slider-delta	0	90	320	80	95	0	101	1	1	1	50417	600032	0	0	0	/Music/test.mp3	0	0	12
+570	7881	screen	Brightness	slider-delta	0	90	320	80	100	0	101	1	1	1	50652	600032	0	0	0	/Music/test.mp3	0	0	12
+571	7893	screen	Brightness	apple-slider	0	90	320	80	100	0	101	1	1	1	50704	600032	0	0	0	/Music/test.mp3	0	0	12
+572	7938	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	51018	600032	0	0	0	/Music/test.mp3	0	0	12
+573	7942	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	51018	600032	0	0	0	/Music/test.mp3	0	0	12
+574	7946	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	51070	600032	0	0	0	/Music/test.mp3	0	0	12
+575	7949	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	51070	600032	0	0	0	/Music/test.mp3	0	0	12
+576	7953	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	51122	600032	0	0	0	/Music/test.mp3	0	0	12
+577	7956	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	51122	600032	0	0	0	/Music/test.mp3	0	0	12
+578	7961	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	51174	600032	0	0	0	/Music/test.mp3	0	0	12
+579	7964	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	51227	600032	0	0	0	/Music/test.mp3	0	0	12
+580	7964	screen	Quick Settings	full	0	20	320	202	1	0	16	1	1	1	51227	600032	0	0	0	/Music/test.mp3	0	0	12
+581	7977	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	51305	600032	0	0	0	/Music/test.mp3	0	0	12
+582	7981	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	51305	600032	0	0	0	/Music/test.mp3	0	0	12
+583	7985	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	51357	600032	0	0	0	/Music/test.mp3	0	0	12
+584	7988	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	51357	600032	0	0	0	/Music/test.mp3	0	0	12
+585	7992	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	51410	600032	0	0	0	/Music/test.mp3	0	0	12
+586	7995	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	51410	600032	0	0	0	/Music/test.mp3	0	0	12
+587	7999	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	51436	600032	0	0	0	/Music/test.mp3	0	0	12
+588	8003	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	51436	600032	0	0	0	/Music/test.mp3	0	0	12
+589	8004	screen	Home	full	0	0	320	240	1	0	9	1	1	1	51488	600032	0	0	0	/Music/test.mp3	0	0	12
+590	8119	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	52245	600032	0	0	0	/Music/test.mp3	0	0	12
+591	8123	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	52272	600032	0	0	0	/Music/test.mp3	0	0	12
+592	8127	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	52324	600032	0	0	0	/Music/test.mp3	0	0	12
+593	8130	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	52324	600032	0	0	0	/Music/test.mp3	0	0	12
+594	8134	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	52376	600032	0	0	0	/Music/test.mp3	0	0	12
+595	8137	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	52376	600032	0	0	0	/Music/test.mp3	0	0	12
+596	8141	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	52428	600032	0	0	0	/Music/test.mp3	0	0	12
+597	8145	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	52428	600032	0	0	0	/Music/test.mp3	0	0	12
+598	8146	screen	Quick Settings	full	0	20	320	202	0	0	16	1	1	1	52428	600032	0	0	0	/Music/test.mp3	0	0	12
+599	8190	screen	Quick Settings	full	0	20	320	202	0	0	16	1	1	1	52742	600032	0	0	0	/Music/test.mp3	0	0	12
+600	8206	screen	Quick Settings	row-delta	0	20	320	202	1	0	16	1	1	1	52846	600032	0	0	0	/Music/test.mp3	0	0	12
+601	8252	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	53160	600032	0	0	0	/Music/test.mp3	0	0	12
+602	8256	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	53160	600032	0	0	0	/Music/test.mp3	0	0	12
+603	8260	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	53212	600032	0	0	0	/Music/test.mp3	0	0	12
+604	8263	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	53212	600032	0	0	0	/Music/test.mp3	0	0	12
+605	8267	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	53264	600032	0	0	0	/Music/test.mp3	0	0	12
+606	8270	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	53316	600032	0	0	0	/Music/test.mp3	0	0	12
+607	8274	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	53316	600032	0	0	0	/Music/test.mp3	0	0	12
+608	8278	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	53343	600032	0	0	0	/Music/test.mp3	0	0	12
+609	8279	screen	Brightness	apple-slider	0	90	320	80	100	0	101	1	1	1	53343	600032	0	0	0	/Music/test.mp3	0	0	12
+610	8281	screen	Brightness	slider-delta	0	90	320	80	95	0	101	1	1	1	53343	600032	0	0	0	/Music/test.mp3	0	0	12
+611	8293	screen	Brightness	apple-slider	0	90	320	80	95	0	101	1	1	1	53447	600032	0	0	0	/Music/test.mp3	0	0	12
+612	8311	screen	Brightness	slider-delta	0	90	320	80	100	0	101	1	1	1	53578	600032	0	0	0	/Music/test.mp3	0	0	12
+613	8369	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	53943	600032	0	0	0	/Music/test.mp3	0	0	12
+614	8373	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	53996	600032	0	0	0	/Music/test.mp3	0	0	12
+615	8377	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	53996	600032	0	0	0	/Music/test.mp3	0	0	12
+616	8380	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	54048	600032	0	0	0	/Music/test.mp3	0	0	12
+617	8384	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	54048	600032	0	0	0	/Music/test.mp3	0	0	12
+618	8387	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	54100	600032	0	0	0	/Music/test.mp3	0	0	12
+619	8391	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	54100	600032	0	0	0	/Music/test.mp3	0	0	12
+620	8395	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	54152	600032	0	0	0	/Music/test.mp3	0	0	12
+621	8396	screen	Quick Settings	full	0	20	320	202	1	0	16	1	1	1	54152	600032	0	0	0	/Music/test.mp3	0	0	12
+622	8398	screen	Quick Settings	full	0	20	320	202	1	0	16	1	1	1	54152	600032	0	0	0	/Music/test.mp3	0	0	12
+623	8409	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	54231	600032	0	0	0	/Music/test.mp3	0	0	12
+624	8413	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	54231	600032	0	0	0	/Music/test.mp3	0	0	12
+625	8417	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	54283	600032	0	0	0	/Music/test.mp3	0	0	12
+626	8420	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	54283	600032	0	0	0	/Music/test.mp3	0	0	12
+627	8424	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	54335	600032	0	0	0	/Music/test.mp3	0	0	12
+628	8427	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	54335	600032	0	0	0	/Music/test.mp3	0	0	12
+629	8431	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	54361	600032	0	0	0	/Music/test.mp3	0	0	12
+630	8435	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	54414	600032	0	0	0	/Music/test.mp3	0	0	12
+631	8436	screen	Home	full	0	0	320	240	1	0	9	1	1	1	54414	600032	0	0	0	/Music/test.mp3	0	0	12
+632	8547	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	55171	600032	0	0	0	/Music/test.mp3	0	0	12
+633	8551	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	55197	600032	0	0	0	/Music/test.mp3	0	0	12
+634	8555	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	55197	600032	0	0	0	/Music/test.mp3	0	0	12
+635	8558	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	55250	600032	0	0	0	/Music/test.mp3	0	0	12
+636	8562	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	55250	600032	0	0	0	/Music/test.mp3	0	0	12
+637	8565	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	55302	600032	0	0	0	/Music/test.mp3	0	0	12
+638	8569	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	55302	600032	0	0	0	/Music/test.mp3	0	0	12
+639	8573	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	55354	600032	0	0	0	/Music/test.mp3	0	0	12
+640	8574	screen	Quick Settings	full	0	20	320	202	0	0	16	1	1	1	55354	600032	0	0	0	/Music/test.mp3	0	0	12
+641	8609	screen	Quick Settings	full	0	20	320	202	0	0	16	1	1	1	55589	600032	0	0	0	/Music/test.mp3	0	0	12
+642	8638	screen	Quick Settings	row-delta	0	20	320	202	1	0	16	1	1	1	55772	600032	0	0	0	/Music/test.mp3	0	0	12
+643	8683	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	56085	600032	0	0	0	/Music/test.mp3	0	0	12
+644	8687	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	56085	600032	0	0	0	/Music/test.mp3	0	0	12
+645	8691	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	56138	600032	0	0	0	/Music/test.mp3	0	0	12
+646	8694	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	56190	600032	0	0	0	/Music/test.mp3	0	0	12
+647	8698	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	56190	600032	0	0	0	/Music/test.mp3	0	0	12
+648	8701	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	56242	600032	0	0	0	/Music/test.mp3	0	0	12
+649	8705	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	56242	600032	0	0	0	/Music/test.mp3	0	0	12
+650	8709	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	56268	600032	0	0	0	/Music/test.mp3	0	0	12
+651	8710	screen	Brightness	apple-slider	0	90	320	80	100	0	101	1	1	1	56268	600032	0	0	0	/Music/test.mp3	0	0	12
+652	8712	screen	Brightness	apple-slider	0	90	320	80	100	0	101	1	1	1	56268	600032	0	0	0	/Music/test.mp3	0	0	12
+653	8714	screen	Brightness	slider-delta	0	90	320	80	95	0	101	1	1	1	56268	600032	0	0	0	/Music/test.mp3	0	0	12
+654	8744	screen	Brightness	slider-delta	0	90	320	80	100	0	101	1	1	1	56477	600032	0	0	0	/Music/test.mp3	0	0	12
+655	8800	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	56869	600032	0	0	0	/Music/test.mp3	0	0	12
+656	8804	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	56921	600032	0	0	0	/Music/test.mp3	0	0	12
+657	8808	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	56921	600032	0	0	0	/Music/test.mp3	0	0	12
+658	8811	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	56974	600032	0	0	0	/Music/test.mp3	0	0	12
+659	8815	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	56974	600032	0	0	0	/Music/test.mp3	0	0	12
+660	8818	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	57026	600032	0	0	0	/Music/test.mp3	0	0	12
+661	8822	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	57026	600032	0	0	0	/Music/test.mp3	0	0	12
+662	8826	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	57078	600032	0	0	0	/Music/test.mp3	0	0	12
+663	8827	screen	Quick Settings	full	0	20	320	202	1	0	16	1	1	1	57078	600032	0	0	0	/Music/test.mp3	0	0	12
+664	8829	screen	Quick Settings	full	0	20	320	202	1	0	16	1	1	1	57078	600032	0	0	0	/Music/test.mp3	0	0	12
+665	8839	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	57156	600032	0	0	0	/Music/test.mp3	0	0	12
+666	8843	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	57156	600032	0	0	0	/Music/test.mp3	0	0	12
+667	8847	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	57209	600032	0	0	0	/Music/test.mp3	0	0	12
+668	8850	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	57209	600032	0	0	0	/Music/test.mp3	0	0	12
+669	8854	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	57261	600032	0	0	0	/Music/test.mp3	0	0	12
+670	8857	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	57261	600032	0	0	0	/Music/test.mp3	0	0	12
+671	8861	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	57287	600032	0	0	0	/Music/test.mp3	0	0	12
+672	8865	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	57339	600032	0	0	0	/Music/test.mp3	0	0	12
+673	8865	screen	Home	full	0	0	320	240	1	0	9	1	1	1	57339	600032	0	0	0	/Music/test.mp3	0	0	12
+674	8979	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	58097	600032	0	0	0	/Music/test.mp3	0	0	12
+675	8983	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	58123	600032	0	0	0	/Music/test.mp3	0	0	12
+676	8987	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	58123	600032	0	0	0	/Music/test.mp3	0	0	12
+677	8990	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	58175	600032	0	0	0	/Music/test.mp3	0	0	12
+678	8994	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	58175	600032	0	0	0	/Music/test.mp3	0	0	12
+679	8997	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	58228	600032	0	0	0	/Music/test.mp3	0	0	12
+680	9001	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	58228	600032	0	0	0	/Music/test.mp3	0	0	12
+681	9005	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	58280	600032	0	0	0	/Music/test.mp3	0	0	12
+682	9006	screen	Quick Settings	full	0	20	320	202	0	0	16	1	1	1	58280	600032	0	0	0	/Music/test.mp3	0	0	12
+683	9007	screen	Quick Settings	full	0	20	320	202	0	0	16	1	1	1	58280	600032	0	0	0	/Music/test.mp3	0	0	12
+684	9067	screen	Quick Settings	row-delta	0	20	320	202	1	0	16	1	1	1	58698	600032	0	0	0	/Music/test.mp3	0	0	12
+685	9108	screen	Quick Settings	full	0	20	320	202	1	0	16	1	1	1	58959	600032	0	0	0	/Music/test.mp3	0	0	12
+686	9113	screen	Transition	forward	0	0	320	240	0	0	8	1	1	1	59011	600032	0	0	0	/Music/test.mp3	0	0	12
+687	9117	screen	Transition	forward	0	0	320	240	21	1	8	1	1	1	59063	600032	0	0	0	/Music/test.mp3	0	0	12
+688	9121	screen	Transition	forward	0	0	320	240	77	2	8	1	1	1	59063	600032	0	0	0	/Music/test.mp3	0	0	12
+689	9124	screen	Transition	forward	0	0	320	240	131	3	8	1	1	1	59116	600032	0	0	0	/Music/test.mp3	0	0	12
+690	9128	screen	Transition	forward	0	0	320	240	207	4	8	1	1	1	59116	600032	0	0	0	/Music/test.mp3	0	0	12
+691	9131	screen	Transition	forward	0	0	320	240	258	5	8	1	1	1	59168	600032	0	0	0	/Music/test.mp3	0	0	12
+692	9135	screen	Transition	forward	0	0	320	240	307	6	8	1	1	1	59168	600032	0	0	0	/Music/test.mp3	0	0	12
+693	9139	screen	Transition	forward	0	0	320	240	320	7	8	1	1	1	59194	600032	0	0	0	/Music/test.mp3	0	0	12
+694	9140	screen	Brightness	apple-slider	0	90	320	80	100	0	101	1	1	1	59194	600032	0	0	0	/Music/test.mp3	0	0	12
+695	9141	screen	Brightness	slider-delta	0	90	320	80	95	0	101	1	1	1	59194	600032	0	0	0	/Music/test.mp3	0	0	12
+696	9174	screen	Brightness	slider-delta	0	90	320	80	100	0	101	1	1	1	59429	600032	0	0	0	/Music/test.mp3	0	0	12
+697	9210	screen	Brightness	apple-slider	0	90	320	80	100	0	101	1	1	1	59664	600032	0	0	0	/Music/test.mp3	0	0	12
+698	9231	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	59795	600032	0	0	0	/Music/test.mp3	0	0	12
+699	9235	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	59847	600032	0	0	0	/Music/test.mp3	0	0	12
+700	9239	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	59847	600032	0	0	0	/Music/test.mp3	0	0	12
+701	9242	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	59899	600032	0	0	0	/Music/test.mp3	0	0	12
+702	9246	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	59899	600032	0	0	0	/Music/test.mp3	0	0	12
+703	9249	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	59952	600032	0	0	0	/Music/test.mp3	0	0	12
+704	9254	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	60004	600032	0	0	0	/Music/test.mp3	0	0	12
+705	9257	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	60004	600032	0	0	0	/Music/test.mp3	0	0	12
+706	9257	screen	Quick Settings	full	0	20	320	202	1	0	16	1	1	1	60004	600032	0	0	0	/Music/test.mp3	0	0	12
+707	9270	screen	Transition	back	0	0	320	240	0	0	8	1	1	1	60082	600032	0	0	0	/Music/test.mp3	0	0	12
+708	9274	screen	Transition	back	0	0	320	240	21	1	8	1	1	1	60082	600032	0	0	0	/Music/test.mp3	0	0	12
+709	9278	screen	Transition	back	0	0	320	240	77	2	8	1	1	1	60134	600032	0	0	0	/Music/test.mp3	0	0	12
+710	9281	screen	Transition	back	0	0	320	240	131	3	8	1	1	1	60187	600032	0	0	0	/Music/test.mp3	0	0	12
+711	9285	screen	Transition	back	0	0	320	240	207	4	8	1	1	1	60187	600032	0	0	0	/Music/test.mp3	0	0	12
+712	9288	screen	Transition	back	0	0	320	240	258	5	8	1	1	1	60213	600032	0	0	0	/Music/test.mp3	0	0	12
+713	9292	screen	Transition	back	0	0	320	240	307	6	8	1	1	1	60213	600032	0	0	0	/Music/test.mp3	0	0	12
+714	9296	screen	Transition	back	0	0	320	240	320	7	8	1	1	1	60265	600032	0	0	0	/Music/test.mp3	0	0	12
+715	9296	screen	Home	full	0	0	320	240	1	0	9	1	1	1	60265	600032	0	0	0	/Music/test.mp3	0	0	12
+716	9332	screen	Shutdown CRT	band	0	0	320	240	0	0	6	1	1	1	60500	600032	0	0	0	/Music/test.mp3	0	0	12
+717	9336	screen	Shutdown CRT	band	0	0	320	240	1	0	6	1	1	1	60500	600032	0	0	0	/Music/test.mp3	0	0	12
+718	9340	screen	Shutdown CRT	band	0	0	320	240	2	0	6	1	1	1	60552	600032	0	0	0	/Music/test.mp3	0	0	12
+719	9344	screen	Shutdown CRT	band	0	0	320	240	3	0	6	1	1	1	60605	600032	0	0	0	/Music/test.mp3	0	0	12
+720	9348	screen	Shutdown CRT	band	0	0	320	240	4	0	6	1	1	1	60605	600032	0	0	0	/Music/test.mp3	0	0	12
+721	9352	screen	Shutdown CRT	band	0	0	320	240	5	0	6	1	1	1	60631	600032	0	0	0	/Music/test.mp3	0	0	12
+722	9356	screen	Shutdown CRT	line	0	0	320	240	0	0	5	1	1	1	60631	600032	0	0	0	/Music/test.mp3	0	0	12
+723	9360	screen	Shutdown CRT	line	0	0	320	240	1	0	5	1	1	1	60683	600032	0	0	0	/Music/test.mp3	0	0	12
+724	9364	screen	Shutdown CRT	line	0	0	320	240	2	0	5	1	1	1	60735	600032	0	0	0	/Music/test.mp3	0	0	12
+725	9368	screen	Shutdown CRT	line	0	0	320	240	3	0	5	1	1	1	60735	600032	0	0	0	/Music/test.mp3	0	0	12
+726	9372	screen	Shutdown CRT	line	0	0	320	240	4	0	5	1	1	1	60788	600032	0	0	0	/Music/test.mp3	0	0	12
+727	9376	screen	Shutdown CRT	dot	0	0	320	240	0	0	1	1	1	1	60788	600032	0	0	0	/Music/test.mp3	0	0	12
+728	9383	screen	Shutdown CRT	black	0	0	320	240	0	0	1	1	1	1	60840	600032	0	0	0	/Music/test.mp3	0	0	12

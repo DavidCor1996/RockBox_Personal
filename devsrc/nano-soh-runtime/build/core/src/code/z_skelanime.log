@@ -1,0 +1,379 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c: In function 'SkelAnime_DrawFlexLod':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:215:38: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  215 |     gSPSegment(POLY_OPA_DISP++, 0xD, mtx);
+      |                                      ^~~
+      |                                      |
+      |                                      Mtx * {aka MtxS *}
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Mtx *' {aka 'MtxS *'}
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c: In function 'SkelAnime_DrawSkeleton2':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:317:81: warning: passing argument 4 of 'SkelAnime_Draw' from incompatible pointer type [-Wincompatible-pointer-types]
+  317 |         return SkelAnime_Draw(play, skelAnime->skeleton, skelAnime->jointTable, overrideLimbDraw, postLimbDraw, arg,
+      |                                                                                 ^~~~~~~~~~~~~~~~
+      |                                                                                 |
+      |                                                                                 OverrideLimbDrawOpa {aka long int (*)(struct PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *)}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1283:91: note: expected 'OverrideLimbDraw' {aka 'long int (*)(struct PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **)'} but argument is of type 'OverrideLimbDrawOpa' {aka 'long int (*)(struct PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *)'}
+ 1283 | Gfx* SkelAnime_Draw(PlayState* play, void** skeleton, Vec3s* jointTable, OverrideLimbDraw overrideLimbDraw,
+      |                                                                          ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64actor.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64.h:10,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:4:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64animation.h:119:15: note: 'OverrideLimbDraw' declared here
+  119 | typedef s32 (*OverrideLimbDraw)(struct PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot,
+      |               ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64animation.h:114:15: note: 'OverrideLimbDrawOpa' declared here
+  114 | typedef s32 (*OverrideLimbDrawOpa)(struct PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot,
+      |               ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:317:99: warning: passing argument 5 of 'SkelAnime_Draw' from incompatible pointer type [-Wincompatible-pointer-types]
+  317 |         return SkelAnime_Draw(play, skelAnime->skeleton, skelAnime->jointTable, overrideLimbDraw, postLimbDraw, arg,
+      |                                                                                                   ^~~~~~~~~~~~
+      |                                                                                                   |
+      |                                                                                                   PostLimbDrawOpa {aka void (*)(struct PlayState *, long int,  Gfx **, Vec3s *, void *)}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1284:34: note: expected 'PostLimbDraw' {aka 'void (*)(struct PlayState *, long int,  Gfx **, Vec3s *, void *, Gfx **)'} but argument is of type 'PostLimbDrawOpa' {aka 'void (*)(struct PlayState *, long int,  Gfx **, Vec3s *, void *)'}
+ 1284 |                     PostLimbDraw postLimbDraw, void* arg, Gfx* gfx);
+      |                     ~~~~~~~~~~~~~^~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64animation.h:122:16: note: 'PostLimbDraw' declared here
+  122 | typedef void (*PostLimbDraw)(struct PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, void*, Gfx** gfx);
+      |                ^~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64animation.h:117:16: note: 'PostLimbDrawOpa' declared here
+  117 | typedef void (*PostLimbDrawOpa)(struct PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, void*);
+      |                ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:322:35: warning: passing argument 5 of 'SkelAnime_DrawFlex' from incompatible pointer type [-Wincompatible-pointer-types]
+  322 |                                   overrideLimbDraw, postLimbDraw, arg, gfx);
+      |                                   ^~~~~~~~~~~~~~~~
+      |                                   |
+      |                                   OverrideLimbDrawOpa {aka long int (*)(struct PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *)}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1286:42: note: expected 'OverrideLimbDraw' {aka 'long int (*)(struct PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **)'} but argument is of type 'OverrideLimbDrawOpa' {aka 'long int (*)(struct PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *)'}
+ 1286 |                         OverrideLimbDraw overrideLimbDraw, PostLimbDraw postLimbDraw, void* arg, Gfx* gfx);
+      |                         ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64animation.h:119:15: note: 'OverrideLimbDraw' declared here
+  119 | typedef s32 (*OverrideLimbDraw)(struct PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot,
+      |               ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64animation.h:114:15: note: 'OverrideLimbDrawOpa' declared here
+  114 | typedef s32 (*OverrideLimbDrawOpa)(struct PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot,
+      |               ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:322:53: warning: passing argument 6 of 'SkelAnime_DrawFlex' from incompatible pointer type [-Wincompatible-pointer-types]
+  322 |                                   overrideLimbDraw, postLimbDraw, arg, gfx);
+      |                                                     ^~~~~~~~~~~~
+      |                                                     |
+      |                                                     PostLimbDrawOpa {aka void (*)(struct PlayState *, long int,  Gfx **, Vec3s *, void *)}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1286:73: note: expected 'PostLimbDraw' {aka 'void (*)(struct PlayState *, long int,  Gfx **, Vec3s *, void *, Gfx **)'} but argument is of type 'PostLimbDrawOpa' {aka 'void (*)(struct PlayState *, long int,  Gfx **, Vec3s *, void *)'}
+ 1286 |                         OverrideLimbDraw overrideLimbDraw, PostLimbDraw postLimbDraw, void* arg, Gfx* gfx);
+      |                                                            ~~~~~~~~~~~~~^~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64animation.h:122:16: note: 'PostLimbDraw' declared here
+  122 | typedef void (*PostLimbDraw)(struct PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, void*, Gfx** gfx);
+      |                ^~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64animation.h:117:16: note: 'PostLimbDrawOpa' declared here
+  117 | typedef void (*PostLimbDrawOpa)(struct PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, void*);
+      |                ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c: In function 'SkelAnime_DrawFlexOpa':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:462:38: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  462 |     gSPSegment(POLY_OPA_DISP++, 0xD, mtx);
+      |                                      ^~~
+      |                                      |
+      |                                      Mtx * {aka MtxS *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Mtx *' {aka 'MtxS *'}
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c: In function 'SkelAnime_GetFrameData':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:508:33: warning: passing argument 1 of 'ResourceMgr_OTRSigCheck' from incompatible pointer type [-Wincompatible-pointer-types]
+  508 |     if (ResourceMgr_OTRSigCheck(animation) != 0)
+      |                                 ^~~~~~~~~
+      |                                 |
+      |                                 AnimationHeader *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:6:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:70:35: note: expected 'char *' but argument is of type 'AnimationHeader *'
+   70 | int ResourceMgr_OTRSigCheck(char* imgData);
+      |                             ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:509:48: warning: passing argument 1 of 'ResourceMgr_LoadAnimByName' from incompatible pointer type [-Wincompatible-pointer-types]
+  509 |         animation = ResourceMgr_LoadAnimByName(animation);
+      |                                                ^~~~~~~~~
+      |                                                |
+      |                                                AnimationHeader *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:49:63: note: expected 'const char *' but argument is of type 'AnimationHeader *'
+   49 | AnimationHeaderCommon* ResourceMgr_LoadAnimByName(const char* path);
+      |                                                   ~~~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:509:19: warning: assignment to 'AnimationHeader *' from incompatible pointer type 'AnimationHeaderCommon *' [-Wincompatible-pointer-types]
+  509 |         animation = ResourceMgr_LoadAnimByName(animation);
+      |                   ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:135:40: warning: passing argument 2 of 'LogUtils_LogThreadId' makes integer from pointer without a cast [-Wint-conversion]
+  135 |         LogUtils_LogThreadId(__FILE__, __FILE__);           \
+      |                                        ^~~~~~~~
+      |                                        |
+      |                                        char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:144:33: note: in expansion of macro 'LOG'
+  144 | #define LOG_ADDRESS(exp, value) LOG(exp, value, "%p")
+      |                                 ^~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:521:13: note: in expansion of macro 'LOG_ADDRESS'
+  521 |             LOG_ADDRESS("out", frameTable);
+      |             ^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:94:49: note: expected 's32' {aka 'long int'} but argument is of type 'char *'
+   94 | void LogUtils_LogThreadId(const char* name, s32 line);
+      |                                             ~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:135:40: warning: passing argument 2 of 'LogUtils_LogThreadId' makes integer from pointer without a cast [-Wint-conversion]
+  135 |         LogUtils_LogThreadId(__FILE__, __FILE__);           \
+      |                                        ^~~~~~~~
+      |                                        |
+      |                                        char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:144:33: note: in expansion of macro 'LOG'
+  144 | #define LOG_ADDRESS(exp, value) LOG(exp, value, "%p")
+      |                                 ^~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:522:13: note: in expansion of macro 'LOG_ADDRESS'
+  522 |             LOG_ADDRESS("ref_tbl", jointIndices);
+      |             ^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:94:49: note: expected 's32' {aka 'long int'} but argument is of type 'char *'
+   94 | void LogUtils_LogThreadId(const char* name, s32 line);
+      |                                             ~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:135:40: warning: passing argument 2 of 'LogUtils_LogThreadId' makes integer from pointer without a cast [-Wint-conversion]
+  135 |         LogUtils_LogThreadId(__FILE__, __FILE__);           \
+      |                                        ^~~~~~~~
+      |                                        |
+      |                                        char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:144:33: note: in expansion of macro 'LOG'
+  144 | #define LOG_ADDRESS(exp, value) LOG(exp, value, "%p")
+      |                                 ^~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:523:13: note: in expansion of macro 'LOG_ADDRESS'
+  523 |             LOG_ADDRESS("frame_tbl", dynamicData);
+      |             ^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:94:49: note: expected 's32' {aka 'long int'} but argument is of type 'char *'
+   94 | void LogUtils_LogThreadId(const char* name, s32 line);
+      |                                             ~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:135:40: warning: passing argument 2 of 'LogUtils_LogThreadId' makes integer from pointer without a cast [-Wint-conversion]
+  135 |         LogUtils_LogThreadId(__FILE__, __FILE__);           \
+      |                                        ^~~~~~~~
+      |                                        |
+      |                                        char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:144:33: note: in expansion of macro 'LOG'
+  144 | #define LOG_ADDRESS(exp, value) LOG(exp, value, "%p")
+      |                                 ^~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:524:13: note: in expansion of macro 'LOG_ADDRESS'
+  524 |             LOG_ADDRESS("tbl", staticData);
+      |             ^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:94:49: note: expected 's32' {aka 'long int'} but argument is of type 'char *'
+   94 | void LogUtils_LogThreadId(const char* name, s32 line);
+      |                                             ~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c: In function 'SkelAnime_DrawFlex':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:729:28: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  729 |     gSPSegment(gfx++, 0xD, mtx);
+      |                            ^~~
+      |                            |
+      |                            Mtx * {aka MtxS *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Mtx *' {aka 'MtxS *'}
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c: In function 'AnimationContext_SetLoadFrame':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:895:37: warning: passing argument 1 of 'ResourceMgr_OTRSigCheck' from incompatible pointer type [-Wincompatible-pointer-types]
+  895 |         if (ResourceMgr_OTRSigCheck(animation) != 0)
+      |                                     ^~~~~~~~~
+      |                                     |
+      |                                     LinkAnimationHeader *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:70:35: note: expected 'char *' but argument is of type 'LinkAnimationHeader *'
+   70 | int ResourceMgr_OTRSigCheck(char* imgData);
+      |                             ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:896:52: warning: passing argument 1 of 'ResourceMgr_LoadAnimByName' from incompatible pointer type [-Wincompatible-pointer-types]
+  896 |             animation = ResourceMgr_LoadAnimByName(animation);
+      |                                                    ^~~~~~~~~
+      |                                                    |
+      |                                                    LinkAnimationHeader *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:49:63: note: expected 'const char *' but argument is of type 'LinkAnimationHeader *'
+   49 | AnimationHeaderCommon* ResourceMgr_LoadAnimByName(const char* path);
+      |                                                   ~~~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:896:23: warning: assignment to 'LinkAnimationHeader *' from incompatible pointer type 'AnimationHeaderCommon *' [-Wincompatible-pointer-types]
+  896 |             animation = ResourceMgr_LoadAnimByName(animation);
+      |                       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:910:41: warning: passing argument 2 of 'memcpy' makes pointer from integer without a cast [-Wint-conversion]
+  910 |         memcpy(ram, (uintptr_t)animData + (((sizeof(Vec3s) * limbCount + 2) * frame)), sizeof(Vec3s) * limbCount + 2);
+      |                     ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                         |
+      |                                         long unsigned int
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:3:
+/usr/arm-none-eabi/include/string.h:31:36: note: expected 'const void * restrict' but argument is of type 'long unsigned int'
+   31 | void *   memcpy (void *__restrict, const void *__restrict, size_t);
+      |                                    ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c: In function 'SkelAnime_InitLink':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1102:33: warning: passing argument 1 of 'ResourceMgr_OTRSigCheck' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1102 |     if (ResourceMgr_OTRSigCheck(skeletonHeaderSeg) != 0)
+      |                                 ^~~~~~~~~~~~~~~~~
+      |                                 |
+      |                                 FlexSkeletonHeader *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:70:35: note: expected 'char *' but argument is of type 'FlexSkeletonHeader *'
+   70 | int ResourceMgr_OTRSigCheck(char* imgData);
+      |                             ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1103:60: warning: passing argument 1 of 'ResourceMgr_LoadSkeletonByName' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1103 |         skeletonHeaderSeg = ResourceMgr_LoadSkeletonByName(skeletonHeaderSeg, skelAnime);
+      |                                                            ^~~~~~~~~~~~~~~~~
+      |                                                            |
+      |                                                            FlexSkeletonHeader *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:66:60: note: expected 'const char *' but argument is of type 'FlexSkeletonHeader *'
+   66 | SkeletonHeader* ResourceMgr_LoadSkeletonByName(const char* path, SkelAnime* skelAnime);
+      |                                                ~~~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1103:27: warning: assignment to 'FlexSkeletonHeader *' from incompatible pointer type 'SkeletonHeader *' [-Wincompatible-pointer-types]
+ 1103 |         skeletonHeaderSeg = ResourceMgr_LoadSkeletonByName(skeletonHeaderSeg, skelAnime);
+      |                           ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c: In function 'LinkAnimation_Change':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1267:33: warning: passing argument 1 of 'ResourceMgr_OTRSigCheck' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1267 |     if (ResourceMgr_OTRSigCheck(animation) != 0)
+      |                                 ^~~~~~~~~
+      |                                 |
+      |                                 LinkAnimationHeader *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:70:35: note: expected 'char *' but argument is of type 'LinkAnimationHeader *'
+   70 | int ResourceMgr_OTRSigCheck(char* imgData);
+      |                             ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1268:48: warning: passing argument 1 of 'ResourceMgr_LoadAnimByName' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1268 |         animation = ResourceMgr_LoadAnimByName(animation);
+      |                                                ^~~~~~~~~
+      |                                                |
+      |                                                LinkAnimationHeader *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:49:63: note: expected 'const char *' but argument is of type 'LinkAnimationHeader *'
+   49 | AnimationHeaderCommon* ResourceMgr_LoadAnimByName(const char* path);
+      |                                                   ~~~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1268:19: warning: assignment to 'LinkAnimationHeader *' from incompatible pointer type 'AnimationHeaderCommon *' [-Wincompatible-pointer-types]
+ 1268 |         animation = ResourceMgr_LoadAnimByName(animation);
+      |                   ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1271:33: warning: passing argument 1 of 'ResourceMgr_OTRSigCheck' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1271 |     if (ResourceMgr_OTRSigCheck(currentAnimation) != 0)
+      |                                 ^~~~~~~~~~~~~~~~
+      |                                 |
+      |                                 AnimationHeader *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:70:35: note: expected 'char *' but argument is of type 'AnimationHeader *'
+   70 | int ResourceMgr_OTRSigCheck(char* imgData);
+      |                             ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1272:55: warning: passing argument 1 of 'ResourceMgr_LoadAnimByName' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1272 |         currentAnimation = ResourceMgr_LoadAnimByName(currentAnimation);
+      |                                                       ^~~~~~~~~~~~~~~~
+      |                                                       |
+      |                                                       AnimationHeader *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:49:63: note: expected 'const char *' but argument is of type 'AnimationHeader *'
+   49 | AnimationHeaderCommon* ResourceMgr_LoadAnimByName(const char* path);
+      |                                                   ~~~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1272:26: warning: assignment to 'AnimationHeader *' from incompatible pointer type 'AnimationHeaderCommon *' [-Wincompatible-pointer-types]
+ 1272 |         currentAnimation = ResourceMgr_LoadAnimByName(currentAnimation);
+      |                          ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1275:46: warning: comparison of distinct pointer types lacks a cast [-Wcompare-distinct-pointer-types]
+ 1275 |     if ((morphFrames != 0.0f) && ((animation != currentAnimation) || (startFrame != skelAnime->curFrame))) {
+      |                                              ^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c: In function 'SkelAnime_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1451:33: warning: passing argument 1 of 'ResourceMgr_OTRSigCheck' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1451 |     if (ResourceMgr_OTRSigCheck(skeletonHeaderSeg))
+      |                                 ^~~~~~~~~~~~~~~~~
+      |                                 |
+      |                                 SkeletonHeader *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:70:35: note: expected 'char *' but argument is of type 'SkeletonHeader *'
+   70 | int ResourceMgr_OTRSigCheck(char* imgData);
+      |                             ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1452:60: warning: passing argument 1 of 'ResourceMgr_LoadSkeletonByName' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1452 |         skeletonHeaderSeg = ResourceMgr_LoadSkeletonByName(skeletonHeaderSeg, skelAnime);
+      |                                                            ^~~~~~~~~~~~~~~~~
+      |                                                            |
+      |                                                            SkeletonHeader *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:66:60: note: expected 'const char *' but argument is of type 'SkeletonHeader *'
+   66 | SkeletonHeader* ResourceMgr_LoadSkeletonByName(const char* path, SkelAnime* skelAnime);
+      |                                                ~~~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c: In function 'SkelAnime_InitFlex':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1483:33: warning: passing argument 1 of 'ResourceMgr_OTRSigCheck' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1483 |     if (ResourceMgr_OTRSigCheck(skeletonHeaderSeg) != 0)
+      |                                 ^~~~~~~~~~~~~~~~~
+      |                                 |
+      |                                 FlexSkeletonHeader *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:70:35: note: expected 'char *' but argument is of type 'FlexSkeletonHeader *'
+   70 | int ResourceMgr_OTRSigCheck(char* imgData);
+      |                             ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1484:60: warning: passing argument 1 of 'ResourceMgr_LoadSkeletonByName' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1484 |         skeletonHeaderSeg = ResourceMgr_LoadSkeletonByName(skeletonHeaderSeg, skelAnime);
+      |                                                            ^~~~~~~~~~~~~~~~~
+      |                                                            |
+      |                                                            FlexSkeletonHeader *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:66:60: note: expected 'const char *' but argument is of type 'FlexSkeletonHeader *'
+   66 | SkeletonHeader* ResourceMgr_LoadSkeletonByName(const char* path, SkelAnime* skelAnime);
+      |                                                ~~~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1484:27: warning: assignment to 'FlexSkeletonHeader *' from incompatible pointer type 'SkeletonHeader *' [-Wincompatible-pointer-types]
+ 1484 |         skeletonHeaderSeg = ResourceMgr_LoadSkeletonByName(skeletonHeaderSeg, skelAnime);
+      |                           ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1488:31: warning: assignment to 'SkeletonHeader *' from incompatible pointer type 'FlexSkeletonHeader *' [-Wincompatible-pointer-types]
+ 1488 |     skelAnime->skeletonHeader = skeletonHeader;
+      |                               ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c: In function 'SkelAnime_InitSkin':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1519:33: warning: passing argument 1 of 'ResourceMgr_OTRSigCheck' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1519 |     if (ResourceMgr_OTRSigCheck(skeletonHeaderSeg) != 0)
+      |                                 ^~~~~~~~~~~~~~~~~
+      |                                 |
+      |                                 SkeletonHeader *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:70:35: note: expected 'char *' but argument is of type 'SkeletonHeader *'
+   70 | int ResourceMgr_OTRSigCheck(char* imgData);
+      |                             ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1520:48: warning: passing argument 1 of 'ResourceMgr_LoadAnimByName' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1520 |         animation = ResourceMgr_LoadAnimByName(skeletonHeaderSeg);
+      |                                                ^~~~~~~~~~~~~~~~~
+      |                                                |
+      |                                                SkeletonHeader *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:49:63: note: expected 'const char *' but argument is of type 'SkeletonHeader *'
+   49 | AnimationHeaderCommon* ResourceMgr_LoadAnimByName(const char* path);
+      |                                                   ~~~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1520:19: warning: assignment to 'AnimationHeader *' from incompatible pointer type 'AnimationHeaderCommon *' [-Wincompatible-pointer-types]
+ 1520 |         animation = ResourceMgr_LoadAnimByName(skeletonHeaderSeg);
+      |                   ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c: In function 'Animation_ChangeImpl':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1711:35: warning: initialization of 'LinkAnimationHeader *' from incompatible pointer type 'AnimationHeader *' [-Wincompatible-pointer-types]
+ 1711 |     LinkAnimationHeader* ogAnim = animation;
+      |                                   ^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1713:33: warning: passing argument 1 of 'ResourceMgr_OTRSigCheck' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1713 |     if (ResourceMgr_OTRSigCheck(animation) != 0)
+      |                                 ^~~~~~~~~
+      |                                 |
+      |                                 AnimationHeader *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:70:35: note: expected 'char *' but argument is of type 'AnimationHeader *'
+   70 | int ResourceMgr_OTRSigCheck(char* imgData);
+      |                             ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1714:48: warning: passing argument 1 of 'ResourceMgr_LoadAnimByName' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1714 |         animation = ResourceMgr_LoadAnimByName(animation);
+      |                                                ^~~~~~~~~
+      |                                                |
+      |                                                AnimationHeader *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:49:63: note: expected 'const char *' but argument is of type 'AnimationHeader *'
+   49 | AnimationHeaderCommon* ResourceMgr_LoadAnimByName(const char* path);
+      |                                                   ~~~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1714:19: warning: assignment to 'AnimationHeader *' from incompatible pointer type 'AnimationHeaderCommon *' [-Wincompatible-pointer-types]
+ 1714 |         animation = ResourceMgr_LoadAnimByName(animation);
+      |                   ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1717:33: warning: passing argument 1 of 'ResourceMgr_OTRSigCheck' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1717 |     if (ResourceMgr_OTRSigCheck(currentAnimation) != 0)
+      |                                 ^~~~~~~~~~~~~~~~
+      |                                 |
+      |                                 AnimationHeader *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:70:35: note: expected 'char *' but argument is of type 'AnimationHeader *'
+   70 | int ResourceMgr_OTRSigCheck(char* imgData);
+      |                             ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1718:55: warning: passing argument 1 of 'ResourceMgr_LoadAnimByName' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1718 |         currentAnimation = ResourceMgr_LoadAnimByName(currentAnimation);
+      |                                                       ^~~~~~~~~~~~~~~~
+      |                                                       |
+      |                                                       AnimationHeader *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:49:63: note: expected 'const char *' but argument is of type 'AnimationHeader *'
+   49 | AnimationHeaderCommon* ResourceMgr_LoadAnimByName(const char* path);
+      |                                                   ~~~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1718:26: warning: assignment to 'AnimationHeader *' from incompatible pointer type 'AnimationHeaderCommon *' [-Wincompatible-pointer-types]
+ 1718 |         currentAnimation = ResourceMgr_LoadAnimByName(currentAnimation);
+      |                          ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c: In function 'Animation_Change':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1768:33: warning: passing argument 1 of 'ResourceMgr_OTRSigCheck' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1768 |     if (ResourceMgr_OTRSigCheck(animation) != 0)
+      |                                 ^~~~~~~~~
+      |                                 |
+      |                                 AnimationHeader *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:70:35: note: expected 'char *' but argument is of type 'AnimationHeader *'
+   70 | int ResourceMgr_OTRSigCheck(char* imgData);
+      |                             ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1769:48: warning: passing argument 1 of 'ResourceMgr_LoadAnimByName' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1769 |         animation = ResourceMgr_LoadAnimByName(animation);
+      |                                                ^~~~~~~~~
+      |                                                |
+      |                                                AnimationHeader *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:49:63: note: expected 'const char *' but argument is of type 'AnimationHeader *'
+   49 | AnimationHeaderCommon* ResourceMgr_LoadAnimByName(const char* path);
+      |                                                   ~~~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skelanime.c:1769:19: warning: assignment to 'AnimationHeader *' from incompatible pointer type 'AnimationHeaderCommon *' [-Wincompatible-pointer-types]
+ 1769 |         animation = ResourceMgr_LoadAnimByName(animation);
+      |                   ^

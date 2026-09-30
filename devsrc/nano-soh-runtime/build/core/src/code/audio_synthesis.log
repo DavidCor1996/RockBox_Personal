@@ -1,0 +1,128 @@
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c:3:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c: In function 'AudioSynth_LoadBuffer':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c:387:22: warning: passing argument 1 of 'aLoadBufferImpl' makes pointer from integer without a cast [-Wint-conversion]
+  387 |     aLoadBuffer(cmd, arg3, arg1, arg2);
+      |                      ^~~~
+      |                      |
+      |                      uintptr_t {aka unsigned int}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/mixer.h:70:51: note: in definition of macro 'aLoadBuffer'
+   70 | #define aLoadBuffer(pkt, s, d, c) aLoadBufferImpl(s, d, c)
+      |                                                   ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/mixer.h:36:34: note: expected 'const void *' but argument is of type 'uintptr_t' {aka 'unsigned int'}
+   36 | void aLoadBufferImpl(const void* source_addr, uint16_t dest_addr, uint16_t nbytes);
+      |                      ~~~~~~~~~~~~^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c: In function 'AudioSynth_SaveBuffer':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c:391:28: warning: passing argument 2 of 'aSaveBufferImpl' makes pointer from integer without a cast [-Wint-conversion]
+  391 |     aSaveBuffer(cmd, arg1, arg3, arg2);
+      |                            ^~~~
+      |                            |
+      |                            uintptr_t {aka unsigned int}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/mixer.h:71:54: note: in definition of macro 'aSaveBuffer'
+   71 | #define aSaveBuffer(pkt, s, d, c) aSaveBufferImpl(s, d, c)
+      |                                                      ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/mixer.h:37:53: note: expected 'int16_t *' {aka 'short int *'} but argument is of type 'uintptr_t' {aka 'unsigned int'}
+   37 | void aSaveBufferImpl(uint16_t source_addr, int16_t* dest_addr, uint16_t nbytes);
+      |                                            ~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c: In function 'AudioSynth_LoadFilter':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c:445:37: warning: passing argument 3 of 'aFilterImpl' makes pointer from integer without a cast [-Wint-conversion]
+  445 |     aFilter(cmd, flags, countOrBuf, addr);
+      |                                     ^~~~
+      |                                     |
+      |                                     uintptr_t {aka unsigned int}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/mixer.h:91:70: note: in definition of macro 'aFilter'
+   91 | #define aFilter(pkt, f, countOrBuf, addr) aFilterImpl(f, countOrBuf, addr)
+      |                                                                      ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/mixer.h:55:65: note: expected 'int16_t *' {aka 'short int *'} but argument is of type 'uintptr_t' {aka 'unsigned int'}
+   55 | void aFilterImpl(uint8_t flags, uint16_t count_or_buf, int16_t* state_or_filter);
+      |                                                        ~~~~~~~~~^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c: In function 'AudioSynth_LoadFilterCount':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c:449:28: warning: passing argument 3 of 'aFilterImpl' makes pointer from integer without a cast [-Wint-conversion]
+  449 |     aFilter(cmd, 2, count, addr);
+      |                            ^~~~
+      |                            |
+      |                            uintptr_t {aka unsigned int}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/mixer.h:91:70: note: in definition of macro 'aFilter'
+   91 | #define aFilter(pkt, f, countOrBuf, addr) aFilterImpl(f, countOrBuf, addr)
+      |                                                                      ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/mixer.h:55:65: note: expected 'int16_t *' {aka 'short int *'} but argument is of type 'uintptr_t' {aka 'unsigned int'}
+   55 | void aFilterImpl(uint8_t flags, uint16_t count_or_buf, int16_t* state_or_filter);
+      |                                                        ~~~~~~~~~^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c: In function 'AudioSynth_SaveReverbSamples':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c:535:72: warning: passing argument 4 of 'AudioSynth_SaveBuffer' makes integer from pointer without a cast [-Wint-conversion]
+  535 |                               reverb->items[reverb->curFrame][bufIndex].toDownsampleLeft);
+      |                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+      |                                                                        |
+      |                                                                        s16 * {aka short int *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c:390:69: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 's16 *' {aka 'short int *'}
+  390 | void AudioSynth_SaveBuffer(Acmd* cmd, s32 arg1, s32 arg2, uintptr_t arg3) {
+      |                                                           ~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c: In function 'AudioSynth_ProcessNote':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c:763:20: warning: assignment to 'uintptr_t' {aka 'unsigned int'} from 'u8 *' {aka 'unsigned char *'} makes integer from pointer without a cast [-Wint-conversion]
+  763 |         sampleAddr = audioFontSample->sampleAddr;
+      |                    ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c:886:59: warning: passing argument 1 of 'aLoadBufferImpl' makes pointer from integer without a cast [-Wint-conversion]
+  886 |                             aLoadBuffer(cmd++, sampleAddr + (synthState->samplePosInt * 2), DMEM_UNCOMPRESSED_NOTE + s5,
+      |                                                ~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                           |
+      |                                                           long unsigned int
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/mixer.h:70:51: note: in definition of macro 'aLoadBuffer'
+   70 | #define aLoadBuffer(pkt, s, d, c) aLoadBufferImpl(s, d, c)
+      |                                                   ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/mixer.h:36:34: note: expected 'const void *' but argument is of type 'long unsigned int'
+   36 | void aLoadBufferImpl(const void* source_addr, uint16_t dest_addr, uint16_t nbytes);
+      |                      ~~~~~~~~~~~~^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c:907:36: warning: assignment to 'u8 *' {aka 'unsigned char *'} from 'uintptr_t' {aka 'unsigned int'} makes pointer from integer without a cast [-Wint-conversion]
+  907 |                         sampleData = AudioLoad_DmaSampleData(sampleDataStart + sampleDataOffset + sampleAddr,
+      |                                    ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c:930:58: warning: passing argument 1 of 'aSetLoopImpl' from incompatible pointer type [-Wincompatible-pointer-types]
+  930 |                     aSetLoop(cmd++, audioFontSample->loop->predictorState);
+      |                                     ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+      |                                                          |
+      |                                                          s16 * {aka short int *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/mixer.h:76:39: note: in definition of macro 'aSetLoop'
+   76 | #define aSetLoop(pkt, a) aSetLoopImpl(a)
+      |                                       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/mixer.h:42:32: note: expected 'short int (*)[16]' but argument is of type 's16 *' {aka 'short int *'}
+   42 | void aSetLoopImpl(ADPCM_STATE* adpcm_loop_state);
+      |                   ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c:1057:57: warning: passing argument 3 of 'AudioSynth_LoadFilterCount' makes integer from pointer without a cast [-Wint-conversion]
+ 1057 |         AudioSynth_LoadFilterCount(cmd++, aiBufLen * 2, filter);
+      |                                                         ^~~~~~
+      |                                                         |
+      |                                                         s16 * {aka short int *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c:448:65: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 's16 *' {aka 'short int *'}
+  448 | void AudioSynth_LoadFilterCount(Acmd* cmd, s32 count, uintptr_t addr) {
+      |                                                       ~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c:1058:84: warning: passing argument 4 of 'AudioSynth_LoadFilter' makes integer from pointer without a cast [-Wint-conversion]
+ 1058 |         AudioSynth_LoadFilter(cmd++, flags, DMEM_TEMP, synthState->synthesisBuffers->mixEnvelopeState);
+      |                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~
+      |                                                                                    |
+      |                                                                                    s16 * {aka short int *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c:444:76: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 's16 *' {aka 'short int *'}
+  444 | void AudioSynth_LoadFilter(Acmd* cmd, s32 flags, s32 countOrBuf, uintptr_t addr) {
+      |                                                                  ~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c:1071:55: warning: passing argument 4 of 'AudioSynth_LoadBuffer' makes integer from pointer without a cast [-Wint-conversion]
+ 1071 |             AudioSynth_LoadBuffer(cmd++, thing, unk7, buf);
+      |                                                       ^~~
+      |                                                       |
+      |                                                       void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c:386:69: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+  386 | void AudioSynth_LoadBuffer(Acmd* cmd, s32 arg1, s32 arg2, uintptr_t arg3) {
+      |                                                           ~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c:1073:79: warning: passing argument 4 of 'AudioSynth_SaveBuffer' makes integer from pointer without a cast [-Wint-conversion]
+ 1073 |         AudioSynth_SaveBuffer(cmd++, DMEM_TEMP + (aiBufLen * 2) - unk7, unk7, buf);
+      |                                                                               ^~~
+      |                                                                               |
+      |                                                                               void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c:390:69: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+  390 | void AudioSynth_SaveBuffer(Acmd* cmd, s32 arg1, s32 arg2, uintptr_t arg3) {
+      |                                                           ~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c: In function 'AudioSynth_LoadWaveSamples':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c:1189:103: warning: passing argument 4 of 'AudioSynth_LoadBuffer' makes integer from pointer without a cast [-Wint-conversion]
+ 1189 |         AudioSynth_LoadBuffer(cmd++, DMEM_UNCOMPRESSED_NOTE, ALIGN16(nSamplesToLoad * 2), gWaveSamples[8]);
+      |                                                                                           ~~~~~~~~~~~~^~~
+      |                                                                                                       |
+      |                                                                                                       s16 * {aka short int *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_synthesis.c:386:69: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 's16 *' {aka 'short int *'}
+  386 | void AudioSynth_LoadBuffer(Acmd* cmd, s32 arg1, s32 arg2, uintptr_t arg3) {
+      |                                                           ~~~~~~~~~~^~~~

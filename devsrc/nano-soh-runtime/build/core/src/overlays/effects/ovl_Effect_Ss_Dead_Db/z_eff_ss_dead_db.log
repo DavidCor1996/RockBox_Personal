@@ -1,0 +1,51 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Dead_Db/z_eff_ss_dead_db.c: In function 'EffectSsDeadDb_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Dead_Db/z_eff_ss_dead_db.c:38:15: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   38 |     this->gfx = SEGMENTED_TO_VIRTUAL(gEffEnemyDeathFlameDL);
+      |               ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Dead_Db/z_eff_ss_dead_db.c: At top level:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Dead_Db/z_eff_ss_dead_db.c:60:5: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   60 |     gEffEnemyDeathFlame1Tex, gEffEnemyDeathFlame2Tex,  gEffEnemyDeathFlame3Tex, gEffEnemyDeathFlame4Tex,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Dead_Db/z_eff_ss_dead_db.c:60:30: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   60 |     gEffEnemyDeathFlame1Tex, gEffEnemyDeathFlame2Tex,  gEffEnemyDeathFlame3Tex, gEffEnemyDeathFlame4Tex,
+      |                              ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Dead_Db/z_eff_ss_dead_db.c:60:56: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   60 |     gEffEnemyDeathFlame1Tex, gEffEnemyDeathFlame2Tex,  gEffEnemyDeathFlame3Tex, gEffEnemyDeathFlame4Tex,
+      |                                                        ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Dead_Db/z_eff_ss_dead_db.c:60:81: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   60 |     gEffEnemyDeathFlame1Tex, gEffEnemyDeathFlame2Tex,  gEffEnemyDeathFlame3Tex, gEffEnemyDeathFlame4Tex,
+      |                                                                                 ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Dead_Db/z_eff_ss_dead_db.c:61:5: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   61 |     gEffEnemyDeathFlame5Tex, gEffEnemyDeathFlame6Tex,  gEffEnemyDeathFlame7Tex, gEffEnemyDeathFlame8Tex,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Dead_Db/z_eff_ss_dead_db.c:61:30: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   61 |     gEffEnemyDeathFlame5Tex, gEffEnemyDeathFlame6Tex,  gEffEnemyDeathFlame7Tex, gEffEnemyDeathFlame8Tex,
+      |                              ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Dead_Db/z_eff_ss_dead_db.c:61:56: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   61 |     gEffEnemyDeathFlame5Tex, gEffEnemyDeathFlame6Tex,  gEffEnemyDeathFlame7Tex, gEffEnemyDeathFlame8Tex,
+      |                                                        ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Dead_Db/z_eff_ss_dead_db.c:61:81: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   61 |     gEffEnemyDeathFlame5Tex, gEffEnemyDeathFlame6Tex,  gEffEnemyDeathFlame7Tex, gEffEnemyDeathFlame8Tex,
+      |                                                                                 ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Dead_Db/z_eff_ss_dead_db.c:62:5: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   62 |     gEffEnemyDeathFlame9Tex, gEffEnemyDeathFlame10Tex,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Dead_Db/z_eff_ss_dead_db.c:62:30: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   62 |     gEffEnemyDeathFlame9Tex, gEffEnemyDeathFlame10Tex,
+      |                              ^~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:10,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Dead_Db/z_eff_ss_dead_db.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Dead_Db/z_eff_ss_dead_db.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Dead_Db/z_eff_ss_dead_db.c: In function 'EffectSsDeadDb_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Dead_Db/z_eff_ss_dead_db.c:89:73: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+   89 |         gSPSegment(POLY_XLU_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(sTextures[this->rTextIdx]));
+      |                                                                ~~~~~~~~~^~~~~~~~~~~~~~~~
+      |                                                                         |
+      |                                                                         void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~

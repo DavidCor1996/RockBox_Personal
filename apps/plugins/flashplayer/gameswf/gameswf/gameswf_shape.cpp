@@ -35,6 +35,8 @@ extern "C" int flashplayer_consume_shape_mesh_budget(int id, int paths,
 extern "C" void flashplayer_trace_movie_state(const char *name, int value,
 	int aux_a, int aux_b);
 
+extern "C" bool flashplayer_draw_original_shape(int,const gameswf::matrix *,const gameswf::cxform *);
+
 namespace gameswf
 {
 	static float	s_curve_max_pixel_error = 1.0f;
@@ -1439,6 +1441,7 @@ namespace gameswf
 	{
 		matrix	mat = inst->get_world_matrix();
 		cxform	cx = inst->get_world_cxform();
+        if (flashplayer_draw_original_shape(inst->get_id(), &mat, &cx)) return;
 
 		float	pixel_scale = inst->get_parent()->get_pixel_scale();
 

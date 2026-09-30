@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import html
 import json
+import logging
 import os
 import re
 import shutil
@@ -17,7 +18,14 @@ from urllib.parse import urlsplit
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
-from services.android_media import build_ffmpeg_command
+from services.app_video_sync import (
+    app_video_extension,
+    app_video_profile,
+    app_video_signature,
+    device_video_target,
+    remove_alternate_video,
+    stage_app_video,
+)
 from services.device_sync_index import DeviceSyncIndex
 from services.file_safety import atomic_write_text
 from services.path_safety import resolve_under_root, validate_device_root
@@ -68,7 +76,7 @@ def _group_media_items(items):
     by_description = {}
     for source in sorted(items, key=_post_sort_key, reverse=True):
         item = dict(source)
-        description = _clean(item.get("caption"), 500)
+        description = _clean(item.get("caption"), 2200)
         # Empty/generic descriptions do not prove that separate media belong
         # to one Instagram carousel.
         key = description.casefold() if description else ""
@@ -135,7 +143,9 @@ def _save_profile_text_art(font_path, tulip_path, text, target, size,
                            font_size, color, max_lines=1,
                            background=INSTAGRAM_PROFILE_BG):
     """Rasterize exact UTF-8 profile text with real Noto glyph assets."""
-    canvas = Image.new("RGB", size, background)
+    keyed = background == (255, 0, 255)
+    canvas = Image.new("RGBA" if keyed else "RGB", size,
+                       (0, 0, 0, 0) if keyed else background)
     draw = ImageDraw.Draw(canvas)
     font = ImageFont.truetype(str(font_path), font_size)
     with Image.open(tulip_path) as source:
@@ -154,7 +164,10 @@ def _save_profile_text_art(font_path, tulip_path, text, target, size,
         x = 0.0
         for character in value:
             if character == "🌷":
-                canvas.paste(tulip, (round(x), y + 1), tulip)
+                if keyed:
+                    canvas.alpha_composite(tulip, (round(x), y + 1))
+                else:
+                    canvas.paste(tulip, (round(x), y + 1), tulip)
                 x += tulip_size
             else:
                 draw.text((round(x), y - 3), character, font=font, fill=color)
@@ -177,6 +190,15 @@ def _save_profile_text_art(font_path, tulip_path, text, target, size,
     line_height = size[1] // max_lines
     for index, line in enumerate(lines[:max_lines]):
         draw_line(line, index * line_height)
+    if keyed:
+        # Antialias against the actual UI background, never the color key.
+        # Fully transparent pixels retain the exact RGB565 magenta key.
+        alpha = canvas.getchannel("A")
+        opaque = Image.new("RGB", size, INSTAGRAM_PROFILE_BG)
+        opaque.paste(canvas, mask=alpha)
+        transparent = alpha.point(lambda value: 255 if value == 0 else 0)
+        opaque.paste(background, mask=transparent)
+        canvas = opaque
     canvas.save(target, "BMP")
 
 
@@ -316,9 +338,27 @@ class InstagramAppService:
     def __init__(self, config, repo_root):
         self.config = config
         self.repo_root = Path(repo_root)
-        self.root = Path(config.get("cache_dir")) / "instagram"
+        cache_dir = config.get("instagram_cache_dir") or (
+            Path(config.get("cache_dir")) / "instagram"
+        )
+        self.root = Path(cache_dir).expanduser()
+        try:
+            self.root.mkdir(parents=True, exist_ok=True)
+        except FileExistsError:
+            # A configured cache path can be a symlink to removable storage.
+            # If that volume is offline, pathlib cannot create directories
+            # through the dangling link; keep startup usable with a local cache.
+            if not self.root.is_symlink() or self.root.exists():
+                raise
+            local_root = self.root.with_name(f"{self.root.name}-local")
+            local_root.mkdir(parents=True, exist_ok=True)
+            logging.getLogger(__name__).warning(
+                "Instagram cache target is unavailable (%s); using %s",
+                self.root,
+                local_root,
+            )
+            self.root = local_root
         self.index_path = self.root / "library.json"
-        self.root.mkdir(parents=True, exist_ok=True)
 
     @property
     def gallery_dl(self):
@@ -349,6 +389,25 @@ class InstagramAppService:
             if row.get("username", "").lower() != str(username).lower()
         ]
         self._save(payload)
+
+    @staticmethod
+    def open_login():
+        """Open Instagram in Firefox, whose cookies gallery-dl reads."""
+        firefox = shutil.which("firefox")
+        if not firefox:
+            raise ValueError(
+                "Firefox was not found; install or open Firefox to sign in"
+            )
+        subprocess.Popen(
+            [
+                firefox,
+                "--new-window",
+                "https://www.instagram.com/accounts/login/",
+            ],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True,
+        )
 
     def _run_json(self, url):
         command = [
@@ -428,12 +487,24 @@ class InstagramAppService:
             text=True, bufsize=1,
         )
         assert process.stdout is not None
+        errors = []
         for line in process.stdout:
             line = _clean(line, 180)
             if line:
                 progress(line)
+                if "[error]" in line.lower():
+                    errors = (errors + [line])[-2:]
         if process.wait() != 0:
-            raise ValueError("Instagram download failed; refresh the Firefox login and retry")
+            detail = "; ".join(errors)
+            if "redirect to home page" in detail.lower():
+                message = "Instagram extractor failed; update gallery-dl and retry"
+            elif "redirect to login page" in detail.lower():
+                message = "Instagram login expired; refresh the Firefox login and retry"
+            else:
+                message = "Instagram download failed"
+            if detail:
+                message += f" ({detail})"
+            raise ValueError(message)
 
         existing = next((p for p in self.list_profiles() if p.get("username") == username), {})
         items = []
@@ -457,7 +528,7 @@ class InstagramAppService:
                 "id": "ig_" + item_id,
                 "type": media_type,
                 "title": _clean(metadata.get("description") or "Instagram Post", 80),
-                "caption": _clean(metadata.get("description"), 500),
+                "caption": _clean(metadata.get("description"), 2200),
                 "source_path": str(media),
                 "post_url": _clean(metadata.get("post_url"), 500),
                 "post_date": _clean(metadata.get("post_date") or metadata.get("date"), 32),
@@ -516,8 +587,11 @@ class InstagramAppService:
         self._save(payload)
         return {"profile": profile, "photos": sum(i["type"] == "photo" for i in items), "videos": sum(i["type"] == "video" for i in items)}
 
-    def sync(self, mount_path, progress=None):
+    def sync(self, mount_path, progress=None, video_profile=None):
         mount = validate_device_root(mount_path)
+        video_target = device_video_target(mount)
+        video_profile = app_video_profile(self.config, video_profile)
+        video_extension = app_video_extension(video_profile)
         profiles = self.list_profiles()
         if not profiles:
             raise ValueError("Import an Instagram profile before syncing")
@@ -614,7 +688,16 @@ class InstagramAppService:
                             photos += 1
                             report["photos"] += 1
                     else:
-                        target = Path(roots["media"]) / f"{item_id}.mpg"
+                        selected_target = (
+                            Path(roots["media"]) / f"{item_id}{video_extension}"
+                        )
+                        alternate_target = selected_target.with_suffix(
+                            ".mpg" if video_extension == ".m4v" else ".m4v"
+                        )
+                        target = (
+                            selected_target if selected_target.is_file()
+                            else alternate_target
+                        )
                         ready = target.is_file()
                         if ready:
                             media_device = (
@@ -651,7 +734,7 @@ class InstagramAppService:
                         item_id, _ipod_text(profile["username"], 64),
                         str(item.get("type") or "photo"),
                         _ipod_text(item.get("title"), 80),
-                        _ipod_text(item.get("caption"), 180), media_device,
+                        _ipod_text(item.get("caption"), 2200), media_device,
                         f"/{INSTAGRAM_THUMB_ROOT}/{thumb.name}",
                         display_device, str(item.get("likes") or 0),
                         _ipod_text(item.get("post_date"), 32), feed_device,
@@ -716,22 +799,44 @@ class InstagramAppService:
                     feed_device = f"/{INSTAGRAM_FEED_ROOT}/{feed.name}"
                     photos += 1; report["photos"] += 1
                 else:
-                    target = Path(roots["media"]) / f"{item_id}.mpg"
-                    marker = target.with_suffix(".mpg.source")
-                    media_signature = signature + ":instagram-mpeg2-320x240-30-v1"
+                    target = (
+                        Path(roots["media"]) / f"{item_id}{video_extension}"
+                    )
+                    marker = Path(str(target) + ".source")
+                    media_signature = app_video_signature(
+                        video_profile, signature,
+                        "instagram-video-320x240-30-v2",
+                        video_target,
+                    )
                     current = sync_index.current_or_seed(
-                        "instagram", item_id, "video-media-v1", media_signature,
-                        [target], legacy_marker=marker, legacy_signature=signature,
+                        "instagram", item_id, "video-media-v2", media_signature,
+                        [target], legacy_marker=marker,
+                        legacy_signature=media_signature,
                     )
                     if not current:
                         staged = staging / target.name
-                        command = build_ffmpeg_command(source, str(staged), "video", ffmpeg_path=self.config.get("ffmpeg_binary", "ffmpeg"))
-                        command[command.index("-vf") + 1] = "scale=320:240:force_original_aspect_ratio=decrease,pad=320:240:(ow-iw)/2:(oh-ih)/2:black,fps=30"
-                        subprocess.run(command, check=True)
+                        stage_app_video(
+                            source, staged,
+                            config=self.config,
+                            profile=video_profile,
+                            cache_namespace="instagram-video",
+                            # Keep prepared videos with the resolved originals,
+                            # including when the profile cache is a symlink.
+                            cache_root=str(self.root.resolve().parent / "instagram-video"),
+                            device_key=item_id,
+                            device_target=video_target,
+                            title=item.get("title") or item_id,
+                            artist=f"@{profile['username']}",
+                            mpeg_filter=(
+                                "scale=320:240:force_original_aspect_ratio=decrease,"
+                                "pad=320:240:(ow-iw)/2:(oh-ih)/2:black,fps=30"
+                            ),
+                        )
                         os.replace(staged, target)
-                        atomic_write_text(marker, signature)
+                        atomic_write_text(marker, media_signature)
+                        remove_alternate_video(target)
                         sync_index.mark(
-                            "instagram", item_id, "video-media-v1",
+                            "instagram", item_id, "video-media-v2",
                             media_signature, [target],
                         )
                         report["updated"] += 1
@@ -769,7 +874,7 @@ class InstagramAppService:
                 row_line = "\t".join([
                     item_id, _ipod_text(profile["username"], 64), item["type"],
                     _ipod_text(item.get("title"), 80),
-                    _ipod_text(item.get("caption"), 180), media_device,
+                    _ipod_text(item.get("caption"), 2200), media_device,
                     f"/{INSTAGRAM_THUMB_ROOT}/{thumb.name}", display_device,
                     str(item.get("likes") or 0),
                     _ipod_text(item.get("post_date"), 32), feed_device,
@@ -797,7 +902,7 @@ class InstagramAppService:
             )
             name_signature = hashlib.sha256(
                 (
-                    "instagram-profile-name-205x18-14-transparent-v2\0"
+                    "instagram-profile-name-205x18-14-transparent-v3\0"
                     + text_asset_signature + "\0" + display_name
                 ).encode("utf-8")
             ).hexdigest()

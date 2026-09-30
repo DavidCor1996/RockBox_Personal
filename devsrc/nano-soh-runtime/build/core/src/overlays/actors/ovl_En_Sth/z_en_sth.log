@@ -1,0 +1,98 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:67:5: warning: initialization of 'FlexSkeletonHeader *' from incompatible pointer type 'const char (*)[49]' [-Wincompatible-pointer-types]
+   67 |     &object_ahg_Skel_0000F0, &object_boj_Skel_0000F0, &object_boj_Skel_0000F0,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:67:5: note: (near initialization for 'sSkeletons[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:67:30: warning: initialization of 'FlexSkeletonHeader *' from incompatible pointer type 'const char (*)[49]' [-Wincompatible-pointer-types]
+   67 |     &object_ahg_Skel_0000F0, &object_boj_Skel_0000F0, &object_boj_Skel_0000F0,
+      |                              ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:67:30: note: (near initialization for 'sSkeletons[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:67:55: warning: initialization of 'FlexSkeletonHeader *' from incompatible pointer type 'const char (*)[49]' [-Wincompatible-pointer-types]
+   67 |     &object_ahg_Skel_0000F0, &object_boj_Skel_0000F0, &object_boj_Skel_0000F0,
+      |                                                       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:67:55: note: (near initialization for 'sSkeletons[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:68:5: warning: initialization of 'FlexSkeletonHeader *' from incompatible pointer type 'const char (*)[49]' [-Wincompatible-pointer-types]
+   68 |     &object_boj_Skel_0000F0, &object_boj_Skel_0000F0, &object_boj_Skel_0000F0,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:68:5: note: (near initialization for 'sSkeletons[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:68:30: warning: initialization of 'FlexSkeletonHeader *' from incompatible pointer type 'const char (*)[49]' [-Wincompatible-pointer-types]
+   68 |     &object_boj_Skel_0000F0, &object_boj_Skel_0000F0, &object_boj_Skel_0000F0,
+      |                              ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:68:30: note: (near initialization for 'sSkeletons[4]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:68:55: warning: initialization of 'FlexSkeletonHeader *' from incompatible pointer type 'const char (*)[49]' [-Wincompatible-pointer-types]
+   68 |     &object_boj_Skel_0000F0, &object_boj_Skel_0000F0, &object_boj_Skel_0000F0,
+      |                                                       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:68:55: note: (near initialization for 'sSkeletons[5]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:72:5: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[44]' [-Wincompatible-pointer-types]
+   72 |     &sParentDanceAnim, &sChildDanceAnim, &sChildDanceAnim, &sChildDanceAnim, &sChildDanceAnim, &sChildDanceAnim,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:72:5: note: (near initialization for 'sAnimations[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:72:24: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[43]' [-Wincompatible-pointer-types]
+   72 |     &sParentDanceAnim, &sChildDanceAnim, &sChildDanceAnim, &sChildDanceAnim, &sChildDanceAnim, &sChildDanceAnim,
+      |                        ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:72:24: note: (near initialization for 'sAnimations[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:72:42: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[43]' [-Wincompatible-pointer-types]
+   72 |     &sParentDanceAnim, &sChildDanceAnim, &sChildDanceAnim, &sChildDanceAnim, &sChildDanceAnim, &sChildDanceAnim,
+      |                                          ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:72:42: note: (near initialization for 'sAnimations[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:72:60: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[43]' [-Wincompatible-pointer-types]
+   72 |     &sParentDanceAnim, &sChildDanceAnim, &sChildDanceAnim, &sChildDanceAnim, &sChildDanceAnim, &sChildDanceAnim,
+      |                                                            ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:72:60: note: (near initialization for 'sAnimations[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:72:78: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[43]' [-Wincompatible-pointer-types]
+   72 |     &sParentDanceAnim, &sChildDanceAnim, &sChildDanceAnim, &sChildDanceAnim, &sChildDanceAnim, &sChildDanceAnim,
+      |                                                                              ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:72:78: note: (near initialization for 'sAnimations[4]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:72:96: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[43]' [-Wincompatible-pointer-types]
+   72 |     &sParentDanceAnim, &sChildDanceAnim, &sChildDanceAnim, &sChildDanceAnim, &sChildDanceAnim, &sChildDanceAnim,
+      |                                                                                                ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:72:96: note: (near initialization for 'sAnimations[5]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c: In function 'EnSth_SetupAfterObjectLoaded':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:170:18: warning: assignment to 'uintptr_t' {aka 'unsigned int'} from 'void *' makes integer from pointer without a cast [-Wint-conversion]
+  170 |     gSegments[6] = PHYSICAL_TO_VIRTUAL(play->objectCtx.status[this->objectBankIdx].segment);
+      |                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c: In function 'EnSth_OverrideLimbDraw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:368:16: warning: assignment to 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  368 |         *dList = D_80B0A050;
+      |                ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c: In function 'EnSth_PostLimbDraw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:392:45: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  392 |             gSPDisplayList(POLY_OPA_DISP++, D_80B0A3C0);
+      |                                             ^~~~~~~~~~
+      |                                             |
+      |                                             const char *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:8:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c: In function 'EnSth_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:415:18: warning: assignment to 'uintptr_t' {aka 'unsigned int'} from 'void *' makes integer from pointer without a cast [-Wint-conversion]
+  415 |     gSegments[6] = PHYSICAL_TO_VIRTUAL(play->objectCtx.status[this->objectBankIdx].segment);
+      |                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:419:16: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  419 |                EnSth_AllocColorDList(play->state.gfxCtx, sTunicColors[this->actor.params].r,
+      |                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                |
+      |                Gfx *
+  420 |                                      sTunicColors[this->actor.params].g, sTunicColors[this->actor.params].b, 255));
+      |                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:423:43: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  423 |         gSPSegment(POLY_OPA_DISP++, 0x09, EnSth_AllocColorDList(play->state.gfxCtx, 190, 110, 0, 255));
+      |                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                           |
+      |                                           Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Sth/z_en_sth.c:425:43: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  425 |         gSPSegment(POLY_OPA_DISP++, 0x09, EnSth_AllocColorDList(play->state.gfxCtx, 90, 110, 130, 255));
+      |                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                           |
+      |                                           Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~

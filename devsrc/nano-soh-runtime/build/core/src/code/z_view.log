@@ -1,0 +1,11 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_view.c: In function 'func_800AAA9C':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_view.c:454:30: warning: passing argument 1 of 'Matrix_MtxFToMtx' from incompatible pointer type [-Wincompatible-pointer-types]
+  454 |     Matrix_MtxFToMtx(viewingF.mf, viewing);
+      |                      ~~~~~~~~^~~
+      |                              |
+      |                              float (*)[4]
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_view.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1813:29: note: expected 'MtxF *' but argument is of type 'float (*)[4]'
+ 1813 | Mtx* Matrix_MtxFToMtx(MtxF* src, Mtx* dest);
+      |                       ~~~~~~^~~

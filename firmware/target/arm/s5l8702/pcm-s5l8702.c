@@ -88,11 +88,27 @@ static struct dmac_ch_cfg dma_play_ch_cfg = {
 #define CHUNK_MAX_BYTES     (LLI_MAX_BYTES * 1)
 #define WATERMARK_BYTES     (PCM_WATERMARK * 4)
 
+/*
+ * Nano 3G WM1870 I2S setup, matching its validated upstream driver.
+ * Other S5L8702 targets retain the personal/Classic values.
+ */
+#ifdef IPOD_NANO3G
+#define I2STXCON_SETUP  0x0b100001
+#define I2STXCOM_START  0x6
+#else
+#define I2STXCON_SETUP  0xb100019
+#define I2STXCOM_START  0xe
+#endif
+
 static volatile int locked = 0;
 /* When set, pcm_play_dma_start() returns immediately without starting
  * I2S DMA.  Used by USB audio source pull mode where the USB ISR
  * drives audio data instead of the DMA controller. */
 volatile bool pcm_dma_start_inhibit = false;
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+static bool pcm_hibernate_codec_blocked;
+#endif
 static unsigned char dblbuf[2][WATERMARK_BYTES] CACHEALIGN_ATTR;
 static int active_dblbuf;
 size_t pcm_remaining;
@@ -183,6 +199,11 @@ void pcm_play_dma_start(const void* addr, size_t size)
 
     if (pcm_dma_start_inhibit)
         return;
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+    if (pcm_hibernate_codec_blocked)
+        return;
+#endif
 
     pcm_play_dma_stop();
 
@@ -202,7 +223,7 @@ void pcm_play_dma_start(const void* addr, size_t size)
 #endif
 
     pcm_remaining = size;
-    I2STXCOM = 0xe;
+    I2STXCOM = I2STXCOM_START;
 #ifdef IPOD_NANO3G
     ipodnano3g_audio_output_start(addr, size);
 #endif
@@ -245,6 +266,35 @@ static uint16_t last_clkcon3l;
 void pcm_dma_apply_settings(void)
 {
 #ifdef IPOD_NANO3G
+    /*
+     * NANO3G_OLD_PCM_FREQUENCY_PORT
+     *
+     * WM1870 runs from the fixed 12 MHz oscillator. Unlike the CS42L55
+     * Classic path, there is no special 32 kHz PLL workaround.
+     *
+     * last_clkcon3l begins invalid so MCLK is explicitly enabled on the
+     * first call, matching the validated Nano 3G implementation.
+     */
+    static uint16_t last_clkcon3l = 0xffff;
+    const uint16_t clkcon3l = 0;
+    int fsel = pcm_fsel;
+
+    if (last_clkcon3l != clkcon3l)
+    {
+        CLKCON3 = (CLKCON3 & ~0xffff) | 0x8000 | clkcon3l;
+        udelay(100);
+        CLKCON3 &= ~0x8000;
+        last_clkcon3l = clkcon3l;
+    }
+
+    I2SCLKDIV = MCLK_FREQ / hw_freq_sampr[fsel];
+
+    /* WM1870 driver translates this sample-rate selection. */
+    audiohw_set_frequency(fsel);
+
+#else
+
+#ifdef IPOD_NANO3G
     if (nano3g_safe_mode_enabled())
         return;
 #endif
@@ -281,6 +331,8 @@ void pcm_dma_apply_settings(void)
     I2SCLKDIV = MCLK_FREQ / hw_freq_sampr[fsel];
     /* select CS42L55 sample rate */
     audiohw_set_frequency(fsel);
+
+#endif /* IPOD_NANO3G */
 }
 
 void pcm_play_dma_init(void)
@@ -298,7 +350,7 @@ void pcm_play_dma_init(void)
 
     dmac_ch_init(&dma_play_ch, &dma_play_ch_cfg);
 
-    I2STXCON = 0xb100019;
+    I2STXCON = I2STXCON_SETUP;
     I2SCLKCON = 1;
 
 #ifdef IPOD_NANO3G
@@ -545,11 +597,57 @@ const void * pcm_rec_dma_get_peak_buffer(void)
 
 #if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
         IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+bool pcm_hibernate_suspend(void)
+{
+    /* The outer mixer service has already stopped physical PCM while keeping
+     * every retained channel and callback intact. Save the codec bank before
+     * muting it: LDO4 is lost in Standby, so internal PDN retention alone
+     * cannot preserve its master clock, routing, or volume configuration. */
+#if defined(HAVE_CS42L55)
+    if (!audiohw_hibernate_save())
+        return false;
+    audiohw_idle_powerdown();
+#endif
+    I2SCLKCON = 0;
+    PWRCON(1) |= 1 << 7;
+    CLKCON3 |= 0x8000;
+    return true;
+}
+
+bool pcm_hibernate_resume_complete(void)
+{
+    /* Called in thread context after tick repair, before the paired mixer
+     * restart. Never queue output against an incomplete codec restore. */
+#if defined(HAVE_CS42L55)
+    if (!audiohw_hibernate_restore())
+        return false;
+#endif
+    pcm_hibernate_codec_blocked = false;
+    return true;
+}
+
+void pcm_hibernate_abort(void)
+{
+    /* Entry refused before the bootloader reset DMAC. Restore only the
+     * hardware gated by pcm_hibernate_suspend(); the retained DMA channel
+     * object and carried mixer lock are still the live ones. */
+    PWRCON(1) &= ~(1 << 7);
+    I2SCLKCON = 1;
+    last_clkcon3l = 0xffff;
+    pcm_dma_apply_settings();
+#if defined(HAVE_CS42L55)
+    audiohw_idle_powerup();
+#endif
+}
+
 void pcm_hibernate_resume(void)
 {
+    pcm_hibernate_codec_blocked = true;
     /* dma_init() rebuilt the controller and discarded channel ownership.
-     * Reattach the retained channels, but keep playback/recording stopped as
-     * required by the Stage 3 gate. */
+     * Reattach the retained target channel and carry the opcode-8 PCM lock
+     * onto it before any output is queued.  The outer mixer opcode-9 service
+     * performs the paired output restart and sole unlock after the complete
+     * device transaction has returned with the scheduler live. */
     PWRCON(1) &= ~(1 << 7);
     dmac_ch_init(&dma_play_ch, &dma_play_ch_cfg);
     if (locked)

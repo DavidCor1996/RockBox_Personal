@@ -1,0 +1,21 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Zurerukabe/z_bg_jya_zurerukabe.c: In function 'BgJyaZurerukabe_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Zurerukabe/z_bg_jya_zurerukabe.c:114:46: warning: passing argument 3 of 'BgJyaZurerukabe_InitDynaPoly' from incompatible pointer type [-Wincompatible-pointer-types]
+  114 |     BgJyaZurerukabe_InitDynaPoly(this, play, &gZurerukabeCol, DPM_UNK);
+      |                                              ^~~~~~~~~~~~~~~
+      |                                              |
+      |                                              const char (*)[45]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Zurerukabe/z_bg_jya_zurerukabe.c:63:92: note: expected 'CollisionHeader *' but argument is of type 'const char (*)[45]'
+   63 | void BgJyaZurerukabe_InitDynaPoly(BgJyaZurerukabe* this, PlayState* play, CollisionHeader* collision, s32 flag) {
+      |                                                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Zurerukabe/z_bg_jya_zurerukabe.c: In function 'BgJyaZurerukabe_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Zurerukabe/z_bg_jya_zurerukabe.c:188:28: warning: passing argument 2 of 'Gfx_DrawDListOpa' from incompatible pointer type [-Wincompatible-pointer-types]
+  188 |     Gfx_DrawDListOpa(play, gZurerukabeDL);
+      |                            ^~~~~~~~~~~~~
+      |                            |
+      |                            const char *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Zurerukabe/z_bg_jya_zurerukabe.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Zurerukabe/z_bg_jya_zurerukabe.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:546:45: note: expected 'Gfx *' but argument is of type 'const char *'
+  546 | void Gfx_DrawDListOpa(PlayState* play, Gfx* dlist);
+      |                                        ~~~~~^~~~~

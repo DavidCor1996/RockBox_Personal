@@ -79,6 +79,13 @@ Initial candidates should be small and 2D:
 - `queen` for Flight of the Amazon Queen.
 - early `scumm` targets at 320x200.
 
+NiBiRu is a later, explicit experiment. Current upstream ScummVM identifies
+it as an unstable AGDS 2.511 target, but this Rockbox port's GPLv2-compatible
+ScummVM 1.9.0 import predates that engine. The local port therefore starts
+with bounded native ADB/GRP readers and will adapt only the required AGDS
+runtime behavior after validating a user-owned release. Original artwork,
+sound, video, and game data remain outside the source tree.
+
 Avoid engines with high-resolution, 3D, heavy video, or large scripting/runtime
 dependencies until the backend is stable.
 
@@ -353,6 +360,25 @@ These rules are mandatory for this tree and come from
     metadata surfacing for missing/corrupt resource failures. Done.
 73. Full Queen scene/script loop.
 74. Engine allowlist expansion and per-game input profiles.
+75. AGDS ADB/GRP bounded index validation and encrypted member lookup. Done.
+76. AGDS `main` object header validation and direct BMP/PCX archive streaming
+    with 1024x768-to-320x240 decode-time scaling. Done with synthetic simulator
+    coverage and the owned retail startup logo gate.
+77. NiBiRu AGDS 2.509 process VM (opcode base 2217), screen composition, pointer regions,
+    animation, audio, and save/load. Retail selector placement and room 1864
+    layer composition are done. The first room's bounded process tree, globals,
+    suspension, animation phases, and sample load/restart/stop events now run.
+    The VM also parses retail polygon regions, executes mouse-area enter/leave
+    objects and embedded look/use handlers, supports cloned object code, and
+    preserves globals through screen changes. The authentic New Game handler
+    now runs `1009.1067` and `107a` before opcode 79 transitions to `1864`;
+    the simulator gate asserts that trace and rejects pending-opcode failures.
+    Its owned first-scene mesh/animation/texture/camera set is interpolated at
+    24 fps and rasterized to a sparse RGB565 stream as a draw-stage
+    optimization. Martin, chair, and handset transforms all come from the
+    authored tracks while AGDS remains in control of game state and timing.
+    Broader room handlers, full inventory,
+    save/load, and broader opcode coverage remain.
 
 ## Test Matrix
 

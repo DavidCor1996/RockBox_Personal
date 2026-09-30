@@ -1,0 +1,36 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_select/z_select.c:394:59: warning: initialization of 'void (*)(struct SelectContext *, s32)' {aka 'void (*)(struct SelectContext *, long int)'} from incompatible pointer type 'void (*)(SelectContext *)' [-Wincompatible-pointer-types]
+  394 |     { "title", "title", "Titelbildschirm", "Ecran-titre", Select_LoadTitle, 0 },
+      |                                                           ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_select/z_select.c:394:59: note: (near initialization for 'sScenes[125].loadFunc')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_select/z_select.c:22:6: note: 'Select_LoadTitle' declared here
+   22 | void Select_LoadTitle(SelectContext* this) {
+      |      ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_select/z_select.c: In function 'Select_DrawMenu':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_select/z_select.c:1730:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1730 |     gSPSegment(POLY_OPA_DISP++, 0x00, NULL);
+      |                                       ^~~~
+      |                                       |
+      |                                       void *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_select/z_select.c:8:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_select/z_select.c: In function 'Select_DrawLoadingScreen':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_select/z_select.c:1761:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1761 |     gSPSegment(POLY_OPA_DISP++, 0x00, NULL);
+      |                                       ^~~~
+      |                                       |
+      |                                       void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_select/z_select.c: In function 'Select_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_select/z_select.c:1782:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1782 |     gSPSegment(POLY_OPA_DISP++, 0x00, NULL);
+      |                                       ^~~~
+      |                                       |
+      |                                       void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~

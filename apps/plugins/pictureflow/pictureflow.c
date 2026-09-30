@@ -25,6 +25,7 @@
 
 #include "plugin.h"
 #include "albumart.h"
+#include "lib/ipodjs_retailos.h"
 #include "lib/read_image.h"
 #include "lib/pluginlib_actions.h"
 #include "lib/pluginlib_exit.h"
@@ -262,7 +263,7 @@ static void pf_apply_ipod_engine_colors(void)
     }
     else
     {
-        pf_bg_color = (pix_t)LCD_RGBPACK(245, 246, 248);
+        pf_bg_color = (pix_t)LCD_RGBPACK(255, 255, 255);
         pf_fg_color = (pix_t)LCD_RGBPACK(0, 0, 0);
         pf_lss_color = (pix_t)LCD_RGBPACK(60, 184, 255);
         pf_lse_color = (pix_t)LCD_RGBPACK(52, 122, 181);
@@ -420,6 +421,9 @@ struct pf_config_t
      int transition_speed;
 
      bool text_crossfade;
+     bool reduced_motion;
+     char last_album_name[MAX_PATH];
+     char last_album_artist[MAX_PATH];
 };
 
 struct pf_index_t {
@@ -498,6 +502,7 @@ struct artist_data {
 
 struct track_data {
     uint32_t sort;
+    uint32_t duration;
     int name_idx;       /* offset to the track name */
     long seek;
 #if PF_PLAYBACK_CAPABLE
@@ -557,6 +562,7 @@ struct pfraw_header {
 };
 
 #define PFRAW_MAGIC 0x57524650 /* "PFRW" on little-endian targets */
+#define PFRAW_MISSING_MAGIC 0x4d524650 /* Explicitly verified no source art. */
 
 enum show_album_name_values {
     ALBUM_NAME_HIDE = 0,
@@ -637,7 +643,12 @@ static struct configdata config[] =
     { TYPE_INT, 100, 400, { .int_p = &pf_cfg.scroll_speed }, "scroll speed", NULL },
     { TYPE_INT, 100, 400, { .int_p = &pf_cfg.transition_speed }, "transition speed",
       NULL },
-    { TYPE_BOOL, 0, 1, { .bool_p = &pf_cfg.text_crossfade }, "text crossfade", NULL }
+    { TYPE_BOOL, 0, 1, { .bool_p = &pf_cfg.text_crossfade }, "text crossfade", NULL },
+    { TYPE_BOOL, 0, 1, { .bool_p = &pf_cfg.reduced_motion }, "reduced motion", NULL },
+    { TYPE_STRING, 0, MAX_PATH, { .string = pf_cfg.last_album_name },
+      "last album name", NULL },
+    { TYPE_STRING, 0, MAX_PATH, { .string = pf_cfg.last_album_artist },
+      "last album artist", NULL }
 };
 
 #define CONFIG_NUM_ITEMS (sizeof(config) / sizeof(struct configdata))
@@ -681,6 +692,18 @@ unsigned int thread_id;
 struct event_queue thread_q;
 
 static struct tagcache_search tcs;
+/* Main-thread-only incremental track preparation. It must not share the art
+ * search object: idle artwork discovery can run between track batches. */
+static struct tagcache_search track_search;
+static int track_prepare_album = -1;
+static int track_prepare_offset;
+static long track_prepare_deadline;
+static long track_prepare_retry;
+static long navigation_settle_tick;
+static long album_open_tick;
+static long album_error_until;
+static bool track_cache_dirty;
+static uint32_t track_cache_generation;
 
 static struct buflib_context buf_ctx;
 
@@ -692,6 +715,7 @@ static struct mp3entry id3;
 
 void reset_track_list(void);
 static inline void free_borrowed_tracks(void);
+static unsigned int mfnv(char *str);
 
 static bool thread_is_running;
 static bool wants_to_quit;
@@ -699,11 +723,91 @@ static bool wants_to_quit;
 /* Serialize the shared tagcache search object and slide buflib between the
  * main thread and the background cover loader. */
 static struct mutex buf_ctx_mutex;
+static struct mutex artwork_io_mutex;
+static bool scene_drawn;
+static bool albumart_source_missing;
+static int artwork_repair_album = -1;
+static long artwork_repair_retry;
 
 static int cover_animation_keyframe;
 static int extra_fade;
 static long scroll_animation_tick;
 static long cover_animation_tick;
+#if defined(HAVE_LCD_COLOR) && LCD_DEPTH == 16 && \
+    LCD_STRIDEFORMAT == HORIZONTAL_STRIDE && LCD_WIDTH == 320 && LCD_HEIGHT == 240
+#define PF_RETAIL_FLIP
+#define PF_FACE_WIDTH 256
+#define PF_FACE_STRIP 16
+#define PF_PANEL_TOP 8
+#define PF_PANEL_HEIGHT 212
+#define PF_PANEL_HEADER 48
+#define PF_TRACK_ROW 24
+static fb_data face_strip[PF_FACE_WIDTH * PF_FACE_STRIP];
+static int retail_flip_position;
+static int retail_flip_remainder;
+static int retail_close_clock;
+static bool retail_flip_active;
+/* Cached antialiased text coverage, not RGB frame copies. Glyph file reads
+ * happen only in service_retail_text(), never in the flip compositor. */
+static unsigned char retail_text[PF_FACE_WIDTH * 212 / 2];
+static unsigned char retail_labels[320 * 40 / 2];
+static int retail_text_album = -1, retail_text_start = -1;
+static int retail_label_album = -1;
+static int retail_body_font, retail_title_font, retail_detail_font;
+#define PF_MARQUEE_WIDTH 2048
+static unsigned char retail_marquee[PF_MARQUEE_WIDTH * PF_TRACK_ROW / 2];
+static int retail_marquee_selected = -1, retail_marquee_album = -1;
+static int retail_marquee_width, retail_marquee_limit;
+static long retail_marquee_tick;
+static void service_retail_text(void);
+static void draw_retail_labels(void);
+static void render_retail_tracks(void);
+static uint16_t retail_header[320 * 20];
+static unsigned char retail_battery_data[26 * 13 * 3];
+static unsigned char retail_transport_data[2][14 * 16 * 3];
+static struct ipodjs_retailos_image retail_battery;
+static struct ipodjs_retailos_image retail_transport[2];
+static bool retail_header_valid;
+static bool retail_transport_valid;
+static int retail_battery_frame = -1;
+
+static void service_retail_battery(void)
+{
+    int level = rb->battery_level();
+    if (level < 0)
+        return; /* Unknown is not an empty battery. Keep the last valid icon. */
+    int frame = level < 0 ? 0 : MIN(22, level * 22 / 100);
+#if CONFIG_CHARGING
+    if (rb->charger_inserted())
+        frame = rb->charging_state() ? 24 : 23;
+#endif
+    if (frame != retail_battery_frame &&
+        ipodjs_retailos_load_resource_rga(33 + frame, retail_battery_data,
+            sizeof(retail_battery_data), 26, 13, &retail_battery))
+        retail_battery_frame = frame;
+}
+
+static void draw_retail_header(void)
+{
+    struct screen *display = rb->screens[SCREEN_MAIN];
+    display->set_viewport(NULL);
+    display->set_drawmode(DRMODE_FG);
+    if (retail_header_valid)
+        ipodjs_retailos_blit_opaque(display, retail_header, 320, 0, 0, 320, 20);
+    else
+    {
+        display->set_foreground(LCD_WHITE);
+        display->fillrect(0, 0, 320, 20);
+    }
+    if (retail_battery_frame >= 0)
+        ipodjs_retailos_blit(display, &retail_battery, 289, 3);
+    int audio = rb->audio_status();
+    if (retail_transport_valid && (audio & AUDIO_STATUS_PLAY))
+        ipodjs_retailos_blit(display,
+            &retail_transport[(audio & AUDIO_STATUS_PAUSE) ? 1 : 0], 267, 2);
+    display->set_viewport(&pf_vp);
+}
+#endif
 
 static struct pf_scroll_line_info scroll_line_info;
 static struct pf_scroll_line scroll_lines[PF_MAX_SCROLL_LINES];
@@ -730,10 +834,69 @@ enum pf_states {
     pf_scrolling,
     pf_cover_in,
     pf_show_tracks,
-    pf_cover_out
+    pf_cover_out,
+    pf_open_pending
 };
 
 static int pf_state;
+
+#ifdef SIMULATOR
+struct pf_trace_sample
+{
+    long tick;
+    int state, album, position, audio, playlist, shown;
+    unsigned long elapsed;
+};
+/* Simulator-only: enough complete frames for the 100-cycle playback gate. */
+static struct pf_trace_sample pf_trace_samples[4096];
+static unsigned pf_trace_count;
+static bool pf_trace_enabled;
+static unsigned pf_track_cache_hits;
+static unsigned pf_scene_waits;
+static void trace_frame(void)
+{
+    if (!pf_trace_enabled)
+        return;
+    struct pf_trace_sample *sample =
+        &pf_trace_samples[pf_trace_count++ % ARRAYLEN(pf_trace_samples)];
+    sample->tick = *rb->current_tick;
+    sample->state = pf_state;
+    sample->album = center_index;
+    sample->position = 0;
+#ifdef PF_RETAIL_FLIP
+    sample->position = retail_flip_position;
+#endif
+    sample->audio = rb->audio_status();
+    sample->playlist = rb->playlist_amount();
+    sample->shown = scene_drawn;
+    struct mp3entry *track = rb->audio_current_track();
+    sample->elapsed = track ? track->elapsed : 0;
+}
+
+static void flush_trace(void)
+{
+    if (!pf_trace_enabled)
+        return;
+    int fd = rb->open(ROCKBOX_DIR "/pictureflow-trace.tsv",
+                      O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (fd < 0)
+        return;
+    rb->fdprintf(fd, "# cache_hits=%u scene_waits=%u samples=%u\n",
+                 pf_track_cache_hits, pf_scene_waits, pf_trace_count);
+    rb->fdprintf(fd, "tick\tstate\talbum\tposition\taudio\tplaylist\tshown\telapsed\n");
+    unsigned start = pf_trace_count > ARRAYLEN(pf_trace_samples) ?
+                     pf_trace_count - ARRAYLEN(pf_trace_samples) : 0;
+    for (unsigned i = start; i < pf_trace_count; i++)
+    {
+        struct pf_trace_sample *s =
+            &pf_trace_samples[i % ARRAYLEN(pf_trace_samples)];
+        rb->fdprintf(fd, "%ld\t%d\t%d\t%d\t%d\t%d\t%d\t%lu\n",
+            s->tick, s->state, s->album, s->position, s->audio, s->playlist,
+            s->shown, s->elapsed);
+    }
+    rb->close(fd);
+}
+#endif
 
 #if PF_PLAYBACK_CAPABLE
 static bool insert_whole_album;
@@ -893,6 +1056,8 @@ static void config_set_defaults(struct pf_config_t *cfg)
      cfg->show_fps = false;
      cfg->auto_wps = 0;
      cfg->last_album = 0;
+     cfg->last_album_name[0] = '\0';
+     cfg->last_album_artist[0] = '\0';
 
      cfg->resize = true;
      cfg->cache_version = CACHE_REBUILD;
@@ -906,6 +1071,7 @@ static void config_set_defaults(struct pf_config_t *cfg)
      cfg->update_albumart = false;
      cfg->scroll_speed = 300;
      cfg->transition_speed = 300;
+     cfg->reduced_motion = false;
      cfg->text_crossfade = true;
 }
 
@@ -1266,9 +1432,18 @@ static void init_reflect_table(void)
 {
     int i;
     for (i = 0; i < pf_reflect_height; i++)
+    {
         reflect_table[i] =
             (768 * (pf_reflect_height - i) + (5 * pf_reflect_height / 2)) /
             (5 * pf_reflect_height);
+#ifdef PF_RETAIL_FLIP
+        if (pf_ipod_engine_enabled())
+        {
+            int remaining = MAX(0, 48 - i);
+            reflect_table[i] = 96 * remaining * remaining / (48 * 48);
+        }
+#endif
+    }
 }
 
 
@@ -2126,24 +2301,186 @@ static bool track_buffer_avail(size_t needed)
            needed <= pf_tracks.buf_sz - pf_tracks.used;
 }
 
+#if PF_PLAYBACK_CAPABLE
+/* Pointer-free, little-endian per-album records. Database seeks are never
+ * restored from disk. The master header includes the database commit ID. */
+#define PF_TRACK_MAGIC 0x31544650u
+static uint32_t track_hash(uint32_t hash, const void *data, size_t length)
+{
+    const unsigned char *bytes = data;
+    while (length--)
+        hash = (hash ^ *bytes++) * 16777619u;
+    return hash;
+}
 
-static int pf_tcs_retrieve_track_title(int string_index, int disc_num, int track_num)
+static uint32_t database_generation(void)
+{
+    char path[MAX_PATH];
+    unsigned char header[24];
+    struct tagcache_stat *stat = rb->tagcache_get_stat();
+    if (!stat->ready || stat->scan_status == TAGCACHE_SCAN_COMMITTING)
+        return 0;
+    rb->snprintf(path, sizeof(path), "%s/database_idx.tcd", stat->db_path);
+    int fd = rb->open(path, O_RDONLY);
+    if (fd < 0)
+        return 0;
+    bool valid = rb->read(fd, header, sizeof(header)) == sizeof(header);
+    rb->close(fd);
+    return valid ? track_hash(2166136261u, header, sizeof(header)) : 0;
+}
+
+static void track_cache_path(char *path, size_t size, int album)
+{
+    rb->snprintf(path, size, CACHE_PREFIX "/%08x-%08x.pft",
+                 mfnv(get_album_name(album)), mfnv(get_album_artist(album)));
+}
+
+static void track_cache_record(uint32_t *record, struct track_data *track)
+{
+    record[0] = htole32(track->sort);
+    record[1] = htole32(track->duration);
+    record[2] = htole32(track->name_idx);
+    record[3] = htole32(track->filename_idx);
+}
+
+static bool load_track_cache(int album, uint32_t generation)
+{
+    char path[MAX_PATH];
+    char key[MAX_PATH];
+    uint32_t header[8], record[4];
+    track_cache_path(path, sizeof(path), album);
+    int fd = rb->open(path, O_RDONLY);
+    if (fd < 0)
+        return false;
+    bool valid = false;
+    if (rb->read(fd, header, sizeof(header)) != sizeof(header))
+        goto done;
+    for (unsigned i = 0; i < ARRAYLEN(header); i++)
+        header[i] = letoh32(header[i]);
+    size_t count = header[2], names = header[3];
+    if (header[0] != PF_TRACK_MAGIC || header[1] != 1 || !generation ||
+        header[4] != generation || !count || !names ||
+        names > pf_tracks.buf_sz ||
+        count > (pf_tracks.buf_sz - names) / sizeof(struct track_data) ||
+        !header[6] || header[6] > sizeof(key) ||
+        !header[7] || header[7] > sizeof(key))
+        goto done;
+    if (rb->filesize(fd) != (off_t)(sizeof(header) + header[6] + header[7] +
+                                   names + count * sizeof(record)))
+        goto done;
+    for (int i = 0; i < 2; i++)
+    {
+        size_t length = header[6 + i];
+        if (rb->read(fd, key, length) != (ssize_t)length || key[length-1] ||
+            rb->strlen(key) + 1 != length ||
+            rb->strcmp(key, i ? get_album_artist(album) : get_album_name(album)))
+            goto done;
+    }
+    if (rb->read(fd, pf_tracks.names, names) != (ssize_t)names)
+        goto done;
+    uint32_t hash = track_hash(2166136261u, pf_tracks.names, names);
+    pf_tracks.index = (struct track_data *)(pf_tracks.names + pf_tracks.buf_sz -
+                                           count * sizeof(struct track_data));
+    for (size_t i = 0; i < count; i++)
+    {
+        if (rb->read(fd, record, sizeof(record)) != sizeof(record))
+            goto done;
+        hash = track_hash(hash, record, sizeof(record));
+        struct track_data *track = &pf_tracks.index[i];
+        track->sort = letoh32(record[0]);
+        track->duration = letoh32(record[1]);
+        unsigned title = letoh32(record[2]);
+        unsigned filename = letoh32(record[3]);
+        if (title >= names || filename >= names ||
+            !rb->memchr(pf_tracks.names + title, 0, names - title) ||
+            !rb->memchr(pf_tracks.names + filename, 0, names - filename))
+            goto done;
+        track->name_idx = title;
+        track->filename_idx = filename;
+        track->seek = -1;
+    }
+    if (hash != header[5] || database_generation() != generation)
+        goto done;
+    pf_tracks.used = names + count * sizeof(struct track_data);
+    pf_tracks.count = count;
+    pf_tracks.cur_idx = album;
+    reset_track_list();
+    valid = true;
+#ifdef SIMULATOR
+    pf_track_cache_hits++;
+#endif
+done:
+    rb->close(fd);
+    return valid;
+}
+
+static void save_track_cache(void)
+{
+    int album = pf_tracks.cur_idx;
+    if (!track_cache_dirty || album < 0)
+        return;
+    track_cache_dirty = false;
+    if (!track_cache_generation ||
+        database_generation() != track_cache_generation)
+        return;
+    const char *name = get_album_name(album);
+    const char *artist = get_album_artist(album);
+    size_t name_len = rb->strlen(name) + 1, artist_len = rb->strlen(artist) + 1;
+    if (name_len > MAX_PATH || artist_len > MAX_PATH)
+        return;
+    size_t names = pf_tracks.used - pf_tracks.count * sizeof(struct track_data);
+    uint32_t hash = track_hash(2166136261u, pf_tracks.names, names);
+    uint32_t record[4];
+    for (int i = 0; i < pf_tracks.count; i++)
+    {
+        track_cache_record(record, &pf_tracks.index[i]);
+        hash = track_hash(hash, record, sizeof(record));
+    }
+    uint32_t header[8] = {PF_TRACK_MAGIC, 1, pf_tracks.count, names,
+                         track_cache_generation, hash, name_len, artist_len};
+    for (unsigned i = 0; i < ARRAYLEN(header); i++)
+        header[i] = htole32(header[i]);
+    char path[MAX_PATH], temporary[MAX_PATH];
+    track_cache_path(path, sizeof(path), album);
+    rb->snprintf(temporary, sizeof(temporary), "%s.tmp", path);
+    int fd = rb->open(temporary, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (fd < 0)
+        return;
+    bool ok = rb->write(fd, header, sizeof(header)) == sizeof(header) &&
+              rb->write(fd, name, name_len) == (ssize_t)name_len &&
+              rb->write(fd, artist, artist_len) == (ssize_t)artist_len &&
+              rb->write(fd, pf_tracks.names, names) == (ssize_t)names;
+    for (int i = 0; ok && i < pf_tracks.count; i++)
+    {
+        track_cache_record(record, &pf_tracks.index[i]);
+        ok = rb->write(fd, record, sizeof(record)) == sizeof(record);
+    }
+    ok = rb->close(fd) == 0 && ok;
+    if (!ok || database_generation() != track_cache_generation ||
+        rb->rename(temporary, path) < 0)
+        rb->remove(temporary);
+}
+#endif
+
+
+static int pf_tcs_retrieve_track_title(int string_index)
 {
     char file_name[MAX_PATH];
     char *track_title = NULL;
     int str_len;
 
-    if (rb->strcmp(UNTAGGED, tcs.result) == 0)
+    if (rb->strcmp(UNTAGGED, track_search.result) == 0)
     {
         /* show filename instead of <untaggged> */
-        if (!rb->tagcache_retrieve(&tcs, tcs.idx_id, tag_virt_basename,
+        if (!rb->tagcache_retrieve(&track_search, track_search.idx_id,
+                                tag_virt_basename,
                                 file_name, MAX_PATH))
             return 0;
         track_title = file_name;
     }
 
     if (!track_title)
-        track_title = tcs.result;
+        track_title = track_search.result;
 
     int max_len = rb->strlen(track_title) + 10;
     if (!track_buffer_avail(max_len))
@@ -2163,7 +2500,7 @@ static int pf_tcs_retrieve_file_name(int fn_idx)
 
     char *filename = pf_tracks.names + fn_idx;
     filename[0] = '\0';
-    if (!rb->tagcache_retrieve(&tcs, tcs.idx_id, tag_filename,
+    if (!rb->tagcache_retrieve(&track_search, track_search.idx_id, tag_filename,
                                filename, MAX_PATH))
         return 0;
 
@@ -2174,39 +2511,63 @@ static int pf_tcs_retrieve_file_name(int fn_idx)
 /**
   Create the track index of the given slide_index.
  */
-static void create_track_index(const int slide_index)
+/* Prepare at most four rows per service call. No searches or track-file reads
+ * belong in the track-list renderer or the cover animation. */
+static bool prepare_track_index(const int slide_index)
 {
     char tcs_buf[TAGCACHE_BUFSZ];
     const long tcs_bufsz = sizeof(tcs_buf);
-    bool search_started = false;
     if ( slide_index == pf_tracks.cur_idx )
-        return;
+        return true;
 
-    free_borrowed_tracks();
-
-    buf_ctx_lock();
-
-    if (!start_tagcache_search(&tcs, tag_title))
-        goto fail;
-    search_started = true;
-
-    rb->tagcache_search_add_filter(&tcs, tag_album,
-                                   pf_idx.album_index[slide_index].seek);
-
-    if (pf_idx.album_index[slide_index].artist_idx >= 0)
-        rb->tagcache_search_add_filter(&tcs, tag_albumartist,
-            pf_idx.album_index[slide_index].artist_seek);
-
-    int string_index = 0;
-    pf_tracks.count = 0;
-
-    while (rb->tagcache_get_next(&tcs, tcs_buf, tcs_bufsz))
+    struct tagcache_stat *stat = rb->tagcache_get_stat();
+    if (!stat->ready || stat->scan_status == TAGCACHE_SCAN_COMMITTING ||
+        stat->commit_step != 0)
     {
-        int disc_num = rb->tagcache_get_numeric(&tcs, tag_discnumber);
-        int track_num = rb->tagcache_get_numeric(&tcs, tag_tracknumber);
+        free_borrowed_tracks();
+        return false;
+    }
+
+    if (track_prepare_album != slide_index)
+    {
+        free_borrowed_tracks();
+        if (TIME_BEFORE(*rb->current_tick, track_prepare_retry))
+            return false;
+#if PF_PLAYBACK_CAPABLE
+        track_cache_generation = database_generation();
+        if (load_track_cache(slide_index, track_cache_generation))
+            return true;
+#endif
+        /* Foreground readiness is bounded; do not run the synchronous
+         * tagcache recovery loop for speculative metadata. */
+        if (!rb->tagcache_search(&track_search, tag_title))
+        {
+            track_prepare_retry = *rb->current_tick + HZ;
+            return false;
+        }
+        track_prepare_album = slide_index;
+        track_prepare_offset = 0;
+        track_prepare_deadline = *rb->current_tick + 2 * HZ;
+        rb->tagcache_search_add_filter(&track_search, tag_album,
+                                      pf_idx.album_index[slide_index].seek);
+        if (pf_idx.album_index[slide_index].artist_idx >= 0)
+            rb->tagcache_search_add_filter(&track_search, tag_albumartist,
+                pf_idx.album_index[slide_index].artist_seek);
+    }
+
+    if (TIME_AFTER(*rb->current_tick, track_prepare_deadline))
+        goto fail;
+
+    int string_index = track_prepare_offset;
+    for (int batch = 0; batch < 4; batch++)
+    {
+        if (!rb->tagcache_get_next(&track_search, tcs_buf, tcs_bufsz))
+            goto complete;
+        int disc_num = rb->tagcache_get_numeric(&track_search, tag_discnumber);
+        int track_num = rb->tagcache_get_numeric(&track_search, tag_tracknumber);
         disc_num = disc_num > 0 ? disc_num : 0;
         track_num = track_num > 0 ? track_num : 0;
-        int fn_idx = 1 + pf_tcs_retrieve_track_title(string_index, disc_num, track_num);
+        int fn_idx = 1 + pf_tcs_retrieve_track_title(string_index);
         if (fn_idx <= 1)
             goto fail;
         pf_tracks.used += fn_idx;
@@ -2226,9 +2587,11 @@ static void create_track_index(const int slide_index)
         pf_tracks.index = (struct track_data*)(pf_tracks.names + pf_tracks.buf_sz
                                                                - arr_sz );
         pf_tracks.index->sort = (disc_num << 24) + (track_num << 14);
+        pf_tracks.index->duration =
+            rb->tagcache_get_numeric(&track_search, tag_length) / 1000;
         pf_tracks.index->sort += pf_tracks.count;
         pf_tracks.index->name_idx = string_index;
-        pf_tracks.index->seek = tcs.result_seek;
+        pf_tracks.index->seek = track_search.result_seek;
 #if PF_PLAYBACK_CAPABLE
         pf_tracks.index->filename_idx = fn_idx + string_index;
         string_index += (fn_idx + fn_len);
@@ -2237,27 +2600,36 @@ static void create_track_index(const int slide_index)
 #endif
         pf_tracks.count++;
     }
+    track_prepare_offset = string_index;
+    return false;
 
-    rb->tagcache_search_finish(&tcs);
-    search_started = false;
+complete:
+    rb->tagcache_search_finish(&track_search);
+    track_prepare_album = -1;
 
     if (pf_tracks.count == 0)
         goto fail;
-
-    buf_ctx_unlock();
 
     /* now fix the track list order */
     rb->qsort(pf_tracks.index, pf_tracks.count,
               sizeof(struct track_data), compare_tracks);
 
     pf_tracks.cur_idx = slide_index;
-    return;
+    track_cache_dirty = true;
+    reset_track_list();
+    return true;
 fail:
-    if (search_started)
-        rb->tagcache_search_finish(&tcs);
     free_borrowed_tracks();
-    buf_ctx_unlock();
-    return;
+    track_prepare_retry = *rb->current_tick + HZ;
+    return false;
+}
+
+/* Explicit context/playback operations may synchronously finish preparation;
+ * normal browsing and opening use one bounded batch per event-loop turn. */
+static void create_track_index(const int slide_index)
+{
+    while (!prepare_track_index(slide_index) && track_prepare_album >= 0)
+        rb->yield();
 }
 
 /**
@@ -2265,6 +2637,12 @@ fail:
 */
 static inline void free_borrowed_tracks(void)
 {
+    track_cache_dirty = false;
+    if (track_prepare_album >= 0)
+    {
+        rb->tagcache_search_finish(&track_search);
+        track_prepare_album = -1;
+    }
     pf_tracks.count = 0;
     pf_tracks.used = 0;
     pf_tracks.cur_idx = -1;
@@ -2300,6 +2678,7 @@ static bool get_albumart_for_index_from_db(const int slide_index, char *buf,
     bool ret;
     char tcs_buf[TAGCACHE_BUFSZ];
     const long tcs_bufsz = sizeof(tcs_buf);
+    albumart_source_missing = false;
     if (tcs.valid || !start_tagcache_search(&tcs, tag_filename))
         return false;
 
@@ -2311,8 +2690,12 @@ static bool get_albumart_for_index_from_db(const int slide_index, char *buf,
                                    pf_idx.album_index[slide_index].artist_seek);
 
     ret = rb->tagcache_get_next(&tcs, tcs_buf, tcs_bufsz) &&
-          retrieve_id3(&id3, tcs.result) &&
-          search_albumart_files(&id3, ":", buf, buflen);
+          retrieve_id3(&id3, tcs.result);
+    if (ret)
+    {
+        ret = search_albumart_files(&id3, ":", buf, buflen);
+        albumart_source_missing = !ret;
+    }
 
     rb->tagcache_search_finish(&tcs);
     return ret;
@@ -2561,9 +2944,7 @@ static bool save_pfraw(char* filename, struct bitmap *bm)
 
     if (ok)
     {
-        /* Publish only a complete, closed cache entry. A reset between the
-         * remove and rename leaves a harmless cache miss. */
-        rb->remove(filename);
+        /* Publish a complete record without first deleting the old one. */
         if (rb->rename(tmpname, filename) == 0)
             return true;
     }
@@ -2612,7 +2993,31 @@ static bool incremental_albumart_cache(bool verbose)
     }
 
     if (!get_albumart_for_index_from_db(idx, aa_cache.file, sizeof(aa_cache.file)))
-        goto aa_failure; //rb->strcpy(aa_cache.file, EMPTY_SLIDE_BMP);
+    {
+        if (albumart_source_missing)
+        {
+            /* An explicit negative cache record is distinct from a pending
+             * read or a damaged/missing prepared file. */
+            struct pfraw_header missing = {PFRAW_MISSING_MAGIC, 0, 0, 0};
+            char temporary[MAX_PATH];
+            rb->snprintf(temporary, sizeof(temporary), "%s.tmp",
+                         aa_cache.pfraw_file);
+            int fd = rb->open(temporary, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+            if (fd >= 0)
+            {
+                bool ok = rb->write(fd, &missing, sizeof(missing)) ==
+                          (ssize_t)sizeof(missing);
+                ok = rb->close(fd) == 0 && ok;
+                if (ok && rb->rename(temporary, aa_cache.pfraw_file) == 0)
+                {
+                    aa_cache.slides++;
+                    goto aa_success;
+                }
+                rb->remove(temporary);
+            }
+        }
+        goto aa_failure;
+    }
 
 
     aa_cache.input_bmp.data = aa_cache.buf;
@@ -2649,7 +3054,9 @@ aa_success:
     {
         configfile_save(CONFIG_FILE, config, CONFIG_NUM_ITEMS,
                             CONFIG_VERSION);
+        buf_ctx_lock();
         free_all_slide_prio(0);
+        buf_ctx_unlock();
         if (pf_state == pf_idle)
             rb->queue_post(&thread_q, EV_WAKEUP, 0);
     }
@@ -2784,6 +3191,52 @@ static bool create_pf_thread(void)
     rb->queue_post(&thread_q, EV_WAKEUP, 0);
     return true;
 }
+
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && PF_PLAYBACK_CAPABLE
+static void __attribute__((noinline)) pf_hibernate_advertise(void)
+{
+    rb->button_queue_post(SYS_HIBERNATE_CAPABLE,
+            (intptr_t)SYS_HIBERNATE_PLUGIN_PROTOCOL);
+}
+
+static void __attribute__((noinline)) pf_hibernate_activate(void)
+{
+    /* PictureFlow clears stale input once initialization is complete.  The
+     * capability event must be posted after that clear or the plugin can
+     * erase its own opt-in before the core has consumed it. */
+    rb->button_clear_queue();
+    pf_hibernate_advertise();
+}
+
+static bool __attribute__((noinline)) pf_hibernate_acknowledge(void)
+{
+    int event;
+
+    if (track_prepare_album >= 0)
+        free_borrowed_tracks();
+
+    /* The core has paused before touching audio/storage hardware and is
+     * waiting for the same kind of service acknowledgement used by
+     * RetailOS. Stop the only PictureFlow worker so it cannot be inside
+     * cover-cache I/O when the disk/controller is suspended. The plugin's
+     * main thread is this caller and remains parked in button_get() until
+     * the retained transaction has returned. */
+    end_pf_thread();
+    rb->button_queue_post(SYS_HIBERNATE_READY,
+            (intptr_t)SYS_HIBERNATE_PLUGIN_PROTOCOL);
+
+    do
+    {
+        event = rb->button_get(true);
+    }
+    while (event != SYS_HIBERNATE_COMPLETE);
+
+    /* Hardware, scheduler, display, and core audio are live again. Start a
+     * fresh cover-cache worker before accepting UI input. */
+    return create_pf_thread();
+}
+#endif
 
 
 static void initialize_slide_cache(void)
@@ -2969,7 +3422,9 @@ static bool free_slide_prio(int prio)
         i = r;
         prio_max = prio_r;
     }
-    if (prio_max > prio)
+    /* The current scene and both adjacent transition margins are leases.
+     * A cover cannot disappear merely because lookahead needs memory. */
+    if (prio_max > prio && prio_max > pf_cfg.num_slides + 2)
     {
         if (i == pf_sldcache.left_idx)
             pf_sldcache.left_idx = pf_sldcache.cache[i].next;
@@ -2995,18 +3450,30 @@ static void free_all_slide_prio(int prio)
 /**
  Read the pfraw image given as filename and return the hid of the buffer
  */
-static int read_pfraw(char* filename, int prio)
+static int read_pfraw(char* filename, int prio, bool background)
 {
     struct pfraw_header bmph;
+    int result = -2;
+    if (background)
+        buf_ctx_unlock();
+    rb->mutex_lock(&artwork_io_mutex);
     int fh = rb->open(filename, O_RDONLY);
     if (fh < 0) {
         /* pf_cfg.cache_version = CACHE_UPDATE; -- don't invalidate on missing pfraw */
-        return rb->strcmp(filename, EMPTY_SLIDE) == 0 ? -1 : empty_slide_hid;
+        goto done;
     }
 
     off_t file_size = rb->filesize(fh);
-    if (rb->read(fh, &bmph, sizeof(bmph)) != (ssize_t)sizeof(bmph) ||
-        bmph.magic != PFRAW_MAGIC || bmph.width <= 0 || bmph.height <= 0 ||
+    if (rb->read(fh, &bmph, sizeof(bmph)) != (ssize_t)sizeof(bmph))
+        goto corrupt;
+    if (bmph.magic == PFRAW_MISSING_MAGIC && bmph.width == 0 &&
+        bmph.height == 0 && bmph.data_size == 0 && file_size == sizeof(bmph))
+    {
+        rb->close(fh);
+        result = empty_slide_hid;
+        goto done;
+    }
+    if (bmph.magic != PFRAW_MAGIC || bmph.width <= 0 || bmph.height <= 0 ||
         (size_t)bmph.width > SIZE_MAX / (size_t)bmph.height)
         goto corrupt;
 
@@ -3022,14 +3489,25 @@ static int read_pfraw(char* filename, int prio)
 
     size_t size = sizeof(struct dim) + data_size;
 
+    /* Decode workspace is idle while this mutex is held. Disk reads never
+     * hold the slide/render mutex, and incomplete pixels are not published. */
+    if (rb->read(fh, aa_cache.buf, data_size) != (ssize_t)data_size)
+        goto corrupt;
+    rb->close(fh);
+    fh = -1;
+    result = -1; /* Allocation pressure is not an artwork repair request. */
+    if (background)
+        buf_ctx_lock();
+
     int hid;
     do {
         hid = rb->buflib_alloc(&buf_ctx, size);
     } while (hid < 0 && free_slide_prio(prio));
 
     if (hid < 0) {
-        rb->close( fh );
-        return -1;
+        if (background)
+            buf_ctx_unlock();
+        goto done;
     }
 
     struct dim *bm = rb->buflib_get_data(&buf_ctx, hid);
@@ -3038,19 +3516,20 @@ static int read_pfraw(char* filename, int prio)
     bm->height = bmph.height;
     pix_t *data = (pix_t*)(sizeof(struct dim) + (char *)bm);
 
-    if (rb->read(fh, data, data_size) != (ssize_t)data_size)
-    {
-        rb->buflib_free(&buf_ctx, hid);
-        goto corrupt;
-    }
-
-    rb->close(fh);
-    return hid;
+    rb->memcpy(data, aa_cache.buf, data_size);
+    result = hid;
+    if (background)
+        buf_ctx_unlock();
+    goto done;
 
 corrupt:
     rb->close(fh);
-    rb->remove(filename);
-    return rb->strcmp(filename, EMPTY_SLIDE) == 0 ? -1 : empty_slide_hid;
+    /* Keep damaged records available for diagnosis/targeted repair. */
+done:
+    rb->mutex_unlock(&artwork_io_mutex);
+    if (background)
+        buf_ctx_lock();
+    return result;
 }
 
 
@@ -3068,9 +3547,15 @@ static inline bool load_and_prepare_surface(const int slide_index,
     rb->snprintf(pfraw_file, sizeof(pfraw_file), CACHE_PREFIX "/%x%x.pfraw",
                  hash_album, hash_artist);
 
-    int hid = read_pfraw(pfraw_file, prio);
-    if (hid < 0)
+    if (cache_index < 0 || cache_index >= SLIDE_CACHE_SIZE)
         return false;
+    int hid = read_pfraw(pfraw_file, prio, true);
+    if (hid < 0)
+    {
+        if (hid == -2)
+            artwork_repair_album = slide_index;
+        return false;
+    }
 
     pf_sldcache.cache[cache_index].hid = hid;
 
@@ -3221,7 +3706,10 @@ fail_and_refree:
     }
     return false;
 fatal_fail:
-    free_all_slide_prio(0);
+    /* A complete cache reset must release even the pinned scene. Otherwise
+     * initialize_slide_cache() loses its handles and leaks the slide pool. */
+    while (pf_sldcache.used != -1)
+        free_slide(pf_sldcache.used);
     initialize_slide_cache();
     return false;
 }
@@ -3264,7 +3752,7 @@ static inline struct dim *surface(const int slide_index)
             j++;
         } while (i != pf_sldcache.used && j < SLIDE_CACHE_SIZE);
     }
-    return get_slide(empty_slide_hid);
+    return NULL;
 }
 
 /**
@@ -3313,6 +3801,23 @@ static void reset_slides(void)
  */
 static void recalc_offsets(void)
 {
+#ifdef PF_RETAIL_FLIP
+    if (pf_ipod_engine_enabled())
+    {
+        /* Classic side stacks share a steeper canonical yaw, rather than
+         * converging toward a common camera vanishing point. Anchor the
+         * nearest outer edge at x=55/264 and repeat at 28-pixel intervals. */
+        itilt = 70 * IANGLE_MAX / 360;
+        PFreal half = -MAXSLIDE_LEFT_R;
+        PFreal depth = fmul(half, fsin(itilt));
+        PFreal edge = fmul(half, fcos(itilt));
+        PFreal shift = 104 * PFREAL_ONE + PFREAL_HALF - edge;
+        offsetX = shift + fmul(shift, depth) / CAM_DIST;
+        auto_slide_spacing = 28 * PFREAL_ONE + 28 * depth / CAM_DIST;
+        offsetY = 0;
+        return;
+    }
+#endif
     PFreal xs = PFREAL_HALF - DISPLAY_WIDTH * PFREAL_HALF;
     PFreal zo;
     PFreal xp = (DISPLAY_WIDTH * PFREAL_HALF - PFREAL_HALF +
@@ -3477,7 +3982,12 @@ static void render_slide(struct slide_data *slide, const int alpha)
 
     /* For parallel rendering, project the slide as if cx=0 (canonical tilt),
      * then shift horizontally to the true screen position. */
-    PFreal screen_cx = (pf_cfg.parallel_slides && slide->angle != 0)
+    bool parallel = pf_cfg.parallel_slides;
+#ifdef PF_RETAIL_FLIP
+    if (pf_ipod_engine_enabled())
+        parallel = true;
+#endif
+    PFreal screen_cx = (parallel && slide->angle != 0)
         ? fdiv(CAM_DIST * slide->cx, CAM_DIST_R + zo) : 0;
     PFreal render_cx = (screen_cx != 0) ? 0 : slide->cx;
 
@@ -3514,7 +4024,10 @@ static void render_slide(struct slide_data *slide, const int alpha)
     const int p_start_lower = (sh - display_offs) * PFREAL_ONE;
     const int plim2_max = MIN(sh + reflect_height, sh * 2) * PFREAL_ONE;
     for (x = xi; x < w; x++) {
-        int column = (unsigned)(xs - slide_left) >> PFREAL_SHIFT;
+        /* Forward/inverse fixed-point rounding can put the first sample a
+         * fraction left of the bitmap. Do not unsigned-wrap that to a huge
+         * column and discard the entire face (notably at Classic's yaw). */
+        int column = MAX(0, xs - slide_left) >> PFREAL_SHIFT;
         if (column >= sw)
             break;
         if (perspective) {
@@ -3598,6 +4111,8 @@ static inline void set_current_slide(const int slide_index)
     center_index = fbound(0, slide_index, number_of_slides - 1);
     if (old_center_index != center_index)
     {
+        if (track_prepare_album >= 0)
+            free_borrowed_tracks();
         rb->queue_remove_from_head(&thread_q, EV_WAKEUP);
         rb->queue_post(&thread_q, EV_WAKEUP, 0);
     }
@@ -3610,11 +4125,13 @@ static inline void set_current_slide(const int slide_index)
 static void skip_animation_to_idle_state(void);
 static void return_to_idle_state(void)
 {
+    if (track_prepare_album >= 0)
+        free_borrowed_tracks();
     if (pf_state == pf_show_tracks)
         free_borrowed_tracks();
     if (pf_state == pf_show_tracks ||
         pf_state == pf_cover_in ||
-        pf_state == pf_cover_out)
+        pf_state == pf_cover_out || pf_state == pf_open_pending)
         skip_animation_to_idle_state();
     else if (pf_state == pf_scrolling)
         set_current_slide(target);
@@ -3625,6 +4142,18 @@ static void return_to_idle_state(void)
 
 static void set_initial_slide(const char* selected_file)
 {
+    if (pf_cfg.last_album_name[0] && pf_cfg.last_album_artist[0])
+    {
+        for (int i = 0; i < number_of_slides; i++)
+        {
+            if (!rb->strcmp(pf_cfg.last_album_name, get_album_name(i)) &&
+                !rb->strcmp(pf_cfg.last_album_artist, get_album_artist(i)))
+            {
+                pf_cfg.last_album = i;
+                break;
+            }
+        }
+    }
     if (selected_file)
         set_current_slide(retrieve_id3(&id3, selected_file) ?
                             id3_get_index(&id3) :
@@ -3701,13 +4230,14 @@ static bool sort_albums(int new_sorting, bool from_settings)
     hash_artist = mfnv(get_album_artist(center_index));
 
     end_pf_thread(); /* stop loading of covers  */
+    artwork_repair_album = -1;
 
     rb->qsort(pf_idx.album_index, pf_idx.album_ct,
                   sizeof(struct album_data), compare_albums);
 
     /* Empty cache and restart cover loading thread */
     rb->buflib_init(&buf_ctx, (void *)pf_idx.buf, pf_idx.buf_sz);
-    empty_slide_hid = read_pfraw(EMPTY_SLIDE, 0);
+    empty_slide_hid = read_pfraw(EMPTY_SLIDE, 0, false);
     initialize_slide_cache();
     create_pf_thread();
 
@@ -3779,6 +4309,23 @@ static void show_next_slide(void)
 */
 static void render_all_slides(void)
 {
+    buf_ctx_lock();
+    scene_drawn = true;
+    /* Do not clear the last complete frame until every potentially visible
+     * face is resident. This also gates distant jumps and fast reversals. */
+    for (int i = MAX(0, center_index - pf_cfg.num_slides);
+         i <= MIN(number_of_slides - 1, center_index + pf_cfg.num_slides); i++)
+    {
+        if (!surface(i))
+        {
+            scene_drawn = false;
+#ifdef SIMULATOR
+            pf_scene_waits++;
+#endif
+            buf_ctx_unlock();
+            return;
+        }
+    }
 #ifdef HAVE_LCD_COLOR
     mylcd_set_background(pf_bg_color);
 #else
@@ -3857,7 +4404,10 @@ static void render_all_slides(void)
     alpha = 256;
     if (step != 0 && pf_cfg.num_slides <= 2) /* fading out center slide */
         alpha = (step > 0) ? 256 - fade / 2 : 128 + fade / 2;
-    render_slide(&center_slide, alpha);
+#ifdef PF_RETAIL_FLIP
+    if (!pf_ipod_engine_enabled() || retail_flip_position < 256)
+#endif
+        render_slide(&center_slide, alpha);
     /* During animation, re-render the transitioning slide on top once
      * it is closer to screen center than the outgoing center slide.
      * This gives a smooth z-order transition instead of a sudden flip. */
@@ -3874,6 +4424,11 @@ static void render_all_slides(void)
         if (td < cd)
             render_slide(&left_slides[0], 256);
     }
+    buf_ctx_unlock();
+#ifdef PF_RETAIL_FLIP
+    if (pf_ipod_engine_enabled() && pf_state == pf_cover_out)
+        draw_retail_labels();
+#endif
 }
 
 
@@ -4011,6 +4566,9 @@ static void cleanup(void)
     rb->cpu_boost(false);
 #endif
     end_pf_thread();
+#ifdef SIMULATOR
+    flush_trace();
+#endif
 
     /* Turn on backlight timeout (revert to settings) */
     backlight_use_settings();
@@ -4048,7 +4606,8 @@ static int display_settings_menu(void)
                         ID2P(LANG_RESIZE_COVERS),
                         "Scroll Speed %",
                         "Transition Speed %",
-                        "Text Crossfade");
+                        "Text Crossfade",
+                        "Reduced Motion");
 
     do {
         selection=rb->do_menu(&display_menu, &selection, NULL, false);
@@ -4114,6 +4673,9 @@ static int display_settings_menu(void)
                 break;
             case 8:
                 rb->set_bool("Text Crossfade", &pf_cfg.text_crossfade);
+                break;
+            case 9:
+                rb->set_bool("Reduced Motion", &pf_cfg.reduced_motion);
                 break;
             case MENU_ATTACHED_USB:
                 return PLUGIN_USB_CONNECTED;
@@ -4333,6 +4895,7 @@ static int main_menu(void)
 #define ROTATE_FRAME_ANGLE  30
 
 #define KEYFRAME_COUNT ZOOMIN_FRAME_COUNT + ROTATE_FRAME_COUNT
+static void skip_animation_to_idle_state(void);
 
 /**
    Animation step for zooming into the current cover
@@ -4340,6 +4903,34 @@ static int main_menu(void)
 static void update_cover_in_animation(void)
 {
     long now = *rb->current_tick;
+#ifdef PF_RETAIL_FLIP
+    if (pf_ipod_engine_enabled())
+    {
+        if (!retail_flip_active)
+        {
+            cover_animation_tick = now;
+            retail_flip_remainder = 0;
+        }
+        retail_flip_active = true;
+        long elapsed = MAX(0, now - cover_animation_tick);
+        cover_animation_tick = now;
+        long scaled = elapsed * 1024 + retail_flip_remainder;
+        int duration = MAX(1, HZ * 3 / 10);
+        retail_flip_remainder = scaled % duration;
+        retail_flip_position = MIN(1024, retail_flip_position +
+                                  scaled / duration);
+        extra_fade = 0;
+        center_slide.distance = 0;
+        center_slide.angle = -MIN(256, retail_flip_position);
+        if (retail_flip_position == 1024)
+        {
+            retail_flip_active = false;
+            pf_state = pf_show_tracks;
+            retail_marquee_tick = now;
+        }
+        return;
+    }
+#endif
 
     if (now == cover_animation_tick)
         return;
@@ -4366,7 +4957,45 @@ static void update_cover_in_animation(void)
  */
 static void update_cover_out_animation(void)
 {
+    if (pf_cfg.reduced_motion)
+    {
+        skip_animation_to_idle_state();
+        return;
+    }
     long now = *rb->current_tick;
+#ifdef PF_RETAIL_FLIP
+    if (pf_ipod_engine_enabled())
+    {
+        if (!retail_flip_active)
+        {
+            cover_animation_tick = now;
+            retail_flip_remainder = 0;
+            retail_close_clock = retail_flip_position >= 256 ?
+                768 + (retail_flip_position - 256) / 3 :
+                retail_flip_position * 3;
+        }
+        retail_flip_active = true;
+        long elapsed = MAX(0, now - cover_animation_tick);
+        cover_animation_tick = now;
+        long scaled = elapsed * 1024 + retail_flip_remainder;
+        int duration = MAX(1, HZ * 3 / 10);
+        retail_flip_remainder = scaled % duration;
+        /* The source closing sequence turns the back face away in the
+         * first quarter, then settles the cover over the remaining time. */
+        retail_close_clock = MAX(0, retail_close_clock - scaled / duration);
+        retail_flip_position = retail_close_clock >= 768 ?
+            256 + (retail_close_clock - 768) * 3 : retail_close_clock / 3;
+        extra_fade = 0;
+        center_slide.distance = 0;
+        center_slide.angle = -MIN(256, retail_flip_position);
+        if (retail_flip_position == 0)
+        {
+            retail_flip_active = false;
+            pf_state = pf_idle;
+        }
+        return;
+    }
+#endif
 
     if (now == cover_animation_tick)
         return;
@@ -4400,6 +5029,16 @@ static void skip_animation_to_show_tracks(void)
     center_slide.distance = ZOOMIN_FRAME_COUNT * ZOOMIN_FRAME_DIST;
     center_slide.angle   = (ZOOMIN_FRAME_COUNT * ZOOMIN_FRAME_ANGLE) +
                            (ROTATE_FRAME_COUNT * ROTATE_FRAME_ANGLE);
+#ifdef PF_RETAIL_FLIP
+    if (pf_ipod_engine_enabled())
+    {
+        retail_flip_position = 1024;
+        retail_flip_active = false;
+        extra_fade = 0;
+        center_slide.distance = 0;
+        center_slide.angle = 256;
+    }
+#endif
 }
 
 /**
@@ -4410,6 +5049,10 @@ static void skip_animation_to_idle_state(void)
     pf_state = pf_idle;
     cover_animation_keyframe = 0;
     extra_fade = 0;
+#ifdef PF_RETAIL_FLIP
+    retail_flip_position = 0;
+    retail_flip_active = false;
+#endif
     set_current_slide(center_index);
 }
 
@@ -4421,6 +5064,12 @@ static void reverse_animation(void)
     pf_state = pf_state == pf_cover_out ? pf_cover_in : pf_cover_out;
     cover_animation_keyframe = KEYFRAME_COUNT - cover_animation_keyframe;
     cover_animation_tick = *rb->current_tick;
+#ifdef PF_RETAIL_FLIP
+    retail_flip_active = true;
+    retail_close_clock = retail_flip_position >= 256 ?
+        768 + (retail_flip_position - 256) / 3 : retail_flip_position * 3;
+    retail_flip_remainder = 0;
+#endif
 }
 
 /**
@@ -4447,6 +5096,14 @@ static inline void draw_gradient(int y, int h)
 
 static void track_list_yh(int char_height)
 {
+#ifdef PF_RETAIL_FLIP
+    if (pf_ipod_engine_enabled())
+    {
+        pf_tracks.list_y = PF_PANEL_TOP + PF_PANEL_HEADER;
+        pf_tracks.list_h = pf_height - pf_tracks.list_y;
+        return;
+    }
+#endif
     bool needs_space = pf_cfg.show_fps || aa_cache.inspected < pf_idx.album_ct;
 
     switch (pf_cfg.show_album_name)
@@ -4482,11 +5139,24 @@ static void track_list_yh(int char_height)
  */
 void reset_track_list(void)
 {
+#ifdef PF_RETAIL_FLIP
+    retail_text_album = -1;
+    retail_marquee_album = -1;
+#endif
     int char_height = rb->screens[SCREEN_MAIN]->getcharheight();
+#ifdef PF_RETAIL_FLIP
+    if (pf_ipod_engine_enabled())
+        char_height = PF_TRACK_ROW;
+#endif
     int total_height;
     track_list_yh(char_height);
     pf_tracks.list_visible =
                          fmin( pf_tracks.list_h/char_height , pf_tracks.count );
+#ifdef PF_RETAIL_FLIP
+    if (pf_ipod_engine_enabled())
+        pf_tracks.list_visible = MIN(pf_tracks.count,
+            (pf_tracks.list_h + PF_TRACK_ROW - 1) / PF_TRACK_ROW);
+#endif
 
     pf_tracks.list_start = 0;
     pf_tracks.sel = 0;
@@ -4495,7 +5165,11 @@ void reset_track_list(void)
     /* let the tracklist start more centered
      * if the screen isn't filled with tracks */
     total_height = pf_tracks.count*char_height;
-    if (total_height < pf_tracks.list_h)
+    if (total_height < pf_tracks.list_h
+#ifdef PF_RETAIL_FLIP
+        && !pf_ipod_engine_enabled()
+#endif
+       )
     {
         pf_tracks.list_y += (pf_tracks.list_h - total_height) / 2;
         pf_tracks.list_h = total_height;
@@ -4503,45 +5177,436 @@ void reset_track_list(void)
 }
 
 static void draw_album_text(void);
-static void show_track_list_loading(void)
+#ifdef PF_RETAIL_FLIP
+/* Match an already-loaded font against its on-disk metrics. No font_load():
+ * entering Cover Flow during playback must not allocate a core glyph cache. */
+static int retail_loaded_font(const char *name)
 {
-    int x = (LCD_WIDTH - mylcd_getstringsize(rb->str(LANG_WAIT), NULL, NULL)) / 2;
-#ifdef HAVE_LCD_COLOR
-    mylcd_set_foreground(pf_fg_color);
-#else
-    mylcd_set_foreground(G_BRIGHT(255));
-#endif
-    int char_height = rb->screens[SCREEN_MAIN]->getcharheight();
-    track_list_yh(char_height);
-    mylcd_putsxy(x, pf_tracks.list_y + (pf_tracks.list_h  - char_height) / 2,
-                 rb->str(LANG_WAIT));
-    draw_album_text();
-    mylcd_update();
-    pf_clear_display();
+    char path[MAX_PATH];
+    uint32_t header[9];
+    rb->snprintf(path, sizeof(path), ROCKBOX_DIR
+                 "/ipodjs/apple/retailos-fonts/%s", name);
+    int fd = rb->open(path, O_RDONLY);
+    if (fd < 0)
+        return rb->screens[SCREEN_MAIN]->getuifont();
+    bool valid = rb->read(fd, header, sizeof(header)) == sizeof(header);
+    rb->close(fd);
+    if (valid)
+    {
+        for (int i = 1; i < MAXFONTS; i++)
+        {
+            struct font *font = rb->font_get(i);
+            if (font->height == (letoh32(header[1]) >> 16) &&
+                font->maxwidth == (int)(letoh32(header[1]) & 65535) &&
+                font->size == (int)letoh32(header[5]) &&
+                font->bits_size == (int32_t)letoh32(header[6]))
+                return i;
+        }
+    }
+    return rb->screens[SCREEN_MAIN]->getuifont();
 }
+
+static pix_t retail_blend(pix_t background, pix_t foreground, unsigned alpha)
+{
+    unsigned inverse = 15 - alpha;
+    return LCD_RGBPACK(
+        (RGB_UNPACK_RED(background) * inverse +
+         RGB_UNPACK_RED(foreground) * alpha) / 15,
+        (RGB_UNPACK_GREEN(background) * inverse +
+         RGB_UNPACK_GREEN(foreground) * alpha) / 15,
+        (RGB_UNPACK_BLUE(background) * inverse +
+         RGB_UNPACK_BLUE(foreground) * alpha) / 15);
+}
+
+static void draw_retail_labels(void)
+{
+    if (retail_label_album != center_index)
+        return;
+    for (int y = 0; y < 40; y++)
+        for (int x = 0; x < 320; x++)
+        {
+            unsigned pos = y * 320 + x;
+            unsigned a = (retail_labels[pos / 2] >> ((pos & 1) * 4)) & 15;
+            if (a)
+            {
+                unsigned dest = (174 + y) * BUFFER_WIDTH + x;
+                buffer[dest] = retail_blend(buffer[dest], pf_fg_color, a);
+            }
+        }
+}
+
+/* Service-only rasterization. The packed mask is independent of the core
+ * glyph cache, so subsequent eviction cannot cause an animation-time read. */
+static void retail_mask_text(unsigned char *mask, int width, int height,
+                             int x, int y, int right, int font_id,
+                             const char *text)
+{
+    int last_base_width = 0;
+    const ucschar_t *cursor = rb->bidi_l2v((const unsigned char *)text, 1);
+    for (; *cursor && x < right; cursor++)
+    {
+        ucschar_t code = *cursor;
+        struct font *font = rb->font_get(font_id);
+        int glyph_width = rb->font_get_width(font, code);
+        bool rtl;
+        bool mark = rb->is_diacritic(code, &rtl);
+        int base_width = glyph_width;
+        if (rtl && mark)
+        {
+            const ucschar_t *next = cursor + 1;
+            bool ignored;
+            while (*next && rb->is_diacritic(*next, &ignored))
+                next++;
+            base_width = *next ? rb->font_get_width(font, *next) : 0;
+        }
+        else if (!rtl)
+        {
+            if (!mark)
+                last_base_width = glyph_width;
+            base_width = last_base_width;
+        }
+        int glyph_x = x + (mark ? (base_width - glyph_width) / 2 : 0);
+        const unsigned char *bits = rb->font_get_bits(font, code);
+        for (unsigned gy = 0; gy < font->height && y + (int)gy < height; gy++)
+        {
+            if (y + (int)gy < 0)
+                continue;
+            for (int gx = 0; gx < glyph_width && glyph_x + gx < right; gx++)
+            {
+                if (glyph_x + gx < 0 || glyph_x + gx >= width)
+                    continue;
+                unsigned a;
+                if (font->depth)
+                {
+                    unsigned source = gy * glyph_width + gx;
+                    a = 15 - ((bits[source / 2] >> ((source & 1) * 4)) & 15);
+                }
+                else
+                    a = (bits[(gy / 8) * glyph_width + gx] &
+                         (1 << (gy & 7))) ? 15 : 0;
+                unsigned dest = (y + gy) * width + glyph_x + gx;
+                unsigned shift = (dest & 1) * 4;
+                unsigned old = (mask[dest / 2] >> shift) & 15;
+                mask[dest / 2] = (mask[dest / 2] & ~(15 << shift)) |
+                                     (MAX(a, old) << shift);
+            }
+        }
+        bool next_rtl;
+        bool next_mark = rb->is_diacritic(cursor[1], &next_rtl);
+        if ((rtl && !mark) || (!rtl && (!next_mark || next_rtl)))
+            x += base_width;
+    }
+}
+
+static int retail_text_width(const char *text, int font)
+{
+    return rb->font_getstringsize((const unsigned char *)text, NULL, NULL, font);
+}
+
+static void retail_mask_clipped(unsigned char *mask, int width, int height,
+                                int x, int y, int right, int font,
+                                const char *text)
+{
+    if (retail_text_width(text, font) <= right - x)
+    {
+        retail_mask_text(mask, width, height, x, y, right, font, text);
+        return;
+    }
+    char clipped[MAX_PATH + 4];
+    const unsigned char *start = (const unsigned char *)text, *cursor = start;
+    int used = 0, pixels = 0;
+    int room = right - x - retail_text_width("…", font);
+    while (*cursor)
+    {
+        ucschar_t code;
+        const unsigned char *next = rb->utf8decode(cursor, &code);
+        int glyph_width = rb->font_get_width(rb->font_get(font), code);
+        if (pixels + glyph_width > room || next - start >= MAX_PATH)
+            break;
+        used = next - start;
+        pixels += glyph_width;
+        cursor = next;
+    }
+    rb->memcpy(clipped, text, used);
+    rb->strcpy(clipped + used, "…");
+    retail_mask_text(mask, width, height, x, y, right, font, clipped);
+}
+
+static int retail_marquee_offset(void)
+{
+    int span = retail_marquee_width - retail_marquee_limit;
+    long elapsed = *rb->current_tick - retail_marquee_tick;
+    if (span <= 0 || elapsed <= HZ || pf_state != pf_show_tracks)
+        return 0;
+    long travel = MAX(1, span * HZ / 30);
+    long phase = (elapsed - HZ) % (2 * travel + 2 * HZ);
+    if (phase < travel)
+        return phase * span / travel;
+    if (phase < travel + HZ)
+        return span;
+    if (phase < 2 * travel + HZ)
+        return span - (phase - travel - HZ) * span / travel;
+    return 0;
+}
+
+static void prepare_retail_header(void)
+{
+    retail_body_font = retail_loaded_font("19-Helvetica-Bold-RetailOS-Apple.fnt");
+    retail_title_font = retail_loaded_font("19-Helvetica-Bold-RetailOS-Apple.fnt");
+    retail_detail_font = retail_loaded_font("15-Helvetica-RetailOS-Apple.fnt");
+    rb->memset(retail_labels, 0, sizeof(retail_labels));
+    retail_mask_text(retail_labels, 320, 20, 4, 1, 260,
+                     retail_loaded_font("15-Helvetica-Bold-RetailOS-Apple.fnt"),
+                     "Cover Flow");
+    for (int i = 0; i < 320 * 20; i++)
+    {
+        unsigned alpha = (retail_labels[i / 2] >> ((i & 1) * 4)) & 15;
+        if (!retail_header_valid)
+            retail_header[i] = LCD_WHITE;
+        if (alpha)
+            retail_header[i] = retail_blend(retail_header[i], LCD_BLACK, alpha);
+    }
+    retail_header_valid = true;
+    rb->memset(retail_labels, 0, sizeof(retail_labels));
+}
+
+static void service_retail_text(void)
+{
+    if (retail_label_album != center_index)
+    {
+        const char *album = get_album_name(center_index);
+        const char *artist = get_album_artist(center_index);
+        rb->memset(retail_labels, 0, sizeof(retail_labels));
+        retail_mask_clipped(retail_labels, 320, 40,
+            MAX(4, (320 - retail_text_width(album, retail_title_font)) / 2),
+            0, 316, retail_title_font, album);
+        retail_mask_clipped(retail_labels, 320, 40,
+            MAX(4, (320 - retail_text_width(artist, retail_title_font)) / 2),
+            20, 316, retail_title_font, artist);
+        retail_label_album = center_index;
+    }
+    if (pf_tracks.cur_idx != center_index)
+        return;
+    if (retail_marquee_selected != pf_tracks.sel ||
+        retail_marquee_album != center_index)
+    {
+        const char *title = get_track_name(pf_tracks.sel);
+        char duration[16];
+        unsigned seconds = pf_tracks.index[pf_tracks.sel].duration;
+        rb->snprintf(duration, sizeof(duration), "%u:%02u", seconds / 60,
+                     seconds % 60);
+        retail_marquee_limit = 236 - retail_text_width(duration, retail_body_font);
+        retail_marquee_width = MIN(PF_MARQUEE_WIDTH,
+                                  retail_text_width(title, retail_body_font));
+        rb->memset(retail_marquee, 0, sizeof(retail_marquee));
+        retail_mask_clipped(retail_marquee, PF_MARQUEE_WIDTH, PF_TRACK_ROW, 0, 0,
+                            PF_MARQUEE_WIDTH, retail_body_font, title);
+        retail_marquee_selected = pf_tracks.sel;
+        retail_marquee_album = center_index;
+        retail_marquee_tick = *rb->current_tick;
+    }
+    if (retail_text_album == center_index &&
+        retail_text_start == pf_tracks.list_start)
+        return;
+    rb->memset(retail_text, 0, sizeof(retail_text));
+    retail_mask_clipped(retail_text, PF_FACE_WIDTH, 212, 8, 8, 248,
+                     retail_title_font, get_album_name(center_index));
+    retail_mask_clipped(retail_text, PF_FACE_WIDTH, 212, 8, 29, 248,
+                     retail_detail_font, get_album_artist(center_index));
+    for (int row = 0; row < pf_tracks.list_visible; row++)
+    {
+        int track = pf_tracks.list_start + row;
+        char duration[16];
+        unsigned seconds = pf_tracks.index[track].duration;
+        rb->snprintf(duration, sizeof(duration), "%u:%02u", seconds / 60,
+                     seconds % 60);
+        int time_x = 250 - retail_text_width(duration, retail_body_font);
+        retail_mask_clipped(retail_text, PF_FACE_WIDTH, 212, 8,
+                         PF_PANEL_HEADER + 3 + row * PF_TRACK_ROW,
+                         time_x - 6, retail_body_font, get_track_name(track));
+        retail_mask_text(retail_text, PF_FACE_WIDTH, 212, time_x,
+                         PF_PANEL_HEADER + 3 + row * PF_TRACK_ROW,
+                         250, retail_body_font, duration);
+    }
+    retail_text_album = center_index;
+    retail_text_start = pf_tracks.list_start;
+}
+#endif
+
+static void request_album_open(void)
+{
+    album_open_tick = *rb->current_tick;
+    cover_animation_keyframe = 0;
+    cover_animation_tick = album_open_tick;
+    pf_state = pf_open_pending;
+#ifdef PF_RETAIL_FLIP
+    retail_flip_position = 0;
+    retail_flip_active = false;
+#endif
+}
+
+#ifdef PF_RETAIL_FLIP
+static void *face_strip_address(int x, int y)
+{
+    return &face_strip[y * PF_FACE_WIDTH + x];
+}
+
+/* Render the back face in 16-row strips. This keeps the perspective flip
+ * below 8 KiB without allocating a second framebuffer or decoding artwork. */
+static void render_retail_tracks(void)
+{
+    int progress = retail_flip_position - 256;
+    if (progress <= 0 || pf_tracks.cur_idx != center_slide.slide_index)
+        return;
+    int height = PF_PANEL_HEIGHT;
+    const int row_height = PF_TRACK_ROW;
+    int marquee_offset = retail_marquee_offset();
+    /* Perspective face grows from edge-on to its final 256-pixel panel. */
+    int angle = (768 - progress) * 256 / 768;
+    int cosine = fcos(angle), sine = fsin(angle);
+    int radius = PF_FACE_WIDTH / 2;
+    int left = -radius * CAM_DIST * cosine /
+               (CAM_DIST * PFREAL_ONE - radius * sine);
+    int right = radius * CAM_DIST * cosine /
+                (CAM_DIST * PFREAL_ONE + radius * sine);
+    int first_x = MAX(0, LCD_WIDTH / 2 + left);
+    int last_x = MIN(LCD_WIDTH, LCD_WIDTH / 2 + right);
+    struct viewport vp = pf_vp;
+    struct frame_buffer_t fb = {
+        .fb_ptr = face_strip,
+        .get_address_fn = face_strip_address,
+        .stride = PF_FACE_WIDTH,
+        .elems = PF_FACE_WIDTH * PF_FACE_STRIP,
+    };
+    vp.x = 0;
+    vp.y = 0;
+    vp.width = PF_FACE_WIDTH;
+    vp.height = PF_FACE_STRIP;
+    rb->viewport_set_buffer(&vp, &fb, SCREEN_MAIN);
+    for (int strip_y = 0; strip_y < height; strip_y += PF_FACE_STRIP)
+    {
+        rb->lcd_set_viewport(&vp);
+        rb->lcd_set_drawmode(DRMODE_SOLID);
+        rb->lcd_set_background(pf_bg_color);
+        rb->lcd_set_foreground(pf_bg_color);
+        rb->lcd_fillrect(0, 0, PF_FACE_WIDTH, PF_FACE_STRIP);
+        /* Both contemporary Classic references show a shaded blue heading.
+         * Do not substitute the unrelated neutral-gray resource 393. */
+        for (int y = 0; y < PF_FACE_STRIP && strip_y + y < PF_PANEL_HEADER; y++)
+        {
+            int shade = (strip_y + y) * 255 / (PF_PANEL_HEADER - 1);
+            rb->lcd_set_foreground(LCD_RGBPACK(100 - shade * 21 / 255,
+                151 - shade * 22 / 255, 211 - shade * 21 / 255));
+            rb->lcd_hline(0, PF_FACE_WIDTH - 1, y);
+        }
+        rb->lcd_set_drawmode(DRMODE_FG);
+        for (int row = 0; row < pf_tracks.list_visible; row++)
+        {
+            int y = PF_PANEL_HEADER + row * row_height;
+            if (y + row_height <= strip_y || y >= strip_y + PF_FACE_STRIP)
+                continue;
+            int track = retail_text_start + row;
+            if (track == pf_tracks.sel)
+            {
+                /* Classic's selection is a shaded blue bar, not the flat
+                 * theme selection used by the ordinary PictureFlow list. */
+                for (int line = MAX(0, strip_y - y);
+                     line < MIN(row_height, strip_y + PF_FACE_STRIP - y);
+                     line++)
+                {
+                    int shade = line * 255 / MAX(1, row_height - 1);
+                    rb->lcd_set_foreground(LCD_RGBPACK(
+                        80 - shade * 60 / 255,
+                        180 - shade * 45 / 255,
+                        245 - shade * 25 / 255));
+                    rb->lcd_hline(1, PF_FACE_WIDTH - 2, y + line - strip_y);
+                }
+            }
+        }
+        for (int sy = 0; sy < PF_FACE_STRIP && strip_y + sy < height; sy++)
+        {
+            int y = strip_y + sy;
+            bool white = y < PF_PANEL_HEADER ||
+                retail_text_start + (y - PF_PANEL_HEADER) / row_height == pf_tracks.sel;
+            pix_t foreground = white ? LCD_WHITE : pf_fg_color;
+            for (int x = 1; x < PF_FACE_WIDTH - 1; x++)
+            {
+                unsigned pos = y * PF_FACE_WIDTH + x;
+                unsigned a = (retail_text[pos / 2] >> ((pos & 1) * 4)) & 15;
+                int text_y = y - PF_PANEL_HEADER - 3 -
+                    (pf_tracks.sel - retail_text_start) * row_height;
+                if (retail_marquee_album == center_index &&
+                    retail_marquee_selected == pf_tracks.sel &&
+                    text_y >= 0 && text_y < PF_TRACK_ROW &&
+                    x >= 8 && x < 8 + retail_marquee_limit)
+                {
+                    unsigned source = text_y * PF_MARQUEE_WIDTH +
+                                      x - 8 + marquee_offset;
+                    a = (retail_marquee[source / 2] >> ((source & 1) * 4)) & 15;
+                }
+                if (a)
+                {
+                    unsigned dest = sy * PF_FACE_WIDTH + x;
+                    face_strip[dest] = retail_blend(face_strip[dest], foreground, a);
+                }
+            }
+        }
+        rb->lcd_set_foreground(LCD_RGBPACK(158, 171, 184));
+        rb->lcd_vline(0, 0, PF_FACE_STRIP - 1);
+        rb->lcd_vline(PF_FACE_WIDTH - 1, 0, PF_FACE_STRIP - 1);
+        rb->lcd_set_viewport(&pf_vp);
+        for (int x = first_x; x < last_x; x++)
+        {
+            /* Inverse projective mapping, not a centered width squash.
+             * The near edge expands left/up while the far edge recedes;
+             * glyph widths and vertical scale share the same depth. */
+            int projected = x - LCD_WIDTH / 2;
+            int denominator = CAM_DIST * cosine - projected * sine;
+            if (denominator <= 0)
+                continue;
+            int source = CAM_DIST * projected * PFREAL_ONE / denominator;
+            int sx = source + radius;
+            if (sx < 0 || sx >= PF_FACE_WIDTH)
+                continue;
+            int depth = CAM_DIST * PFREAL_ONE + source * sine;
+            int column_height = height * CAM_DIST * PFREAL_ONE / depth;
+            int top = PF_PANEL_TOP + (height - column_height) / 2;
+            int first_y = MAX(0, top +
+                             (strip_y * column_height + height - 1) / height);
+            int last_y = MIN(pf_height, top +
+                (MIN(height, strip_y + PF_FACE_STRIP) * column_height +
+                 height - 1) / height);
+            for (int y = first_y; y < last_y; y++)
+            {
+                int sy = (y - top) * height / column_height - strip_y;
+                if (sy >= 0 && sy < PF_FACE_STRIP)
+                    buffer[y * BUFFER_WIDTH + x] =
+                        face_strip[sy * PF_FACE_WIDTH + sx];
+            }
+        }
+    }
+    rb->lcd_set_viewport(&pf_vp);
+    mylcd_set_drawmode(DRMODE_FG);
+}
+#endif
 
 /**
   Display the list of tracks
  */
 static bool show_track_list(void)
 {
-    pf_clear_display();
-    if ( center_slide.slide_index != pf_tracks.cur_idx ) {
-        if (!storage_mode_is_ssd()
-#ifdef HAVE_TC_RAMCACHE
-            && !rb->tagcache_is_in_ram()
-#endif
-        )
-            show_track_list_loading();
-        create_track_index(center_slide.slide_index);
-        if (pf_tracks.count == 0)
-        {
-            pf_state = pf_cover_out;
-            free_borrowed_tracks();
-            return false;
-        }
-        reset_track_list();
+    if (center_slide.slide_index != pf_tracks.cur_idx || pf_tracks.count == 0)
+        return false;
+#ifdef PF_RETAIL_FLIP
+    if (pf_ipod_engine_enabled())
+    {
+        render_all_slides();
+        if (scene_drawn)
+            render_retail_tracks();
+        return true;
     }
+#endif
+    pf_clear_display();
     int titletxt_w, titletxt_x, color, titletxt_h;
     titletxt_h = rb->screens[SCREEN_MAIN]->getcharheight();
 
@@ -4615,7 +5680,7 @@ static void select_next_album(void)
         free_borrowed_tracks();
         target = center_index + 1;
         set_current_slide(target);
-        skip_animation_to_show_tracks();
+        request_album_open();
     }
 }
 
@@ -4625,7 +5690,7 @@ static void select_prev_album(void)
         free_borrowed_tracks();
         target = center_index - 1;
         set_current_slide(target);
-        skip_animation_to_show_tracks();
+        request_album_open();
     }
 }
 
@@ -4924,6 +5989,14 @@ static bool start_playback(bool return_to_WPS)
 static void draw_album_text(void)
 {
     char album_and_year[MAX_PATH];
+#ifdef PF_RETAIL_FLIP
+    if (pf_ipod_engine_enabled())
+    {
+        if (retail_flip_position < 256 && pf_state != pf_cover_out)
+            draw_retail_labels();
+        return;
+    }
+#endif
 
     if (pf_cfg.show_album_name == ALBUM_NAME_HIDE)
         return;
@@ -5044,6 +6117,12 @@ static bool init(void)
 #endif
 
     wants_to_quit = false;
+#ifdef SIMULATOR
+    pf_trace_enabled = rb->file_exists(ROCKBOX_DIR "/pictureflow-trace.enable");
+    pf_trace_count = 0;
+    pf_track_cache_hits = 0;
+    pf_scene_waits = 0;
+#endif
 
     /* must appear before config load */
     rb->memset(&aa_cache, 0, sizeof(struct albumart_t));
@@ -5051,8 +6130,11 @@ static bool init(void)
     config_set_defaults(&pf_cfg); /* must appear before configfile_save */
     configfile_load(CONFIG_FILE, config, CONFIG_NUM_ITEMS, CONFIG_VERSION);
 
-    /* Cover Flow is always fullscreen: never draw the status bar here. */
-    pf_cfg.show_statusbar = false;
+    /* Classic Cover Flow retains its title/status strip above both faces. */
+#ifdef HAVE_LCD_COLOR
+    if (pf_ipod_engine_enabled())
+        pf_cfg.show_statusbar = true;
+#endif
 
     /* Compute viewport and rendering layout based on show_statusbar setting */
     if (pf_cfg.show_statusbar)
@@ -5070,6 +6152,23 @@ static bool init(void)
     pf_vp.buffer = &pf_framebuffer;
     pf_vp.x = 0;
     pf_vp.width = LCD_WIDTH;
+#ifdef PF_RETAIL_FLIP
+    if (pf_ipod_engine_enabled())
+    {
+        pf_vp.y = 20;
+        pf_vp.height = LCD_HEIGHT - 20;
+        retail_header_valid = ipodjs_retailos_load_opaque(8, retail_header,
+            ARRAYLEN(retail_header), 320, 20);
+        retail_transport_valid = ipodjs_retailos_load_resource_rga(277,
+            retail_transport_data[0], sizeof(retail_transport_data[0]),
+            14, 16, &retail_transport[0]);
+        retail_transport_valid &= ipodjs_retailos_load_resource_rga(276,
+            retail_transport_data[1], sizeof(retail_transport_data[1]),
+            14, 16, &retail_transport[1]);
+        service_retail_battery();
+        prepare_retail_header();
+    }
+#endif
 
     pf_vp_y = pf_cfg.show_statusbar ? pf_vp.y : 0;
     pf_height = pf_cfg.show_statusbar ? pf_vp.height : LCD_HEIGHT;
@@ -5142,6 +6241,7 @@ static bool init(void)
     }
 
     rb->mutex_init(&buf_ctx_mutex);
+    rb->mutex_init(&artwork_io_mutex);
 
     init_scroll_lines();
     init_reflect_table();
@@ -5237,13 +6337,13 @@ static bool init(void)
     if (pf_cfg.cache_version != CACHE_VERSION)
         config_save(CACHE_VERSION, pf_cfg.update_albumart);
 
-    if ((empty_slide_hid = read_pfraw(EMPTY_SLIDE, 0)) < 0)
+    if ((empty_slide_hid = read_pfraw(EMPTY_SLIDE, 0, false)) < 0)
     {
         /* read_pfraw removes malformed entries. Recreate the built-in
          * fallback immediately so one bad cache file cannot make the whole
          * plugin unavailable until a second launch. */
         if (!create_empty_slide(true) ||
-            (empty_slide_hid = read_pfraw(EMPTY_SLIDE, 0)) < 0)
+            (empty_slide_hid = read_pfraw(EMPTY_SLIDE, 0, false)) < 0)
         {
             error_wait("Unable to load empty slide image");
             return false;
@@ -5353,7 +6453,8 @@ static int pictureflow_main(void)
          * atomically, avoiding one-frame flicker of theme artifacts. */
         instant_update = (pf_state == pf_scrolling ||
                           pf_state == pf_cover_in ||
-                          pf_state == pf_cover_out);
+                          pf_state == pf_cover_out ||
+                          pf_state == pf_open_pending);
 
         if (pf_cfg.show_statusbar)
             rb->skin_render_inhibit_flush(true);
@@ -5362,7 +6463,7 @@ static int pictureflow_main(void)
 #ifndef USE_CORE_PREVNEXT
             |(pf_state == pf_show_tracks ? 1 : 0)
 #endif
-            ,instant_update ? 0 : HZ/16,
+            ,instant_update ? MAX(1, HZ/30) : HZ/16,
             get_context_map);
 
         if (pf_cfg.show_statusbar)
@@ -5375,12 +6476,20 @@ static int pictureflow_main(void)
         current_update = *rb->current_tick;
         frames++;
 
+        if (button != ACTION_NONE)
+        {
+            navigation_settle_tick = current_update;
+            if (track_prepare_album >= 0 && pf_state != pf_open_pending)
+                free_borrowed_tracks();
+        }
+
 #if defined(HAVE_LCD_COLOR) && defined(HAVE_ALBUMART)
         pf_update_dynamic_colors();
 #endif
         update_scroll_lines();
 
         /* Handle states */
+        scene_drawn = true;
         switch ( pf_state ) {
             case pf_scrolling:
                 update_scroll_animation();
@@ -5389,36 +6498,34 @@ static int pictureflow_main(void)
             case pf_cover_in:
                 update_cover_in_animation();
                 render_all_slides();
-                if (center_slide.slide_index != pf_tracks.cur_idx
-                    && (storage_mode_is_ssd()
-#ifdef HAVE_TC_RAMCACHE
-                        || rb->tagcache_is_in_ram()
+#ifdef PF_RETAIL_FLIP
+                if (scene_drawn && pf_ipod_engine_enabled())
+                    render_retail_tracks();
 #endif
-                    ))
-                {
-                    create_track_index(center_slide.slide_index);
-                    if (pf_tracks.count > 0)
-                        reset_track_list();
-                }
                 break;
             case pf_cover_out:
                 show_tracks_while_browsing = false;
                 update_cover_out_animation();
                 render_all_slides();
+#ifdef PF_RETAIL_FLIP
+                if (scene_drawn && pf_ipod_engine_enabled())
+                    render_retail_tracks();
+#endif
                 break;
             case pf_show_tracks:
-                if (!show_track_list() && !prompt_reinit())
-                    return PLUGIN_OK;
+                if (!show_track_list())
+                {
+                    skip_animation_to_idle_state();
+                    request_album_open();
+                    render_all_slides();
+                }
+                break;
+            case pf_open_pending:
+                render_all_slides();
                 break;
             case pf_idle:
                 show_tracks_while_browsing = false;
                 render_all_slides();
-                if (aa_cache.inspected < pf_idx.album_ct)
-                {
-                    buf_ctx_lock();
-                    incremental_albumart_cache(false);
-                    buf_ctx_unlock();
-                }
                 break;
         }
 
@@ -5447,31 +6554,158 @@ static int pictureflow_main(void)
                 fpstxt_y = 0;
             mylcd_putsxy(0, fpstxt_y, fpstxt);
         }
-        draw_album_text();
+        if (scene_drawn)
+            draw_album_text();
+        if (scene_drawn &&
+            ((pf_state == pf_open_pending &&
+              TIME_AFTER(*rb->current_tick, album_open_tick + HZ * 15 / 100)) ||
+             TIME_BEFORE(*rb->current_tick, album_error_until)))
+        {
+            mylcd_set_foreground(pf_fg_color);
+            mylcd_putsxy(4, pf_height - rb->screens[SCREEN_MAIN]->getcharheight(),
+                pf_state == pf_open_pending ? "Opening album..." :
+                                             "Album unavailable");
+        }
 
 
         /* Copy offscreen buffer to LCD and give time to other threads */
-        mylcd_update();
+#ifdef PF_RETAIL_FLIP
+        if (scene_drawn && pf_ipod_engine_enabled())
+            draw_retail_header();
+#endif
+        if (scene_drawn)
+            mylcd_update();
+#ifdef SIMULATOR
+        trace_frame();
+#endif
         rb->yield();
+
+        /* Optional work runs after a complete frame, never inside a draw or
+         * animation. Leave newly queued input for the ordinary action loop. */
+        if (button == ACTION_NONE && rb->button_queue_count() == 0
+#ifdef HAS_BUTTON_HOLD
+            && !rb->button_hold()
+#endif
+            )
+        {
+#ifdef PF_RETAIL_FLIP
+            if (pf_ipod_engine_enabled() &&
+                (pf_state == pf_open_pending ||
+                 ((pf_state == pf_idle || pf_state == pf_show_tracks) &&
+                  TIME_AFTER(*rb->current_tick, navigation_settle_tick +
+                             MAX(1, HZ * 8 / 100)))))
+                service_retail_text();
+#endif
+            int repair;
+            buf_ctx_lock();
+            repair = artwork_repair_album;
+            buf_ctx_unlock();
+            if ((pf_state == pf_idle || pf_state == pf_open_pending ||
+                 pf_state == pf_scrolling) && repair >= 0 &&
+                TIME_AFTER(*rb->current_tick, artwork_repair_retry))
+            {
+                rb->mutex_lock(&artwork_io_mutex);
+                int saved_index = aa_cache.idx;
+                int saved_inspected = aa_cache.inspected;
+                aa_cache.idx = repair;
+                aa_cache.inspected = 0;
+                bool saved_update = pf_cfg.update_albumart;
+                pf_cfg.update_albumart = false;
+                incremental_albumart_cache(false);
+                pf_cfg.update_albumart = saved_update;
+                aa_cache.idx = saved_index;
+                aa_cache.inspected = saved_inspected;
+                rb->mutex_unlock(&artwork_io_mutex);
+                buf_ctx_lock();
+                if (artwork_repair_album == repair)
+                    artwork_repair_album = -1;
+                buf_ctx_unlock();
+                artwork_repair_retry = *rb->current_tick + MAX(1, HZ / 10);
+                rb->queue_post(&thread_q, EV_WAKEUP, 0);
+            }
+            if (pf_state == pf_open_pending)
+            {
+                if (TIME_AFTER(*rb->current_tick, album_open_tick + 2 * HZ))
+                {
+                    free_borrowed_tracks();
+                    skip_animation_to_idle_state();
+                    track_prepare_retry = *rb->current_tick + HZ;
+                    album_error_until = *rb->current_tick + 2 * HZ;
+                }
+                else if (scene_drawn &&
+                         prepare_track_index(center_slide.slide_index))
+                {
+#ifdef PF_RETAIL_FLIP
+                    if (pf_ipod_engine_enabled())
+                        service_retail_text();
+#endif
+                    cover_animation_tick = *rb->current_tick;
+                    pf_state = pf_cover_in;
+                    if (pf_cfg.reduced_motion)
+                        skip_animation_to_show_tracks();
+                }
+            }
+            else if (pf_state == pf_idle &&
+                     TIME_AFTER(*rb->current_tick,
+                                navigation_settle_tick + MAX(1, HZ * 8 / 100)))
+            {
+                if (pf_tracks.cur_idx != center_slide.slide_index)
+                    prepare_track_index(center_slide.slide_index);
+#if PF_PLAYBACK_CAPABLE
+                else if (track_cache_dirty)
+                    save_track_cache();
+#endif
+                else if (aa_cache.inspected < pf_idx.album_ct)
+                {
+                    rb->mutex_lock(&artwork_io_mutex);
+                    incremental_albumart_cache(false);
+                    rb->mutex_unlock(&artwork_io_mutex);
+                }
+#ifdef PF_RETAIL_FLIP
+                else if (pf_ipod_engine_enabled())
+                    service_retail_battery();
+#endif
+            }
+        }
 
         switch (button) {
         case PF_QUIT:
+            if (pf_state == pf_open_pending)
+            {
+                free_borrowed_tracks();
+                skip_animation_to_idle_state();
+                break;
+            }
+            if (pf_state == pf_cover_in)
+            {
+                reverse_animation();
+                break;
+            }
+            if (pf_state == pf_cover_out)
+            {
+                skip_animation_to_idle_state();
+                break;
+            }
             if (pf_state == pf_show_tracks)
             {
                 pf_state = pf_cover_out;
-                free_borrowed_tracks();
                 break;
             }
             return PLUGIN_OK;
         case PF_WPS:
             return PLUGIN_GOTO_WPS;
         case PF_BACK:
+            if (pf_state == pf_open_pending)
+            {
+                free_borrowed_tracks();
+                skip_animation_to_idle_state();
+                break;
+            }
             if (show_tracks_while_browsing)
                 show_tracks_while_browsing = false;
             else if (pf_state == pf_show_tracks)
             {
                 pf_state = pf_cover_out;
-                free_borrowed_tracks();
             }
             else if (pf_state == pf_cover_in)
                 reverse_animation();
@@ -5481,10 +6715,15 @@ static int pictureflow_main(void)
                 return PLUGIN_GOTO_WPS;
             break;
         case PF_MENU:
+            if (pf_state == pf_open_pending)
+            {
+                free_borrowed_tracks();
+                skip_animation_to_idle_state();
+                break;
+            }
             if (pf_state == pf_show_tracks)
             {
                 pf_state = pf_cover_out;
-                free_borrowed_tracks();
                 break;
             }
 #ifdef USEGSLIB
@@ -5633,12 +6872,12 @@ static int pictureflow_main(void)
             {
                 if (pf_state == pf_scrolling)
                     set_current_slide(target);
-                pf_state = pf_cover_in;
+                request_album_open();
             }
             else if (pf_state == pf_cover_out)
                 reverse_animation();
             else if (pf_state == pf_cover_in)
-                skip_animation_to_show_tracks();
+                break; /* A second Center during the flip must not play. */
             else if (pf_state == pf_show_tracks)
             {
                 if (show_tracks_while_browsing)
@@ -5649,6 +6888,13 @@ static int pictureflow_main(void)
 #endif
             }
             break;
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && PF_PLAYBACK_CAPABLE
+        case SYS_HIBERNATE_PREPARE:
+            if (!pf_hibernate_acknowledge())
+                return PLUGIN_ERROR;
+            break;
+#endif
         default:
             exit_on_usb(button);
             break;
@@ -5682,6 +6928,11 @@ enum plugin_status plugin_start(const void *parameter)
 
     if (init())
     {
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && PF_PLAYBACK_CAPABLE
+        /* Versioned opt-in: unmodified plugins never receive the retained
+         * prepare event and retain the normal cold-shutdown fallback. */
+#endif
         /* Push theme state for main loop */
         FOR_NB_SCREENS(i)
             rb->viewportmanager_theme_enable(i, false, NULL);
@@ -5698,7 +6949,12 @@ enum plugin_status plugin_start(const void *parameter)
         mylcd_set_drawmode(DRMODE_FG);
 
         set_initial_slide(file_id3 ? file : NULL); /* may call splash */
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && PF_PLAYBACK_CAPABLE
+        pf_hibernate_activate();
+#else
         rb->button_clear_queue();
+#endif
 #ifdef USEGSLIB
         grey_show(true);
 #endif
@@ -5717,6 +6973,22 @@ enum plugin_status plugin_start(const void *parameter)
             pf_cfg.last_album = target;
         else
             pf_cfg.last_album = center_index;
+
+        if (pf_cfg.last_album >= 0 && pf_cfg.last_album < number_of_slides)
+        {
+            const char *name = get_album_name(pf_cfg.last_album);
+            const char *artist = get_album_artist(pf_cfg.last_album);
+            if (rb->strlen(name) < MAX_PATH && rb->strlen(artist) < MAX_PATH)
+            {
+                rb->strlcpy(pf_cfg.last_album_name, name, MAX_PATH);
+                rb->strlcpy(pf_cfg.last_album_artist, artist, MAX_PATH);
+            }
+            else
+            {
+                pf_cfg.last_album_name[0] = '\0';
+                pf_cfg.last_album_artist[0] = '\0';
+            }
+        }
 
         if (configfile_save(CONFIG_FILE, config, CONFIG_NUM_ITEMS,
                             CONFIG_VERSION))

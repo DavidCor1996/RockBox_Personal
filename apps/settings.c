@@ -30,6 +30,8 @@
 #include <limits.h>
 #include "inttypes.h"
 #include "config.h"
+#include "videoout.h"
+#include "button.h"
 #include "rbpaths.h"
 #include "action.h"
 #include "crc32.h"
@@ -38,6 +40,9 @@
 #if defined(IPOD_6G) && !defined(SIMULATOR)
 #include "hibernate-6g.h"
 #include "videoout-6g.h"
+#include "videoout.h"
+#elif defined(IPOD_VIDEO) && !defined(SIMULATOR)
+#include "bcm2722.h"
 #endif
 #include "debug.h"
 #include "usb.h"
@@ -214,6 +219,25 @@ void settings_load(void)
 
     /* fixed settings file has final say on user_settings AND system_status items */
     settings_load_config(FIXEDSETTINGSFILE, false);
+
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_ROLO_CANDIDATE) && \
+        IPOD6G_HIBERNATE_ROLO_CANDIDATE && !defined(SIMULATOR)
+    /* A qualification core must never inherit a saved legacy-poweroff value
+     * from the normal firmware.  Give it an unmistakable dark identity too.
+     * CONFIGFILE is hibernate-rolo.cfg for this build, so any later settings
+     * save remains isolated from the user's normal config.cfg. */
+    global_settings.ipod6g_poweroff_mode = IPOD6G_POWEROFF_RETAINED;
+#ifdef HAVE_IPODJS_UI
+    global_settings.ui_engine_dark_mode = true;
+#endif
+#ifdef HAVE_LCD_COLOR
+    global_settings.fg_color = LCD_RGBPACK(255, 255, 255);
+    global_settings.bg_color = LCD_RGBPACK(0, 0, 0);
+    global_settings.lss_color = LCD_RGBPACK(54, 58, 66);
+    global_settings.lse_color = LCD_RGBPACK(30, 33, 39);
+    global_settings.lst_color = LCD_RGBPACK(255, 255, 255);
+#endif
+#endif
 
     /* set initial CRC value - settings_save checks, if changed writes to disk */
     settings_crc_changed();
@@ -871,6 +895,14 @@ void sound_settings_apply(void)
 #endif
 }
 
+#ifdef HAVE_COMPOSITE_VIDEO_OUT
+void settings_apply_tv(int ignored)
+{
+    (void)ignored;
+    videoout_set_preferences(global_settings.tv_screen,
+                             global_settings.tv_overscan);
+}
+#endif
 #if defined(IPOD_6G) && !defined(SIMULATOR)
 void settings_apply_ipod6g_videoout(int mode)
 {
@@ -884,12 +916,20 @@ void settings_apply_ipod6g_videoout(int mode)
 #elif defined(IPOD_VIDEO) && !defined(SIMULATOR)
 void settings_apply_ipod_videoout(int mode)
 {
+    bool backlight_was_on;
+
     if (mode < IPOD_COMPOSITE_VIDEO_OFF ||
         mode > IPOD_COMPOSITE_VIDEO_ON)
         mode = IPOD_COMPOSITE_VIDEO_AUTO;
 
-    /* The Apple VideoCore selects LCD or TV when movie playback starts. */
+    backlight_was_on = is_backlight_on(true);
     global_settings.composite_video_output = mode;
+
+    /* The resident 5G VideoCore firmware owns UI mirroring.  Disabling a
+     * live DAC requires the same resident-firmware restart Apple Diagnostics
+     * uses when leaving TVOUT; restore the user's lit backlight afterwards. */
+    if (bcm2722_videoout_set_mode(mode) && backlight_was_on)
+        backlight_on();
 }
 #endif
 
@@ -910,6 +950,9 @@ void settings_apply_ipod6g_poweroff_mode(int mode)
 
 void settings_apply(bool read_disk)
 {
+#ifdef IPOD_ACCESSORY_PROTOCOL
+    button_set_remote_wake(global_settings.remote_wake);
+#endif
     logf("%s", __func__);
     int rc;
     CHART(">set_codepage");
@@ -1131,6 +1174,9 @@ void settings_apply(bool read_disk)
     set_remote_backlight_filter_keypress(global_settings.remote_bl_filter_first_keypress);
 #endif
     backlight_set_on_button_hold(global_settings.backlight_on_button_hold);
+#ifdef HAVE_VIDEOOUT_BACKLIGHT_OFF
+    backlight_set_videoout_off(global_settings.videoout_backlight_off);
+#endif
 
 #ifdef HAVE_LCD_SLEEP_SETTING
     lcd_set_sleep_after_backlight_off(global_settings.lcd_sleep_after_backlight_off);
@@ -1138,6 +1184,7 @@ void settings_apply(bool read_disk)
 #endif /* HAVE_BACKLIGHT */
 
 #if defined(IPOD_6G) && !defined(SIMULATOR)
+    settings_apply_tv(0);
     settings_apply_ipod6g_videoout(global_settings.composite_video_output);
 #elif defined(IPOD_VIDEO) && !defined(SIMULATOR)
     settings_apply_ipod_videoout(global_settings.composite_video_output);

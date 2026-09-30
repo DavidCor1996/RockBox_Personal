@@ -138,11 +138,21 @@ click wheel does not have.
 ### 3. Watched checkmark
 
 Completion is persisted separately from resume, because resume is cleared at
-EOF (defect 8).
+EOF (defect 8). Returning with Menu after the credits start also counts as
+watched. The players use the synced credits start (or duration from the end),
+and retain the existing 95% completion threshold if it comes first or no
+valid marker exists. Earlier exits retain progress.
+Hardware H.264 returns completion to its viewer so it writes the same watched
+record as MPEG and RVP.
+
+The detail screen reads H.264/RVP progress from the OpenH264 resume record
+and MPEG progress from the viewer's `mpegplayer.cfg`. A sole "Play from
+beginning" action always sends an explicit restart request; with saved
+progress, Resume and Play from beginning remain separate actions.
 
 - `/.rockbox/videolist/netflix-watched.tsv` holds one device path per line.
 - `mpegplayer` appends the current path when the button loop exits because the
-  stream stopped on its own - i.e. end of stream, not a user stop - and only
+  stream stopped on its own, or when a user exits during credits, and only
   when launched through a `netflix:` / `netflix-restart:` parameter. The file
   is opened, appended and closed on the exit path; no PCM, mixer or buffer API
   is touched, so `docs/plugin-audio-lifecycle-steering.md` is unaffected.
@@ -225,8 +235,55 @@ idle tick, consumed by the existing idle branch. `ACTION_NONE` is excluded so
 it cannot re-arm itself. The extra pass repaints cached pixels only and never
 re-enters the artwork service point, so it adds no storage access.
 
+### 9. Complete native banners
+
+The earlier banner pass reduced every verified 16:9 catalog image to a
+cropped `240x40` strip. That removed most of the source image and left an
+ambiguous strip between the Netflix bar and the poster layout.
+
+RockPod now exports each banner into a `320x180` aspect-fit canvas. Scaling is
+contain/fit, never fill/crop: all four source edges remain visible, with black
+letterboxing only for a source that is not 16:9. The cache filename includes
+the new dimensions, so the next Video Sync invalidates every old strip.
+
+On the iPod the geometry is exact and non-overlapping:
+
+| Surface | Geometry |
+| --- | --- |
+| Netflix bar | `0,0 320x32` |
+| complete banner | `0,32 320x180` |
+| action/footer row | `0,212 320x28` |
+
+A valid banner owns the complete image surface only inside Details. Browse
+remains cover-art-first, with the center poster and neighbouring covers intact.
+The old poster, metadata and description composition is not painted over the
+Details banner. Select browses show and season folders immediately; selecting
+an episode or movie opens Details. Its dedicated footer uses restrained text
+tabs, never an oversized white confirmation card: Resume and Play From
+Beginning appear when a valid resume record exists, while an unstarted title
+offers Play From Beginning. The selected tab receives Netflix-red emphasis.
+Show and season rails retain their synced hierarchy covers, and context still
+opens full show/season information. Titles without a banner keep the existing
+poster-and-description fallback.
+
+The red bar uses the shipped Netflix logo bitmap, scaled from its cached
+`91x42` source to `69x32` so the real asset remains wholly inside the bar. The
+title artwork is the verified photographic banner synced from the personal
+catalog; the native UI does not substitute generated or hand-drawn imagery.
+Transient iPodJS notification banners remain queued in notification history
+while Netflix owns the full screen, preventing unrelated weather or playback
+alerts from compositing over the logo or title image.
+
+The native banner buffer grows from `240x40` to `320x180`, a fixed BSS delta of
+96,000 bytes (93.75 KiB). It remains below the 120 KiB visual-workspace ceiling.
+Banner decode occurs only when Details is entered; every draw and follow-up
+repaint uses cached pixels and performs no I/O.
+
 ## Measured Results
 
+- This full-banner pass changes iPod 6G `rockbox.elf` BSS from 7,352,772 to
+  7,448,772 bytes: exactly **96,000 bytes (93.75 KiB)**, with no additional
+  runtime allocation or draw-time I/O.
 - `rockbox.elf` BSS on `ipod6g`: 4 890 504 -> 4 893 032 bytes, a delta of
   **2 528 bytes (2.5 KiB)** against the 120 KiB ceiling. It is the 16x16 badge
   (512 B), the 256-entry watched CRC table (1 KiB), the landing synopsis

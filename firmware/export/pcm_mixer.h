@@ -138,6 +138,16 @@ void mixer_channel_set_buffer_hook(enum pcm_mixer_channel channel,
 /* Stop ALL channels and PCM and reset state */
 void mixer_reset(void);
 
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+/* Suspend only the physical mixer output service.  Channel descriptors,
+ * callbacks and logical playback state remain live in retained DRAM.  The
+ * suspend side carries one PCM lock across retained Standby; resume rebuilds
+ * physical output and performs the sole paired unlock. */
+void mixer_hibernate_suspend(void);
+void mixer_hibernate_resume(void);
+#endif
+
 /* Set output samplerate */
 void mixer_set_frequency(unsigned int samplerate);
 

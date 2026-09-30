@@ -1,0 +1,824 @@
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:10,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_DrawSkeleton':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:262:64: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  262 |         gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(eyeTexture));
+      |                                                                ^~~~~~~~~~
+      |                                                                |
+      |                                                                void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:263:64: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  263 |         gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(eyeTexture));
+      |                                                                ^~~~~~~~~~
+      |                                                                |
+      |                                                                void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:267:64: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  267 |         gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(arg3));
+      |                                                                ^~~~
+      |                                                                |
+      |                                                                void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:271:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  271 |     gSPSegment(POLY_OPA_DISP++, 0x0C, &D_80116280[2]);
+      |                                       ^~~~~~~~~~~~~~
+      |                                       |
+      |                                       Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_DrawSkeletonCustomColor':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:288:64: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  288 |         gSPSegment(POLY_OPA_DISP++, 0x0A, SEGMENTED_TO_VIRTUAL(arg2));
+      |                                                                ^~~~
+      |                                                                |
+      |                                                                Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:292:64: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  292 |         gSPSegment(POLY_OPA_DISP++, 0x0B, SEGMENTED_TO_VIRTUAL(arg3));
+      |                                                                ^~~~
+      |                                                                |
+      |                                                                Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:297:64: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  297 |         gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(DemoEc_AllocColorDList(gfxCtx, color1)));
+      |                                                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                |
+      |                                                                Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:303:64: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  303 |         gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(DemoEc_AllocColorDList(gfxCtx, color1)));
+      |                                                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                |
+      |                                                                Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:307:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  307 |     gSPSegment(POLY_OPA_DISP++, 0x0C, &D_80116280[2]);
+      |                                       ^~~~~~~~~~~~~~
+      |                                       |
+      |                                       Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_UseDrawObject':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:321:79: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  321 |     gSPSegment(POLY_OPA_DISP++, 0x06, play->objectCtx.status[drawObjBankIndex].segment);
+      |                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~
+      |                                                                               |
+      |                                                                               void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_UseAnimationObject':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:331:18: warning: assignment to 'uintptr_t' {aka 'unsigned int'} from 'void *' makes integer from pointer without a cast [-Wint-conversion]
+  331 |     gSegments[6] = PHYSICAL_TO_VIRTUAL(play->objectCtx.status[animObjBankIndex].segment);
+      |                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitIngo':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:356:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+  356 |     DemoEc_InitSkelAnime(this, play, &gIngoSkel);
+      |                                      ^~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[35]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[35]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:358:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+  358 |     DemoEc_ChangeAnimation(this, &gDemoEcIngoAnim, 0, 0.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[41]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[41]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_DrawIngo':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:372:37: warning: passing argument 3 of 'DemoEc_DrawSkeleton' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  372 |     DemoEc_DrawSkeleton(this, play, gIngoEyeClosed2Tex, gIngoRedTex, 0, 0);
+      |                                     ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:251:63: note: expected 'void *' but argument is of type 'const char *'
+  251 | void DemoEc_DrawSkeleton(DemoEc* this, PlayState* play, void* eyeTexture, void* arg3, OverrideLimbDraw overrideLimbDraw,
+      |                                                         ~~~~~~^~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:372:57: warning: passing argument 4 of 'DemoEc_DrawSkeleton' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  372 |     DemoEc_DrawSkeleton(this, play, gIngoEyeClosed2Tex, gIngoRedTex, 0, 0);
+      |                                                         ^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:251:81: note: expected 'void *' but argument is of type 'const char *'
+  251 | void DemoEc_DrawSkeleton(DemoEc* this, PlayState* play, void* eyeTexture, void* arg3, OverrideLimbDraw overrideLimbDraw,
+      |                                                                           ~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitTalon':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:377:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+  377 |     DemoEc_InitSkelAnime(this, play, &gTalonSkel);
+      |                                      ^~~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[36]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[36]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:379:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+  379 |     DemoEc_ChangeAnimation(this, &gDemoEcTalonAnim, 0, 0.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[42]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[42]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_DrawTalon':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:393:37: warning: passing argument 3 of 'DemoEc_DrawSkeleton' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  393 |     DemoEc_DrawSkeleton(this, play, gTalonEyeClosed2Tex, gTalonRedTex, NULL, NULL);
+      |                                     ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:251:63: note: expected 'void *' but argument is of type 'const char *'
+  251 | void DemoEc_DrawSkeleton(DemoEc* this, PlayState* play, void* eyeTexture, void* arg3, OverrideLimbDraw overrideLimbDraw,
+      |                                                         ~~~~~~^~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:393:58: warning: passing argument 4 of 'DemoEc_DrawSkeleton' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  393 |     DemoEc_DrawSkeleton(this, play, gTalonEyeClosed2Tex, gTalonRedTex, NULL, NULL);
+      |                                                          ^~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:251:81: note: expected 'void *' but argument is of type 'const char *'
+  251 | void DemoEc_DrawSkeleton(DemoEc* this, PlayState* play, void* eyeTexture, void* arg3, OverrideLimbDraw overrideLimbDraw,
+      |                                                                           ~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitWindmillMan':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:398:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+  398 |     DemoEc_InitSkelAnime(this, play, &gWindmillManSkel);
+      |                                      ^~~~~~~~~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[42]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[42]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:400:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+  400 |     DemoEc_ChangeAnimation(this, &gDemoEcWindmillManAnim, 0, 0.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[48]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[48]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_DrawWindmillMan':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:414:37: warning: passing argument 3 of 'DemoEc_DrawSkeleton' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  414 |     DemoEc_DrawSkeleton(this, play, gWindmillManEyeClosedTex, gWindmillManMouthAngryTex, NULL, NULL);
+      |                                     ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:251:63: note: expected 'void *' but argument is of type 'const char *'
+  251 | void DemoEc_DrawSkeleton(DemoEc* this, PlayState* play, void* eyeTexture, void* arg3, OverrideLimbDraw overrideLimbDraw,
+      |                                                         ~~~~~~^~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:414:63: warning: passing argument 4 of 'DemoEc_DrawSkeleton' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  414 |     DemoEc_DrawSkeleton(this, play, gWindmillManEyeClosedTex, gWindmillManMouthAngryTex, NULL, NULL);
+      |                                                               ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:251:81: note: expected 'void *' but argument is of type 'const char *'
+  251 | void DemoEc_DrawSkeleton(DemoEc* this, PlayState* play, void* eyeTexture, void* arg3, OverrideLimbDraw overrideLimbDraw,
+      |                                                                           ~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitKokiriBoy':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:419:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+  419 |     DemoEc_InitSkelAnime(this, play, &gKm1Skel);
+      |                                      ^~~~~~~~~
+      |                                      |
+      |                                      const char (*)[35]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[35]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:421:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+  421 |     DemoEc_ChangeAnimation(this, &gDemoEcKokiriAnim, 0, 0.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[43]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[43]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitDancingKokiriBoy':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:430:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+  430 |     DemoEc_InitSkelAnime(this, play, &gKm1Skel);
+      |                                      ^~~~~~~~~
+      |                                      |
+      |                                      const char (*)[35]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[35]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:432:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+  432 |     DemoEc_ChangeAnimation(this, &gDemoEcDancingKokiriAnim, 0, 0.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[50]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[50]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitKokiriGirl':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:458:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+  458 |     DemoEc_InitSkelAnime(this, play, &gKw1Skel);
+      |                                      ^~~~~~~~~
+      |                                      |
+      |                                      const char (*)[35]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[35]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:460:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+  460 |     DemoEc_ChangeAnimation(this, &gDemoEcKokiriAnim, 0, 0.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[43]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[43]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitDancingKokiriGirl':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:469:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+  469 |     DemoEc_InitSkelAnime(this, play, &gKw1Skel);
+      |                                      ^~~~~~~~~
+      |                                      |
+      |                                      const char (*)[35]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[35]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:471:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+  471 |     DemoEc_ChangeAnimation(this, &gDemoEcDancingKokiriAnim, 0, 0.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[50]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[50]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_DrawKokiriGirl':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:490:36: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  490 |     static void* eyeTextures[] = { gKw1EyeOpenTex, gKw1EyeHalfTex, gKw1EyeClosedTex };
+      |                                    ^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:490:52: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  490 |     static void* eyeTextures[] = { gKw1EyeOpenTex, gKw1EyeHalfTex, gKw1EyeClosedTex };
+      |                                                    ^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:490:68: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  490 |     static void* eyeTextures[] = { gKw1EyeOpenTex, gKw1EyeHalfTex, gKw1EyeClosedTex };
+      |                                                                    ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitOldMan':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:500:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+  500 |     DemoEc_InitSkelAnime(this, play, &object_bji_Skel_0000F0);
+      |                                      ^~~~~~~~~~~~~~~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[49]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[49]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:502:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+  502 |     DemoEc_ChangeAnimation(this, &gDemoEcOldManAnim, 0, 0.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[43]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[43]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_DrawOldMan':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:518:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  518 |         object_bji_Tex_0005FC,
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:519:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  519 |         object_bji_Tex_0009FC,
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:520:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  520 |         object_bji_Tex_000DFC,
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitBeardedMan':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:532:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+  532 |     DemoEc_InitSkelAnime(this, play, &object_ahg_Skel_0000F0);
+      |                                      ^~~~~~~~~~~~~~~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[49]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[49]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:534:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+  534 |     DemoEc_ChangeAnimation(this, &gDemoEcOldManAnim, 0, 0.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[43]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[43]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_DrawBeardedMan':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:550:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  550 |         object_ahg_Tex_00057C,
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:551:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  551 |         object_ahg_Tex_00067C,
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:552:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  552 |         object_ahg_Tex_00077C,
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitWoman':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:564:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+  564 |     DemoEc_InitSkelAnime(this, play, &object_bob_Skel_0000F0);
+      |                                      ^~~~~~~~~~~~~~~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[49]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[49]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:566:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+  566 |     DemoEc_ChangeAnimation(this, &gDemoEcOldManAnim, 0, 0.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[43]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[43]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_DrawWoman':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:582:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  582 |         object_bob_Tex_0007C8,
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:583:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  583 |         object_bob_Tex_000FC8,
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:584:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  584 |         object_bob_Tex_0017C8,
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitOldWoman':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:594:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+  594 |     DemoEc_InitSkelAnime(this, play, &object_bba_Skel_0000F0);
+      |                                      ^~~~~~~~~~~~~~~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[49]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[49]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:596:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+  596 |     DemoEc_ChangeAnimation(this, &gDemoEcOldManAnim, 0, 0.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[43]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[43]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_DrawOldWoman':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:610:37: warning: passing argument 3 of 'DemoEc_DrawSkeleton' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  610 |     DemoEc_DrawSkeleton(this, play, &object_bba_Tex_0004C8, NULL, NULL, NULL);
+      |                                     ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:251:63: note: expected 'void *' but argument is of type 'const char (*)[48]'
+  251 | void DemoEc_DrawSkeleton(DemoEc* this, PlayState* play, void* eyeTexture, void* arg3, OverrideLimbDraw overrideLimbDraw,
+      |                                                         ~~~~~~^~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitBossCarpenter':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:615:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+  615 |     DemoEc_InitSkelAnime(this, play, &object_toryo_Skel_007150);
+      |                                      ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[53]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[53]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:617:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+  617 |     DemoEc_ChangeAnimation(this, &gDemoEcCarpenterAnim, 0, 0.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[46]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[46]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitCarpenter':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:636:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+  636 |     DemoEc_InitSkelAnime(this, play, &object_daiku_Skel_007958);
+      |                                      ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[53]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[53]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:638:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+  638 |     DemoEc_ChangeAnimation(this, &gDemoEcCarpenterAnim, 0, 0.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[46]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[46]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_GetCarpenterPostLimbDList':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:679:20: warning: returning 'const char *' from a function with incompatible return type 'Gfx *' [-Wincompatible-pointer-types]
+  679 |             return object_daiku_DL_005BD0;
+      |                    ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:681:20: warning: returning 'const char *' from a function with incompatible return type 'Gfx *' [-Wincompatible-pointer-types]
+  681 |             return object_daiku_DL_005AC0;
+      |                    ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:683:20: warning: returning 'const char *' from a function with incompatible return type 'Gfx *' [-Wincompatible-pointer-types]
+  683 |             return object_daiku_DL_005990;
+      |                    ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:685:20: warning: returning 'const char *' from a function with incompatible return type 'Gfx *' [-Wincompatible-pointer-types]
+  685 |             return object_daiku_DL_005880;
+      |                    ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitGerudo':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:708:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+  708 |     DemoEc_InitSkelAnime(this, play, &gGerudoWhiteSkel);
+      |                                      ^~~~~~~~~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[43]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[43]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:710:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+  710 |     DemoEc_ChangeAnimation(this, &gDemoEcGerudoAnim, 0, 0.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[43]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[43]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_GetGerudoPostLimbDList':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:727:20: warning: returning 'const char *' from a function with incompatible return type 'Gfx *' [-Wincompatible-pointer-types]
+  727 |             return gGerudoWhiteHairstyleBobDL;
+      |                    ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:729:20: warning: returning 'const char *' from a function with incompatible return type 'Gfx *' [-Wincompatible-pointer-types]
+  729 |             return gGerudoWhiteHairstyleStraightFringeDL;
+      |                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:731:20: warning: returning 'const char *' from a function with incompatible return type 'Gfx *' [-Wincompatible-pointer-types]
+  731 |             return gGerudoWhiteHairstyleSpikyDL;
+      |                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_DrawGerudo':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:750:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  750 |         gGerudoWhiteEyeOpenTex,
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:751:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  751 |         gGerudoWhiteEyeHalfTex,
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:752:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  752 |         gGerudoWhiteEyeClosedTex,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitDancingZora':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:762:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+  762 |     DemoEc_InitSkelAnime(this, play, &gZoraSkel);
+      |                                      ^~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[35]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[35]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:764:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+  764 |     DemoEc_ChangeAnimation(this, &gDemoEcDancingZoraAnim, 0, 0.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[48]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[48]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_DrawDancingZora':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:779:36: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  779 |     static void* eyeTextures[] = { gZoraEyeOpenTex, gZoraEyeHalfTex, gZoraEyeClosedTex };
+      |                                    ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:779:53: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  779 |     static void* eyeTextures[] = { gZoraEyeOpenTex, gZoraEyeHalfTex, gZoraEyeClosedTex };
+      |                                                     ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:779:70: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  779 |     static void* eyeTextures[] = { gZoraEyeOpenTex, gZoraEyeHalfTex, gZoraEyeClosedTex };
+      |                                                                      ^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitKingZora':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:788:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+  788 |     DemoEc_InitSkelAnime(this, play, &gKzSkel);
+      |                                      ^~~~~~~~
+      |                                      |
+      |                                      const char (*)[33]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[33]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:790:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+  790 |     DemoEc_ChangeAnimation(this, &gDemoEcKingZoraAnim, 0, 0.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[45]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[45]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'func_8096F224':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:810:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+  810 |     DemoEc_ChangeAnimation(this, &gDemoEcAnim_006930, 2, -8.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[44]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[44]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'func_8096F26C':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:816:38: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+  816 |         DemoEc_ChangeAnimation(this, &gDemoEcAnim_006220, 0, 0.0f, false);
+      |                                      ^~~~~~~~~~~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[44]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[44]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_DrawKingZora':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:864:36: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  864 |     static void* eyeTextures[] = { gKzEyeOpenTex, gKzEyeHalfTex, gKzEyeClosedTex, gKzEyeOpen2Tex };
+      |                                    ^~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:864:51: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  864 |     static void* eyeTextures[] = { gKzEyeOpenTex, gKzEyeHalfTex, gKzEyeClosedTex, gKzEyeOpen2Tex };
+      |                                                   ^~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:864:66: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  864 |     static void* eyeTextures[] = { gKzEyeOpenTex, gKzEyeHalfTex, gKzEyeClosedTex, gKzEyeOpen2Tex };
+      |                                                                  ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:864:83: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  864 |     static void* eyeTextures[] = { gKzEyeOpenTex, gKzEyeHalfTex, gKzEyeClosedTex, gKzEyeOpen2Tex };
+      |                                                                                   ^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitMido':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:873:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+  873 |     DemoEc_InitSkelAnime(this, play, &gMidoSkel);
+      |                                      ^~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[35]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[35]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:875:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+  875 |     DemoEc_ChangeAnimation(this, &gDemoEcMidoAnim, 0, 0.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[41]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[41]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'func_8096F4FC':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:885:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+  885 |     DemoEc_ChangeAnimation(this, &gDemoEcAnim_008D1C, 2, -8.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[44]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[44]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'func_8096F544':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:891:38: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+  891 |         DemoEc_ChangeAnimation(this, &gDemoEcAnim_009234, 0, 0.0f, false);
+      |                                      ^~~~~~~~~~~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[44]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[44]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_DrawMido':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:931:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  931 |         gMidoEyeOpenTex,
+      |         ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:932:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  932 |         gMidoEyeHalfTex,
+      |         ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:933:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  933 |         gMidoEyeClosedTex,
+      |         ^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:934:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  934 |         gMidoEyeAngryTex,
+      |         ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitCucco':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:946:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+  946 |     DemoEc_InitSkelAnime(this, play, &gCuccoSkel);
+      |                                      ^~~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[37]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[37]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:950:19: warning: assignment to 'AnimationHeader *' from incompatible pointer type 'const char (*)[49]' [-Wincompatible-pointer-types]
+  950 |         animation = &gDemoEcJumpingCuccoAnim;
+      |                   ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:952:19: warning: assignment to 'AnimationHeader *' from incompatible pointer type 'const char (*)[50]' [-Wincompatible-pointer-types]
+  952 |         animation = &gDemoEcJumpingCucco2Anim;
+      |                   ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:954:19: warning: assignment to 'AnimationHeader *' from incompatible pointer type 'const char (*)[49]' [-Wincompatible-pointer-types]
+  954 |         animation = &gDemoEcWalkingCuccoAnim;
+      |                   ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitCuccoLady':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:976:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+  976 |     DemoEc_InitSkelAnime(this, play, &gCuccoLadySkel);
+      |                                      ^~~~~~~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[41]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[41]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:978:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+  978 |     DemoEc_ChangeAnimation(this, &gDemoEcCuccoLadyAnim, 0, 0.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[46]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[46]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_DrawCuccoLady':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:994:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  994 |         gCuccoLadyEyeOpenTex,
+      |         ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:995:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  995 |         gCuccoLadyEyeHalfTex,
+      |         ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:996:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  996 |         gCuccoLadyEyeClosedTex,
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitPotionShopOwner':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1006:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1006 |     DemoEc_InitSkelAnime(this, play, &object_ds2_Skel_004258);
+      |                                      ^~~~~~~~~~~~~~~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[49]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[49]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1008:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1008 |     DemoEc_ChangeAnimation(this, &gDemoEcPotionShopOwnerAnim, 0, 0.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[52]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[52]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_DrawPotionShopOwner':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1024:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1024 |         gPotionShopkeeperEyeOpenTex,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1025:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1025 |         gPotionShopkeeperEyeHalfTex,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1026:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1026 |         gPotionShopkeeperEyeClosedTex,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitMaskShopOwner':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1036:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1036 |     DemoEc_InitSkelAnime(this, play, &gHappyMaskSalesmanSkel);
+      |                                      ^~~~~~~~~~~~~~~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[48]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[48]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1038:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1038 |     DemoEc_ChangeAnimation(this, &gDemoEcPotionShopOwnerAnim, 0, 0.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[52]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[52]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_DrawMaskShopOwner':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1052:37: warning: passing argument 3 of 'DemoEc_DrawSkeleton' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1052 |     DemoEc_DrawSkeleton(this, play, gHappyMaskSalesmanEyeClosedTex, NULL, NULL, NULL);
+      |                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:251:63: note: expected 'void *' but argument is of type 'const char *'
+  251 | void DemoEc_DrawSkeleton(DemoEc* this, PlayState* play, void* eyeTexture, void* arg3, OverrideLimbDraw overrideLimbDraw,
+      |                                                         ~~~~~~^~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitFishingOwner':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1057:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1057 |     DemoEc_InitSkelAnime(this, play, &gFishingOwnerSkel);
+      |                                      ^~~~~~~~~~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[45]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[45]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1059:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1059 |     DemoEc_ChangeAnimation(this, &gDemoEcPotionShopOwnerAnim, 0, 0.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[52]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[52]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_FishingOwnerPostLimbDraw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1077:55: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1077 |         gSPDisplayList((*gfx)++, SEGMENTED_TO_VIRTUAL(gFishingOwnerHatDL));
+      |                                                       ^~~~~~~~~~~~~~~~~~
+      |                                                       |
+      |                                                       const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_DrawFishingOwner':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1083:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1083 |         gFishingOwnerEyeOpenTex,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1084:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1084 |         gFishingOwnerEyeHalfTex,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1085:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1085 |         gFishingOwnerEyeClosedTex,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitBombchuShopOwner':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1095:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1095 |     DemoEc_InitSkelAnime(this, play, &gBombchuShopkeeperSkel);
+      |                                      ^~~~~~~~~~~~~~~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[48]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[48]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1097:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1097 |     DemoEc_ChangeAnimation(this, &gDemoEcPotionShopOwnerAnim, 0, 0.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[52]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[52]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_DrawBombchuShopOwner':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1112:36: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1112 |     static void* eyeTextures[] = { gBombchuShopkeeperEyeOpenTex, gBombchuShopkeeperEyeHalfTex,
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1112:66: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1112 |     static void* eyeTextures[] = { gBombchuShopkeeperEyeOpenTex, gBombchuShopkeeperEyeHalfTex,
+      |                                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1113:36: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1113 |                                    gBombchuShopkeeperEyeClosedTex };
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitGorons':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1127:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1127 |     DemoEc_InitSkelAnime(this, play, &gGoronSkel);
+      |                                      ^~~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[42]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[42]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1131:19: warning: assignment to 'AnimationHeader *' from incompatible pointer type 'const char (*)[42]' [-Wincompatible-pointer-types]
+ 1131 |         animation = &gDemoEcGoronAnim;
+      |                   ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1134:19: warning: assignment to 'AnimationHeader *' from incompatible pointer type 'const char (*)[43]' [-Wincompatible-pointer-types]
+ 1134 |         animation = &gDemoEcGoron2Anim;
+      |                   ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1137:19: warning: assignment to 'AnimationHeader *' from incompatible pointer type 'const char (*)[42]' [-Wincompatible-pointer-types]
+ 1137 |         animation = &gDemoEcGoronAnim;
+      |                   ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1141:19: warning: assignment to 'AnimationHeader *' from incompatible pointer type 'const char (*)[47]' [-Wincompatible-pointer-types]
+ 1141 |         animation = &object_gm_Anim_0002B8;
+      |                   ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_DrawGorons':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1164:36: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1164 |     static void* eyeTextures[] = { gGoronCsEyeOpenTex, gGoronCsEyeHalfTex, gGoronCsEyeClosedTex };
+      |                                    ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1164:56: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1164 |     static void* eyeTextures[] = { gGoronCsEyeOpenTex, gGoronCsEyeHalfTex, gGoronCsEyeClosedTex };
+      |                                                        ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1164:76: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1164 |     static void* eyeTextures[] = { gGoronCsEyeOpenTex, gGoronCsEyeHalfTex, gGoronCsEyeClosedTex };
+      |                                                                            ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1168:49: warning: passing argument 4 of 'DemoEc_DrawSkeleton' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1168 |     DemoEc_DrawSkeleton(this, play, eyeTexture, gGoronCsMouthNeutralTex, NULL, NULL);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:251:81: note: expected 'void *' but argument is of type 'const char *'
+  251 | void DemoEc_DrawSkeleton(DemoEc* this, PlayState* play, void* eyeTexture, void* arg3, OverrideLimbDraw overrideLimbDraw,
+      |                                                                           ~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_InitMalon':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1173:38: warning: passing argument 3 of 'DemoEc_InitSkelAnime' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1173 |     DemoEc_InitSkelAnime(this, play, &gMalonAdultSkel);
+      |                                      ^~~~~~~~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[42]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:214:78: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[42]'
+  214 | void DemoEc_InitSkelAnime(DemoEc* this, PlayState* play, FlexSkeletonHeader* skeletonHeader) {
+      |                                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1175:34: warning: passing argument 2 of 'DemoEc_ChangeAnimation' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1175 |     DemoEc_ChangeAnimation(this, &gMalonAdultSingAnim, 0, 0.0f, false);
+      |                                  ^~~~~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[46]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:218:60: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[46]'
+  218 | void DemoEc_ChangeAnimation(DemoEc* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 reverse) {
+      |                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c: In function 'DemoEc_DrawMalon':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1190:36: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1190 |     static void* eyeTextures[] = { gMalonAdultEyeOpenTex, gMalonAdultEyeHalfTex, gMalonAdultEyeClosedTex };
+      |                                    ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1190:59: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1190 |     static void* eyeTextures[] = { gMalonAdultEyeOpenTex, gMalonAdultEyeHalfTex, gMalonAdultEyeClosedTex };
+      |                                                           ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1190:82: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1190 |     static void* eyeTextures[] = { gMalonAdultEyeOpenTex, gMalonAdultEyeHalfTex, gMalonAdultEyeClosedTex };
+      |                                                                                  ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:1194:49: warning: passing argument 4 of 'DemoEc_DrawSkeleton' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1194 |     DemoEc_DrawSkeleton(this, play, eyeTexture, gMalonAdultMouthHappyTex, NULL, NULL);
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Ec/z_demo_ec.c:251:81: note: expected 'void *' but argument is of type 'const char *'
+  251 | void DemoEc_DrawSkeleton(DemoEc* this, PlayState* play, void* eyeTexture, void* arg3, OverrideLimbDraw overrideLimbDraw,
+      |                                                                           ~~~~~~^~~~

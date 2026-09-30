@@ -187,8 +187,9 @@ Pack format 2, 60 mandatory logical IDs. Three payload formats:
 - `.rga` — `RGA1` header plus RGB565 and Apple's 8-bit coverage, for anything
   with a soft edge, because the shell composites it over real chrome rather
   than keying it out;
-- `.alpha` / `.metrics` — raw Lucida Grande coverage atlas plus a 103-byte
-  `DMF1` sidecar (cell width, cell height, ascent, per-glyph advances).
+- `.alpha` / `.metrics` — raw Lucida Grande coverage atlas plus a 105-byte
+  `DMF2` sidecar (cell width, cell height, ascent, signed atlas origin,
+  per-glyph advances).
 
 ```
 desktop_mode_snow_leopard/
@@ -203,6 +204,12 @@ desktop_mode_snow_leopard/
         apple-highlight.22x21x16.bmp
         dock-shelf.288x26x16.bmp
         dock-indicator.14x8.rga
+    dashboard/
+        world-clock.74x74x16.rga
+        ical.104x51x16.rga
+        weather.104x59x16.rga
+        stickies.96x88x16.rga
+        itunes.196x82x16.rga
     cursor/
         arrow.14x20.rga
         pointing-hand.16x18.rga
@@ -256,10 +263,14 @@ returns unchanged.
 
 ### Fonts
 
-Lucida Grande is rendered on a common baseline with the left side bearing
-inside the cell, so the pen position is the cell origin and the advance is the
-step. Getting either of these wrong is visible immediately: centring each glyph
-in its own cell gives every glyph a different baseline and renders
+Lucida Grande is rendered on a common baseline from the real Snow Leopard TTC.
+Each atlas carries the face's signed logical pen origin, so negative left side
+bearings remain visible while the pen advances by the font's real metrics. Live
+labels are vertically centred in their measured Apple control boxes; titles,
+menu rows, Finder rows, preference rows, sheets, tooltips, and Dashboard labels
+all use that same cell placement rule. Getting either the baseline or the
+advance wrong is visible immediately: centring each glyph in its own cell gives
+every glyph a different baseline and renders
 "Applications" as "APPlicatio", and thresholding the antialiasing to opaque
 turns every soft edge into a blot.
 
@@ -269,11 +280,12 @@ chrome, white text on the selection gradient, and grey secondary text, instead
 of one pre-composed atlas per backdrop colour that is wrong on every gradient.
 
 The importer uses high-quality downsampling once from the largest official
-source. It never repeatedly resizes an already reduced asset. Alpha artwork is
-precomposed against the finite backgrounds used by the shell or converted to a
-validated transparent-key bitmap. Icons are manually inspected at final
-320x240 scale; no sharpening or repainting is allowed unless it is a
-reversible, recorded conversion applied to the entire source.
+source. It never repeatedly resizes an already reduced asset. Alpha artwork,
+including the Dashboard widgets, retains its source coverage in a validated
+RGA1 payload and is blended against the live compositor plane. Icons are
+manually inspected at final 320x240 scale; no sharpening or repainting is
+allowed unless it is a reversible, recorded conversion applied to the entire
+source.
 
 ## 320x240 Desktop Layout
 
@@ -301,12 +313,12 @@ Window geometry, in the same measured units:
 | Scroller | `+287,+53,16,97` | real track and knob, shown only when needed |
 | Status bar | `+0,+150,304,24` | real gradient with real rounded corners |
 
-The 320x240 Dock holds Finder, iTunes, Preview, TextEdit, Calculator, DIRECTV,
-Sitekick, System Preferences and Trash at a 34-pixel pitch, magnifying the
-hovered icon to 38 and its neighbours to 34. The desktop1080 host profile adds
-Netflix between Sitekick and System Preferences and uses a 60-pixel pitch.
-Netflix is intentionally absent from the physical-iPod Dock; the regular
-iPodJS Netflix screen remains unchanged.
+The 320x240 Dock holds eight fixed launchers: Finder, iTunes, Preview,
+TextEdit, Calculator, Dashboard, System Preferences and Trash. They fit the
+288-pixel shelf at a 34-pixel pitch, magnifying the hovered icon to 38 and
+its neighbours to 34. DIRECTV, Sitekick, Netflix, Steam, and other optional
+apps are available from the in-window Launchpad in an application's View
+menu. The desktop1080 host profile may keep optional apps in its wider Dock.
 
 Default composition:
 
@@ -315,8 +327,9 @@ Default composition:
 - `Documents`, `Music`, `Movies`, and `Pictures` down the right edge when
   enabled;
 - translucent Snow Leopard menu bar across the top;
-- centered nine-icon Dock containing Finder, iTunes, Preview, TextEdit,
-  Calculator, DIRECTV, Sitekick, System Preferences, and Trash;
+- centered eight-icon Dock containing Finder, iTunes, Preview, TextEdit,
+  Calculator, Dashboard, System Preferences, and Trash;
+- compact 24-pixel desktop volume/folder icons with centred Finder labels;
 - black arrow pointer starting near the center, never placed under the Dock on
 first launch.
 
@@ -342,10 +355,10 @@ Window model:
 - red closes the window and returns to Finder/Desktop;
 - inactive chrome is used only during a sheet or menu.
 
-Green zoom is not implemented: at 320x240 the default bounds already fill the
-work area between the menu bar and the Dock, so there is no second size to
-toggle to. The control is drawn because it is part of the real title bar cap;
-clicking it does nothing.
+Green zoom toggles the active in-plugin window between its normal bounds and
+the available area below the menu bar. It keeps the Desktop Mode session,
+menu bar, pointer, and app state alive while hiding the Dock and desktop icons.
+Menu then returns to the desktop; Menu again opens the existing exit sheet.
 
 The importer assembles scalable chrome from real 1:1 slices at build time
 rather than the shell nine-slicing at run time, because the window size is
@@ -397,6 +410,8 @@ The Dock is a launcher and running-app switcher:
 - hover shows a real-style tooltip using Lucida Grande;
 - the selected icon magnifies from 32 to at most 38 pixels;
 - neighbors may magnify to at most 34 pixels;
+- the real shelf carries a short, fading vertical reflection of each icon in
+  the existing composition plane;
 - magnification is computed from pointer distance and repaints only the Dock
   rectangle;
 - clicking a minimized app restores it;
@@ -408,8 +423,13 @@ There is no animated reflective live preview and no second Dock framebuffer.
 Any minimize/restore animation is elapsed-time based, limited to six frames,
 and cancels directly to its destination state when input is queued.
 
+Finder owns the desktop menu bar even when no Finder window is open. This keeps
+the normal File, Edit, View, and Window menus visible from the first screen, so
+View > Launchpad is a direct application-launch path rather than a menu hidden
+behind another window.
+
 The iPodJS main-menu right pane shows the idle Aurora desktop with the
-320x240 nine-icon Dock. It does not open or clip a Finder/application window
+320x240 eight-icon Dock. It does not open or clip a Finder/application window
 into the preview. The pane is generated once by the private-pack importer and
 remains a cached bitmap at draw time.
 
@@ -486,6 +506,12 @@ front. Closing or minimising returns to the normal desktop and real Dock. The
 Rockpod host path prefers the dedicated 1920x1080 simulator target, where the
 same app uses the full-size iTunes 9 chrome, three metadata columns, audio
 codecs, and the registered MPEG/OpenH264 video viewers.
+
+The 1920x1080 simulator profile is not the physical video-out size. On a 6G
+the plugin always assembles the 320x240 source frame. The DCP750 path converts
+that frame to NTSC 720x480 and places it in the qualified `(36,24) 648x432`
+viewport; the VP performs that final scale. No Desktop Mode asset is enlarged
+to 720p or 1080p in firmware, and no TV-sized scratch framebuffer is allocated.
 
 - current artwork only when already cached by playback;
 - title, artist, album, elapsed time, play/pause, previous, and next;
@@ -828,6 +854,23 @@ ANY -> RETURN_CONFIRM -> EXIT
 ANY -> USB_HANDOFF -> ANY
 ```
 
+### DCP750 video-out scaling
+
+The source-space and output-space contracts are intentionally separate:
+
+| Space | Geometry | Owner |
+| --- | --- | --- |
+| Plugin source | `320x240` RGB565 | Desktop Mode and the normal LCD driver |
+| NTSC active surface | `640x480` | 6G video-out planar converter |
+| DCP750 output raster | `720x480` | SDO/NTSC encoder |
+| Qualified UI viewport | `(36,24) 648x432` | video-out VP destination registers |
+
+Desktop Mode lays out and hit-tests in the 320x240 source space. Windowed
+chrome uses the captured 320 profile; fullscreen expands only within the
+source frame below the 21-row menu bar. The video-out VP then scales the
+finished frame into the DCP750 viewport. This keeps text, icons, the Dock, and
+the pointer aligned as one image and avoids a second TV-sized framebuffer.
+
 ### Compositor
 
 The plugin API exposes no framebuffer, so a paint function cannot read back
@@ -1048,6 +1091,26 @@ The focused gate must capture and compare:
 Visual comparison uses exact asset/layout regions with zero tolerance for
 unapproved pixel drift and an explicit mask only for clock, playback progress,
 and pointer position.
+
+## Desktop notification banners
+
+Desktop Mode switches the shared notification compositor to Apple's compact
+OS X 10.8 banner treatment while the shell is active: a `152x36` light-gray
+bubble at `164,22`, immediately below the 21-pixel menu bar. It enters and
+leaves at the right edge instead of dropping a full-width iOS sheet over the
+desktop. Bold and regular Adobe Helvetica remain the two text roles.
+
+The source icon is not synthesized. Music, weather, storage, battery, Live TV
+and generic alerts reuse the installed Snow Leopard iTunes, Dashboard, disk,
+System Preferences, DIRECTV and Finder RGA assets; Achievements and Sitekick
+retain their verified notification bitmaps. Each 32-pixel RGA is streamed and
+downsampled into the existing 22-pixel notification scratch area when the
+banner is prepared, with no draw-time I/O, allocation, or added image buffer.
+The compositor returns to the iOS 5 banner style when Desktop Mode exits.
+
+Native full-screen apps can suppress transient compositing without losing the
+notification from history. Netflix uses that path so a desktop/weather alert
+cannot cover its brand bar or title banner.
 
 ## Physical iPod Gate
 

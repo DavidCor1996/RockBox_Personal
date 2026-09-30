@@ -7,7 +7,7 @@ It has two related surfaces:
 
 1. a non-modal banner that may be composited above a core menu, WPS, or
    plugin without giving the notification system ownership of that screen;
-2. a persistent Notification Center opened by holding Left on the iPodJS Home
+2. a persistent Notification Center opened by tapping Left on the iPodJS Home
    dashboard.
 
 This is feasible, but a banner that is genuinely visible above *every* plugin
@@ -70,41 +70,36 @@ plugin's controls.
 
 ### Notification Center
 
-Hold Left for 700 ms on the iPodJS Home dashboard. A normal short Left keeps
-its existing navigation meaning. The hold release is consumed so it cannot
-immediately back out of the center.
+Tap Left on the iPodJS Home dashboard to open the center.
 
-Notification Center is a normal native iPodJS screen, not a continuously
-composited overlay. It draws a black/charcoal fine texture, a stock silver
-title bar labelled `Notifications`, and grouped `New` and `Earlier` sections.
-Rows use a 24x24 source icon, title, one clipped body line, and a compact age.
-Unread rows have a narrow blue-grey edge marker. Empty state text is `No New
-Notifications`.
+The 320x240 sheet uses the original iOS 5 capture-derived linen and section
+surfaces in `assets/ipodjs/rockbox/notifications`. Section strips retain their
+24-pixel native height; two 84-pixel notification groups fit beneath the
+24-pixel title. No gradient cards, empty-state panel, drawn unread blobs, or
+imitation pull handle cover the linen. A narrow focus rule supports the wheel.
+
+Text uses Apple's original Helvetica and HelveticaBold outlines from the
+verified private RetailOS extraction: 13-point regular and 15-point bold,
+rasterized at 60 dpi for this display. These are Apple iPod font sources,
+not claimed to be an extracted iOS system font. See the private font
+`provenance.json` for source hashes. Title/body clipping preserves the age
+column and screen bounds. Fonts share existing caches where possible and
+are prepared before playback, never allocated on a late visit during audio.
+The change adds no framebuffer or static bitmap storage.
 
 | Input | Action |
 | --- | --- |
 | Wheel | Move through notifications |
-| Center | Open the selected source/route and mark it read |
-| Right | Same as Center |
+| Select | Open the selected source/route and mark it read |
 | Left or Menu | Return to Home |
-| Center hold | Clear the selected notification after confirmation |
-| Play hold | Preserve normal system stop/power handling |
+| Hold Select | Show `Clear all notifications?` and `Select = yes` |
+| Fresh Select in confirmation | Clear the complete notification history |
+| Left or Menu in confirmation | Cancel and return to the unchanged history |
 
-The footer contains `Clear All` as the final list item. It requires the normal
-yes/no confirmation. Hold state, USB, charging, shutdown, and playback keys
-remain observable through the existing iPodJS system-event helpers.
-
-### Routing
-
-- Achievement unlock: launch `achievements.rock` with a stable
-  `achievement:<game-key>:<achievement-id>` route. Until that plugin accepts
-  deep links, opening falls back to its game list.
-- Sitekick Dump ready/rescued: launch `sitekick.rock` with `dump-view`.
-- Sitekick Shop refreshed/bought: add and use `shop-view`.
-- Sitekick inbox grant: launch Sitekick at Collection, using a new
-  `collection-view` parameter.
-- Unknown or stale routes: mark read and show the history detail without
-  launching anything.
+Confirmation remains on the linen sheet, with one confirmation action and a
+`Menu to cancel` footer. The initial hold release and wheel cannot accept it.
+The empty sheet says `No Notifications`. Hold, USB, charging, shutdown, and
+playback events continue through the existing system-event handler.
 
 ## Settings
 

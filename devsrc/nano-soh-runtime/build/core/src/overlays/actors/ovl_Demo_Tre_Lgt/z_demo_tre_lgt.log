@@ -1,0 +1,31 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Tre_Lgt/z_demo_tre_lgt.c:43:53: warning: initialization of 'TransformUpdateIndex *' from incompatible pointer type 'const char (*)[55]' [-Wincompatible-pointer-types]
+   43 | static TransformUpdateIndex* sTransformUpdIdx[] = { &gTreasureChestCurveAnim_4B60, &gTreasureChestCurveAnim_4F70 };
+      |                                                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Tre_Lgt/z_demo_tre_lgt.c:43:53: note: (near initialization for 'sTransformUpdIdx[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Tre_Lgt/z_demo_tre_lgt.c:43:84: warning: initialization of 'TransformUpdateIndex *' from incompatible pointer type 'const char (*)[55]' [-Wincompatible-pointer-types]
+   43 | static TransformUpdateIndex* sTransformUpdIdx[] = { &gTreasureChestCurveAnim_4B60, &gTreasureChestCurveAnim_4F70 };
+      |                                                                                    ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Tre_Lgt/z_demo_tre_lgt.c:43:84: note: (near initialization for 'sTransformUpdIdx[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Tre_Lgt/z_demo_tre_lgt.c: In function 'DemoTreLgt_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Tre_Lgt/z_demo_tre_lgt.c:53:49: warning: passing argument 3 of 'SkelCurve_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+   53 |     if (!SkelCurve_Init(play, &this->skelCurve, &gTreasureChestCurveSkel, sTransformUpdIdx[0])) {
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                 |
+      |                                                 const char (*)[50]
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Tre_Lgt/z_demo_tre_lgt.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Tre_Lgt/z_demo_tre_lgt.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:887:83: note: expected 'SkelCurveLimbList *' but argument is of type 'const char (*)[50]'
+  887 | s32 SkelCurve_Init(PlayState* play, SkelAnimeCurve* skelCurve, SkelCurveLimbList* limbListSeg,
+      |                                                                ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Tre_Lgt/z_demo_tre_lgt.c: In function 'DemoTreLgt_PostLimbDraw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Tre_Lgt/z_demo_tre_lgt.c:142:16: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  142 |                Gfx_TwoTexScrollEx(play->state.gfxCtx, 0, (play->state.frames * 2) % 256, 0, 64, 32, 1,
+      |                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                |
+      |                Gfx *
+  143 |                                   (play->state.frames * -2) % 256, 0, 64, 32, 2, 0, -2, 0));
+      |                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~

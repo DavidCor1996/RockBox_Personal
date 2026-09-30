@@ -28,6 +28,15 @@
 #include "config.h"
 #include "events.h"
 
+/* Keep the published boot image while the first menu is composed in RAM. */
+#if defined(IPOD_6G) && !defined(BOOTLOADER)
+void lcd_boot_frame_hold(bool hold);
+bool lcd_boot_frame_held(void);
+#else
+static inline void lcd_boot_frame_hold(bool hold) { (void)hold; }
+static inline bool lcd_boot_frame_held(void) { return false; }
+#endif
+
 
 /* Frame buffer stride
  *

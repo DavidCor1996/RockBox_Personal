@@ -95,3 +95,29 @@
   feed screenshot published by The Next Web. It appears briefly at launch,
   clears while playback continues, and remains on a paused cover as the
   period-appropriate resume cue.
+
+## Authentic artwork and post options refresh
+
+- Use the sourced 2013 wordmark and actual Instagram Home/activity/profile
+  glyphs. Three working tabs replace the inactive upload placeholder.
+- Hold Select on a feed or profile post for Read caption, Open author profile,
+  Like/unlike, or Favorite/unfavorite author. Play retains its existing quick
+  like/profile-favorite behavior. Likes and favorites are stored locally.
+- The caption reader scrolls with the wheel and returns with Menu. New imports
+  and syncs retain up to 2,200 caption characters; existing shortened imports
+  need reimporting to recover text no longer in their cache.
+- Video feed chrome uses the same compiled header/tab artwork. Playback and
+  audio lifecycle are unchanged.
+- Caption storage adds 193,920 bytes for 96 posts, line offsets 4,408 bytes,
+  and TSV parsing uses bounded static 4KiB buffers instead of larger stacks.
+  The two shared RGB565 branding bitmaps total 33,280 bytes per plugin. No
+  core allocation, playback-buffer ownership, or draw-time I/O is added.
+
+Validation for this refresh: the iPod 6G native and simulator builds pass, as
+do all 15 existing Instagram host checks. Simulator captures cover the
+Applications icon, Instagram feed, post options, caption reader, profile grid,
+photo viewer, and real cached video feed. Package entries match the built
+Instagram/video plugins and Twitter icon. The broader navigation regression
+stops at “simulator did not enter a new list after Artist”; it is not a passing
+playback/navigation stress result. No physical deployment was performed for
+this refresh.

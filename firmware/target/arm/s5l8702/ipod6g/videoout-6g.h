@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "videoout.h"
 
 enum ipod6g_videoout_mode
 {
@@ -52,6 +53,13 @@ struct ipod6g_videoout_diagnostics
     uint32_t sdo_field;
 };
 
+void ipod6g_videoout_set_preferences(int screen, int overscan);
+void ipod6g_videoout_ui_batch(bool enabled);
+void ipod6g_videoout_ui_owner(bool enabled);
+void ipod6g_videoout_set_video(bool tv_canvas);
+struct videoout_tv_frame;
+void ipod6g_videoout_prepare_frame(const struct videoout_tv_frame *frame);
+void ipod6g_videoout_present_ui(const uint16_t *p, int w, int h);
 bool ipod6g_videoout_enable_sync(void);
 bool ipod6g_videoout_show_background(uint32_t ycbcr);
 bool ipod6g_videoout_show_framebuffer(const void *framebuffer,
@@ -62,6 +70,9 @@ bool ipod6g_videoout_test_config(const void *framebuffer,
 bool ipod6g_videoout_test_xrgb(const void *framebuffer,
                                int width, int height);
 bool ipod6g_videoout_test_p420_pattern(void);
+#ifdef IPOD6G_VIDEOOUT_HIRES_TEST
+bool ipod6g_videoout_test_hires_pattern(void);
+#endif
 bool ipod6g_videoout_test_p420_geometry_pattern(
     unsigned destination_x, unsigned destination_y,
     unsigned destination_width, unsigned destination_height,
@@ -84,6 +95,8 @@ void ipod6g_videoout_get_diagnostics(
 bool ipod6g_videoout_disable(void);
 bool ipod6g_videoout_active(void);
 bool ipod6g_videoout_lcd_clock_required(void);
+bool ipod6g_videoout_hibernate_suspend(void);
+bool ipod6g_videoout_hibernate_resume(void);
 bool ipod6g_videoout_mirror_yuv420(const unsigned char *luma,
                                    const unsigned char *cb,
                                    const unsigned char *cr,
@@ -98,4 +111,12 @@ void ipod6g_videoout_set_mode(enum ipod6g_videoout_mode mode,
 void ipod6g_videoout_accessory_state(
     enum ipod6g_videoout_accessory accessory);
 
+#ifdef VIDEOOUT_ENHANCED_TEST
+bool ipod6g_videoout_native_yuv(const struct videoout_frame *frame,
+                              unsigned char * const lcd_planes[3]);
+bool ipod6g_videoout_art_write(unsigned offset, const void *data, unsigned size);
+bool ipod6g_videoout_art_finish(void);
+void ipod6g_videoout_art_clear(void);
+bool ipod6g_videoout_art_bind(const uint16_t *source, int stride, int x, int y);
+#endif
 #endif /* VIDEOOUT_6G_H */

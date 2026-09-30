@@ -1,0 +1,381 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c: In function 'AudioLoad_DmaSampleData':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:166:24: warning: returning 'u8 *' {aka 'unsigned char *'} from a function with return type 'uintptr_t' {aka 'unsigned int'} makes integer from pointer without a cast [-Wint-conversion]
+  166 |                 return &dma->ramAddr[devAddr - dma->devAddr];
+      |                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:202:33: warning: returning 'u8 *' {aka 'unsigned char *'} from a function with return type 'uintptr_t' {aka 'unsigned int'} makes integer from pointer without a cast [-Wint-conversion]
+  202 |             return dma->ramAddr + (devAddr - dma->devAddr);
+      |                    ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:212:20: warning: returning 'void *' from a function with return type 'uintptr_t' {aka 'unsigned int'} makes integer from pointer without a cast [-Wint-conversion]
+  212 |             return NULL;
+      |                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:226:43: warning: passing argument 5 of 'AudioLoad_Dma' makes integer from pointer without a cast [-Wint-conversion]
+  226 |                   OS_READ, dmaDevAddr, dma->ramAddr, transfer, &gAudioContext.currAudioFrameDmaQueue, medium,
+      |                                        ~~~^~~~~~~~~
+      |                                           |
+      |                                           u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:64:93: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   64 | s32 AudioLoad_Dma(OSIoMesg* mesg, u32 priority, s32 direction, uintptr_t devAddr, uintptr_t ramAddr, size_t size,
+      |                                                                                   ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:230:35: warning: returning 'u8 *' {aka 'unsigned char *'} from a function with return type 'uintptr_t' {aka 'unsigned int'} makes integer from pointer without a cast [-Wint-conversion]
+  230 |     return (devAddr - dmaDevAddr) + dma->ramAddr;
+      |            ~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c: In function 'AudioLoad_SyncLoadSample':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:444:50: warning: passing argument 1 of 'AudioLoad_SyncDmaUnkMedium' makes integer from pointer without a cast [-Wint-conversion]
+  444 |                 AudioLoad_SyncDmaUnkMedium(sample->sampleAddr, sampleAddr, sample->size,
+      |                                            ~~~~~~^~~~~~~~~~~~
+      |                                                  |
+      |                                                  u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:63:43: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   63 | void AudioLoad_SyncDmaUnkMedium(uintptr_t devAddr, u8* addr, size_t size, s32 unkMediumParam);
+      |                                 ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:447:41: warning: passing argument 1 of 'AudioLoad_SyncDma' makes integer from pointer without a cast [-Wint-conversion]
+  447 |                 AudioLoad_SyncDma(sample->sampleAddr, sampleAddr, sample->size, sample->medium);
+      |                                   ~~~~~~^~~~~~~~~~~~
+      |                                         |
+      |                                         u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:62:34: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   62 | void AudioLoad_SyncDma(uintptr_t devAddr, u8* addr, size_t size, s32 medium);
+      |                        ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c: In function 'AudioLoad_GetFontsForSequence':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:515:12: warning: function returns address of local variable [-Wreturn-local-addr]
+  515 |     return sDat.fonts;
+      |            ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c: In function 'AudioLoad_SyncLoadSeq':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:649:12: warning: returning 'uintptr_t' {aka 'unsigned int'} from a function with return type 'u8 *' {aka 'unsigned char *'} makes pointer from integer without a cast [-Wint-conversion]
+  649 |     return AudioLoad_SyncLoad(SEQUENCE_TABLE, seqId, &didAllocate);
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c: In function 'AudioLoad_TrySyncLoadSampleBank':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:663:9: warning: assignment to 'uintptr_t' {aka 'unsigned int'} from 'void *' makes integer from pointer without a cast [-Wint-conversion]
+  663 |     ret = AudioLoad_SearchCaches(SAMPLE_TABLE, realTableId);
+      |         ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:664:13: warning: comparison between pointer and integer
+  664 |     if (ret != NULL) {
+      |             ^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:679:13: warning: comparison between pointer and integer
+  679 |     if (ret != NULL) {
+      |             ^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c: In function 'AudioLoad_SyncLoadFont':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:719:9: warning: assignment to 'SoundFontData *' {aka 'void *'} from 'uintptr_t' {aka 'unsigned int'} makes pointer from integer without a cast [-Wint-conversion]
+  719 |     ret = AudioLoad_SyncLoad(FONT_TABLE, fontId, &didAllocate);
+      |         ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c: In function 'AudioLoad_SyncLoad':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:742:9: warning: assignment to 'uintptr_t' {aka 'unsigned int'} from 'void *' makes integer from pointer without a cast [-Wint-conversion]
+  742 |     ret = AudioLoad_SearchCaches(tableType, realId);
+      |         ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:743:13: warning: comparison between pointer and integer
+  743 |     if (ret != NULL) {
+      |             ^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:774:21: warning: assignment to 'uintptr_t' {aka 'unsigned int'} from 'void *' makes integer from pointer without a cast [-Wint-conversion]
+  774 |                 ret = AudioHeap_AllocPermanent(tableType, realId, size);
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:775:25: warning: comparison between pointer and integer
+  775 |                 if (ret == NULL) {
+      |                         ^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:780:21: warning: assignment to 'uintptr_t' {aka 'unsigned int'} from 'void *' makes integer from pointer without a cast [-Wint-conversion]
+  780 |                 ret = AudioHeap_AllocCached(tableType, size, CACHE_PERSISTENT, realId);
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:781:25: warning: comparison between pointer and integer
+  781 |                 if (ret == NULL) {
+      |                         ^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:786:21: warning: assignment to 'uintptr_t' {aka 'unsigned int'} from 'void *' makes integer from pointer without a cast [-Wint-conversion]
+  786 |                 ret = AudioHeap_AllocCached(tableType, size, CACHE_TEMPORARY, realId);
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:787:25: warning: comparison between pointer and integer
+  787 |                 if (ret == NULL) {
+      |                         ^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:793:21: warning: assignment to 'uintptr_t' {aka 'unsigned int'} from 'void *' makes integer from pointer without a cast [-Wint-conversion]
+  793 |                 ret = AudioHeap_AllocCached(tableType, size, CACHE_EITHER, realId);
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:794:25: warning: comparison between pointer and integer
+  794 |                 if (ret == NULL) {
+      |                         ^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:802:49: warning: passing argument 2 of 'AudioLoad_SyncDmaUnkMedium' makes pointer from integer without a cast [-Wint-conversion]
+  802 |             AudioLoad_SyncDmaUnkMedium(romAddr, ret, size, (s16)table->unkMediumParam);
+      |                                                 ^~~
+      |                                                 |
+      |                                                 uintptr_t {aka unsigned int}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:63:56: note: expected 'u8 *' {aka 'unsigned char *'} but argument is of type 'uintptr_t' {aka 'unsigned int'}
+   63 | void AudioLoad_SyncDmaUnkMedium(uintptr_t devAddr, u8* addr, size_t size, s32 unkMediumParam);
+      |                                                    ~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:805:35: warning: passing argument 1 of 'AudioLoad_SyncDma' makes integer from pointer without a cast [-Wint-conversion]
+  805 |                 AudioLoad_SyncDma(seqData, ret, size, medium);
+      |                                   ^~~~~~~
+      |                                   |
+      |                                   char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:62:34: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'char *'
+   62 | void AudioLoad_SyncDma(uintptr_t devAddr, u8* addr, size_t size, s32 medium);
+      |                        ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:805:44: warning: passing argument 2 of 'AudioLoad_SyncDma' makes pointer from integer without a cast [-Wint-conversion]
+  805 |                 AudioLoad_SyncDma(seqData, ret, size, medium);
+      |                                            ^~~
+      |                                            |
+      |                                            uintptr_t {aka unsigned int}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:62:47: note: expected 'u8 *' {aka 'unsigned char *'} but argument is of type 'uintptr_t' {aka 'unsigned int'}
+   62 | void AudioLoad_SyncDma(uintptr_t devAddr, u8* addr, size_t size, s32 medium);
+      |                                           ~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:807:35: warning: passing argument 1 of 'AudioLoad_SyncDma' makes integer from pointer without a cast [-Wint-conversion]
+  807 |                 AudioLoad_SyncDma(fnt, ret, size, medium);
+      |                                   ^~~
+      |                                   |
+      |                                   SoundFont *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:62:34: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'SoundFont *'
+   62 | void AudioLoad_SyncDma(uintptr_t devAddr, u8* addr, size_t size, s32 medium);
+      |                        ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:807:40: warning: passing argument 2 of 'AudioLoad_SyncDma' makes pointer from integer without a cast [-Wint-conversion]
+  807 |                 AudioLoad_SyncDma(fnt, ret, size, medium);
+      |                                        ^~~
+      |                                        |
+      |                                        uintptr_t {aka unsigned int}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:62:47: note: expected 'u8 *' {aka 'unsigned char *'} but argument is of type 'uintptr_t' {aka 'unsigned int'}
+   62 | void AudioLoad_SyncDma(uintptr_t devAddr, u8* addr, size_t size, s32 medium);
+      |                                           ~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c: In function 'AudioLoad_RelocateFont':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:907:12: warning: assignment to 'uintptr_t' {aka 'unsigned int'} from 'void *' makes integer from pointer without a cast [-Wint-conversion]
+  907 |     reloc2 = ptrs[0];
+      |            ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:920:12: warning: assignment to 'uintptr_t' {aka 'unsigned int'} from 'void *' makes integer from pointer without a cast [-Wint-conversion]
+  920 |     reloc2 = ptrs[1];
+      |            ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:924:19: warning: assignment to 'uintptr_t' {aka 'unsigned int'} from 'SoundFontSound *' makes integer from pointer without a cast [-Wint-conversion]
+  924 |             reloc = (SoundFontSound*)ptrs[1] + i;
+      |                   ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:925:38: warning: passing argument 1 of 'AudioLoad_RelocateSample' from incompatible pointer type [-Wincompatible-pointer-types]
+  925 |             AudioLoad_RelocateSample(&sf->soundEffects[i].sample, mem, relocInfo, fontOffsets[fontId]);
+      |                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                      |
+      |                                      SoundFontSample **
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:55:47: note: expected 'SoundFontSound *' but argument is of type 'SoundFontSample **'
+   55 | void AudioLoad_RelocateSample(SoundFontSound* sound, SoundFontData* mem, RelocInfo* relocInfo, int fontId);
+      |                               ~~~~~~~~~~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:948:19: warning: assignment to 'uintptr_t' {aka 'unsigned int'} from 'AdsrEnvelope *' makes integer from pointer without a cast [-Wint-conversion]
+  948 |             reloc = inst->envelope;
+      |                   ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c: In function 'AudioLoad_SyncDma':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:967:67: warning: passing argument 5 of 'AudioLoad_Dma' makes integer from pointer without a cast [-Wint-conversion]
+  967 |         AudioLoad_Dma(ioMesg, OS_MESG_PRI_HIGH, OS_READ, devAddr, addr, 0x400, msgQueue, medium, "FastCopy");
+      |                                                                   ^~~~
+      |                                                                   |
+      |                                                                   u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:64:93: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   64 | s32 AudioLoad_Dma(OSIoMesg* mesg, u32 priority, s32 direction, uintptr_t devAddr, uintptr_t ramAddr, size_t size,
+      |                                                                                   ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:975:67: warning: passing argument 5 of 'AudioLoad_Dma' makes integer from pointer without a cast [-Wint-conversion]
+  975 |         AudioLoad_Dma(ioMesg, OS_MESG_PRI_HIGH, OS_READ, devAddr, addr, size, msgQueue, medium, "FastCopy");
+      |                                                                   ^~~~
+      |                                                                   |
+      |                                                                   u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:64:93: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   64 | s32 AudioLoad_Dma(OSIoMesg* mesg, u32 priority, s32 direction, uintptr_t devAddr, uintptr_t ramAddr, size_t size,
+      |                                                                                   ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c: In function 'AudioLoad_AsyncLoadInner':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:1085:83: warning: passing argument 3 of 'AudioLoad_StartAsyncLoadUnkMedium' makes integer from pointer without a cast [-Wint-conversion]
+ 1085 |             AudioLoad_StartAsyncLoadUnkMedium((s16)sp50->unkMediumParam, devAddr, ret, size, medium, nChunks, retQueue,
+      |                                                                                   ^~~
+      |                                                                                   |
+      |                                                                                   void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:67:100: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   67 | AudioAsyncLoad* AudioLoad_StartAsyncLoadUnkMedium(s32 unkMediumParam, uintptr_t devAddr, uintptr_t ramAddr, size_t size,
+      |                                                                                          ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:1088:47: warning: passing argument 2 of 'AudioLoad_StartAsyncLoad' makes integer from pointer without a cast [-Wint-conversion]
+ 1088 |             AudioLoad_StartAsyncLoad(devAddr, ret, size, medium, nChunks, retQueue,
+      |                                               ^~~
+      |                                               |
+      |                                               void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:69:71: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   69 | AudioAsyncLoad* AudioLoad_StartAsyncLoad(uintptr_t devAddr, uintptr_t ramAddr, size_t size, s32 medium, s32 nChunks,
+      |                                                             ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c: In function 'AudioLoad_InitSwapFont':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:1228:22: warning: assignment to 'Instrument *' from 'unsigned int' makes pointer from integer without a cast [-Wint-conversion]
+ 1228 |                 inst = BASE_ROM_OFFSET(instList[i]);
+      |                      ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c: In function 'AudioLoad_ProcessSlowLoads':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:1647:64: warning: passing argument 1 of 'AudioLoad_DmaSlowCopyUnkMedium' makes integer from pointer without a cast [-Wint-conversion]
+ 1647 |                         AudioLoad_DmaSlowCopyUnkMedium(slowLoad->curDevAddr, slowLoad->curRamAddr, size,
+      |                                                        ~~~~~~~~^~~~~~~~~~~~
+      |                                                                |
+      |                                                                u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:77:47: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   77 | void AudioLoad_DmaSlowCopyUnkMedium(uintptr_t devAddr, uintptr_t ramAddr, size_t size, s32 arg3);
+      |                                     ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:1647:86: warning: passing argument 2 of 'AudioLoad_DmaSlowCopyUnkMedium' makes integer from pointer without a cast [-Wint-conversion]
+ 1647 |                         AudioLoad_DmaSlowCopyUnkMedium(slowLoad->curDevAddr, slowLoad->curRamAddr, size,
+      |                                                                              ~~~~~~~~^~~~~~~~~~~~
+      |                                                                                      |
+      |                                                                                      u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:77:66: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   77 | void AudioLoad_DmaSlowCopyUnkMedium(uintptr_t devAddr, uintptr_t ramAddr, size_t size, s32 arg3);
+      |                                                        ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:1655:64: warning: passing argument 1 of 'AudioLoad_DmaSlowCopyUnkMedium' makes integer from pointer without a cast [-Wint-conversion]
+ 1655 |                         AudioLoad_DmaSlowCopyUnkMedium(slowLoad->curDevAddr, slowLoad->curRamAddr, 0x400,
+      |                                                        ~~~~~~~~^~~~~~~~~~~~
+      |                                                                |
+      |                                                                u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:77:47: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   77 | void AudioLoad_DmaSlowCopyUnkMedium(uintptr_t devAddr, uintptr_t ramAddr, size_t size, s32 arg3);
+      |                                     ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:1655:86: warning: passing argument 2 of 'AudioLoad_DmaSlowCopyUnkMedium' makes integer from pointer without a cast [-Wint-conversion]
+ 1655 |                         AudioLoad_DmaSlowCopyUnkMedium(slowLoad->curDevAddr, slowLoad->curRamAddr, 0x400,
+      |                                                                              ~~~~~~~~^~~~~~~~~~~~
+      |                                                                                      |
+      |                                                                                      u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:77:66: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   77 | void AudioLoad_DmaSlowCopyUnkMedium(uintptr_t devAddr, uintptr_t ramAddr, size_t size, s32 arg3);
+      |                                                        ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c: In function 'AudioLoad_DmaSlowCopy':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:1672:69: warning: passing argument 4 of 'AudioLoad_Dma' makes integer from pointer without a cast [-Wint-conversion]
+ 1672 |     AudioLoad_Dma(&slowLoad->ioMesg, OS_MESG_PRI_NORMAL, 0, slowLoad->curDevAddr, slowLoad->curRamAddr, size,
+      |                                                             ~~~~~~~~^~~~~~~~~~~~
+      |                                                                     |
+      |                                                                     u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:983:74: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+  983 | s32 AudioLoad_Dma(OSIoMesg* mesg, u32 priority, s32 direction, uintptr_t devAddr, uintptr_t ramAddr, size_t size,
+      |                                                                ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:1672:91: warning: passing argument 5 of 'AudioLoad_Dma' makes integer from pointer without a cast [-Wint-conversion]
+ 1672 |     AudioLoad_Dma(&slowLoad->ioMesg, OS_MESG_PRI_NORMAL, 0, slowLoad->curDevAddr, slowLoad->curRamAddr, size,
+      |                                                                                   ~~~~~~~~^~~~~~~~~~~~
+      |                                                                                           |
+      |                                                                                           u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:983:93: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+  983 | s32 AudioLoad_Dma(OSIoMesg* mesg, u32 priority, s32 direction, uintptr_t devAddr, uintptr_t ramAddr, size_t size,
+      |                                                                                   ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c: In function 'AudioLoad_StartAsyncLoad':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:1771:27: warning: assignment to 'u8 *' {aka 'unsigned char *'} from 'uintptr_t' {aka 'unsigned int'} makes pointer from integer without a cast [-Wint-conversion]
+ 1771 |     asyncLoad->curDevAddr = devAddr;
+      |                           ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:1772:24: warning: assignment to 'u8 *' {aka 'unsigned char *'} from 'uintptr_t' {aka 'unsigned int'} makes pointer from integer without a cast [-Wint-conversion]
+ 1772 |     asyncLoad->ramAddr = ramAddr;
+      |                        ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:1773:27: warning: assignment to 'u8 *' {aka 'unsigned char *'} from 'uintptr_t' {aka 'unsigned int'} makes pointer from integer without a cast [-Wint-conversion]
+ 1773 |     asyncLoad->curRamAddr = ramAddr;
+      |                           ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c: In function 'AudioLoad_ProcessAsyncLoad':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:1895:50: warning: passing argument 1 of 'AudioLoad_AsyncDmaUnkMedium' makes integer from pointer without a cast [-Wint-conversion]
+ 1895 |             AudioLoad_AsyncDmaUnkMedium(asyncLoad->curDevAddr, asyncLoad->curRamAddr, asyncLoad->bytesRemaining,
+      |                                         ~~~~~~~~~^~~~~~~~~~~~
+      |                                                  |
+      |                                                  u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:72:44: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   72 | void AudioLoad_AsyncDmaUnkMedium(uintptr_t devAddr, uintptr_t ramAddr, size_t size, s16 arg3);
+      |                                  ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:1895:73: warning: passing argument 2 of 'AudioLoad_AsyncDmaUnkMedium' makes integer from pointer without a cast [-Wint-conversion]
+ 1895 |             AudioLoad_AsyncDmaUnkMedium(asyncLoad->curDevAddr, asyncLoad->curRamAddr, asyncLoad->bytesRemaining,
+      |                                                                ~~~~~~~~~^~~~~~~~~~~~
+      |                                                                         |
+      |                                                                         u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:72:63: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   72 | void AudioLoad_AsyncDmaUnkMedium(uintptr_t devAddr, uintptr_t ramAddr, size_t size, s16 arg3);
+      |                                                     ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:1905:46: warning: passing argument 1 of 'AudioLoad_AsyncDmaUnkMedium' makes integer from pointer without a cast [-Wint-conversion]
+ 1905 |         AudioLoad_AsyncDmaUnkMedium(asyncLoad->curDevAddr, asyncLoad->curRamAddr, asyncLoad->chunkSize,
+      |                                     ~~~~~~~~~^~~~~~~~~~~~
+      |                                              |
+      |                                              u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:72:44: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   72 | void AudioLoad_AsyncDmaUnkMedium(uintptr_t devAddr, uintptr_t ramAddr, size_t size, s16 arg3);
+      |                                  ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:1905:69: warning: passing argument 2 of 'AudioLoad_AsyncDmaUnkMedium' makes integer from pointer without a cast [-Wint-conversion]
+ 1905 |         AudioLoad_AsyncDmaUnkMedium(asyncLoad->curDevAddr, asyncLoad->curRamAddr, asyncLoad->chunkSize,
+      |                                                            ~~~~~~~~~^~~~~~~~~~~~
+      |                                                                     |
+      |                                                                     u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:72:63: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   72 | void AudioLoad_AsyncDmaUnkMedium(uintptr_t devAddr, uintptr_t ramAddr, size_t size, s16 arg3);
+      |                                                     ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c: In function 'AudioLoad_AsyncDma':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:1920:54: warning: passing argument 4 of 'AudioLoad_Dma' makes integer from pointer without a cast [-Wint-conversion]
+ 1920 |     AudioLoad_Dma(&asyncLoad->ioMesg, 0, 0, asyncLoad->curDevAddr, asyncLoad->curRamAddr, size, &asyncLoad->msgQueue,
+      |                                             ~~~~~~~~~^~~~~~~~~~~~
+      |                                                      |
+      |                                                      u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:983:74: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+  983 | s32 AudioLoad_Dma(OSIoMesg* mesg, u32 priority, s32 direction, uintptr_t devAddr, uintptr_t ramAddr, size_t size,
+      |                                                                ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:1920:77: warning: passing argument 5 of 'AudioLoad_Dma' makes integer from pointer without a cast [-Wint-conversion]
+ 1920 |     AudioLoad_Dma(&asyncLoad->ioMesg, 0, 0, asyncLoad->curDevAddr, asyncLoad->curRamAddr, size, &asyncLoad->msgQueue,
+      |                                                                    ~~~~~~~~~^~~~~~~~~~~~
+      |                                                                             |
+      |                                                                             u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:983:93: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+  983 | s32 AudioLoad_Dma(OSIoMesg* mesg, u32 priority, s32 direction, uintptr_t devAddr, uintptr_t ramAddr, size_t size,
+      |                                                                                   ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c: In function 'AudioLoad_RelocateFontAndPreloadSamples':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:1997:54: warning: passing argument 1 of 'AudioLoad_SyncDmaUnkMedium' makes integer from pointer without a cast [-Wint-conversion]
+ 1997 |                     AudioLoad_SyncDmaUnkMedium(sample->sampleAddr, addr, sample->size,
+      |                                                ~~~~~~^~~~~~~~~~~~
+      |                                                      |
+      |                                                      u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:980:43: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+  980 | void AudioLoad_SyncDmaUnkMedium(uintptr_t devAddr, u8* addr, size_t size, s32 unkMediumParam) {
+      |                                 ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:2002:45: warning: passing argument 1 of 'AudioLoad_SyncDma' makes integer from pointer without a cast [-Wint-conversion]
+ 2002 |                     AudioLoad_SyncDma(sample->sampleAddr, addr, sample->size, sample->medium);
+      |                                       ~~~~~~^~~~~~~~~~~~
+      |                                             |
+      |                                             u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:956:34: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+  956 | void AudioLoad_SyncDma(uintptr_t devAddr, u8* addr, size_t size, s32 medium) {
+      |                        ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:2015:42: warning: assignment to 'u32' {aka 'long unsigned int'} from 'u8 *' {aka 'unsigned char *'} makes integer from pointer without a cast [-Wint-conversion]
+ 2015 |                 preload->endAndMediumKey = sample->sampleAddr + sample->size + sample->medium;
+      |                                          ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:2026:40: warning: passing argument 1 of 'AudioLoad_StartAsyncLoad' makes integer from pointer without a cast [-Wint-conversion]
+ 2026 |         AudioLoad_StartAsyncLoad(sample->sampleAddr, topPreload->ramAddr, sample->size, sample->medium, nChunks,
+      |                                  ~~~~~~^~~~~~~~~~~~
+      |                                        |
+      |                                        u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:1753:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+ 1753 | AudioAsyncLoad* AudioLoad_StartAsyncLoad(uintptr_t devAddr, uintptr_t ramAddr, size_t size, s32 medium, s32 nChunks,
+      |                                          ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:2026:64: warning: passing argument 2 of 'AudioLoad_StartAsyncLoad' makes integer from pointer without a cast [-Wint-conversion]
+ 2026 |         AudioLoad_StartAsyncLoad(sample->sampleAddr, topPreload->ramAddr, sample->size, sample->medium, nChunks,
+      |                                                      ~~~~~~~~~~^~~~~~~~~
+      |                                                                |
+      |                                                                u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:1753:71: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+ 1753 | AudioAsyncLoad* AudioLoad_StartAsyncLoad(uintptr_t devAddr, uintptr_t ramAddr, size_t size, s32 medium, s32 nChunks,
+      |                                                             ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c: In function 'AudioLoad_ProcessSamplePreloads':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:2084:74: warning: passing argument 2 of 'AudioLoad_StartAsyncLoad' makes integer from pointer without a cast [-Wint-conversion]
+ 2084 |                 AudioLoad_StartAsyncLoad((u32)sample->sampleAddr, preload->ramAddr, sample->size, sample->medium,
+      |                                                                   ~~~~~~~^~~~~~~~~
+      |                                                                          |
+      |                                                                          u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:1753:71: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+ 1753 | AudioAsyncLoad* AudioLoad_StartAsyncLoad(uintptr_t devAddr, uintptr_t ramAddr, size_t size, s32 medium, s32 nChunks,
+      |                                                             ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c: In function 'AudioLoad_PreloadSamplesForFont':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:2257:54: warning: passing argument 1 of 'AudioLoad_SyncDmaUnkMedium' makes integer from pointer without a cast [-Wint-conversion]
+ 2257 |                     AudioLoad_SyncDmaUnkMedium(sample->sampleAddr, addr, sample->size,
+      |                                                ~~~~~~^~~~~~~~~~~~
+      |                                                      |
+      |                                                      u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:980:43: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+  980 | void AudioLoad_SyncDmaUnkMedium(uintptr_t devAddr, u8* addr, size_t size, s32 unkMediumParam) {
+      |                                 ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:2262:45: warning: passing argument 1 of 'AudioLoad_SyncDma' makes integer from pointer without a cast [-Wint-conversion]
+ 2262 |                     AudioLoad_SyncDma(sample->sampleAddr, addr, sample->size, sample->medium);
+      |                                       ~~~~~~^~~~~~~~~~~~
+      |                                             |
+      |                                             u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:956:34: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+  956 | void AudioLoad_SyncDma(uintptr_t devAddr, u8* addr, size_t size, s32 medium) {
+      |                        ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:2274:42: warning: assignment to 'u32' {aka 'long unsigned int'} from 'u8 *' {aka 'unsigned char *'} makes integer from pointer without a cast [-Wint-conversion]
+ 2274 |                 preload->endAndMediumKey = sample->sampleAddr + sample->size + sample->medium;
+      |                                          ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:2285:40: warning: passing argument 1 of 'AudioLoad_StartAsyncLoad' makes integer from pointer without a cast [-Wint-conversion]
+ 2285 |         AudioLoad_StartAsyncLoad(sample->sampleAddr, topPreload->ramAddr, sample->size, sample->medium, nChunks,
+      |                                  ~~~~~~^~~~~~~~~~~~
+      |                                        |
+      |                                        u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:1753:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+ 1753 | AudioAsyncLoad* AudioLoad_StartAsyncLoad(uintptr_t devAddr, uintptr_t ramAddr, size_t size, s32 medium, s32 nChunks,
+      |                                          ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:2285:64: warning: passing argument 2 of 'AudioLoad_StartAsyncLoad' makes integer from pointer without a cast [-Wint-conversion]
+ 2285 |         AudioLoad_StartAsyncLoad(sample->sampleAddr, topPreload->ramAddr, sample->size, sample->medium, nChunks,
+      |                                                      ~~~~~~~~~~^~~~~~~~~
+      |                                                                |
+      |                                                                u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_load.c:1753:71: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+ 1753 | AudioAsyncLoad* AudioLoad_StartAsyncLoad(uintptr_t devAddr, uintptr_t ramAddr, size_t size, s32 medium, s32 nChunks,
+      |                                                             ~~~~~~~~~~^~~~~~~

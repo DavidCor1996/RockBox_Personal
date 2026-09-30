@@ -950,6 +950,18 @@ sub buildzip {
         close($steam_sources);
     }
 
+    # Locally imported 8-Bit Rebellion assets accompany the matching plugin.
+    if(-e "$temp_dir/rocks/games/8bit_rebellion.rock" &&
+       -e "$ROOT/assets/8bit_rebellion/rockbox/rocks/games/8bit_rebellion/ready.dat") {
+        tree_copy("$ROOT/assets/8bit_rebellion/rockbox", "$temp_dir");
+    }
+
+    # Newgrounds carries the verified original SWF, artwork and decoded audio.
+    if(-e "$temp_dir/rocks/apps/newgrounds.rock" &&
+       -d "$ROOT/assets/newgrounds/rockbox") {
+        tree_copy("$ROOT/assets/newgrounds/rockbox", "$temp_dir");
+    }
+
     # Uxn games are open-source ROMs installed outside .rockbox. Package their
     # verified launcher manifest and authentic screenshots only when the Uxn
     # viewer is present; the firmware also checks that each ROM exists before
@@ -1054,6 +1066,11 @@ sub buildzip {
     }
     copy("$temp_dir/wps/rockbox_none.sbs", "$temp_dir/wps/rockbox_none.rsbs");
 
+    if(-d "$ROOT/resources/tv-applications") {
+        mkpath("$temp_dir/ipodjs/tv-applications", $verbose, 0777);
+        glob_copy("$ROOT/resources/tv-applications/*.bmp",
+                  "$temp_dir/ipodjs/tv-applications");
+    }
     if(-d "$ROOT/assets/ipodjs/rockbox") {
         tree_copy("$ROOT/assets/ipodjs/rockbox", "$temp_dir/ipodjs",
                   qr{^clubpenguin(?:/|$)|^sitekick(?:/|$)|(?:^|/)\.rockbox(?:/|$)|^(?:24-iLike\.fnt|alphabet-overlay-stock\.|status-(?:battery|playing|hold|header|repeat|shuffle)-stock\.|volume_(?:left|right)_stock\.)});
@@ -1062,6 +1079,20 @@ sub buildzip {
         # must be in FONT_DIR on hardware or the renderer falls back to the
         # much smaller menu font.
         copy("$ROOT/fonts/35-Adobe-Helvetica-Bold.fnt", "$temp_dir/fonts");
+    }
+    if(-d "$ROOT/assets/ipodjs/apple/retailos-2.0.4") {
+        my $retailos = "$ROOT/assets/ipodjs/apple/retailos-2.0.4";
+        my $verifier = "$ROOT/tools/verify_ipod_classic_resource_dump.py";
+
+        # A partial private dump must never be packaged as the Classic port.
+        # List-form system() avoids shell interpolation of workspace paths.
+        system("python3", $verifier, $retailos) == 0
+            or die "incomplete/corrupt iPod35 2.0.4 RetailOS asset dump\n";
+    }
+    if(-d "$ROOT/assets/ipodjs/apple/retailos-fonts") {
+        system("python3", "$ROOT/tools/prepare_ipod_classic_fonts.py",
+               "--verify", "$ROOT/assets/ipodjs/apple/retailos-fonts") == 0
+            or die "incomplete/corrupt Classic font outputs\n";
     }
     if(-d "$ROOT/assets/ipodjs/apple") {
         # Apple binaries are private and gitignored.  When the verified
@@ -1077,8 +1108,22 @@ sub buildzip {
         );
     }
 
+    # TV-sized versions of the existing application artwork.
+    if(-d "$ROOT/resources/tv-applications") {
+        tree_copy("$ROOT/resources/tv-applications", "$temp_dir/ipodjs/tv-applications");
+    }
+
     # and the info file
     copy("rockbox-info.txt", "$temp_dir/rockbox-info.txt");
+    my $cap_model = $modelname;
+    $cap_model =~ s/^"|"$//g;
+    if ($image && $cap_model =~ /^(ipod6g|ipodvideo|ipodvideo64mb)$/) {
+        system("python3", "$ROOT/tools/video_capabilities.py", "--check",
+               "--info", "rockbox-info.txt", "--firmware", "rockbox.ipod",
+               "--output", "$temp_dir/video-capabilities.json") == 0
+            or die "Cannot publish video capabilities for this firmware\n";
+    }
+
 
     # copy the already built lng files
     glob_copy('apps/lang/*.lng', "$temp_dir/langs/");

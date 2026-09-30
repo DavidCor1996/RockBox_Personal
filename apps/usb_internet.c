@@ -1120,11 +1120,13 @@ static bool sync_register_video_row(void)
     if (filesize(index) == 0)
     {
         static const char header[] =
-            "# rockpod videolist v6\n"
+            "# rockpod videolist v8\n"
             "video_id\tthumb\tpreview\ttitle\tkind\tgroup_key\tdevice_path\t"
             "show\tseason\tepisode\tduration\tlocked\tyear\tgenre\trating\t"
             "plot_short\tplot_long\tcontent_rating\tnetflix_poster\t"
-            "netflix_detail\tshow_art_id\tseason_art_id\tshow_plot\n";
+            "netflix_detail\tshow_art_id\tseason_art_id\tshow_plot\t"
+            "intro_start\tintro_end\tcredits_start\tcredits_duration\t"
+            "external_rating_tenths\texternal_rating_votes\tbanner_art_id\n";
         if (write(index, header, sizeof(header) - 1) != sizeof(header) - 1)
         {
             close(index);

@@ -1,0 +1,58 @@
+init_volume_names: vol<0> = <HDD0> 
+WARNING: Do not use SYSFONT (id 0) in viewports!
+statvfs: frsize=4096 blocks=124895309 bfree=10055068
+allocate_playback_log Allocated 2600 bytes
+Opening /.rockbox/playback.log 
+Read metadata for /Music/test.mp3
+wps: playback callbacks registered
+Codec: calling entrypoint
+Codec: not an encoder
+Codec: entering run state
+wps: playback callbacks unregistered
+storage idle notify force=0
+Writing system_status to disk
+storage idle notify skipped
+storage idle notify skipped
+storage idle notify skipped
+storage idle notify skipped
+storage idle notify skipped
+statvfs: frsize=4096 blocks=124895309 bfree=10054041
+storage idle notify force=0
+storage idle notify skipped
+storage idle notify skipped
+storage idle notify skipped
+storage idle notify skipped
+storage idle notify skipped
+storage idle notify force=0
+Writing system_status to disk
+storage idle notify skipped
+storage idle notify skipped
+storage idle notify skipped
+storage idle notify skipped
+storage idle notify skipped
+Codec: cleaning up
+add_playbacklog Used 0 Remain: 2600
+BUFFERED: time: 1789236919 elapsed 61049/600032 saving file: /Music/test.mp3
+add_playbacklog Used 40 Remain: 2560
+Opening /.rockbox/playback.log 
+add_playbacklog Writing 40 bytes of buf:
+1789236919:61049:600032:/Music/test.mp3
+
+storage idle notify force=1
+Writing system_status to disk
+Window zoom is 1.000000
+Disabling background image.
+Root directory: /home/david/Documents/RockBox_Personal-master/.tmp-ipodjs-nav.k3OTdp
+Rockbox compiled with SDL 2.32.72 but running on SDL 2.32.72
+SDL Audio Drivers supported:
+   pipewire 
+   pulseaudio 
+   alsa 
+   sndio 
+   jack 
+   disk 
+   dummy (active)
+SDL Audio Devices present:
+  'System audio playback device'
+Quick Settings gate passed: 155 list frames, 56 transitions
+preserved simulator root: /home/david/Documents/RockBox_Personal-master/.tmp-ipodjs-nav.k3OTdp

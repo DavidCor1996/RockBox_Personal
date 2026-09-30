@@ -135,6 +135,9 @@ unsigned int m4a_seek (demux_res_t* demux_res, stream_t* stream,
     uint32_t* current_sample, uint32_t* lookup_table_idx);
 unsigned int m4a_seek_raw (demux_res_t* demux_res, stream_t* stream,
     uint32_t file_loc, uint64_t* sound_samples_done, uint32_t* current_sample, uint32_t* lookup_table_idx);
-int m4a_check_sample_offset(demux_res_t *demux_res, uint32_t frame, uint32_t *start);
+/* Keep the not-found sentinel signed without corrupting valid stco positions
+ * from 2 GiB through the Rockbox 4 GiB file limit. */
+int64_t m4a_check_sample_offset(demux_res_t *demux_res, uint32_t frame,
+                                uint32_t *start);
 
 #endif /* STREAM_H */

@@ -1,0 +1,56 @@
+{
+  "status": "stock emulation passed",
+  "physical_output": "not tested",
+  "results": [
+    {
+      "geometry": {
+        "src_x": 0,
+        "src_y": 0,
+        "src_w": 320,
+        "src_h": 240,
+        "dst_x": 0,
+        "dst_y": 0,
+        "dst_w": 720,
+        "dst_h": 480,
+        "h_ratio": 227,
+        "v_ratio": 128
+      },
+      "planes": {
+        "image_w": 320,
+        "image_h": 240,
+        "y": 150994944,
+        "cb": 151071744,
+        "cr": 151090944,
+        "unused": 0,
+        "plane_mode": 1,
+        "y_stride": 320,
+        "c_stride": 160
+      }
+    },
+    {
+      "geometry": {
+        "src_x": 0,
+        "src_y": 0,
+        "src_w": 640,
+        "src_h": 480,
+        "dst_x": 0,
+        "dst_y": 0,
+        "dst_w": 720,
+        "dst_h": 480,
+        "h_ratio": 455,
+        "v_ratio": 256
+      },
+      "planes": {
+        "image_w": 640,
+        "image_h": 480,
+        "y": 150994944,
+        "cb": 151302144,
+        "cr": 151378944,
+        "unused": 0,
+        "plane_mode": 1,
+        "y_stride": 640,
+        "c_stride": 320
+      }
+    }
+  ]
+}

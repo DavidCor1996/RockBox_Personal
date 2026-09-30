@@ -69,13 +69,22 @@ class DeviceSyncIndex:
             self.connection.close()
             self.connection = None
 
-    def current(self, app, item_id, artifact, signature):
+    def current(self, app, item_id, artifact, signature, outputs=None):
         row = self._execute(
-            "SELECT signature FROM output_state WHERE device_id=? AND app=? "
+            "SELECT signature, outputs_json FROM output_state WHERE device_id=? AND app=? "
             "AND item_id=? AND artifact=?",
             (self.device_id, str(app), str(item_id), str(artifact)),
         ).fetchone()
-        return bool(row and row[0] == str(signature))
+        if not row or row[0] != str(signature):
+            return False
+        if outputs is None:
+            return True
+        try:
+            recorded = [os.path.realpath(path) for path in json.loads(row[1])]
+        except (TypeError, ValueError):
+            return False
+        expected = [os.path.realpath(os.fspath(path)) for path in outputs]
+        return bool(expected) and recorded == expected
 
     def mark(self, app, item_id, artifact, signature, outputs=()):
         normalized = [os.fspath(path) for path in outputs]
@@ -106,7 +115,7 @@ class DeviceSyncIndex:
         legacy_signature=None,
         trust_existing=False,
     ):
-        if self.current(app, item_id, artifact, signature):
+        if self.current(app, item_id, artifact, signature, outputs):
             return True
         output_paths = [Path(path) for path in outputs]
         if not output_paths or not all(path.is_file() for path in output_paths):

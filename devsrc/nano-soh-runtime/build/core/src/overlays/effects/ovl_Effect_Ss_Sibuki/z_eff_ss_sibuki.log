@@ -1,0 +1,31 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Sibuki/z_eff_ss_sibuki.c: In function 'EffectSsSibuki_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Sibuki/z_eff_ss_sibuki.c:39:19: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   39 |         this->gfx = SEGMENTED_TO_VIRTUAL(gEffBubble2Tex);
+      |                   ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Sibuki/z_eff_ss_sibuki.c:41:19: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   41 |         this->gfx = SEGMENTED_TO_VIRTUAL(gEffBubble1Tex);
+      |                   ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Sibuki/z_eff_ss_sibuki.c: In function 'EffectSsSibuki_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Sibuki/z_eff_ss_sibuki.c:74:43: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+   74 |     gSPSegment(POLY_OPA_DISP++, 0x08, this->gfx);
+      |                                       ~~~~^~~~~
+      |                                           |
+      |                                           void *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Sibuki/z_eff_ss_sibuki.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Sibuki/z_eff_ss_sibuki.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:10:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Sibuki/z_eff_ss_sibuki.c:75:58: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+   75 |     gSPDisplayList(POLY_OPA_DISP++, SEGMENTED_TO_VIRTUAL(gEffBubbleDL));
+      |                                                          ^~~~~~~~~~~~
+      |                                                          |
+      |                                                          const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~

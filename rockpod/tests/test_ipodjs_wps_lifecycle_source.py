@@ -16,8 +16,8 @@ def test_ipodjs_wps_uses_the_rockbox_skin_and_action_loop():
     wps = _read("apps/gui/wps.c")
     loop = wps.split("long gui_wps_show(void)", 1)[1]
 
-    assert "button = skin_wait_for_action(WPS," in loop
-    assert "root_menu_ipodjs_draw_wps_frame();" not in loop
+    assert "button = skin_wait_for_action(" in loop
+    assert "root_menu_ipodjs_draw_wps_frame();" in loop
     assert "button = get_action(CONTEXT_WPS" not in loop
 
 
@@ -81,22 +81,26 @@ def test_ipod_wps_short_menu_does_not_depend_on_stale_action_history():
 def test_ipodjs_wps_uses_verified_stock_apple_chrome():
     skin = _read("wps/ipodjs-classic.wps")
 
-    for asset in (
-        "status-header.apple.320x24x24.bmp",
-        "status-battery.apple.26x65x24.bmp",
-        "status-playback.apple.20x32x24.bmp",
-        "status-repeat.apple.21x38x24.bmp",
-        "status-shuffle.apple.21x19x24.bmp",
-        "progress-frame.apple.200x22x32.bmp",
-        "progress-fill.apple.200x22x32.bmp",
-        "progress-fill-cap.apple.16x16x24.bmp",
-    ):
-        assert asset in skin
+    ui = _read("apps/gui/ipodjs_ui.c")
+    assert "ipodjs_retailos_load_resource_rga(" in ui
+    assert "IPODJS_RETAILOS_NOW_PLAYING_EQUALIZER" in ui
+    assert "IPODJS_RETAILOS_STATUSBAR_WHITE_BATTERY" in ui
+    assert ".apple." not in skin
 
     art = skin.split(
-        "%V(15,34,128,128,-)", 1
+        "%Vl(art,15,34,128,128,-)", 1
     )[1].split("# Stock metadata hierarchy", 1)[0]
     assert "%Cl(0,0,128,128,c,c,1)" in art
     assert "%Cl(15,34,128,128,c,c,1)" not in skin
-    assert "endcap,K,backdrop,F" in skin
+    assert "%Cd(" not in skin
+    assert "%Vs(none)" in skin
     assert "iPone" not in skin
+
+
+def test_wps_font_lookup_never_allocates_or_loads_during_rendering():
+    root = _read("apps/root_menu.c")
+    getter = root.split("static int root_menu_video_wps_font(bool bold)", 1)[1]
+    getter = getter.split("static void root_menu_video_prepare_wps_font", 1)[0]
+    for forbidden in ("font_load(", "file_exists(", "core_alloc(", "open("):
+        assert forbidden not in getter
+    assert "root_menu_ipodjs_prepare_wps_fonts();" in _read("apps/main.c")

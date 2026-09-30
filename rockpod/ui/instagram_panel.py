@@ -1,5 +1,7 @@
 """RockPod manager for the standalone offline Instagram application."""
 
+import logging
+
 from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal
 from PySide6.QtWidgets import (
     QCheckBox, QHBoxLayout, QLabel, QLineEdit, QMessageBox, QProgressDialog,
@@ -26,6 +28,7 @@ class InstagramJob(QRunnable):
             self.kwargs["progress"] = self.signals.progress.emit
             self.signals.finished.emit(self.function(*self.args, **self.kwargs))
         except Exception as exc:
+            logging.getLogger(__name__).exception("Instagram operation failed")
             self.signals.error.emit(str(exc))
 
 
@@ -52,6 +55,9 @@ class InstagramPanel(QWidget):
         self.url.setPlaceholderText("https://www.instagram.com/creator/")
         self.url.setText("https://www.instagram.com/jasmine.in.dreamland/")
         row.addWidget(self.url, 1)
+        self.login_button = QPushButton("Refresh Login")
+        self.login_button.clicked.connect(self.refresh_login)
+        row.addWidget(self.login_button)
         self.import_button = QPushButton("Import / Update Profile")
         self.import_button.clicked.connect(self.import_profile)
         row.addWidget(self.import_button)
@@ -76,9 +82,14 @@ class InstagramPanel(QWidget):
         remove.clicked.connect(self.remove_profile)
         buttons.addWidget(remove)
         buttons.addStretch(1)
-        self.sync_button = QPushButton("Sync Instagram to iPod")
-        self.sync_button.clicked.connect(self.sync)
-        buttons.addWidget(self.sync_button)
+        self.sync_mpeg_button = QPushButton("Sync as MPEG")
+        self.sync_mpeg_button.clicked.connect(lambda: self.sync("quality"))
+        buttons.addWidget(self.sync_mpeg_button)
+        self.sync_h264_button = QPushButton("Sync as H.264")
+        self.sync_h264_button.clicked.connect(
+            lambda: self.sync("h264_apple_exact")
+        )
+        buttons.addWidget(self.sync_h264_button)
         layout.addLayout(buttons)
         self.status = QLabel("Ready")
         layout.addWidget(self.status)
@@ -123,12 +134,26 @@ class InstagramPanel(QWidget):
             self.url.text().strip(), self.photos.isChecked(), self.videos.isChecked(),
         )
 
-    def sync(self):
+    def refresh_login(self):
+        try:
+            self.service.open_login()
+        except (OSError, ValueError) as exc:
+            QMessageBox.warning(self, "Instagram Login", str(exc))
+            return
+        self.status.setText(
+            "Sign in to Instagram in Firefox, then import/update the profile."
+        )
+
+    def sync(self, video_profile="quality"):
         device = self.device_provider()
         if device is None or not getattr(device, "mount_path", ""):
             QMessageBox.warning(self, "Instagram", "Connect and mount the iPod first.")
             return
-        self._start("Preparing Instagram sync…", self.service.sync, device.mount_path)
+        label = "H.264" if video_profile == "h264_apple_exact" else "MPEG"
+        self._start(
+            f"Preparing Instagram {label} sync…", self.service.sync,
+            device.mount_path, video_profile=video_profile,
+        )
 
     def remove_profile(self):
         row = self.table.currentRow()

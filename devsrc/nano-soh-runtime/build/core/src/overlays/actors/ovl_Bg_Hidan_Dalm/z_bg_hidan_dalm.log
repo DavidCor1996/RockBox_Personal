@@ -1,0 +1,27 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Hidan_Dalm/z_bg_hidan_dalm.c: In function 'BgHidanDalm_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Hidan_Dalm/z_bg_hidan_dalm.c:106:32: warning: passing argument 1 of 'CollisionHeader_GetVirtual' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  106 |     CollisionHeader_GetVirtual(&gFireTempleHammerableTotemCol, &colHeader);
+      |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Hidan_Dalm/z_bg_hidan_dalm.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Hidan_Dalm/z_bg_hidan_dalm.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:673:39: note: expected 'void *' but argument is of type 'const char (*)[66]'
+  673 | void CollisionHeader_GetVirtual(void* colHeader, CollisionHeader** dest);
+      |                                 ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Hidan_Dalm/z_bg_hidan_dalm.c: In function 'BgHidanDalm_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Hidan_Dalm/z_bg_hidan_dalm.c:218:32: warning: passing argument 2 of 'Gfx_DrawDListOpa' from incompatible pointer type [-Wincompatible-pointer-types]
+  218 |         Gfx_DrawDListOpa(play, gFireTempleHammerableTotemBodyDL);
+      |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                |
+      |                                const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:546:45: note: expected 'Gfx *' but argument is of type 'const char *'
+  546 | void Gfx_DrawDListOpa(PlayState* play, Gfx* dlist);
+      |                                        ~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Hidan_Dalm/z_bg_hidan_dalm.c:220:32: warning: passing argument 2 of 'Gfx_DrawDListOpa' from incompatible pointer type [-Wincompatible-pointer-types]
+  220 |         Gfx_DrawDListOpa(play, gFireTempleHammerableTotemHeadDL);
+      |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                |
+      |                                const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:546:45: note: expected 'Gfx *' but argument is of type 'const char *'
+  546 | void Gfx_DrawDListOpa(PlayState* play, Gfx* dlist);
+      |                                        ~~~~~^~~~~

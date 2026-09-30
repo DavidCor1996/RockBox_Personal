@@ -37,9 +37,16 @@ static int16_t silence[SILENCE_SAMPLES * 2];
 static volatile uint32_t pcm_read_pos;
 static volatile uint32_t pcm_write_pos;
 
-/* Master clock: stereo samples consumed by DMA (uint32_t sufficient
- * for >27 hours at 44.1kHz; avoids torn reads on 32-bit ARM) */
+/* Samples handed to the mixer. The public clock subtracts the current
+ * channel's unconsumed samples; analogue/DMA latency is still unmeasured. */
 static volatile uint32_t clock_samples;
+static volatile uint32_t underrun_count;
+static bool clock_block_has_media;
+
+uint32_t video_pcm_underruns(void)
+{
+    return underrun_count;
+}
 
 /* Clock base: absolute time (ms) at last flush/init */
 static uint32_t clock_base_ms;
@@ -88,6 +95,7 @@ static void video_pcm_get_more(const void **start, size_t *size)
         *size = chunk * 4; /* stereo 16-bit = 4 bytes per sample */
         pcm_read_pos += chunk;
         clock_samples += chunk;
+        clock_block_has_media = true;
     }
     else
     {
@@ -96,11 +104,14 @@ static void video_pcm_get_more(const void **start, size_t *size)
          * audio content hasn't actually been played yet. */
         *start = silence;
         *size = sizeof(silence);
+        underrun_count++;
+        clock_block_has_media = false;
     }
 }
 
 void video_pcm_init(uint32_t sample_rate)
 {
+    underrun_count = 0;
     /* Save current frequency for restore */
     saved_sampr = mixer_get_frequency();
 
@@ -108,6 +119,7 @@ void video_pcm_init(uint32_t sample_rate)
     pcm_read_pos = 0;
     pcm_write_pos = 0;
     clock_samples = 0;
+    clock_block_has_media = false;
     clock_base_ms = 0;
     clock_sample_rate = sample_rate;
     flush_pending = false;
@@ -157,7 +169,12 @@ int video_pcm_write(const int16_t *pcm, int stereo_samples)
 
 uint32_t video_pcm_get_clock_ms(void)
 {
-    uint32_t samples = clock_samples; /* atomic 32-bit read on ARM */
+    pcm_play_lock();
+    uint32_t samples = clock_samples;
+    uint32_t remaining = clock_block_has_media ?
+        mixer_channel_get_bytes_waiting(PCM_MIXER_CHAN_PLAYBACK) / 4 : 0;
+    samples -= MIN(samples, remaining);
+    pcm_play_unlock();
     if (clock_sample_rate == 0)
         return clock_base_ms;
     return clock_base_ms + (uint32_t)((uint64_t)samples * 1000
@@ -179,6 +196,7 @@ void video_pcm_flush(uint32_t base_ms, uint32_t sample_rate)
     pcm_write_pos = 0;
     clock_samples = 0;
     clock_base_ms = base_ms;
+    clock_block_has_media = false;
     clock_sample_rate = sample_rate;
 
     /* Restart mixer with fresh callback */

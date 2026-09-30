@@ -25,6 +25,21 @@
 #include "action.h"
 #include "button.h"
 #include "settings.h"
+#ifdef IPOD_ACCESSORY_PROTOCOL
+#include "iap.h"
+#endif
+
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3
+/* RetailOS routes Play-down as a recognizer phase, but binds the ordinary
+ * Play action to the terminal up event. This also keeps its distinct
+ * longpressandhold power event from mutating the current UI first. */
+#define IPOD_PLAY_SHORT          (BUTTON_PLAY | BUTTON_REL)
+#define IPOD_PLAY_SHORT_PREREQ   BUTTON_PLAY
+#else
+#define IPOD_PLAY_SHORT          BUTTON_PLAY
+#define IPOD_PLAY_SHORT_PREREQ   BUTTON_NONE
+#endif
 
 /*
  * The format of the list is as follows
@@ -118,7 +133,7 @@ static const struct button_mapping button_context_settings[]  = {
 
 static const struct button_mapping button_context_yesno[]  = {
     { ACTION_YESNO_ACCEPT,          BUTTON_SELECT,                  BUTTON_NONE },
-    { ACTION_STD_CANCEL,          BUTTON_PLAY,                  BUTTON_NONE },
+    { ACTION_STD_CANCEL,            IPOD_PLAY_SHORT,                 IPOD_PLAY_SHORT_PREREQ },
     LAST_ITEM_IN_LIST__NEXTLIST(CONTEXT_STD)
 }; /* button_context_yesno */
 
@@ -130,7 +145,7 @@ static const struct button_mapping button_context_bmark[]  = {
 static const struct button_mapping button_context_quickscreen[]  = {
     { ACTION_QS_TOP,        BUTTON_MENU,                    BUTTON_NONE },
     { ACTION_QS_TOP,        BUTTON_MENU|BUTTON_REPEAT,      BUTTON_NONE },
-    { ACTION_QS_DOWN,       BUTTON_PLAY,                    BUTTON_NONE },
+    { ACTION_QS_DOWN,       IPOD_PLAY_SHORT,                IPOD_PLAY_SHORT_PREREQ },
     { ACTION_QS_DOWN,       BUTTON_PLAY|BUTTON_REPEAT,      BUTTON_NONE },
     { ACTION_QS_LEFT,       BUTTON_LEFT,                    BUTTON_NONE },
     { ACTION_QS_LEFT,       BUTTON_LEFT|BUTTON_REPEAT,      BUTTON_NONE },
@@ -154,7 +169,7 @@ static const struct button_mapping button_context_pitchscreen[]  = {
     { ACTION_PS_NUDGE_LEFTOFF,  BUTTON_LEFT|BUTTON_REL,     BUTTON_NONE },
     { ACTION_PS_NUDGE_RIGHT,    BUTTON_RIGHT,               BUTTON_NONE },
     { ACTION_PS_NUDGE_RIGHTOFF, BUTTON_RIGHT|BUTTON_REL,    BUTTON_NONE },
-    { ACTION_PS_TOGGLE_MODE,    BUTTON_PLAY,                BUTTON_NONE },
+    { ACTION_PS_TOGGLE_MODE,    IPOD_PLAY_SHORT,            IPOD_PLAY_SHORT_PREREQ },
     { ACTION_PS_RESET,          BUTTON_MENU,                BUTTON_NONE },
     { ACTION_PS_EXIT,           BUTTON_SELECT,              BUTTON_NONE },
     { ACTION_PS_SLOWER,         BUTTON_LEFT|BUTTON_REPEAT,  BUTTON_NONE },
@@ -169,7 +184,7 @@ static const struct button_mapping button_context_keyboard[]  = {
     { ACTION_KBD_RIGHT,        BUTTON_RIGHT,                          BUTTON_NONE },
     { ACTION_KBD_RIGHT,        BUTTON_RIGHT|BUTTON_REPEAT,            BUTTON_NONE },
     { ACTION_KBD_SELECT,       BUTTON_SELECT,                         BUTTON_NONE },
-    { ACTION_KBD_DONE,         BUTTON_PLAY,                           BUTTON_NONE },
+    { ACTION_KBD_DONE,         IPOD_PLAY_SHORT,                       IPOD_PLAY_SHORT_PREREQ },
     { ACTION_KBD_ABORT,        BUTTON_MENU|BUTTON_REL,                BUTTON_MENU },
     { ACTION_KBD_UP,           BUTTON_SCROLL_BACK,                    BUTTON_NONE },
     { ACTION_KBD_UP,           BUTTON_SCROLL_BACK|BUTTON_REPEAT,      BUTTON_NONE },
@@ -289,7 +304,7 @@ static const struct button_mapping button_context_usb_hid_mode_browser[] = {
 static const struct button_mapping button_context_usb_hid_mode_mouse[] = {
     { ACTION_USB_HID_MOUSE_UP,                BUTTON_MENU,                              BUTTON_NONE },
     { ACTION_USB_HID_MOUSE_UP_REP,            BUTTON_MENU|BUTTON_REPEAT,                BUTTON_NONE },
-    { ACTION_USB_HID_MOUSE_DOWN,              BUTTON_PLAY,                              BUTTON_NONE },
+    { ACTION_USB_HID_MOUSE_DOWN,              IPOD_PLAY_SHORT,                          IPOD_PLAY_SHORT_PREREQ },
     { ACTION_USB_HID_MOUSE_DOWN_REP,          BUTTON_PLAY|BUTTON_REPEAT,                BUTTON_NONE },
     { ACTION_USB_HID_MOUSE_LEFT,              BUTTON_LEFT,                              BUTTON_NONE },
     { ACTION_USB_HID_MOUSE_LEFT_REP,          BUTTON_LEFT|BUTTON_REPEAT,                BUTTON_NONE },
@@ -311,6 +326,50 @@ static const struct button_mapping button_context_usb_hid_mode_mouse[] = {
 /*****************************************************************************
  *    Remote control mappings
  *****************************************************************************/
+
+static const struct button_mapping remote_full_standard[] = {
+    { ACTION_STD_PREV, BUTTON_RC_UP, BUTTON_NONE },
+    { ACTION_STD_PREVREPEAT, BUTTON_RC_UP|BUTTON_REPEAT, BUTTON_NONE },
+    { ACTION_STD_PREV, BUTTON_RC_VOL_UP, BUTTON_NONE },
+    { ACTION_STD_PREVREPEAT, BUTTON_RC_VOL_UP|BUTTON_REPEAT, BUTTON_NONE },
+    { ACTION_STD_NEXT, BUTTON_RC_DOWN, BUTTON_NONE },
+    { ACTION_STD_NEXTREPEAT, BUTTON_RC_DOWN|BUTTON_REPEAT, BUTTON_NONE },
+    { ACTION_STD_NEXT, BUTTON_RC_VOL_DOWN, BUTTON_NONE },
+    { ACTION_STD_NEXTREPEAT, BUTTON_RC_VOL_DOWN|BUTTON_REPEAT, BUTTON_NONE },
+    { ACTION_NONE, BUTTON_RC_LEFT|BUTTON_REL, BUTTON_RC_LEFT|BUTTON_REPEAT },
+    { ACTION_STD_CANCEL, BUTTON_RC_LEFT|BUTTON_REPEAT, BUTTON_RC_LEFT },
+    { ACTION_STD_CANCEL, BUTTON_RC_LEFT|BUTTON_REL, BUTTON_RC_LEFT },
+    { ACTION_STD_OK, BUTTON_RC_RIGHT, BUTTON_NONE },
+    { ACTION_STD_OK, BUTTON_RC_SELECT|BUTTON_REL, BUTTON_RC_SELECT },
+    { ACTION_STD_CONTEXT, BUTTON_RC_SELECT|BUTTON_REPEAT, BUTTON_RC_SELECT },
+    { ACTION_STD_CANCEL, BUTTON_RC_MENU|BUTTON_REL, BUTTON_RC_MENU },
+    { ACTION_STD_MENU, BUTTON_RC_MENU|BUTTON_REPEAT, BUTTON_RC_MENU },
+    { ACTION_NONE, BUTTON_RC_PLAY|BUTTON_REL, BUTTON_RC_PLAY|BUTTON_REPEAT },
+    { ACTION_STD_CONTEXT, BUTTON_RC_PLAY|BUTTON_REPEAT, BUTTON_RC_PLAY },
+    { ACTION_STD_OK, BUTTON_RC_PLAY|BUTTON_REL, BUTTON_RC_PLAY },
+    LAST_ITEM_IN_LIST
+};
+static const struct button_mapping remote_full_settings[] = {
+    { ACTION_SETTINGS_INC, BUTTON_RC_UP, BUTTON_NONE },
+    { ACTION_SETTINGS_INCREPEAT, BUTTON_RC_UP|BUTTON_REPEAT, BUTTON_NONE },
+    { ACTION_SETTINGS_INC, BUTTON_RC_VOL_UP, BUTTON_NONE },
+    { ACTION_SETTINGS_INCREPEAT, BUTTON_RC_VOL_UP|BUTTON_REPEAT, BUTTON_NONE },
+    { ACTION_SETTINGS_DEC, BUTTON_RC_DOWN, BUTTON_NONE },
+    { ACTION_SETTINGS_DECREPEAT, BUTTON_RC_DOWN|BUTTON_REPEAT, BUTTON_NONE },
+    { ACTION_SETTINGS_DEC, BUTTON_RC_VOL_DOWN, BUTTON_NONE },
+    { ACTION_SETTINGS_DECREPEAT, BUTTON_RC_VOL_DOWN|BUTTON_REPEAT, BUTTON_NONE },
+    { ACTION_STD_CANCEL, BUTTON_RC_LEFT|BUTTON_REPEAT, BUTTON_RC_LEFT },
+    { ACTION_NONE, BUTTON_RC_LEFT|BUTTON_REL, BUTTON_RC_LEFT|BUTTON_REPEAT },
+    { ACTION_STD_PREV, BUTTON_RC_LEFT|BUTTON_REL, BUTTON_RC_LEFT },
+    { ACTION_STD_NEXT, BUTTON_RC_RIGHT, BUTTON_NONE },
+    LAST_ITEM_IN_LIST__NEXTLIST(CONTEXT_STD)
+};
+static const struct button_mapping remote_full_yesno[] = {
+    { ACTION_YESNO_ACCEPT, BUTTON_RC_PLAY|BUTTON_REL, BUTTON_RC_PLAY },
+    { ACTION_YESNO_ACCEPT, BUTTON_RC_SELECT|BUTTON_REL, BUTTON_RC_SELECT },
+    { ACTION_YESNO_ACCEPT, BUTTON_RC_RIGHT, BUTTON_NONE },
+    LAST_ITEM_IN_LIST__NEXTLIST(CONTEXT_STD)
+};
 
 static const struct button_mapping remote_button_context_standard[]  = {
     { ACTION_STD_PREV,          BUTTON_RC_UP,                 BUTTON_NONE },
@@ -357,6 +416,88 @@ static const struct button_mapping remote_button_context_wps[]  = {
 
     LAST_ITEM_IN_LIST__NEXTLIST(CONTEXT_STD)
 }; /* remote_button_context_wps */
+static const struct button_mapping remote_full_wps[]  = {
+    { ACTION_WPS_VOLDOWN,   BUTTON_RC_VOL_DOWN,               BUTTON_NONE },
+    { ACTION_WPS_VOLDOWN,   BUTTON_RC_VOL_DOWN|BUTTON_REPEAT, BUTTON_NONE },
+    { ACTION_WPS_VOLUP,     BUTTON_RC_VOL_UP,                 BUTTON_NONE },
+    { ACTION_WPS_VOLUP,     BUTTON_RC_VOL_UP|BUTTON_REPEAT,   BUTTON_NONE },
+    { ACTION_WPS_VOLDOWN,   BUTTON_RC_DOWN,                  BUTTON_NONE },
+    { ACTION_WPS_VOLDOWN,   BUTTON_RC_DOWN|BUTTON_REPEAT,    BUTTON_NONE },
+    { ACTION_WPS_VOLUP,     BUTTON_RC_UP,                    BUTTON_NONE },
+    { ACTION_WPS_VOLUP,     BUTTON_RC_UP|BUTTON_REPEAT,      BUTTON_NONE },
+    { ACTION_WPS_PLAY,      BUTTON_RC_PLAY|BUTTON_REL,    BUTTON_RC_PLAY },
+    { ACTION_WPS_SKIPNEXT,  BUTTON_RC_RIGHT|BUTTON_REL,   BUTTON_RC_RIGHT },
+    { ACTION_WPS_SEEKFWD,   BUTTON_RC_RIGHT|BUTTON_REPEAT,BUTTON_NONE },
+    { ACTION_WPS_STOPSEEK,  BUTTON_RC_RIGHT|BUTTON_REL,   BUTTON_RC_RIGHT|BUTTON_REPEAT },
+    { ACTION_WPS_SKIPPREV,  BUTTON_RC_LEFT|BUTTON_REL,    BUTTON_RC_LEFT },
+    { ACTION_WPS_BROWSE, BUTTON_RC_LEFT|BUTTON_REPEAT, BUTTON_RC_LEFT },
+    { ACTION_NONE, BUTTON_RC_LEFT|BUTTON_REL, BUTTON_RC_LEFT|BUTTON_REPEAT },
+    { ACTION_WPS_BROWSE,    BUTTON_RC_SELECT|BUTTON_REL,           BUTTON_RC_SELECT },
+    { ACTION_WPS_CONTEXT,   BUTTON_RC_SELECT|BUTTON_REPEAT,        BUTTON_RC_SELECT },
+    { ACTION_WPS_HOTKEY,    BUTTON_RC_SELECT|BUTTON_PLAY,          BUTTON_NONE },
+    { ACTION_WPS_MENU,      BUTTON_RC_MENU|BUTTON_REL,             BUTTON_RC_MENU },
+    { ACTION_WPS_QUICKSCREEN,   BUTTON_RC_MENU|BUTTON_REPEAT,      BUTTON_RC_MENU },
+
+
+    LAST_ITEM_IN_LIST__NEXTLIST(CONTEXT_STD)
+}; /* remote_full_wps */
+
+static const struct button_mapping remote_tv_standard[] = {
+    { ACTION_NONE, BUTTON_RC_MENU|BUTTON_REL, BUTTON_RC_MENU|BUTTON_REPEAT },
+    { ACTION_STD_PREV, BUTTON_RC_UP, BUTTON_NONE },
+    { ACTION_STD_PREVREPEAT, BUTTON_RC_UP|BUTTON_REPEAT, BUTTON_NONE },
+    { ACTION_STD_PREV, BUTTON_RC_VOL_UP, BUTTON_NONE },
+    { ACTION_STD_PREVREPEAT, BUTTON_RC_VOL_UP|BUTTON_REPEAT, BUTTON_NONE },
+    { ACTION_STD_NEXT, BUTTON_RC_DOWN, BUTTON_NONE },
+    { ACTION_STD_NEXTREPEAT, BUTTON_RC_DOWN|BUTTON_REPEAT, BUTTON_NONE },
+    { ACTION_STD_NEXT, BUTTON_RC_VOL_DOWN, BUTTON_NONE },
+    { ACTION_STD_NEXTREPEAT, BUTTON_RC_VOL_DOWN|BUTTON_REPEAT, BUTTON_NONE },
+    { ACTION_NONE, BUTTON_RC_LEFT|BUTTON_REL, BUTTON_RC_LEFT|BUTTON_REPEAT },
+    { ACTION_STD_CANCEL, BUTTON_RC_LEFT|BUTTON_REPEAT, BUTTON_RC_LEFT },
+    { ACTION_STD_CANCEL, BUTTON_RC_LEFT|BUTTON_REL, BUTTON_RC_LEFT },
+    { ACTION_STD_OK, BUTTON_RC_RIGHT, BUTTON_NONE },
+    { ACTION_STD_OK, BUTTON_RC_SELECT|BUTTON_REL, BUTTON_RC_SELECT },
+    { ACTION_STD_CONTEXT, BUTTON_RC_SELECT|BUTTON_REPEAT, BUTTON_RC_SELECT },
+    { ACTION_STD_CANCEL, BUTTON_RC_MENU|BUTTON_REL, BUTTON_RC_MENU },
+    { ACTION_STD_MENU, BUTTON_RC_MENU|BUTTON_REPEAT, BUTTON_RC_MENU },
+    { ACTION_NONE, BUTTON_RC_PLAY|BUTTON_REL, BUTTON_RC_PLAY|BUTTON_REPEAT },
+    { ACTION_STD_CONTEXT, BUTTON_RC_PLAY|BUTTON_REPEAT, BUTTON_RC_PLAY },
+    { ACTION_STD_OK, BUTTON_RC_PLAY|BUTTON_REL, BUTTON_RC_PLAY },
+    LAST_ITEM_IN_LIST
+};
+static const struct button_mapping remote_tv_home[] = {
+    { ACTION_NONE, BUTTON_RC_LEFT|BUTTON_REL, BUTTON_RC_LEFT|BUTTON_REPEAT },
+    { ACTION_TREE_PGLEFT, BUTTON_RC_LEFT|BUTTON_REL, BUTTON_RC_LEFT },
+    { ACTION_STD_CANCEL, BUTTON_RC_LEFT|BUTTON_REPEAT, BUTTON_RC_LEFT },
+    { ACTION_TREE_PGRIGHT, BUTTON_RC_RIGHT, BUTTON_NONE },
+    { ACTION_TREE_PGRIGHT, BUTTON_RC_RIGHT|BUTTON_REPEAT, BUTTON_NONE },
+    LAST_ITEM_IN_LIST__NEXTLIST(CONTEXT_STD)
+};
+static const struct button_mapping remote_tv_wps[]  = {
+    { ACTION_WPS_MENU,   BUTTON_RC_VOL_DOWN,               BUTTON_NONE },
+    { ACTION_WPS_MENU,   BUTTON_RC_VOL_DOWN|BUTTON_REPEAT, BUTTON_NONE },
+    { ACTION_WPS_MENU,     BUTTON_RC_VOL_UP,                 BUTTON_NONE },
+    { ACTION_WPS_MENU,     BUTTON_RC_VOL_UP|BUTTON_REPEAT,   BUTTON_NONE },
+    { ACTION_WPS_MENU,   BUTTON_RC_DOWN,                  BUTTON_NONE },
+    { ACTION_WPS_MENU,   BUTTON_RC_DOWN|BUTTON_REPEAT,    BUTTON_NONE },
+    { ACTION_WPS_MENU,     BUTTON_RC_UP,                    BUTTON_NONE },
+    { ACTION_WPS_MENU,     BUTTON_RC_UP|BUTTON_REPEAT,      BUTTON_NONE },
+    { ACTION_WPS_PLAY,      BUTTON_RC_PLAY|BUTTON_REL,    BUTTON_RC_PLAY },
+    { ACTION_WPS_SKIPNEXT,  BUTTON_RC_RIGHT|BUTTON_REL,   BUTTON_RC_RIGHT },
+    { ACTION_WPS_SEEKFWD,   BUTTON_RC_RIGHT|BUTTON_REPEAT,BUTTON_NONE },
+    { ACTION_WPS_STOPSEEK,  BUTTON_RC_RIGHT|BUTTON_REL,   BUTTON_RC_RIGHT|BUTTON_REPEAT },
+    { ACTION_WPS_SKIPPREV,  BUTTON_RC_LEFT|BUTTON_REL,    BUTTON_RC_LEFT },
+    { ACTION_WPS_BROWSE, BUTTON_RC_LEFT|BUTTON_REPEAT, BUTTON_RC_LEFT },
+    { ACTION_NONE, BUTTON_RC_LEFT|BUTTON_REL, BUTTON_RC_LEFT|BUTTON_REPEAT },
+    { ACTION_WPS_PLAY,      BUTTON_RC_SELECT|BUTTON_REL,           BUTTON_RC_SELECT },
+    { ACTION_WPS_CONTEXT,   BUTTON_RC_SELECT|BUTTON_REPEAT,        BUTTON_RC_SELECT },
+    { ACTION_WPS_HOTKEY,    BUTTON_RC_SELECT|BUTTON_PLAY,          BUTTON_NONE },
+    { ACTION_WPS_BROWSE,    BUTTON_RC_MENU|BUTTON_REL,             BUTTON_RC_MENU },
+    { ACTION_WPS_MENU,          BUTTON_RC_MENU|BUTTON_REPEAT,      BUTTON_RC_MENU },
+
+
+    LAST_ITEM_IN_LIST__NEXTLIST(CONTEXT_STD)
+}; /* remote_tv_wps */
 
 static const struct button_mapping remote_button_context_tree[]  = {
     { ACTION_NONE,              BUTTON_RC_PLAY|BUTTON_REL,    BUTTON_RC_PLAY|BUTTON_REPEAT },
@@ -416,6 +557,30 @@ static const struct button_mapping remote_button_context_yesno[]  = {
 static const struct button_mapping* get_context_mapping_remote( int context )
 {
     context ^= CONTEXT_REMOTE;
+#ifdef IPOD_ACCESSORY_PROTOCOL
+    if (iap_remote_tv_active())
+    {
+        if (context == CONTEXT_WPS) return remote_tv_wps;
+        if (context == CONTEXT_MAINMENU) return remote_tv_home;
+        if (context == CONTEXT_STD || context == CONTEXT_TREE ||
+            context == (CONTEXT_CUSTOM|CONTEXT_TREE) || context == CONTEXT_LIST)
+            return remote_tv_standard;
+    }
+    if (iap_remote_navigation_active())
+    {
+        switch (context)
+        {
+            case CONTEXT_WPS: return remote_full_wps;
+            case CONTEXT_SETTINGS:
+            case CONTEXT_SETTINGS_EQ:
+            case CONTEXT_SETTINGS_COLOURCHOOSER:
+            case CONTEXT_SETTINGS_TIME:
+            case CONTEXT_SETTINGS_RECTRIGGER: return remote_full_settings;
+            case CONTEXT_YESNOSCREEN: return remote_full_yesno;
+            default: return remote_full_standard;
+        }
+    }
+#endif
 
     switch (context)
     {

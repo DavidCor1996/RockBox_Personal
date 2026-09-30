@@ -72,6 +72,38 @@
 #include "bringup-nano3g.h"
 #endif
 
+#if defined(IPOD_6G) && !defined(S5L87XX_DEVELOPMENT_BOOTLOADER)
+#include "quiet_boot_logo.h"
+
+/* The full RGB565 bitmap exceeds the bootloader's IRAM budget. Decode
+ * constant color runs directly into the existing framebuffer instead. */
+static void show_quiet_boot_logo(void)
+{
+    int x = 0, y = 0;
+    for (unsigned i = 0; i < ARRAYLEN(quiet_boot_logo); i++)
+    {
+        int remaining = quiet_boot_logo[i][0];
+        unsigned color = quiet_boot_logo[i][1];
+        lcd_set_foreground(LCD_RGBPACK((color >> 11) << 3,
+            ((color >> 5) & 63) << 2, (color & 31) << 3));
+        while (remaining)
+        {
+            int count = MIN(remaining, LCD_WIDTH - x);
+            lcd_hline(x, x + count - 1, y);
+            remaining -= count;
+            x += count;
+            if (x == LCD_WIDTH)
+            {
+                x = 0;
+                y++;
+            }
+        }
+    }
+    lcd_set_foreground(LCD_WHITE);
+    lcd_update();
+}
+#endif
+
 #ifdef IPOD_NANO3G
 #define N3G_PAGE_SCAN_COUNT 12
 
@@ -2118,13 +2150,20 @@ void main(void)
     }
 #endif
 
+#if defined(IPOD_6G) && !defined(S5L87XX_DEVELOPMENT_BOOTLOADER)
+    show_quiet_boot_logo();
+    verbose = false;
+#else
     lcd_update();
+    verbose = true;
+#endif
     sleep(HZ/40);  /* wait for lcd update */
 
-    verbose = true;
-
-    printf("Rockbox boot loader");
-    printf("Version: %s", rbversion);
+    if (verbose)
+    {
+        printf("Rockbox boot loader");
+        printf("Version: %s", rbversion);
+    }
 #ifdef IPOD_NANO3G
 #if NANO3G_NATIVE_DISK_HANDOFF
     printf("N3G READ-ONLY DISK LOAD");
@@ -2303,6 +2342,7 @@ void main(void)
                     goto of_loaded;
             }
 #endif
+            verbose = true;
             printf("Storage error: %d", rc);
             fatal_error(ERR_STORAGE);
         }
@@ -2389,6 +2429,7 @@ of_loaded:
     printf("N3G_MOUNT_RET rc=%d", rc);
 #endif
     if (rc <= 0) {
+        verbose = true;
 #ifdef STORAGE_GET_INFO
         struct storage_info sinfo;
         storage_get_info(0, &sinfo);
@@ -2423,7 +2464,8 @@ of_loaded:
         sleep(HZ);
 #endif
 
-    printf("Loading Rockbox...");
+    if (verbose)
+        printf("Loading Rockbox...");
 #if defined(IPOD_NANO3G) && 0
     printf("N3G_LOAD_PATH path=/" BOOTFILE);
 #endif
@@ -2435,13 +2477,15 @@ of_loaded:
 #endif
 
     if (rc <= EFILE_EMPTY) {
+        verbose = true;
         printf("Error!");
         printf("Can't load " BOOTFILE ": ");
         printf(loader_strerror(rc));
         fatal_error(ERR_RB);
     }
 
-    printf("Rockbox loaded.");
+    if (verbose)
+        printf("Rockbox loaded.");
 #if defined(IPOD_NANO3G) && NANO3G_NATIVE_DISK_HANDOFF
     n3g_handoff_disk_native(loadbuffer, rc);
 #endif

@@ -1,0 +1,12 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Dead_Dd/z_eff_ss_dead_dd.c: In function 'EffectSsDeadDd_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Dead_Dd/z_eff_ss_dead_dd.c:117:41: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  117 |         gSPDisplayList(POLY_XLU_DISP++, gLensFlareCircleDL);
+      |                                         ^~~~~~~~~~~~~~~~~~
+      |                                         |
+      |                                         const char *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Dead_Dd/z_eff_ss_dead_dd.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Dead_Dd/z_eff_ss_dead_dd.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~

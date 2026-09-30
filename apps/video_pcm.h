@@ -42,5 +42,7 @@ bool video_pcm_empty(void);
 
 /* Return number of stereo samples currently buffered. */
 uint32_t video_pcm_buffered_samples(void);
+/* Includes startup starvation; count alone is not steady-state qualification. */
+uint32_t video_pcm_underruns(void);
 
 #endif /* VIDEO_PCM_H */

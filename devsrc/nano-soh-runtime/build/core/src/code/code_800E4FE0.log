@@ -1,0 +1,11 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/code_800E4FE0.c: In function 'func_800E5584':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/code_800E4FE0.c:324:78: warning: passing argument 4 of 'Audio_SetFontInstrument' makes pointer from integer without a cast [-Wint-conversion]
+  324 |             Audio_SetFontInstrument(cmd->op - 0xE0, cmd->arg0, cmd->arg1, cmd->data);
+      |                                                                           ~~~^~~~~~
+      |                                                                              |
+      |                                                                              u32 {aka long unsigned int}
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/code_800E4FE0.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:2017:78: note: expected 'void *' but argument is of type 'u32' {aka 'long unsigned int'}
+ 2017 | s32 Audio_SetFontInstrument(s32 instrumentType, s32 fontId, s32 index, void* value);
+      |                                                                        ~~~~~~^~~~~

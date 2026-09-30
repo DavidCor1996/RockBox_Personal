@@ -126,9 +126,9 @@ def _rows_from_payload(payload):
     times = daily.get("time") or []
     rows = []
     for idx, day in enumerate(times[:7]):
-        code, text = _weather_code((daily.get("weather_code") or [None] * 7)[idx])
-        sunrise = str((daily.get("sunrise") or [""] * 7)[idx] or "")
-        sunset = str((daily.get("sunset") or [""] * 7)[idx] or "")
+        code, text = _weather_code(_value(daily.get("weather_code"), idx))
+        sunrise = str(_value(daily.get("sunrise"), idx) or "")
+        sunset = str(_value(daily.get("sunset"), idx) or "")
         rows.append(
             [
                 day,
@@ -202,6 +202,19 @@ def _read_cached_forecast(path):
     daily_rows = [row for row in lines[1:] if row and row[0] != "hourly"]
     hourly_rows = [row for row in lines[1:] if row and row[0] == "hourly"]
     return daily_rows, hourly_rows
+
+
+def _cache_matches(path, location, latitude, longitude, units):
+    """Never send a previous city's forecast or temperatures in old units."""
+    try:
+        with Path(path).open(encoding="utf-8") as handle:
+            header = handle.readline().rstrip("\r\n").split("\t")
+        return (len(header) >= 8 and header[1] == location
+                and header[2] == f"{float(latitude):.4f}"
+                and header[3] == f"{float(longitude):.4f}"
+                and header[7] == units)
+    except (OSError, ValueError):
+        return False
 
 
 def _cache_is_fresh(path, max_age_minutes):
@@ -559,7 +572,9 @@ def build_weather_bundle(
     allow_stale_cache = bool(_config_value(
         config, "weather_sync_stale_cache", True, device=device))
     cached_rows, cached_hourly_rows = _read_cached_forecast(forecast_path)
-    cached_forecast_available = bool(cached_rows or cached_hourly_rows)
+    if not _cache_matches(forecast_path, location, latitude, longitude, units):
+        cached_rows, cached_hourly_rows = [], []
+    cached_forecast_available = bool(cached_rows)
     cached_forecast_fresh = (
         cached_forecast_available
         and _cache_is_fresh(forecast_path, max_age_minutes)

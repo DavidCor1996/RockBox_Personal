@@ -24,6 +24,7 @@ from services.sync_engine import (
     _clear_device_trash,
     _looks_like_auto_duplicate_path,
     _merge_existing_video_manifest_entries,
+    _remove_stale_converted_video_outputs,
     _video_bundle_file_is_current,
     build_device_path,
     _sanitize_filename,
@@ -35,6 +36,30 @@ from services.video_rvp import VideoRvpTranscoder
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+
+def test_successful_video_format_install_removes_other_encodings(tmp_path):
+    target = tmp_path / "Movie.m4v"
+    target.write_bytes(b"apple-h264")
+    old_mpeg = tmp_path / "Movie.mpg"
+    old_rvp = tmp_path / "Movie.rvp"
+    old_yuv = tmp_path / "Movie.yuv"
+    old_pcm = tmp_path / "Movie.pcm"
+    for path in (old_mpeg, old_rvp, old_yuv, old_pcm):
+        path.write_bytes(b"old")
+
+    removed = _remove_stale_converted_video_outputs(
+        {
+            "media_type": "video",
+            "sync_transcoded": True,
+            "sync_output_ext": ".m4v",
+            "file_path": str(tmp_path / "Movie.mp4"),
+        },
+        str(target),
+    )
+
+    assert target.read_bytes() == b"apple-h264"
+    assert set(removed) == {str(old_mpeg), str(old_rvp), str(old_yuv), str(old_pcm)}
 
 
 def test_compact_video_bundle_is_current(tmp_dir):
@@ -385,6 +410,18 @@ class TestSanitizeFilename:
         result = _sanitize_filename(long_name)
         assert len(result) <= 200
 
+    def test_fat_trailing_dot_album_path(self):
+        assert _sanitize_filename("i.") == "i"
+        assert _sanitize_filename("... ") == "Unknown"
+        assert _sanitize_filename("Album. extra", max_len=6) == "Album"
+        result = build_device_path(
+            {"artist": "coloia", "album": "i.", "title": "color bomb",
+             "track_number": 2, "file_path": "/music/color bomb.m4a"},
+            "Music/{album_artist}/{album}",
+            "{track_number:02d} - {title}{ext}",
+        )
+        assert result == "Music/coloia/i/02 - color bomb.m4a"
+
 
 class TestDeviceMediaDetection:
     def test_device_has_indexable_media_on_disk_uses_music_roots(self, env):
@@ -672,6 +709,26 @@ class TestBuildDevicePath:
         assert normalized["album"] == "Season 02"
         assert normalized["artist"] == "Kenny vs. Spenny"
         assert normalized["album_artist"] == "Kenny vs. Spenny"
+
+    def test_normalize_video_row_for_sync_keeps_known_movie_titles_as_movie(self):
+        row = {
+            "title": "Spirited Away",
+            "file_path": "/videos/Home Videos/Spirited Away (2001).mp4",
+            "media_type": "video",
+            "video_kind": "home_video",
+        }
+        normalized = SyncEngine._normalize_video_row_for_sync(row)
+        assert normalized["video_kind"] == "movie"
+
+    def test_normalize_video_row_for_sync_keeps_known_movie_typo_title_as_movie(self):
+        row = {
+            "title": "Kiki's Devlivery Service",
+            "file_path": "/videos/Home Videos/Kiki's Devlivery Service (1989).mp4",
+            "media_type": "video",
+            "video_kind": "home_video",
+        }
+        normalized = SyncEngine._normalize_video_row_for_sync(row)
+        assert normalized["video_kind"] == "movie"
 
     def test_normalize_video_row_for_sync_infers_show_from_dash_show_title(self):
         row = {

@@ -301,3 +301,35 @@ def test_ipodjs_weather_preview_uses_real_radar_and_forecast(tmp_path):
         assert pane.size == weather.IPODJS_WEATHER_PREVIEW_SIZE
         assert pane.mode == "RGB"
         assert pane.getpixel((87, 103)) != (34, 116, 72)
+
+
+def test_weather_changed_units_do_not_reuse_cache(tmp_path, monkeypatch):
+    _write_cached_forecast(tmp_path)
+    calls = []
+
+    def fetch(*args):
+        calls.append(args)
+        return _payload()
+
+    monkeypatch.setattr(weather, "_fetch_open_meteo", fetch)
+    report = weather.build_weather_bundle(
+        _Config(tmp_path, weather_units="imperial"), output_root=tmp_path)
+    assert not report.errors
+    assert calls[0][2] == "imperial"
+
+
+def test_weather_changed_location_offline_omits_old_forecast(tmp_path):
+    _write_cached_forecast(tmp_path)
+    report = weather.build_weather_bundle(
+        _Config(tmp_path, weather_latitude=44.65), output_root=tmp_path,
+        allow_network=False)
+    assert report.files == []
+
+
+def test_weather_partial_daily_arrays():
+    payload = _payload()
+    payload["daily"]["time"].append("2026-07-03")
+    rows = weather._rows_from_payload(payload)
+    assert len(rows) == 2
+    assert rows[1][1] == "unknown"
+    assert rows[1][8:10] == ["", ""]

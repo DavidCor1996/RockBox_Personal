@@ -1,0 +1,12 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Hana/z_obj_hana.c:61:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   61 |     { gHanaDL, 0.01f, 0.0f, -1, 0 },
+      |       ^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Hana/z_obj_hana.c:61:7: note: (near initialization for 'sHanaParams[0].dList')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Hana/z_obj_hana.c:62:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   62 |     { gFieldKakeraDL, 0.1f, 58.0f, 10, 18 },
+      |       ^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Hana/z_obj_hana.c:62:7: note: (near initialization for 'sHanaParams[1].dList')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Hana/z_obj_hana.c:63:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   63 |     { gFieldBushDL, 0.4f, 0.0f, 12, 44 },
+      |       ^~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Hana/z_obj_hana.c:63:7: note: (near initialization for 'sHanaParams[2].dList')

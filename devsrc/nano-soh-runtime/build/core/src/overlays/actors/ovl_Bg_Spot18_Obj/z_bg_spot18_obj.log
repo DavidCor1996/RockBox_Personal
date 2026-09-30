@@ -1,0 +1,16 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot18_Obj/z_bg_spot18_obj.c:54:5: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[53]' [-Wincompatible-pointer-types]
+   54 |     &gGoronCityStatueCol,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot18_Obj/z_bg_spot18_obj.c:54:5: note: (near initialization for 'D_808B90FC[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot18_Obj/z_bg_spot18_obj.c:55:5: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[58]' [-Wincompatible-pointer-types]
+   55 |     &gGoronCityStatueSpearCol,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot18_Obj/z_bg_spot18_obj.c:55:5: note: (near initialization for 'D_808B90FC[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot18_Obj/z_bg_spot18_obj.c:88:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   88 |     gGoronCityStatueDL,
+      |     ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot18_Obj/z_bg_spot18_obj.c:88:5: note: (near initialization for 'sDlists[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot18_Obj/z_bg_spot18_obj.c:89:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   89 |     gGoronCityStatueSpearDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot18_Obj/z_bg_spot18_obj.c:89:5: note: (near initialization for 'sDlists[1]')

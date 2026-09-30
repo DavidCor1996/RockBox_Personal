@@ -1,0 +1,324 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:82:5: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   82 |     gNabooruEyeOpenTex,
+      |     ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:83:5: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   83 |     gNabooruEyeHalfTex,
+      |     ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:84:5: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   84 |     gNabooruEyeClosedTex,
+      |     ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:89:36: warning: extra tokens at end of '#include' directive
+   89 | #include "z_en_nb_cutscene_data.c" EARLY
+      |                                    ^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_SetChamberAnim':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:307:31: warning: passing argument 2 of 'EnNb_SetCurrentAnim' from incompatible pointer type [-Wincompatible-pointer-types]
+  307 |     EnNb_SetCurrentAnim(this, &gNabooruStandingHandsOnHipsChamberOfSagesAnim, 0, 0, 0);
+      |                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                               |
+      |                               const char (*)[71]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:287:55: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[71]'
+  287 | void EnNb_SetCurrentAnim(EnNb* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 arg4) {
+      |                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_SetupArmRaise':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:373:34: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[64]' [-Wincompatible-pointer-types]
+  373 |     AnimationHeader* animation = &gNabooruRaisingArmsGivingMedallionAnim;
+      |                                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_SetupRaisedArmTransition':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:387:34: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[63]' [-Wincompatible-pointer-types]
+  387 |     AnimationHeader* animation = &gNabooruArmsRaisedGivingMedallionAnim;
+      |                                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_SetupLightArrowOrSealingCs':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:454:31: warning: passing argument 2 of 'EnNb_SetCurrentAnim' from incompatible pointer type [-Wincompatible-pointer-types]
+  454 |     EnNb_SetCurrentAnim(this, &gNabooruPuttingHandsTogetherCastingMagicAnim, 2, 0.0f, 0);
+      |                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                               |
+      |                               const char (*)[70]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:287:55: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[70]'
+  287 | void EnNb_SetCurrentAnim(EnNb* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 arg4) {
+      |                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:10,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_DrawTransparency':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:556:60: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  556 |     gSPSegment(POLY_XLU_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(eyeTex));
+      |                                                            ^~~~~~
+      |                                                            |
+      |                                                            void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:557:60: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  557 |     gSPSegment(POLY_XLU_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(eyeTex));
+      |                                                            ^~~~~~
+      |                                                            |
+      |                                                            void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:559:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  559 |     gSPSegment(POLY_XLU_DISP++, 0x0C, &D_80116280[0]);
+      |                                       ^~~~~~~~~~~~~~
+      |                                       |
+      |                                       Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_InitKidnap':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:567:31: warning: passing argument 2 of 'EnNb_SetCurrentAnim' from incompatible pointer type [-Wincompatible-pointer-types]
+  567 |     EnNb_SetCurrentAnim(this, &gNabooruTrappedInVortexPushingGroundAnim, 0, 0.0f, 0);
+      |                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                               |
+      |                               const char (*)[66]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:287:55: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[66]'
+  287 | void EnNb_SetCurrentAnim(EnNb* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 arg4) {
+      |                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_SetRaisedArmCaptureAnim':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:616:34: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[52]' [-Wincompatible-pointer-types]
+  616 |     AnimationHeader* animation = &gNabooruSuckedByVortexAnim;
+      |                                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_SetupLookAroundInKidnap':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:625:34: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[66]' [-Wincompatible-pointer-types]
+  625 |     AnimationHeader* animation = &gNabooruTrappedInVortexPushingGroundAnim;
+      |                                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_SetupKidnap':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:633:34: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[63]' [-Wincompatible-pointer-types]
+  633 |     AnimationHeader* animation = &gNabooruTrappedInVortexRaisingArmAnim;
+      |                                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_SetupConfrontation':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:696:34: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[78]' [-Wincompatible-pointer-types]
+  696 |     AnimationHeader* animation = &gNabooruCollapseFromStandingToKneelingTransitionAnim;
+      |                                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'func_80AB26DC':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:755:34: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[78]' [-Wincompatible-pointer-types]
+  755 |     AnimationHeader* animation = &gNabooruCollapseFromStandingToKneelingTransitionAnim;
+      |                                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_SetupKneel':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:766:34: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[78]' [-Wincompatible-pointer-types]
+  766 |     AnimationHeader* animation = &gNabooruCollapseFromStandingToKneelingTransitionAnim;
+      |                                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_CheckIfKneeling':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:776:34: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[48]' [-Wincompatible-pointer-types]
+  776 |     AnimationHeader* animation = &gNabooruOnAllFoursAnim;
+      |                                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_SetupLookRight':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:786:34: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[81]' [-Wincompatible-pointer-types]
+  786 |     AnimationHeader* animation = &gNabooruOnAllFoursToOnOneKneeLookingRightTransitionAnim;
+      |                                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_CheckIfLookingRight':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:796:34: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[59]' [-Wincompatible-pointer-types]
+  796 |     AnimationHeader* animation = &gNabooruOnOneKneeLookingRightAnim;
+      |                                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_SetupLookLeft':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:806:34: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[79]' [-Wincompatible-pointer-types]
+  806 |     AnimationHeader* animation = &gNabooruOnOneKneeTurningHeadRightToLeftTransitionAnim;
+      |                                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_CheckIfLookLeft':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:816:34: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[58]' [-Wincompatible-pointer-types]
+  816 |     AnimationHeader* animation = &gNabooruOnOneKneeLookingLeftAnim;
+      |                                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_SetupRun':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:832:34: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[59]' [-Wincompatible-pointer-types]
+  832 |     AnimationHeader* animation = &gNabooruKneeingToRunningToHitAnim;
+      |                                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'func_80AB2E70':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:964:60: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  964 |     gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(gNabooruEyeWideTex));
+      |                                                            ^~~~~~~~~~~~~~~~~~
+      |                                                            |
+      |                                                            const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:965:60: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  965 |     gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(gNabooruEyeWideTex));
+      |                                                            ^~~~~~~~~~~~~~~~~~
+      |                                                            |
+      |                                                            const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:967:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  967 |     gSPSegment(POLY_OPA_DISP++, 0x0C, &D_80116280[2]);
+      |                                       ^~~~~~~~~~~~~~
+      |                                       |
+      |                                       Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'func_80AB2FC0':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:977:16: warning: assignment to 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  977 |         *dList = gNabooruHeadMouthOpenDL;
+      |                ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'func_80AB2FE4':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:993:60: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  993 |     gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(eyeTexture));
+      |                                                            ^~~~~~~~~~
+      |                                                            |
+      |                                                            void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:994:60: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  994 |     gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(eyeTexture));
+      |                                                            ^~~~~~~~~~
+      |                                                            |
+      |                                                            void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:996:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  996 |     gSPSegment(POLY_OPA_DISP++, 0x0C, &D_80116280[2]);
+      |                                       ^~~~~~~~~~~~~~
+      |                                       |
+      |                                       Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_SetupCreditsSpawn':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:1003:31: warning: passing argument 2 of 'EnNb_SetCurrentAnim' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1003 |     EnNb_SetCurrentAnim(this, &gNabooruSittingCrossLeggedAnim, 0, 0.0f, 0);
+      |                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                               |
+      |                               const char (*)[56]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:287:55: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[56]'
+  287 | void EnNb_SetCurrentAnim(EnNb* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 arg4) {
+      |                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_SetupCreditsHeadTurn':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:1039:31: warning: passing argument 2 of 'EnNb_SetCurrentAnim' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1039 |     EnNb_SetCurrentAnim(this, &gNabooruSittingCrossLeggedTurningToLookUpRightTransitionAnim, 2, -8.0f, 0);
+      |                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                               |
+      |                               const char (*)[86]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:287:55: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[86]'
+  287 | void EnNb_SetCurrentAnim(EnNb* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 arg4) {
+      |                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_CheckIfLookingUp':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:1045:35: warning: passing argument 2 of 'EnNb_SetCurrentAnim' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1045 |         EnNb_SetCurrentAnim(this, &gNabooruSittingCrossLeggedLookingUpRightAnim, 0, 0.0f, 0);
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                   |
+      |                                   const char (*)[70]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:287:55: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[70]'
+  287 | void EnNb_SetCurrentAnim(EnNb* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 arg4) {
+      |                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_CrawlspaceSpawnCheck':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:1109:39: warning: passing argument 2 of 'EnNb_SetCurrentAnim' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1109 |             EnNb_SetCurrentAnim(this, &gNabooruKneeingAtCrawlspaceAnim, 0, 0.0f, 0);
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                       |
+      |                                       const char (*)[57]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:287:55: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[57]'
+  287 | void EnNb_SetCurrentAnim(EnNb* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 arg4) {
+      |                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:1113:39: warning: passing argument 2 of 'EnNb_SetCurrentAnim' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1113 |             EnNb_SetCurrentAnim(this, &gNabooruStandingHandsOnHipsAnim, 0, 0.0f, 0);
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                       |
+      |                                       const char (*)[57]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:287:55: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[57]'
+  287 | void EnNb_SetCurrentAnim(EnNb* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 arg4) {
+      |                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_CheckNoticed':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:1184:35: warning: passing argument 2 of 'EnNb_SetCurrentAnim' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1184 |         EnNb_SetCurrentAnim(this, &gNabooruStandingToWalkingTransitionAnim, 2, -8.0f, 0);
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                   |
+      |                                   const char (*)[65]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:287:55: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[65]'
+  287 | void EnNb_SetCurrentAnim(EnNb* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 arg4) {
+      |                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_SetupIdleCrawlspace':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:1192:35: warning: passing argument 2 of 'EnNb_SetCurrentAnim' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1192 |         EnNb_SetCurrentAnim(this, &gNabooruStandingHandsOnHipsAnim, 0, -8.0f, 0);
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                   |
+      |                                   const char (*)[57]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:287:55: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[57]'
+  287 | void EnNb_SetCurrentAnim(EnNb* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 arg4) {
+      |                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_SetupPathMovement':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:1216:31: warning: passing argument 2 of 'EnNb_SetCurrentAnim' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1216 |     EnNb_SetCurrentAnim(this, &gNabooruStandingToWalkingTransitionAnim, 2, -8.0f, 0);
+      |                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                               |
+      |                               const char (*)[65]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:287:55: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[65]'
+  287 | void EnNb_SetCurrentAnim(EnNb* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 arg4) {
+      |                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'func_80AB3A7C':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:1283:39: warning: passing argument 2 of 'EnNb_SetCurrentAnim' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1283 |             EnNb_SetCurrentAnim(this, &gNabooruWalkingAnim, 0, 0.0f, 0);
+      |                                       ^~~~~~~~~~~~~~~~~~~~
+      |                                       |
+      |                                       const char (*)[45]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:287:55: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[45]'
+  287 | void EnNb_SetCurrentAnim(EnNb* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 arg4) {
+      |                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:1286:35: warning: passing argument 2 of 'EnNb_SetCurrentAnim' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1286 |         EnNb_SetCurrentAnim(this, &gNabooruStandingHandsOnHipsAnim, 0, -8.0f, 0);
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                   |
+      |                                   const char (*)[57]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:287:55: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[57]'
+  287 | void EnNb_SetCurrentAnim(EnNb* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 arg4) {
+      |                                      ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:1432:48: warning: passing argument 3 of 'SkelAnime_InitFlex' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1432 |     SkelAnime_InitFlex(play, &this->skelAnime, &gNabooruSkel, NULL, this->jointTable, this->morphTable, NB_LIMB_MAX);
+      |                                                ^~~~~~~~~~~~~
+      |                                                |
+      |                                                const char (*)[38]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1329:83: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[38]'
+ 1329 | s32 SkelAnime_InitFlex(PlayState* play, SkelAnime* skelAnime, FlexSkeletonHeader* skeletonHeaderSeg,
+      |                                                               ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c: In function 'EnNb_DrawDefault':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:1506:60: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1506 |     gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(eyeTexture));
+      |                                                            ^~~~~~~~~~
+      |                                                            |
+      |                                                            void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:1507:60: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1507 |     gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(eyeTexture));
+      |                                                            ^~~~~~~~~~
+      |                                                            |
+      |                                                            void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Nb/z_en_nb.c:1509:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1509 |     gSPSegment(POLY_OPA_DISP++, 0x0C, &D_80116280[2]);
+      |                                       ^~~~~~~~~~~~~~
+      |                                       |
+      |                                       Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~

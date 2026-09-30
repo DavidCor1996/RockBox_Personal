@@ -38,15 +38,91 @@
 #include "core_alloc.h"
 
 #if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
-        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER) && \
+        defined(IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS) && \
+        IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS && !defined(SIMULATOR)
 #include "hibernate-6g.h"
-#define HIBERNATE_SWITCH_PROBE(stage, current, next) \
-    ipod6g_hibernate_switch_probe((stage), \
-            (current) ? ((struct thread_entry *)(current))->id : 0, \
-            (next) ? ((struct thread_entry *)(next))->id : 0)
+
+static bool hibernate_probe_thread_known(
+        const struct thread_entry *thread)
+{
+    if (thread == NULL)
+        return false;
+
+    for (unsigned int slot = 0; slot < MAXTHREADS; slot++)
+    {
+        if (__thread_slot_entry(slot) == thread)
+            return true;
+    }
+
+    return false;
+}
+
+static uint32_t hibernate_probe_thread_id(
+        const struct thread_entry *thread)
+{
+    if (thread == NULL)
+        return 0;
+
+    return hibernate_probe_thread_known(thread) ? thread->id : ~0u;
+}
+
+static void hibernate_switch_probe(
+        uint32_t stage, struct core_entry *corep,
+        const struct thread_entry *current,
+        const struct thread_entry *next)
+{
+    struct ipod6g_hibernate_scheduler_snapshot snapshot = { 0 };
+    struct thread_entry *timeout;
+    bool timeout_known;
+    bool next_known;
+
+    if (!ipod6g_hibernate_runtime_probe_active())
+        return;
+
+    timeout = TMO_THREAD_FIRST(&corep->tmo);
+    timeout_known = hibernate_probe_thread_known(timeout);
+    next_known = hibernate_probe_thread_known(next);
+
+    snapshot.running = (uintptr_t)corep->running;
+    snapshot.current = (uintptr_t)current;
+    snapshot.next = (uintptr_t)next;
+    snapshot.rtr_head = (uintptr_t)corep->rtr.head;
+    snapshot.tmo_head = (uintptr_t)corep->tmo.head;
+    snapshot.next_tmo_check = (uint32_t)corep->next_tmo_check;
+#ifdef HAVE_PRIORITY_SCHEDULING
+    snapshot.rtr_mask = corep->rtr_dist.mask.words[0];
+#endif
+    snapshot.timeout_id = hibernate_probe_thread_id(timeout);
+    if (timeout_known)
+    {
+        snapshot.timeout_tick = (uint32_t)timeout->tmo_tick;
+        snapshot.timeout_state = timeout->state;
+    }
+
+    if (next_known)
+    {
+        snapshot.next_state = next->state;
+#ifdef HAVE_PRIORITY_SCHEDULING
+        snapshot.next_priority = next->priority;
+#endif
+        snapshot.next_context_sp = next->context.sp;
+        snapshot.next_context_lr = next->context.lr;
+        snapshot.next_context_start = next->context.start;
+        snapshot.next_stack = (uintptr_t)next->stack;
+        snapshot.next_stack_size = next->stack_size;
+    }
+
+    ipod6g_hibernate_switch_probe(stage,
+            hibernate_probe_thread_id(current),
+            hibernate_probe_thread_id(next), &snapshot);
+}
+
+#define HIBERNATE_SWITCH_PROBE(stage, corep, current, next) \
+    hibernate_switch_probe((stage), (corep), (current), (next))
 #else
-#define HIBERNATE_SWITCH_PROBE(stage, current, next) \
-    do { (void)(current); (void)(next); } while (0)
+#define HIBERNATE_SWITCH_PROBE(stage, corep, current, next) \
+    do { (void)(corep); (void)(current); (void)(next); } while (0)
 #endif
 
 #if (CONFIG_PLATFORM & PLATFORM_HOSTED)
@@ -1028,7 +1104,7 @@ void switch_thread(void)
     struct thread_entry *previous = thread;
 
     HIBERNATE_SWITCH_PROBE(IPOD6G_HIBERNATE_SWITCH_PROBE_ENTERED,
-                           thread, NULL);
+                           corep, thread, NULL);
 
     if (thread)
     {
@@ -1042,7 +1118,7 @@ void switch_thread(void)
         thread_store_context(thread);
         HIBERNATE_SWITCH_PROBE(
                 IPOD6G_HIBERNATE_SWITCH_PROBE_CONTEXT_SAVED,
-                thread, NULL);
+                corep, thread, NULL);
 
         /* Check if the current thread stack is overflown */
         if (UNLIKELY(thread->stack[0] != DEADBEEF) && thread->stack_size > 0)
@@ -1057,28 +1133,42 @@ void switch_thread(void)
         /* Check for expired timeouts */
         HIBERNATE_SWITCH_PROBE(
                 IPOD6G_HIBERNATE_SWITCH_PROBE_TIMEOUT_ENTER,
-                thread, NULL);
+                corep, thread, NULL);
         check_tmo_expired(corep);
         HIBERNATE_SWITCH_PROBE(
                 IPOD6G_HIBERNATE_SWITCH_PROBE_TIMEOUT_RETURN,
-                thread, NULL);
+                corep, thread, NULL);
 
         RTR_LOCK(corep);
 
         if (!RTR_EMPTY(&corep->rtr))
+        {
+            HIBERNATE_SWITCH_PROBE(
+                    IPOD6G_HIBERNATE_SWITCH_PROBE_RUNQUEUE_READY,
+                    corep, thread, RTR_THREAD_FIRST(&corep->rtr));
             break;
+        }
 
         thread = NULL;
 
         /* Enter sleep mode to reduce power usage */
         RTR_UNLOCK(corep);
+        HIBERNATE_SWITCH_PROBE(
+                IPOD6G_HIBERNATE_SWITCH_PROBE_IDLE_ENTER,
+                corep, thread, NULL);
         core_sleep(IF_COP(core));
+        HIBERNATE_SWITCH_PROBE(
+                IPOD6G_HIBERNATE_SWITCH_PROBE_IDLE_RETURN,
+                corep, thread, NULL);
 
         /* Awakened by interrupt or other CPU */
     }
 
     thread = (thread && thread->state == STATE_RUNNING) ?
         RTR_THREAD_NEXT(thread) : RTR_THREAD_FIRST(&corep->rtr);
+    HIBERNATE_SWITCH_PROBE(
+            IPOD6G_HIBERNATE_SWITCH_PROBE_CANDIDATE,
+            corep, previous, thread);
 
 #ifdef HAVE_PRIORITY_SCHEDULING
     /* Select the new task based on priorities and the last time a
@@ -1113,17 +1203,24 @@ void switch_thread(void)
         }
 
         thread = RTR_THREAD_NEXT(thread);
+        HIBERNATE_SWITCH_PROBE(
+                IPOD6G_HIBERNATE_SWITCH_PROBE_CANDIDATE,
+                corep, previous, thread);
     }
 
     thread->skip_count = 0; /* Reset aging counter */
 #endif /* HAVE_PRIORITY_SCHEDULING */
+
+    HIBERNATE_SWITCH_PROBE(
+            IPOD6G_HIBERNATE_SWITCH_PROBE_SELECTED,
+            corep, previous, thread);
 
     rtr_queue_make_first(&corep->rtr, thread);
     corep->running = thread;
 
     HIBERNATE_SWITCH_PROBE(
             IPOD6G_HIBERNATE_SWITCH_PROBE_THREAD_CHOSEN,
-            previous, thread);
+            corep, previous, thread);
 
     RTR_UNLOCK(corep);
     enable_irq();
@@ -1135,7 +1232,7 @@ void switch_thread(void)
     /* And finally, give control to the next thread. */
     HIBERNATE_SWITCH_PROBE(
             IPOD6G_HIBERNATE_SWITCH_PROBE_CONTEXT_LOAD,
-            previous, thread);
+            corep, previous, thread);
     thread_load_context(thread);
 }
 

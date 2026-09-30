@@ -1,0 +1,37 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Ironobj/z_bg_jya_ironobj.c:40:26: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   40 | static Gfx* sOpaDL[] = { gPillarDL, gThroneDL };
+      |                          ^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Ironobj/z_bg_jya_ironobj.c:40:26: note: (near initialization for 'sOpaDL[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Ironobj/z_bg_jya_ironobj.c:40:37: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   40 | static Gfx* sOpaDL[] = { gPillarDL, gThroneDL };
+      |                                     ^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Ironobj/z_bg_jya_ironobj.c:40:37: note: (near initialization for 'sOpaDL[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Ironobj/z_bg_jya_ironobj.c:81:49: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[42]' [-Wincompatible-pointer-types]
+   81 | static CollisionHeader* sCollisionHeaders[] = { &gPillarCol, &gThroneCol };
+      |                                                 ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Ironobj/z_bg_jya_ironobj.c:81:49: note: (near initialization for 'sCollisionHeaders[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Ironobj/z_bg_jya_ironobj.c:81:62: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[42]' [-Wincompatible-pointer-types]
+   81 | static CollisionHeader* sCollisionHeaders[] = { &gPillarCol, &gThroneCol };
+      |                                                              ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Ironobj/z_bg_jya_ironobj.c:81:62: note: (near initialization for 'sCollisionHeaders[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Ironobj/z_bg_jya_ironobj.c: In function 'BgJyaIronobj_SpawnPillarParticles':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Ironobj/z_bg_jya_ironobj.c:151:70: warning: passing argument 16 of 'EffectSsKakera_Spawn' from incompatible pointer type [-Wincompatible-pointer-types]
+  151 |                              D_808994F0[j & 7], -1, OBJECT_JYA_IRON, gObjectJyaIronDL_000880);
+      |                                                                      ^~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                      |
+      |                                                                      const char *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Ironobj/z_bg_jya_ironobj.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Ironobj/z_bg_jya_ironobj.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:329:43: note: expected 'Gfx *' but argument is of type 'const char *'
+  329 |                           s16 objId, Gfx* dList);
+      |                                      ~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Ironobj/z_bg_jya_ironobj.c: In function 'BgJyaIronobj_SpawnThoneParticles':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Ironobj/z_bg_jya_ironobj.c:210:70: warning: passing argument 16 of 'EffectSsKakera_Spawn' from incompatible pointer type [-Wincompatible-pointer-types]
+  210 |                              D_80899520[j & 7], -1, OBJECT_JYA_IRON, gObjectJyaIronDL_000880);
+      |                                                                      ^~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                      |
+      |                                                                      const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:329:43: note: expected 'Gfx *' but argument is of type 'const char *'
+  329 |                           s16 objId, Gfx* dList);
+      |                                      ~~~~~^~~~~

@@ -77,53 +77,14 @@ void skin_render(struct gui_wps *gwps, unsigned refresh_mode,
                  enum skinnable_screens skin);
 
 #if defined(HAVE_IPODJS_UI) && defined(HAVE_LCD_COLOR)
-static void draw_ipodjs_wps_progressbar(struct screen *display,
-                                        int x, int y, int width, int height,
+static bool draw_ipodjs_wps_progressbar(int x, int y, int width, int height,
                                         unsigned long length,
                                         unsigned long end)
 {
-    int track_h = MIN(height, 16);
-    int track_y = y + (height - track_h) / 2;
-    int inner_w = MAX(0, width - 4);
-    int inner_h = MAX(0, track_h - 4);
-    int fill_w;
-    unsigned accent = ipodjs_ui_accent();
-    unsigned border = global_settings.ui_engine_dark_mode ?
-        LCD_RGBPACK(91, 98, 110) : LCD_RGBPACK(151, 157, 165);
-    unsigned track_top = global_settings.ui_engine_dark_mode ?
-        LCD_RGBPACK(34, 38, 45) : LCD_RGBPACK(219, 223, 228);
-    unsigned track_bottom = global_settings.ui_engine_dark_mode ?
-        LCD_RGBPACK(55, 61, 70) : LCD_RGBPACK(250, 251, 252);
-    unsigned fill_top = ipodjs_ui_rgb_blend(
-        RGB_UNPACK_RED(accent), RGB_UNPACK_GREEN(accent),
-        RGB_UNPACK_BLUE(accent), 255, 255, 255, 104);
+    int percent = length > 0 ? end * 100 / length : 0;
 
-    end = MIN(end, length);
-    fill_w = length > 0 ? inner_w * end / length : 0;
-
-    display->set_foreground(border);
-    display->fillrect(x + 2, track_y, width - 4, track_h);
-    display->fillrect(x + 1, track_y + 1, width - 2, track_h - 2);
-    display->fillrect(x, track_y + 2, width, track_h - 4);
-
-    ipodjs_ui_gradient(display, x + 2, track_y + 2,
-                        inner_w, inner_h, track_top, track_bottom);
-    if (fill_w > 0)
-    {
-        ipodjs_ui_gradient(display, x + 2, track_y + 2,
-                            fill_w, inner_h, fill_top, accent);
-    }
-
-    /* Reassert the rounded frame after the fill. Even at 100%, the accent
-     * remains inside the two-pixel well and cannot cover the border. */
-    display->set_foreground(border);
-    display->hline(x + 2, x + width - 3, track_y);
-    display->hline(x + 1, x + width - 2, track_y + 1);
-    display->hline(x + 1, x + width - 2, track_y + track_h - 2);
-    display->hline(x + 2, x + width - 3, track_y + track_h - 1);
-    display->vline(x, track_y + 2, track_y + track_h - 3);
-    display->vline(x + width - 1, track_y + 2,
-                   track_y + track_h - 3);
+    return ipodjs_ui_draw_retailos_progress(
+        &screens[SCREEN_MAIN], x, y, width, height, percent);
 }
 #endif
 
@@ -226,7 +187,7 @@ void draw_progressbar(struct gui_wps *gwps, struct skin_viewport* skin_viewport,
     struct wps_state *state = get_wps_state();
     struct mp3entry *id3 = state->id3;
     int x = pb->x, y = pb->y, width = pb->width, height = pb->height;
-    unsigned long length, end;
+    unsigned long length = 1, end = 0;
     int flags = HORIZONTAL;
 
     if (height < 0)
@@ -312,7 +273,8 @@ void draw_progressbar(struct gui_wps *gwps, struct skin_viewport* skin_viewport,
         length = id3->length;
         end = id3->elapsed + state->ff_rewind_count;
     }
-    else
+
+    if (length <= 0)
     {
         length = 1;
         end = 0;
@@ -346,9 +308,9 @@ void draw_progressbar(struct gui_wps *gwps, struct skin_viewport* skin_viewport,
         (pb->type == SKIN_TOKEN_PROGRESSBAR ||
          pb->type == SKIN_TOKEN_VOLUMEBAR))
     {
-        draw_ipodjs_wps_progressbar(display, x, y, width, height,
-                                    length, end);
-        return;
+        if (draw_ipodjs_wps_progressbar(x, y, width, height,
+                                        length, end))
+            return;
     }
 #endif
 

@@ -1,0 +1,14 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot08_Iceblock/z_bg_spot08_iceblock.c: In function 'BgSpot08Iceblock_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot08_Iceblock/z_bg_spot08_iceblock.c:293:23: warning: assignment to 'CollisionHeader *' from incompatible pointer type 'const char (*)[58]' [-Wincompatible-pointer-types]
+  293 |             colHeader = &gZorasFountainIcebergCol;
+      |                       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot08_Iceblock/z_bg_spot08_iceblock.c:296:23: warning: assignment to 'CollisionHeader *' from incompatible pointer type 'const char (*)[58]' [-Wincompatible-pointer-types]
+  296 |             colHeader = &gZorasFountainIceRampCol;
+      |                       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot08_Iceblock/z_bg_spot08_iceblock.c: In function 'BgSpot08Iceblock_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot08_Iceblock/z_bg_spot08_iceblock.c:438:19: warning: assignment to 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  438 |             dList = gZorasFountainIcebergDL;
+      |                   ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot08_Iceblock/z_bg_spot08_iceblock.c:441:19: warning: assignment to 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  441 |             dList = gZorasFountainIceRampDL;
+      |                   ^

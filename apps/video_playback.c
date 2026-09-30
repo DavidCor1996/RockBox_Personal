@@ -8,10 +8,12 @@
  * Apple-exact profile is the normal source of files.
  ****************************************************************************/
 #include "config.h"
+#include "gui/tv_ui.h"
 
 #if defined(IPOD_6G) && !defined(SIMULATOR)
 
 #include "backlight.h"
+#include "bmp.h"
 #include "button.h"
 #include "crc32.h"
 #include "dir.h"
@@ -30,25 +32,36 @@
 #include "system.h"
 #include "timefuncs.h"
 #include "video_audio.h"
+#include "video_file.h"
+#include "video_read_cache.h"
 #include "video_pcm.h"
 #include "video_playback.h"
+#include "video_completion.h"
+#include "video_resume.h"
+#include "video_library_state.h"
 #include "vpu_h264.h"
+#include "videoout.h"
 
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define VIDEO_MAX_WIDTH          640
-#define VIDEO_MAX_HEIGHT         480
-#define VIDEO_MAX_LEVEL          30
-#define VIDEO_MAX_SAMPLES        400000u
-#define VIDEO_MAX_AUDIO_SAMPLES  600000u
-#define VIDEO_READ_BUFFER        (512u * 1024u)
+#define NF_API(name) name
+#include "netflix_captions.h"
+#include "netflix_brand.h"
+#undef NF_API
+
+#include "video_capabilities.h"
+#include "video_metrics.h"
+
+#define VIDEO_MAX_WIDTH          VIDEO_CAP_H264_WIDTH
+#define VIDEO_MAX_HEIGHT         VIDEO_CAP_H264_HEIGHT
+#define VIDEO_MAX_LEVEL          VIDEO_CAP_H264_LEVEL
+#define VIDEO_MAX_SAMPLES        VIDEO_CAP_VIDEO_SAMPLES
+#define VIDEO_MAX_AUDIO_SAMPLES  VIDEO_CAP_AUDIO_SAMPLES
+#define VIDEO_READ_BUFFER        VIDEO_CAP_SAMPLE_BUFFER_BYTES
 #define VIDEO_OUTPUT_BUFFER      (LCD_WIDTH * LCD_HEIGHT * 3u / 2u)
-#define VIDEO_RESUME_MAGIC       0x52565031u
-#define VIDEO_RESUME_FILE        PLUGIN_APPS_DATA_DIR \
-                                 "/openh264-resume-%08lx.dat"
 #define VIDEO_NETFLIX_INDEX      ROCKBOX_DIR "/videolist/index.tsv"
 #define VIDEO_NETFLIX_FIELDS     27
 #define VIDEO_INSTAGRAM_LIKES    ROCKBOX_DIR "/instagram/likes.tsv"
@@ -59,12 +72,28 @@
 #define VIDEO_INSTAGRAM_CARD_Y   57
 #define VIDEO_INSTAGRAM_CARD_W   160
 #define VIDEO_INSTAGRAM_CARD_H   158
+#define VIDEO_TWITCH_ICON        ROCKBOX_DIR \
+                                 "/ipodjs/twitch/twitch-glitch-current.18x20.bmp"
+#define VIDEO_TWITCH_CHAT_W      146
+#define VIDEO_TWITCH_CHAT_ROWS   5
+#define VIDEO_TWITCH_CHAT_USER   25
+#define VIDEO_TWITCH_CHAT_TEXT   160
+#define VIDEO_TWITCH_CHAT_LINE   320
+#define VIDEO_TWITCH_CHAT_ANIMATION_TICKS MAX(1, (HZ * 2) / 5)
+#define VIDEO_TWITCH_CHAT_EASE_SCALE 1024
+#define VIDEO_TWITCH_EMOJI_SIZE  14
+#define VIDEO_TWITCH_EMOJI_CACHE 32
+#define VIDEO_TWITCH_EMOJI_BYTES \
+    (VIDEO_TWITCH_EMOJI_SIZE * VIDEO_TWITCH_EMOJI_SIZE * 4)
+#define VIDEO_TWITCH_EMOJI_HEADER 10
 
 enum video_style
 {
     VIDEO_STYLE_STOCK = 0,
     VIDEO_STYLE_YOUTUBE,
     VIDEO_STYLE_YOUTUBE_LIVE,
+    VIDEO_STYLE_TWITCH,
+    VIDEO_STYLE_TWITCH_LIVE,
     VIDEO_STYLE_NETFLIX,
     VIDEO_STYLE_INSTAGRAM,
     VIDEO_STYLE_INSTAGRAM_FEED,
@@ -101,6 +130,10 @@ struct video_launch
     char instagram_caption[181];
     int instagram_likes;
     bool tiktok_liked;
+    char twitch_creator_key[17];
+    char twitch_creator[49];
+    char twitch_title[81];
+    char twitch_game[49];
     char tiktok_id[97];
     char tiktok_title[81];
     char tiktok_creator[49];
@@ -110,14 +143,6 @@ struct video_launch
     uint32_t intro_start_ms;
     uint32_t intro_end_ms;
     uint32_t credits_start_ms;
-};
-
-struct video_resume_record
-{
-    uint32_t magic;
-    uint32_t path_crc;
-    int32_t frame;
-    int32_t total_frames;
 };
 
 struct video_pool
@@ -132,6 +157,46 @@ struct video_timing
     uint32_t in_run;
     uint64_t ticks;
 };
+
+struct video_twitch_chat_message
+{
+    uint32_t offset;
+    uint32_t color;
+    char user[VIDEO_TWITCH_CHAT_USER];
+    char text[VIDEO_TWITCH_CHAT_TEXT];
+};
+
+struct video_twitch_emoji
+{
+    int index;
+    unsigned char rgba[VIDEO_TWITCH_EMOJI_BYTES];
+};
+
+struct video_twitch_chat_state
+{
+    int fd;
+    int emoji_fd;
+    bool available;
+    bool visible;
+    int panel_width;
+    int animation_from;
+    long animation_started;
+    bool pending_valid;
+    uint16_t emoji_count;
+    int emoji_next;
+    int first;
+    int count;
+    uint32_t last_position;
+    struct video_twitch_chat_message pending;
+    struct video_twitch_chat_message rows[VIDEO_TWITCH_CHAT_ROWS];
+    struct video_twitch_emoji emojis[VIDEO_TWITCH_EMOJI_CACHE];
+};
+
+static unsigned char video_twitch_icon_data[18 * 20 * sizeof(fb_data)]
+    CACHEALIGN_ATTR;
+static struct bitmap video_twitch_icon;
+static bool video_twitch_icon_valid;
+static struct video_twitch_chat_state video_twitch_chat;
 
 static bool video_prefix(const char *parameter, const char *prefix,
                          const char **path)
@@ -153,7 +218,29 @@ static bool video_parse_launch(const char *parameter,
     launch->path = parameter;
     launch->style = VIDEO_STYLE_STOCK;
     launch->allow_resume = true;
-    if (video_prefix(parameter, "youtube-live:", &path))
+    if (video_prefix(parameter, "twitch-live:", &path))
+    {
+        const char *creator = strchr(path, ':');
+        const char *separator = creator != NULL ? strchr(creator + 1, ':') : NULL;
+
+        if (creator == NULL || separator == NULL || creator[1] == '\0' ||
+            separator[1] == '\0')
+            return false;
+        launch->style = VIDEO_STYLE_TWITCH_LIVE;
+        launch->live_epoch = strtoul(path, NULL, 10);
+        launch->live = true;
+        launch->allow_resume = false;
+        strlcpy(launch->twitch_creator_key, creator + 1,
+                MIN(sizeof(launch->twitch_creator_key),
+                    (size_t)(separator - creator)));
+        launch->path = separator + 1;
+    }
+    else if (video_prefix(parameter, "twitch-app:", &path))
+    {
+        launch->style = VIDEO_STYLE_TWITCH;
+        launch->path = path;
+    }
+    else if (video_prefix(parameter, "youtube-live:", &path))
     {
         const char *separator = strchr(path, ':');
 
@@ -224,6 +311,317 @@ static void video_metadata_value(char *target, size_t size,
     while (*end != '\0' && *end != '\r' && *end != '\n')
         end++;
     *end = '\0';
+}
+
+static void video_twitch_load(struct video_launch *launch)
+{
+    char metadata_path[MAX_PATH];
+    char line[160];
+    char *dot;
+    int fd;
+
+    if (launch->style != VIDEO_STYLE_TWITCH &&
+        launch->style != VIDEO_STYLE_TWITCH_LIVE)
+        return;
+    video_twitch_icon.data = video_twitch_icon_data;
+    video_twitch_icon_valid =
+        read_bmp_file(VIDEO_TWITCH_ICON, &video_twitch_icon,
+                      sizeof(video_twitch_icon_data), FORMAT_NATIVE, NULL) > 0 &&
+        video_twitch_icon.width == 18 && video_twitch_icon.height == 20;
+    strlcpy(metadata_path, launch->path, sizeof(metadata_path));
+    dot = strrchr(metadata_path, '.');
+    if (dot == NULL)
+        return;
+    strlcpy(dot, ".twm", sizeof(metadata_path) - (dot - metadata_path));
+    fd = open(metadata_path, O_RDONLY);
+    if (fd < 0)
+        return;
+    while (read_line(fd, line, sizeof(line)) > 0)
+    {
+        if (!strncmp(line, "title=", 6))
+            video_metadata_value(launch->twitch_title,
+                                 sizeof(launch->twitch_title), line + 6);
+        else if (!strncmp(line, "creator=", 8))
+            video_metadata_value(launch->twitch_creator,
+                                 sizeof(launch->twitch_creator), line + 8);
+        else if (!strncmp(line, "game=", 5))
+            video_metadata_value(launch->twitch_game,
+                                 sizeof(launch->twitch_game), line + 5);
+    }
+    close(fd);
+}
+
+static void video_twitch_sidecar_path(const char *video, const char *extension,
+                                      char *path, size_t size)
+{
+    char *dot;
+
+    strlcpy(path, video, size);
+    dot = strrchr(path, '.');
+    if (dot != NULL)
+        strlcpy(dot, extension, size - (dot - path));
+    else
+        path[0] = '\0';
+}
+
+static char *video_twitch_chat_tab(char **cursor)
+{
+    char *value = *cursor;
+    char *tab = strchr(value, '\t');
+
+    if (tab == NULL)
+        return NULL;
+    *tab = '\0';
+    *cursor = tab + 1;
+    return value;
+}
+
+static bool video_twitch_chat_read_next(struct video_twitch_chat_state *chat)
+{
+    char line[VIDEO_TWITCH_CHAT_LINE];
+
+    chat->pending_valid = false;
+    while (chat->fd >= 0 && read_line(chat->fd, line, sizeof(line)) > 0)
+    {
+        char *cursor = line;
+        char *offset;
+        char *color;
+        char *user;
+
+        if (line[0] == '#')
+            continue;
+        offset = video_twitch_chat_tab(&cursor);
+        color = video_twitch_chat_tab(&cursor);
+        user = video_twitch_chat_tab(&cursor);
+        if (offset == NULL || color == NULL || user == NULL || !cursor[0])
+            continue;
+        chat->pending.offset = strtoul(offset, NULL, 10);
+        chat->pending.color = strtoul(color, NULL, 16);
+        strlcpy(chat->pending.user, user, sizeof(chat->pending.user));
+        strlcpy(chat->pending.text, cursor, sizeof(chat->pending.text));
+        chat->pending_valid = true;
+        return true;
+    }
+    return false;
+}
+
+static int video_twitch_chat_hex(char value)
+{
+    if (value >= '0' && value <= '9')
+        return value - '0';
+    if (value >= 'A' && value <= 'F')
+        return value - 'A' + 10;
+    if (value >= 'a' && value <= 'f')
+        return value - 'a' + 10;
+    return -1;
+}
+
+static int video_twitch_chat_token(const char *text)
+{
+    int index = 0;
+    int digit;
+    int i;
+
+    if (text[0] != '~' || text[1] != 'E' || text[6] != '~')
+        return -1;
+    for (i = 2; i < 6; i++)
+    {
+        digit = video_twitch_chat_hex(text[i]);
+        if (digit < 0)
+            return -1;
+        index = index * 16 + digit;
+    }
+    return index;
+}
+
+static struct video_twitch_emoji *video_twitch_chat_cached_emoji(
+    struct video_twitch_chat_state *chat, int index)
+{
+    int i;
+
+    for (i = 0; i < VIDEO_TWITCH_EMOJI_CACHE; i++)
+        if (chat->emojis[i].index == index)
+            return &chat->emojis[i];
+    return NULL;
+}
+
+static void video_twitch_chat_load_emoji(struct video_twitch_chat_state *chat,
+                                         int index)
+{
+    struct video_twitch_emoji *emoji;
+    off_t offset;
+
+    if (chat->emoji_fd < 0 || index < 0 || index >= chat->emoji_count ||
+        video_twitch_chat_cached_emoji(chat, index) != NULL)
+        return;
+    emoji = &chat->emojis[chat->emoji_next];
+    chat->emoji_next = (chat->emoji_next + 1) % VIDEO_TWITCH_EMOJI_CACHE;
+    emoji->index = -1;
+    offset = VIDEO_TWITCH_EMOJI_HEADER +
+        (off_t)index * VIDEO_TWITCH_EMOJI_BYTES;
+    if (lseek(chat->emoji_fd, offset, SEEK_SET) == offset &&
+        read(chat->emoji_fd, emoji->rgba,
+             sizeof(emoji->rgba)) == (ssize_t)sizeof(emoji->rgba))
+        emoji->index = index;
+}
+
+static void video_twitch_chat_prefetch(struct video_twitch_chat_state *chat,
+                                       const char *text)
+{
+    while (text[0])
+    {
+        int index = video_twitch_chat_token(text);
+
+        if (index >= 0)
+        {
+            video_twitch_chat_load_emoji(chat, index);
+            text += 7;
+        }
+        else
+            text++;
+    }
+}
+
+static void video_twitch_chat_push(struct video_twitch_chat_state *chat)
+{
+    int slot;
+
+    if (chat->count < VIDEO_TWITCH_CHAT_ROWS)
+    {
+        slot = (chat->first + chat->count) % VIDEO_TWITCH_CHAT_ROWS;
+        chat->count++;
+    }
+    else
+    {
+        slot = chat->first;
+        chat->first = (chat->first + 1) % VIDEO_TWITCH_CHAT_ROWS;
+    }
+    chat->rows[slot] = chat->pending;
+    video_twitch_chat_prefetch(chat, chat->rows[slot].text);
+}
+
+static void video_twitch_chat_reset(struct video_twitch_chat_state *chat)
+{
+    int i;
+
+    chat->first = 0;
+    chat->count = 0;
+    chat->last_position = 0;
+    for (i = 0; i < VIDEO_TWITCH_EMOJI_CACHE; i++)
+        chat->emojis[i].index = -1;
+    chat->emoji_next = 0;
+    if (chat->fd >= 0 && lseek(chat->fd, 0, SEEK_SET) >= 0)
+        video_twitch_chat_read_next(chat);
+    else
+        chat->pending_valid = false;
+}
+
+static void video_twitch_chat_update(struct video_twitch_chat_state *chat,
+                                     uint32_t position, bool unbounded)
+{
+    int advanced = 0;
+
+    if (!chat->available)
+        return;
+    if (position + 2 < chat->last_position)
+        video_twitch_chat_reset(chat);
+    while (chat->pending_valid && chat->pending.offset <= position &&
+           (unbounded || advanced < 64))
+    {
+        video_twitch_chat_push(chat);
+        video_twitch_chat_read_next(chat);
+        advanced++;
+    }
+    chat->last_position = position;
+}
+
+static bool video_twitch_chat_animate(struct video_twitch_chat_state *chat)
+{
+    int target = chat->visible ? VIDEO_TWITCH_CHAT_W : 0;
+    int elapsed;
+    int progress;
+    int eased;
+    int width;
+
+    if (chat->panel_width == target)
+        return false;
+    elapsed = MIN(VIDEO_TWITCH_CHAT_ANIMATION_TICKS,
+                  MAX(1, (int)(current_tick - chat->animation_started)));
+    progress = elapsed * VIDEO_TWITCH_CHAT_EASE_SCALE /
+        VIDEO_TWITCH_CHAT_ANIMATION_TICKS;
+    /* Smoothstep keeps the video reflow and chat edge moving together. */
+    eased = progress * progress *
+        (3 * VIDEO_TWITCH_CHAT_EASE_SCALE - 2 * progress) /
+        (VIDEO_TWITCH_CHAT_EASE_SCALE * VIDEO_TWITCH_CHAT_EASE_SCALE);
+    width = chat->animation_from +
+        (target - chat->animation_from) * eased /
+        VIDEO_TWITCH_CHAT_EASE_SCALE;
+    if (elapsed >= VIDEO_TWITCH_CHAT_ANIMATION_TICKS)
+        width = target;
+    width = MAX(0, MIN(VIDEO_TWITCH_CHAT_W, width));
+    if (width != target)
+        width = MAX(2, width & ~1);
+    if (width == chat->panel_width)
+        return false;
+    chat->panel_width = width;
+    return true;
+}
+
+static void video_twitch_chat_toggle(struct video_twitch_chat_state *chat)
+{
+    chat->visible = !chat->visible;
+    chat->animation_from = chat->panel_width;
+    chat->animation_started = current_tick - 1;
+    video_twitch_chat_animate(chat);
+}
+
+static void video_twitch_chat_open(struct video_twitch_chat_state *chat,
+                                   const char *video)
+{
+    unsigned char header[VIDEO_TWITCH_EMOJI_HEADER];
+    char path[MAX_PATH];
+
+    memset(chat, 0, sizeof(*chat));
+    chat->fd = -1;
+    chat->emoji_fd = -1;
+    video_twitch_sidecar_path(video, ".twc", path, sizeof(path));
+    if (!path[0])
+        return;
+    chat->fd = open(path, O_RDONLY);
+    if (chat->fd < 0)
+        return;
+    video_twitch_sidecar_path(video, ".twe", path, sizeof(path));
+    chat->emoji_fd = open(path, O_RDONLY);
+    if (chat->emoji_fd >= 0 &&
+        read(chat->emoji_fd, header, sizeof(header)) == sizeof(header) &&
+        !memcmp(header, "TWE1", 4) && header[6] == VIDEO_TWITCH_EMOJI_SIZE &&
+        header[8] == VIDEO_TWITCH_EMOJI_SIZE)
+        chat->emoji_count = header[4] | ((uint16_t)header[5] << 8);
+    else if (chat->emoji_fd >= 0)
+    {
+        close(chat->emoji_fd);
+        chat->emoji_fd = -1;
+    }
+    video_twitch_chat_reset(chat);
+    chat->available = chat->pending_valid;
+    if (!chat->available)
+    {
+        close(chat->fd);
+        chat->fd = -1;
+    }
+}
+
+static void video_twitch_chat_close(struct video_twitch_chat_state *chat)
+{
+    if (chat->fd >= 0)
+        close(chat->fd);
+    if (chat->emoji_fd >= 0)
+        close(chat->emoji_fd);
+    chat->fd = -1;
+    chat->emoji_fd = -1;
+    chat->available = false;
+    chat->visible = false;
+    chat->panel_width = 0;
 }
 
 static void video_instagram_load(struct video_launch *launch)
@@ -675,74 +1073,6 @@ static uint32_t video_sample_for_ms(const struct mp4v_demux_res *demux,
     return sample;
 }
 
-static void video_resume_filename(const char *path, char *filename,
-                                  size_t size, uint32_t *crc_out)
-{
-    uint32_t crc = crc_32(path, strlen(path), 0xffffffff);
-
-    snprintf(filename, size, VIDEO_RESUME_FILE, (unsigned long)crc);
-    if (crc_out != NULL)
-        *crc_out = crc;
-}
-
-static uint32_t video_resume_load(const char *path, uint32_t total_samples)
-{
-    struct video_resume_record record;
-    char filename[MAX_PATH];
-    uint32_t crc;
-    int fd;
-
-    video_resume_filename(path, filename, sizeof(filename), &crc);
-    fd = open(filename, O_RDONLY);
-    if (fd < 0)
-        return 0;
-    if (read(fd, &record, sizeof(record)) != sizeof(record))
-    {
-        close(fd);
-        return 0;
-    }
-    close(fd);
-    if (record.magic != VIDEO_RESUME_MAGIC || record.path_crc != crc ||
-        record.total_frames != (int32_t)total_samples || record.frame <= 0 ||
-        record.frame >= (int32_t)(total_samples * 95u / 100u))
-        return 0;
-    return (uint32_t)record.frame;
-}
-
-static void video_resume_save(const char *path, uint32_t sample,
-                              uint32_t total_samples)
-{
-    struct video_resume_record record;
-    char filename[MAX_PATH];
-    uint32_t crc;
-    int fd;
-
-    video_resume_filename(path, filename, sizeof(filename), &crc);
-    if (sample == 0 || sample >= total_samples * 95u / 100u)
-    {
-        remove(filename);
-        return;
-    }
-    mkdir(PLUGIN_APPS_DATA_DIR);
-    record.magic = VIDEO_RESUME_MAGIC;
-    record.path_crc = crc;
-    record.frame = (int32_t)sample;
-    record.total_frames = (int32_t)total_samples;
-    fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0666);
-    if (fd < 0)
-        return;
-    (void)write(fd, &record, sizeof(record));
-    close(fd);
-}
-
-static void video_resume_clear(const char *path)
-{
-    char filename[MAX_PATH];
-
-    video_resume_filename(path, filename, sizeof(filename), NULL);
-    remove(filename);
-}
-
 static void video_volume_change(int delta)
 {
     int minimum = sound_min(SOUND_VOLUME);
@@ -766,9 +1096,32 @@ static void video_volume_change(int delta)
 static enum video_input_action video_input(
     const struct video_launch *launch, bool *paused, long *start_tick,
     long *pause_started, bool have_audio, bool *cpu_boosted,
-    long *overlay_until)
+    long *overlay_until, struct video_twitch_chat_state *chat)
 {
+    static bool caption_held;
     int button = button_get_w_tmo(0);
+#ifdef BUTTON_RC_PLAY
+    int flags = button & (BUTTON_REL | BUTTON_REPEAT);
+    switch (button & ~(BUTTON_REL | BUTTON_REPEAT))
+    {
+        case BUTTON_RC_PLAY: button = BUTTON_PLAY | flags; break;
+        case BUTTON_RC_SELECT: button = BUTTON_SELECT | flags; break;
+        case BUTTON_RC_MENU: button = flags ? BUTTON_NONE : BUTTON_MENU; break;
+        case BUTTON_RC_LEFT:
+            if (flags & BUTTON_REPEAT) return VIDEO_INPUT_EXIT;
+            button = flags & BUTTON_REL ? BUTTON_LEFT : BUTTON_NONE;
+            break;
+        case BUTTON_RC_RIGHT: button = flags & BUTTON_REL ? BUTTON_NONE : BUTTON_RIGHT; break;
+        case BUTTON_RC_UP: case BUTTON_RC_VOL_UP:
+        case BUTTON_RC_DOWN: case BUTTON_RC_VOL_DOWN:
+            if (!(flags & BUTTON_REL))
+            {
+                video_volume_change(button & (BUTTON_RC_UP|BUTTON_RC_VOL_UP) ? 1 : -1);
+                *overlay_until = current_tick + HZ * 2;
+            }
+            return VIDEO_INPUT_NONE;
+    }
+#endif
 
     if (button == BUTTON_NONE)
         return VIDEO_INPUT_NONE;
@@ -817,8 +1170,26 @@ static enum video_input_action video_input(
         *overlay_until = current_tick + HZ * 2;
         return VIDEO_INPUT_NONE;
     }
+    if (button == BUTTON_SELECT) caption_held = false;
+    if (button == (BUTTON_SELECT | BUTTON_REL) && caption_held)
+        return VIDEO_INPUT_NONE;
+    if (button == (BUTTON_SELECT | BUTTON_REPEAT))
+    {
+        if (!caption_held) nf_caption_toggle();
+        caption_held = true;
+        *overlay_until = current_tick + HZ*2;
+        return VIDEO_INPUT_NONE;
+    }
     if (button == (BUTTON_SELECT | BUTTON_REL))
     {
+        if ((launch->style == VIDEO_STYLE_TWITCH ||
+             launch->style == VIDEO_STYLE_TWITCH_LIVE) &&
+            chat->available)
+        {
+            video_twitch_chat_toggle(chat);
+            *overlay_until = current_tick + HZ * 2;
+            return VIDEO_INPUT_NONE;
+        }
         if (!launch->live)
             return VIDEO_INPUT_ACTIVATE;
         *overlay_until = current_tick + HZ * 2;
@@ -989,6 +1360,197 @@ static void video_yuv_text(uint8_t * const *planes, int x, int y,
     }
 }
 
+static void video_yuv_blend_pixel(uint8_t * const *planes, int x, int y,
+                                  int red, int green, int blue, int alpha)
+{
+    uint8_t py;
+    uint8_t pu;
+    uint8_t pv;
+    int index;
+
+    if (x < 0 || x >= LCD_WIDTH || y < 0 || y >= LCD_HEIGHT || alpha <= 0)
+        return;
+    if (alpha >= 255)
+    {
+        video_yuv_pixel(planes, x, y, red, green, blue);
+        return;
+    }
+    video_yuv_color(red, green, blue, &py, &pu, &pv);
+    index = y * LCD_WIDTH + x;
+    planes[0][index] =
+        (planes[0][index] * (255 - alpha) + py * alpha) / 255;
+    if ((x & 1) == 0 && (y & 1) == 0)
+    {
+        index = (y / 2) * (LCD_WIDTH / 2) + x / 2;
+        planes[1][index] =
+            (planes[1][index] * (255 - alpha) + pu * alpha) / 255;
+        planes[2][index] =
+            (planes[2][index] * (255 - alpha) + pv * alpha) / 255;
+    }
+}
+
+static void video_yuv_blend_rect(uint8_t * const *planes, int x, int y,
+                                 int width, int height,
+                                 int red, int green, int blue, int alpha)
+{
+    int row;
+    int column;
+
+    for (row = MAX(0, y); row < MIN(LCD_HEIGHT, y + height); row++)
+        for (column = MAX(0, x);
+             column < MIN(LCD_WIDTH, x + width); column++)
+            video_yuv_blend_pixel(planes, column, row,
+                                  red, green, blue, alpha);
+}
+
+static void video_twitch_chat_text(uint8_t * const *planes, int x, int y,
+                                   const char *text,
+                                   int red, int green, int blue)
+{
+    video_yuv_text(planes, x + 1, y + 1, text, 0, 0, 0);
+    video_yuv_text(planes, x, y, text, red, green, blue);
+}
+
+static void video_twitch_chat_emoji(uint8_t * const *planes,
+                                    struct video_twitch_emoji *emoji,
+                                    int x, int y)
+{
+    int row;
+    int column;
+
+    if (emoji == NULL)
+        return;
+    for (row = 0; row < VIDEO_TWITCH_EMOJI_SIZE; row++)
+        for (column = 0; column < VIDEO_TWITCH_EMOJI_SIZE; column++)
+        {
+            const unsigned char *pixel = emoji->rgba +
+                (row * VIDEO_TWITCH_EMOJI_SIZE + column) * 4;
+
+            video_yuv_blend_pixel(planes, x + column, y + row,
+                                  pixel[0], pixel[1], pixel[2], pixel[3]);
+        }
+}
+
+static void video_twitch_chat_message(uint8_t * const *planes,
+                                      struct video_twitch_chat_state *chat,
+                                      const char *text, int x, int y,
+                                      int left, int right)
+{
+    struct font *font = font_get(FONT_SYSFIXED);
+    int line = 0;
+
+    if (font == NULL)
+        return;
+    while (*text && line < 2)
+    {
+        int emoji_index = video_twitch_chat_token(text);
+        int width;
+
+        if (emoji_index >= 0)
+        {
+            width = VIDEO_TWITCH_EMOJI_SIZE + 1;
+            if (x + width > right && x > left + 6)
+            {
+                line++;
+                x = left + 6;
+                y += 14;
+                if (line >= 2)
+                    break;
+            }
+            video_twitch_chat_emoji(
+                planes, video_twitch_chat_cached_emoji(chat, emoji_index),
+                x, y - 2);
+            x += width;
+            text += 7;
+            continue;
+        }
+        width = font_get_width(font, (unsigned char)*text);
+        if (x + width > right)
+        {
+            line++;
+            x = left + 6;
+            y += 14;
+            while (*text == ' ')
+                text++;
+            continue;
+        }
+        {
+            char character[2] = {*text++, '\0'};
+
+            video_twitch_chat_text(planes, x, y, character,
+                                   239, 239, 241);
+        }
+        x += width;
+    }
+}
+
+static void video_yuv_twitch_icon(uint8_t * const *planes, int x, int y);
+
+static void video_twitch_chat_draw(uint8_t * const *planes,
+                                   struct video_twitch_chat_state *chat)
+{
+    int panel_x = LCD_WIDTH - chat->panel_width;
+    int row_y = LCD_HEIGHT - chat->count * 40;
+    int i;
+
+    if (!chat->available || chat->panel_width <= 0)
+        return;
+    video_yuv_blend_rect(planes, panel_x, 0, chat->panel_width,
+                         LCD_HEIGHT, 14, 14, 16, 224);
+    video_yuv_rect(planes, panel_x, 0, 2, LCD_HEIGHT, 145, 70, 255);
+    video_yuv_blend_rect(planes, panel_x + 2, 0,
+                         MAX(0, chat->panel_width - 2), 24,
+                         92, 22, 197, 214);
+    video_yuv_twitch_icon(planes, panel_x + 5, 2);
+    video_twitch_chat_text(planes, panel_x + 29, 7, "CHAT",
+                           255, 255, 255);
+    row_y = MAX(28, row_y);
+    for (i = 0; i < chat->count; i++)
+    {
+        struct video_twitch_chat_message *message =
+            &chat->rows[(chat->first + i) % VIDEO_TWITCH_CHAT_ROWS];
+        int red = (message->color >> 16) & 0xff;
+        int green = (message->color >> 8) & 0xff;
+        int blue = message->color & 0xff;
+
+        if (red + green + blue < 210)
+        {
+            red = (red + 255) / 2;
+            green = (green + 255) / 2;
+            blue = (blue + 255) / 2;
+        }
+        video_twitch_chat_text(planes, panel_x + 6, row_y,
+                               message->user, red, green, blue);
+        video_twitch_chat_message(planes, chat, message->text,
+                                  panel_x + 6, row_y + 12,
+                                  panel_x, LCD_WIDTH - 5);
+        row_y += 40;
+    }
+}
+
+static void video_yuv_twitch_icon(uint8_t * const *planes, int x, int y)
+{
+    int row;
+    int column;
+
+    if (!video_twitch_icon_valid)
+        return;
+    for (row = 0; row < video_twitch_icon.height; row++)
+        for (column = 0; column < video_twitch_icon.width; column++)
+        {
+            fb_data pixel = ((const fb_data *)video_twitch_icon.data)
+                [row * video_twitch_icon.width + column];
+            int red = FB_UNPACK_RED(pixel);
+            int green = FB_UNPACK_GREEN(pixel);
+            int blue = FB_UNPACK_BLUE(pixel);
+
+            if (red > 248 && green < 8 && blue > 248)
+                continue;
+            video_yuv_pixel(planes, x + column, y + row,
+                            red, green, blue);
+        }
+}
+
 static void video_time_text(uint32_t milliseconds, char *text, size_t size)
 {
     uint32_t seconds = milliseconds / 1000u;
@@ -1007,11 +1569,13 @@ static void video_time_text(uint32_t milliseconds, char *text, size_t size)
 static void video_draw_overlay(uint8_t * const *planes,
                                const struct video_launch *launch,
                                bool paused, uint32_t position_ms,
-                               uint32_t duration_ms, bool visible)
+                               uint32_t duration_ms, bool visible,
+                               int content_width)
 {
     char current[20];
     char duration[20];
-    int bar_width = LCD_WIDTH - 16;
+    int video_width = MAX(2, MIN(LCD_WIDTH, content_width));
+    int bar_width = video_width - 16;
     int fill_width = duration_ms == 0 ? 0 :
         (int)((uint64_t)MIN(position_ms, duration_ms) * bar_width /
               duration_ms);
@@ -1023,6 +1587,27 @@ static void video_draw_overlay(uint8_t * const *planes,
         launch->credits_start_ms > 0 &&
         position_ms >= launch->credits_start_ms;
 
+    if (launch->style == VIDEO_STYLE_TWITCH_LIVE)
+    {
+        video_yuv_rect(planes, 0, LCD_HEIGHT - 28, video_width, 28,
+                       14, 14, 16);
+        video_yuv_rect(planes, 0, LCD_HEIGHT - 28, video_width, 3,
+                       145, 70, 255);
+        video_yuv_twitch_icon(planes, 5, LCD_HEIGHT - 23);
+        video_yuv_rect(planes, 29, LCD_HEIGHT - 22, 39, 16,
+                       204, 24, 40);
+        video_yuv_text(planes, 34, LCD_HEIGHT - 18, "LIVE",
+                       255, 255, 255);
+        video_yuv_text(planes, 76, LCD_HEIGHT - 23,
+                       launch->twitch_creator[0] ?
+                       launch->twitch_creator : "Twitch",
+                       191, 148, 255);
+        video_yuv_text(planes, 76, LCD_HEIGHT - 13,
+                       launch->twitch_title[0] ?
+                       launch->twitch_title : "Twitch VOD",
+                       255, 255, 255);
+        return;
+    }
     if (launch->style == VIDEO_STYLE_YOUTUBE_LIVE)
     {
         /* The persistent mark is the live-state signal used by YouTube's
@@ -1175,8 +1760,7 @@ static void video_draw_overlay(uint8_t * const *planes,
                        20, 20, 20);
         video_yuv_rect(planes, 0, LCD_HEIGHT - 58, LCD_WIDTH, 3,
                        180, 19, 29);
-        video_yuv_text(planes, 7, LCD_HEIGHT - 49, "NETFLIX",
-                       180, 19, 29);
+        nf_brand_draw(planes, LCD_WIDTH, LCD_HEIGHT, 7, LCD_HEIGHT - 54);
         video_yuv_text(planes, 8, LCD_HEIGHT - 30, current,
                        255, 255, 255);
         video_yuv_text(planes, LCD_WIDTH - 8 - duration_width,
@@ -1189,6 +1773,32 @@ static void video_draw_overlay(uint8_t * const *planes,
                        72, 72, 72);
         video_yuv_rect(planes, 8, LCD_HEIGHT - 10, fill_width, 4,
                        180, 19, 29);
+    }
+    else if (launch->style == VIDEO_STYLE_TWITCH)
+    {
+        int duration_width = video_yuv_text_width(duration);
+        int rail_width = MAX(1, video_width - 126);
+
+        video_yuv_rect(planes, 0, LCD_HEIGHT - 38, video_width, 38,
+                       14, 14, 16);
+        video_yuv_rect(planes, 0, LCD_HEIGHT - 38, video_width, 3,
+                       145, 70, 255);
+        video_yuv_twitch_icon(planes, 5, LCD_HEIGHT - 34);
+        video_yuv_text(planes, 29, LCD_HEIGHT - 33,
+                       launch->twitch_title[0] ?
+                       launch->twitch_title : "Twitch VOD",
+                       255, 255, 255);
+        video_yuv_text(planes, 5, LCD_HEIGHT - 12, current,
+                       222, 217, 229);
+        video_yuv_text(planes, video_width - 5 - duration_width,
+                       LCD_HEIGHT - 12, duration, 222, 217, 229);
+        /* The rail owns a separate row above both time labels. This keeps
+         * hour-long timestamps from extending underneath it. */
+        video_yuv_rect(planes, 59, LCD_HEIGHT - 22,
+                       rail_width, 4, 63, 63, 70);
+        video_yuv_rect(planes, 59, LCD_HEIGHT - 22,
+                       rail_width * fill_width / MAX(1, bar_width), 4,
+                       145, 70, 255);
     }
     else if (launch->style == VIDEO_STYLE_YOUTUBE)
     {
@@ -1231,18 +1841,40 @@ static void video_draw_frame(const uint8_t *y, const uint8_t *cb,
                              int stride, uint8_t *scaled,
                              const struct video_launch *launch,
                              bool paused, uint32_t position_ms,
-                             uint32_t duration_ms, bool overlay_visible)
+                             uint32_t duration_ms, bool overlay_visible,
+                             struct video_twitch_chat_state *chat)
 {
     unsigned char *planes[3];
     int draw_width;
     int draw_height;
     int x;
     int y_pos;
+    int content_width = LCD_WIDTH;
+    bool twitch_reflow =
+        (launch->style == VIDEO_STYLE_TWITCH ||
+         launch->style == VIDEO_STYLE_TWITCH_LIVE) &&
+        chat->panel_width > 0;
 
     if (y == NULL || cb == NULL || cr == NULL || scaled == NULL ||
         width <= 0 || height <= 0 || stride < width)
         return;
-    if (launch->fill)
+    static unsigned char caption[NF_CAP_BYTES];
+    const unsigned char *caption_mask = nf_caption_snapshot(caption) ? caption : NULL;
+    const unsigned char *tv_planes[3] = {y, cb, cr};
+    tv_video_prepare(tv_planes, width, height, stride, width, height,
+                     position_ms, duration_ms, paused, overlay_visible, caption_mask);
+    if (twitch_reflow)
+    {
+        content_width = MAX(2, LCD_WIDTH - chat->panel_width);
+        draw_width = content_width;
+        draw_height = (int)((int64_t)height * draw_width / width);
+        if (draw_height > LCD_HEIGHT)
+        {
+            draw_height = LCD_HEIGHT;
+            draw_width = (int)((int64_t)width * draw_height / height);
+        }
+    }
+    else if (launch->fill)
     {
         draw_width = LCD_WIDTH;
         draw_height = LCD_HEIGHT;
@@ -1270,7 +1902,12 @@ static void video_draw_frame(const uint8_t *y, const uint8_t *cb,
     }
     draw_width &= ~1;
     draw_height &= ~1;
-    if (launch->style == VIDEO_STYLE_INSTAGRAM_FEED &&
+    if (twitch_reflow)
+    {
+        x = (content_width - draw_width) / 2;
+        y_pos = (LCD_HEIGHT - draw_height) / 2;
+    }
+    else if (launch->style == VIDEO_STYLE_INSTAGRAM_FEED &&
         !launch->instagram_feed_expanded)
     {
         x = VIDEO_INSTAGRAM_CARD_X +
@@ -1299,10 +1936,21 @@ static void video_draw_frame(const uint8_t *y, const uint8_t *cb,
     video_scale_plane(planes[2] + (y_pos / 2) * (LCD_WIDTH / 2) + x / 2,
                       LCD_WIDTH / 2, draw_width / 2, draw_height / 2,
                       cr, stride / 2, width / 2, height / 2);
+    nf_caption_draw(planes, LCD_WIDTH,
+        LCD_HEIGHT - (overlay_visible ? 64 : 0));
     video_draw_overlay(planes, launch, paused, position_ms, duration_ms,
-                       overlay_visible);
+                       overlay_visible, content_width);
+    video_twitch_chat_draw(planes, chat);
+#ifdef HAVE_VIDEOOUT_NATIVE_YUV
+    const struct videoout_frame frame = {
+        { y, cb, cr }, width, height, stride,
+        x, y_pos, draw_width, draw_height
+    };
+    videoout_blit_yuv(&frame, planes);
+#else
     lcd_blit_yuv(planes, 0, 0, LCD_WIDTH, 0, 0,
                  LCD_WIDTH, LCD_HEIGHT);
+#endif
 }
 
 int video_h264_play(const char *filepath, void *buffer, size_t buffer_size)
@@ -1314,6 +1962,11 @@ int video_h264_play(const char *filepath, void *buffer, size_t buffer_size)
     static uint32_t probe_audio_chunk[1];
     struct video_launch launch;
     struct video_pool pool;
+    struct video_read_cache read_cache = {0,0};
+    video_trace_head = video_trace_total = video_trace_drops = 0;
+    video_trace_max_late = video_trace_max_read = 0;
+    video_trace_max_decode = video_trace_max_present = 0;
+    video_trace_pool_reserved = 0;
     struct video_timing timing;
     struct vpu_h264 *decoder = NULL;
     struct mp4v_stsc_entry *video_stsc;
@@ -1329,9 +1982,15 @@ int video_h264_play(const char *filepath, void *buffer, size_t buffer_size)
     uint32_t duration_ms;
     uint32_t sample = 0;
     uint32_t last_sample = 0;
+    uint32_t position_ms = 0;
     long start_tick;
     long pause_started = 0;
+    long state_saved_tick = current_tick;
+    bool state_was_paused = false;
     long overlay_until;
+    long last_present_tick = 0;
+    long paused_overlay_tick = 0;
+    bool frame_presented = false;
     bool paused = false;
     bool cpu_boosted = false;
     bool have_audio = false;
@@ -1342,6 +2001,10 @@ int video_h264_play(const char *filepath, void *buffer, size_t buffer_size)
     if (filepath == NULL || buffer == NULL || buffer_size == 0 ||
         !video_parse_launch(filepath, &launch))
         return -1;
+    memset(&video_twitch_chat, 0, sizeof(video_twitch_chat));
+    video_twitch_chat.fd = -1;
+    video_twitch_chat.emoji_fd = -1;
+    video_twitch_load(&launch);
     video_instagram_load(&launch);
     video_tiktok_load(&launch);
     memset(&demux, 0, sizeof(demux));
@@ -1387,6 +2050,7 @@ int video_h264_play(const char *filepath, void *buffer, size_t buffer_size)
     audio_codec_workspace = audio_codec_workspace_size > 0 ?
         video_pool_take(&pool, audio_codec_workspace_size,
                         CACHEALIGN_SIZE) : NULL;
+    video_trace_pool_reserved = pool.cursor - (uint8_t *)buffer;
     if (video_samples == NULL || video_chunks == NULL ||
         video_stsc == NULL || decoder_buffer == NULL || read_buffer == NULL ||
         scale_buffer == NULL ||
@@ -1420,17 +2084,33 @@ int video_h264_play(const char *filepath, void *buffer, size_t buffer_size)
     }
     else if (launch.allow_resume && !launch.restart)
     {
-        sample = video_resume_load(launch.path, demux.num_samples);
-        while (sample > 0 && !mp4v_is_keyframe(&demux, sample))
-            sample--;
-        video_timing_for_sample(&demux, sample, &timing);
+        struct video_library_state state;
+        if (video_library_load(launch.path, &state))
+            sample = video_sample_for_ms(&demux,
+                state.watched ? 0 : MIN(state.position_ms, duration_ms-1), &timing);
+        else
+        {
+            sample = video_resume_load(launch.path, demux.num_samples);
+            while (sample > 0 && !mp4v_is_keyframe(&demux, sample)) sample--;
+            video_timing_for_sample(&demux, sample, &timing);
+        }
     }
     else
         video_timing_for_sample(&demux, 0, &timing);
 
+    if (launch.style == VIDEO_STYLE_TWITCH ||
+        launch.style == VIDEO_STYLE_TWITCH_LIVE)
+    {
+        video_twitch_chat_open(&video_twitch_chat, launch.path);
+        video_twitch_chat_update(
+            &video_twitch_chat,
+            video_pts_ms(&demux, &timing) / 1000u, true);
+    }
+
     /* Composite output already owns a boost because its memory reader
      * underruns at 54 MHz HClk. Decode plus LCD presentation needs the same
      * 108 MHz bus clock when undocked, so playback owns a separate reference. */
+    nf_caption_open(launch.path, launch.style == VIDEO_STYLE_NETFLIX);
     cpu_boost(true);
     cpu_boosted = true;
     decoder = vpu_h264_open(
@@ -1452,33 +2132,44 @@ int video_h264_play(const char *filepath, void *buffer, size_t buffer_size)
     start_tick = current_tick -
         (long)((uint64_t)video_pts_ms(&demux, &timing) * HZ / 1000u);
     overlay_until = current_tick + HZ * 4;
-    if (demux.audio_format == MAKEFOURCC('m', 'p', '4', 'a') &&
-        demux.audio_codecdata_len > 0 &&
-        video_audio_init(launch.path, &demux, audio_codec_workspace,
-                         audio_codec_workspace_size) == 0)
+    if (demux.audio_num_samples > 0)
     {
         int wait = 0;
         uint32_t initial_ms = video_pts_ms(&demux, &timing);
 
+        if (demux.audio_format != MAKEFOURCC('m', 'p', '4', 'a') ||
+            demux.audio_codecdata_len == 0 ||
+            video_audio_init(launch.path, &demux, audio_codec_workspace,
+                             audio_codec_workspace_size) < 0)
+        {
+            splash(HZ * 2, "H.264 audio init failed");
+            goto cleanup;
+        }
         have_audio = true;
         audio_master = true;
+        /* Fill the PCM queue without letting the soundtrack run ahead of
+         * the first video frame during the prebuffer wait. */
+        video_pcm_pause(true);
         video_audio_play();
         if (initial_ms > 0)
+        {
             video_audio_seek(initial_ms);
+            video_pcm_pause(true);
+        }
         while (!video_audio_ready() && wait < HZ && action == VIDEO_INPUT_NONE)
         {
             action = video_input(&launch, &paused, &start_tick,
                                  &pause_started, true, &cpu_boosted,
-                                 &overlay_until);
+                                 &overlay_until, &video_twitch_chat);
             sleep(1);
             wait++;
         }
         if (video_audio_failed())
         {
-            video_audio_stop();
-            have_audio = false;
-            audio_master = false;
+            splash(HZ * 2, "H.264 audio decode failed");
+            goto cleanup;
         }
+        video_pcm_pause(paused);
     }
 
     lcd_set_foreground(LCD_BLACK);
@@ -1491,9 +2182,11 @@ int video_h264_play(const char *filepath, void *buffer, size_t buffer_size)
         uint32_t offset;
         uint32_t size;
         uint32_t pts_ms = video_pts_ms(&demux, &timing);
+        uint32_t read_us=0, decode_us=0, present_us=0;
         int64_t seek_target = -1;
         bool seek_requested = false;
-        int decoded;
+        int decoded = 0;
+        bool sample_decoded = false;
 
         while (action == VIDEO_INPUT_NONE)
         {
@@ -1501,11 +2194,19 @@ int video_h264_play(const char *filepath, void *buffer, size_t buffer_size)
 
             action = video_input(&launch, &paused, &start_tick,
                                  &pause_started, have_audio, &cpu_boosted,
-                                 &overlay_until);
+                                 &overlay_until, &video_twitch_chat);
+            position_ms = audio_master ? video_pcm_get_clock_ms() : pts_ms;
+            if (launch.allow_resume &&
+                ((paused && !state_was_paused) ||
+                 TIME_AFTER(current_tick, state_saved_tick + 30*HZ)))
+            {
+                video_library_save(launch.path, position_ms, duration_ms, false);
+                state_saved_tick = current_tick;
+            }
+            state_was_paused = paused;
+            nf_caption_service(position_ms);
             if (action == VIDEO_INPUT_ACTIVATE)
             {
-                uint32_t position_ms = audio_master ?
-                    video_pcm_get_clock_ms() : pts_ms;
 
                 if (launch.style == VIDEO_STYLE_NETFLIX &&
                     launch.intro_end_ms > launch.intro_start_ms &&
@@ -1573,21 +2274,67 @@ int video_h264_play(const char *filepath, void *buffer, size_t buffer_size)
                 overlay_until = current_tick + HZ * 3;
                 action = VIDEO_INPUT_NONE;
                 seek_requested = true;
+                frame_presented = false;
                 break;
             }
             if (action != VIDEO_INPUT_NONE)
                 break;
             if (paused)
             {
+                if (frame_presented && paused_overlay_tick != overlay_until)
+                {
+                    const uint8_t *y, *cb, *cr;
+                    int width, height, stride;
+                    vpu_h264_get_frame(decoder, &y, &cb, &cr,
+                                       &width, &height, &stride);
+                    video_draw_frame(y, cb, cr, width, height, stride,
+                        scale_buffer, &launch, true, position_ms, duration_ms,
+                        true, &video_twitch_chat);
+                    paused_overlay_tick = overlay_until;
+                }
                 sleep(1);
                 continue;
             }
+            /* Decode ahead of the presentation deadline. Waiting first
+             * adds the read/decode time to every displayed frame's PTS. */
+            if (!sample_decoded)
+            {
+                uint32_t started = USEC_TIMER;
+                const uint8_t *compressed = NULL;
+                if (mp4v_get_sample_offset(&demux, sample, &offset, &size) >= 0)
+                    compressed = video_read_cached(video_fd, read_buffer,
+                        VIDEO_READ_BUFFER, &read_cache, offset, size);
+                read_us = USEC_TIMER - started;
+                if (!compressed)
+                {
+                    splash(HZ * 2, "Video sample read failed");
+                    goto cleanup;
+                }
+                started = USEC_TIMER;
+                decoded = vpu_h264_decode_sample(
+                    decoder, compressed, size, demux.nalu_len_size);
+                decode_us = USEC_TIMER - started;
+                if (decoded < 0)
+                {
+                    splash(HZ * 2, "VPU sample decode failed");
+                    goto cleanup;
+                }
+                sample_decoded = true;
+            }
             clock_ms = audio_master ? video_pcm_get_clock_ms() :
                 (uint32_t)((current_tick - start_tick) * 1000 / HZ);
-            if (audio_master &&
-                (video_audio_failed() ||
-                 (!video_audio_is_active() && video_pcm_empty())))
+            if (audio_master && video_audio_failed())
             {
+                splash(HZ * 2, "H.264 audio decode failed");
+                goto cleanup;
+            }
+            if (audio_master && !video_audio_is_active() && video_pcm_empty())
+            {
+                if (pts_ms + 2000u < duration_ms)
+                {
+                    splash(HZ * 2, "H.264 audio ended early");
+                    goto cleanup;
+                }
                 video_audio_stop();
                 have_audio = false;
                 audio_master = false;
@@ -1602,20 +2349,21 @@ int video_h264_play(const char *filepath, void *buffer, size_t buffer_size)
             break;
         if (seek_requested)
             continue;
-        if (mp4v_get_sample_offset(&demux, sample, &offset, &size) < 0 ||
-            size == 0 || size > VIDEO_READ_BUFFER ||
-            lseek(video_fd, offset, SEEK_SET) < 0 ||
-            read(video_fd, read_buffer, size) != (ssize_t)size)
+        if (decoded > 0 && audio_master && frame_presented &&
+            sample + 1 < demux.num_samples)
         {
-            splash(HZ * 2, "Video sample read failed");
-            goto cleanup;
-        }
-        decoded = vpu_h264_decode_sample(
-            decoder, read_buffer, size, demux.nalu_len_size);
-        if (decoded < 0)
-        {
-            splash(HZ * 2, "VPU sample decode failed");
-            goto cleanup;
+            struct video_timing next = timing;
+
+            video_timing_advance(&demux, &next);
+            /* Keep decoding reference pictures, but avoid expensive LCD
+             * scaling/overlays for a frame whose successor is already due.
+             * Still refresh at least every 100 ms under sustained overload. */
+            if (video_pcm_get_clock_ms() >= video_pts_ms(&demux, &next) &&
+                TIME_BEFORE(current_tick, last_present_tick + HZ / 10))
+            {
+                decoded = 0;
+                video_trace_drops++;
+            }
         }
         if (decoded > 0)
         {
@@ -1628,18 +2376,46 @@ int video_h264_play(const char *filepath, void *buffer, size_t buffer_size)
 
             vpu_h264_get_frame(decoder, &frame_y, &frame_cb, &frame_cr,
                                &width, &height, &stride);
+            video_twitch_chat_update(&video_twitch_chat,
+                                     pts_ms / 1000u, false);
+            video_twitch_chat_animate(&video_twitch_chat);
+            uint32_t present_started = USEC_TIMER;
             video_draw_frame(frame_y, frame_cb, frame_cr, width, height,
                              stride, scale_buffer, &launch, paused, pts_ms,
                              duration_ms,
                              paused || TIME_BEFORE(current_tick,
-                                                   overlay_until));
+                                                   overlay_until),
+                             &video_twitch_chat);
+            present_us = USEC_TIMER - present_started;
+            last_present_tick = current_tick;
+            frame_presented = true;
         }
+        video_trace[video_trace_head].pts = pts_ms;
+        video_trace[video_trace_head].clock = audio_master ? video_pcm_get_clock_ms() :
+            (uint32_t)((current_tick-start_tick)*1000/HZ);
+        video_trace[video_trace_head].read_us = read_us;
+        video_trace[video_trace_head].decode_us = decode_us;
+        video_trace[video_trace_head].present_us = present_us;
+        video_trace[video_trace_head].width = demux.width;
+        video_trace[video_trace_head].height = demux.height;
+        video_trace[video_trace_head].presented = decoded > 0;
+        video_trace[video_trace_head].audio_master = audio_master;
+        uint32_t trace_clock = video_trace[video_trace_head].clock;
+        if (trace_clock > pts_ms)
+            video_trace_max_late = MAX(video_trace_max_late,trace_clock-pts_ms);
+        video_trace_max_read = MAX(video_trace_max_read,read_us);
+        video_trace_max_decode = MAX(video_trace_max_decode,decode_us);
+        video_trace_max_present = MAX(video_trace_max_present,present_us);
+        video_trace_head = (video_trace_head+1)%VIDEO_TRACE_COUNT;
+        video_trace_total++;
         last_sample = sample;
         video_timing_advance(&demux, &timing);
         sample++;
     }
     if (action == VIDEO_INPUT_EXIT)
-        result = 1;
+        result = launch.style == VIDEO_STYLE_NETFLIX &&
+                 video_at_completion(position_ms, duration_ms,
+                                     launch.credits_start_ms) ? 0 : 1;
     else if (action == VIDEO_INPUT_PREVIOUS)
         result = 2;
     else if (action == VIDEO_INPUT_NEXT)
@@ -1651,6 +2427,7 @@ int video_h264_play(const char *filepath, void *buffer, size_t buffer_size)
 
     if (launch.allow_resume)
     {
+        video_library_save(launch.path, position_ms, duration_ms, result == 0);
         if (result == 0)
             video_resume_clear(launch.path);
         else
@@ -1658,6 +2435,9 @@ int video_h264_play(const char *filepath, void *buffer, size_t buffer_size)
     }
 
 cleanup:
+    tv_video_prepare(NULL,0,0,0,0,0,0,0,false,false,NULL);
+    nf_caption_close();
+    video_twitch_chat_close(&video_twitch_chat);
     if (have_audio)
         video_audio_stop();
     if (video_fd >= 0)
@@ -1671,6 +2451,7 @@ cleanup:
     lcd_update();
     if (cpu_boosted)
         cpu_boost(false);
+    video_trace_export();
     return result;
 }
 

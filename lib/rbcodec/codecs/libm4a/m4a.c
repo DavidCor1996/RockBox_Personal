@@ -46,7 +46,9 @@
 void stream_read(stream_t *stream, size_t size, void *buf)
 {
     stream->ci->read_filebuf(buf,size);
-    if (stream->ci->curpos >= stream->ci->filesize) { stream->eof=1; }
+    /* MP4 offsets cover the unsigned 32-bit FAT range on native targets. */
+    if ((size_t)stream->ci->curpos >= (size_t)stream->ci->filesize)
+        stream->eof = 1;
 }
 
 int32_t stream_read_int32(stream_t *stream)
@@ -119,7 +121,8 @@ void stream_create(stream_t *stream,struct codec_api* ci)
  * Therefor we save this index and let the caller set this value again as start
  * index when calling m4a_check_sample_offset() for the next frame. This
  * reduces the overall loop count significantly. */
-int m4a_check_sample_offset(demux_res_t *demux_res, uint32_t frame, uint32_t *start)
+int64_t m4a_check_sample_offset(demux_res_t *demux_res, uint32_t frame,
+                                uint32_t *start)
 {
     uint32_t i = *start;
     for (;i < demux_res->num_lookup_table; ++i)
@@ -130,7 +133,7 @@ int m4a_check_sample_offset(demux_res_t *demux_res, uint32_t frame, uint32_t *st
         if (demux_res->lookup_table[i].sample == frame)
         {
             *start = i;
-            return demux_res->lookup_table[i].offset;
+            return (int64_t)demux_res->lookup_table[i].offset;
         }
     }
     *start = i;

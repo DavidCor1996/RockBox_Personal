@@ -1,5 +1,6 @@
 #include "ipodgames.h"
 #include "armemu/armemu.h"
+#include "music.h"
 
 #define IG_VM_BASE 0x18000000u
 #define IG_VM_MEMORY_SIZE 0x01000000u
@@ -22,9 +23,10 @@
 #define IG_VM_AUDIO_OBJECTS 64
 #define IG_VM_AUDIO_BLOCK_FRAMES 512
 #define IG_VM_AUDIO_RATE 11025
-#define IG_VM_VORTEX_AUDIO_RATE 27000
 /* miscTBD[9] forwards the 1 MHz PortalPlayer free-running counter. */
 #define IG_VM_EVENT_CLOCK_HZ 1000000u
+#define IG_VM_DEFAULT_FPS 60u
+#define IG_VM_VORTEX_FPS 30u
 #define IG_VM_MAX_IMPORTS 4096
 #define IG_VM_ALLOCATIONS 1024
 #define IG_VM_PHASE_LIMIT 20000000ul
@@ -258,7 +260,9 @@ struct ig_vm_state
     unsigned int save_failures;
     bool save_probe_pass;
     bool save_exit_requested;
+    char audio_resource_name[128];
     bool is_vortex;
+    unsigned int frame_rate;
     bool realtime_clock;
     bool reference_raster;
     bool hardware_exec;
@@ -3954,7 +3958,8 @@ static unsigned int vm_audio_voice_count(struct ig_vm_state *state)
     return count;
 }
 
-static void vm_audio_update_gains(struct ig_vm_audio_object *object)
+static void vm_audio_update_gains(struct ig_vm_state *state,
+                                  struct ig_vm_audio_object *object)
 {
     unsigned int amplitude = MIN(object->amplitude, 32767u);
     unsigned int pitch = MIN(object->pitch, 4000u);
@@ -3970,7 +3975,8 @@ static void vm_audio_update_gains(struct ig_vm_audio_object *object)
         object->gain_left = amplitude * (1000 - pan) / 1000;
     else if (pan < 0)
         object->gain_right = amplitude * (1000 + pan) / 1000;
-    object->step = MAX(1u, pitch * 65536u / 1000u);
+    object->step = MAX(1u, (u32)((u64)object->rate * pitch * 65536u /
+                                ((u64)state->audio_output_rate * 1000u)));
 }
 
 static bool vm_audio_rewind(struct ig_vm_audio_object *object,
@@ -4005,8 +4011,7 @@ static void vm_audio_get_more(const void **start, size_t *size)
         if (!object->allocated || !object->playing || !object->step)
             continue;
         if (object->data < IG_VM_BASE || object->bits != 16 ||
-            object->channels != 1 ||
-            object->rate != state->audio_output_rate)
+            object->channels != 1 || !object->rate)
         {
             object->playing = false;
             continue;
@@ -4035,10 +4040,13 @@ static void vm_audio_get_more(const void **start, size_t *size)
         frames = MAX(frames, MIN((size_t)IG_VM_AUDIO_BLOCK_FRAMES,
                                  object_frames));
     }
+    if (ig_music_active())
+        frames = IG_VM_AUDIO_BLOCK_FRAMES;
     if (!frames)
         goto stopped;
     rb->memset(audio_mix_buffer, 0,
                frames * 2 * sizeof(audio_mix_buffer[0]));
+    ig_music_mix(audio_mix_buffer, frames);
     for (handle = 1; handle < ARRAYLEN(state->audio_objects); ++handle)
     {
         struct ig_vm_audio_object *object = &state->audio_objects[handle];
@@ -4070,6 +4078,21 @@ static void vm_audio_get_more(const void **start, size_t *size)
             }
             source = state->memory + source_offset + source_frame * 2;
             sample = (int16_t)((u16)source[0] | ((u16)source[1] << 8));
+            if (object->rate != state->audio_output_rate)
+            {
+                size_t next_frame = source_frame + 1;
+                int fraction = object->position & 0xffff;
+                int16_t next_sample;
+
+                if (next_frame >= source_frames)
+                    next_frame = object->repeats_remaining == 1 ?
+                        source_frame : 0;
+                source = state->memory + source_offset + next_frame * 2;
+                next_sample = (int16_t)((u16)source[0] |
+                                        ((u16)source[1] << 8));
+                sample = ((int)sample * (65536 - fraction) +
+                          (int)next_sample * fraction) >> 16;
+            }
             left = audio_mix_buffer[frame * 2] +
                    (sample * (int)object->gain_left) / 32767;
             right = audio_mix_buffer[frame * 2 + 1] +
@@ -4082,7 +4105,8 @@ static void vm_audio_get_more(const void **start, size_t *size)
         }
     }
     state->audio_pcm_frames += frames;
-    state->audio_playing = vm_audio_voice_count(state) != 0;
+    state->audio_playing = vm_audio_voice_count(state) != 0 ||
+                           ig_music_active();
     *start = audio_mix_buffer;
     *size = frames * 2 * sizeof(int16_t);
     return;
@@ -4118,7 +4142,7 @@ static void vm_audio_stop_handle(struct ig_vm_state *state, u32 handle)
     object->playing = false;
     object->paused = false;
     object->position = 0;
-    if (!vm_audio_voice_count(state))
+    if (!vm_audio_voice_count(state) && !ig_music_active())
     {
         if (rb->mixer_channel_status(PCM_MIXER_CHAN_PLAYBACK) !=
             CHANNEL_STOPPED)
@@ -4137,7 +4161,7 @@ static void vm_audio_pause_handle(struct ig_vm_state *state, u32 handle)
     rb->pcm_play_lock();
     object->playing = false;
     object->paused = true;
-    if (!vm_audio_voice_count(state))
+    if (!vm_audio_voice_count(state) && !ig_music_active())
     {
         if (rb->mixer_channel_status(PCM_MIXER_CHAN_PLAYBACK) !=
             CHANNEL_STOPPED)
@@ -4176,7 +4200,7 @@ static void vm_audio_start(struct ig_vm_state *state, u32 handle)
     unsigned int voices;
 
     if (!state->audio_initialized || !object ||
-        object->rate != state->audio_output_rate || object->bits != 16 ||
+        !object->rate || object->bits != 16 ||
         object->channels != 1 || !object->bytes)
         return;
     rb->pcm_play_lock();
@@ -4184,7 +4208,7 @@ static void vm_audio_start(struct ig_vm_state *state, u32 handle)
     object->repeats_remaining = object->repeat_count;
     object->paused = false;
     object->playing = true;
-    vm_audio_update_gains(object);
+    vm_audio_update_gains(state, object);
     voices = vm_audio_voice_count(state);
     if (voices > state->audio_max_voices)
         state->audio_max_voices = voices;
@@ -4233,7 +4257,8 @@ static void vm_audio_init(struct ig_vm_state *state)
 {
     state->audio_old_frequency = rb->mixer_get_frequency();
     state->audio_output_rate = state->is_vortex ?
-        IG_VM_VORTEX_AUDIO_RATE : IG_VM_AUDIO_RATE;
+        IG_MUSIC_RATE : IG_VM_AUDIO_RATE;
+    ig_music_init(state->game_directory);
 #if INPUT_SRC_CAPS != 0
     rb->audio_set_input_source(AUDIO_SRC_PLAYBACK, SRCF_PLAYBACK);
     rb->audio_set_output_source(AUDIO_SRC_PLAYBACK);
@@ -4249,6 +4274,7 @@ static void vm_audio_shutdown(struct ig_vm_state *state)
     if (!state->audio_initialized)
         return;
     vm_audio_stop(state);
+    ig_music_shutdown();
     rb->pcmbuf_fade(false, false);
     if (state->audio_old_frequency)
         rb->mixer_set_frequency(state->audio_old_frequency);
@@ -4271,7 +4297,7 @@ static bool vm_audio_multivoice_probe(struct ig_vm_state *state)
         struct ig_vm_audio_object *object = &state->audio_objects[handle];
 
         if (!object->allocated || object->data < IG_VM_BASE ||
-            object->rate != state->audio_output_rate || object->bits != 16 ||
+            !object->rate || object->bits != 16 ||
             object->channels != 1 || !object->bytes)
             continue;
         objects[found++] = object;
@@ -4282,7 +4308,7 @@ static bool vm_audio_multivoice_probe(struct ig_vm_state *state)
     {
         objects[handle]->position = 0;
         objects[handle]->playing = true;
-        vm_audio_update_gains(objects[handle]);
+        vm_audio_update_gains(state, objects[handle]);
     }
     state->audio_playing = true;
     vm_audio_get_more(&start, &size);
@@ -4299,6 +4325,16 @@ static u32 vm_audio_framework_call(struct ig_vm_state *state,
     struct ig_vm_audio_object *object;
     u32 handle = state->cpu.r[0];
 
+    if (state->is_vortex)
+    {
+        switch (ordinal)
+        {
+            case 40: return ig_music_register(state->audio_resource_name);
+            case 43: ig_music_play(handle); return 0;
+            case 45: ig_music_stop(); return 0;
+            case 48: ig_music_repeat(handle); return 0;
+        }
+    }
     if (ordinal == 0)
     {
         handle = ++state->audio_next_handle;
@@ -4309,7 +4345,7 @@ static u32 vm_audio_framework_call(struct ig_vm_state *state,
         object->amplitude = 32767;
         object->pitch = 1000;
         object->repeat_count = 1;
-        vm_audio_update_gains(object);
+        vm_audio_update_gains(state, object);
         object->allocated = true;
         return handle;
     }
@@ -4489,7 +4525,7 @@ static void vm_framework_call(struct ig_vm_state *state, u32 address)
         /* Interactive Vortex must see elapsed wall time just as it did under
          * retailOS.  Advancing by a fixed amount per emulated frame stretches
          * the logo and every transition whenever software rendering misses
-         * 60 fps.  Lifecycle tests retain the deterministic 60 Hz clock. */
+         * its deadline. Lifecycle tests retain a deterministic game clock. */
 #ifdef USEC_TIMER
         if (state->realtime_clock)
             timestamp = USEC_TIMER;
@@ -4497,7 +4533,7 @@ static void vm_framework_call(struct ig_vm_state *state, u32 address)
 #endif
         if (state->is_vortex &&
             state->cpu.r[reg(&state->cpu, LR)] == 0x1802196cu)
-            timestamp += IG_VM_EVENT_CLOCK_HZ / 60;
+            timestamp += IG_VM_EVENT_CLOCK_HZ / state->frame_rate;
         stw(&state->machine, &state->cpu, state->cpu.r[0], timestamp);
     }
     else if (framework == IG_VM_FW_MISC && ordinal == 10)
@@ -4522,6 +4558,12 @@ static void vm_framework_call(struct ig_vm_state *state, u32 address)
         result = vm_system_clock(state, state->cpu.r[0]);
     else if (framework == IG_VM_FW_MISC && ordinal == 13)
         result = vm_system_battery_level(state);
+    else if (framework == IG_VM_FW_MISC && ordinal == 14 && state->is_vortex)
+    {
+        state->audio_resource_name[0] = '\0';
+        vm_guest_string(state, state->cpu.r[3], state->audio_resource_name,
+                        sizeof(state->audio_resource_name));
+    }
     else if (framework == IG_VM_FW_AUDIO)
         result = vm_audio_framework_call(state, ordinal);
     else if (framework == IG_VM_FW_ASYNC_FILE_IO && ordinal == 12)
@@ -5207,12 +5249,24 @@ static bool vm_run_entry(struct ig_vm_state *state, u32 entry,
 
     if (event)
     {
-        state->clock_ticks += IG_VM_EVENT_CLOCK_HZ / 60;
-        state->clock_fraction += IG_VM_EVENT_CLOCK_HZ % 60;
-        if (state->clock_fraction >= 60)
+        state->clock_ticks += IG_VM_EVENT_CLOCK_HZ / state->frame_rate;
+        state->clock_fraction += IG_VM_EVENT_CLOCK_HZ % state->frame_rate;
+        if (state->clock_fraction >= state->frame_rate)
         {
             ++state->clock_ticks;
-            state->clock_fraction -= 60;
+            state->clock_fraction -= state->frame_rate;
+        }
+    }
+    if (event && state->is_vortex && state->audio_initialized)
+    {
+        ig_music_service();
+        if (ig_music_active() &&
+            rb->mixer_channel_status(PCM_MIXER_CHAN_PLAYBACK) == CHANNEL_STOPPED)
+        {
+            rb->mixer_channel_set_amplitude(PCM_MIXER_CHAN_PLAYBACK,
+                                            MIX_AMP_UNITY);
+            rb->mixer_channel_play_data(PCM_MIXER_CHAN_PLAYBACK,
+                                        vm_audio_get_more, NULL, 0);
         }
     }
     if (event && !vm_complete_async(state))
@@ -5239,29 +5293,33 @@ static bool vm_run_entry(struct ig_vm_state *state, u32 entry,
             bool release = false;
             unsigned int click;
 
-            ++state->synthetic_input_frame;
+            /* Script timestamps use the original 60-units/second timebase,
+             * independently of the game's event cadence. */
+            unsigned int script_frame =
+                ++state->synthetic_input_frame * IG_VM_DEFAULT_FPS /
+                state->frame_rate;
             /* Stock reaches "PRESS ENTER BUTTON" around ten seconds in and
              * the reference player clicks it at roughly thirteen seconds. */
             if (play_path)
             {
                 for (click = 0; click < ARRAYLEN(play_clicks); ++click)
                 {
-                    press = press || state->synthetic_input_frame ==
+                    press = press || script_frame ==
                                        play_clicks[click];
-                    release = release || state->synthetic_input_frame ==
+                    release = release || script_frame ==
                                            (unsigned int)play_clicks[click] + 2;
                 }
             }
             else
             {
-                press = state->synthetic_input_frame == first_click ||
-                    state->synthetic_input_frame == first_click + 300 ||
-                    state->synthetic_input_frame == first_click + 600 ||
-                    state->synthetic_input_frame == first_click + 900;
-                release = state->synthetic_input_frame == first_click + 2 ||
-                    state->synthetic_input_frame == first_click + 302 ||
-                    state->synthetic_input_frame == first_click + 602 ||
-                    state->synthetic_input_frame == first_click + 902;
+                press = script_frame == first_click ||
+                    script_frame == first_click + 300 ||
+                    script_frame == first_click + 600 ||
+                    script_frame == first_click + 900;
+                release = script_frame == first_click + 2 ||
+                    script_frame == first_click + 302 ||
+                    script_frame == first_click + 602 ||
+                    script_frame == first_click + 902;
             }
             if (press || release)
             {
@@ -5269,49 +5327,49 @@ static bool vm_run_entry(struct ig_vm_state *state, u32 entry,
                 state->button_event_phase = press ? 2 : 1;
             }
             if (play_path &&
-                (state->synthetic_input_frame == 1900 ||
-                 state->synthetic_input_frame == 1902))
+                (script_frame == 1900 ||
+                 script_frame == 1902))
             {
                 state->button_event_type = 1;
                 state->button_event_phase =
-                    state->synthetic_input_frame == 1900 ? 2 : 1;
+                    script_frame == 1900 ? 2 : 1;
             }
-            if (play_path && state->synthetic_input_frame >= 500 &&
-                state->synthetic_input_frame <= 510)
+            if (play_path && script_frame >= 500 &&
+                script_frame <= 510)
             {
                 /* Establish the same touch-down reference used by retailOS
                  * before applying a relative wheel rotation. */
                 state->wheel_raw = 0x40000000u;
                 state->wheel_delta = 0;
             }
-            else if (play_path && state->synthetic_input_frame >= 511 &&
-                     state->synthetic_input_frame <= 622)
+            else if (play_path && script_frame >= 511 &&
+                     script_frame <= 622)
             {
                 /* A is selected initially.  After committing it, rotate to
                  * the first-run name editor's DONE cell (normalized 32). */
                 state->wheel_raw = 0x40000020u;
                 state->wheel_delta = 0;
             }
-            else if (play_path && state->synthetic_input_frame >= 1600 &&
-                     state->synthetic_input_frame <= 1610)
+            else if (play_path && script_frame >= 1600 &&
+                     script_frame <= 1610)
             {
                 state->wheel_raw = 0x40000000u;
                 state->wheel_delta = 0;
             }
-            else if (play_path && state->synthetic_input_frame >= 1611)
+            else if (play_path && script_frame >= 1611)
             {
                 unsigned int position =
-                    state->synthetic_input_frame - 1610;
+                    script_frame - 1610;
 
                 state->wheel_raw = 0x40000000u | (position & 0xff);
                 state->wheel_delta = 1;
             }
             else if (getenv("IPODGAMES_TEST_VORTEX_WHEEL") &&
-                state->synthetic_input_frame >= first_click + 80 &&
-                state->synthetic_input_frame < first_click + 300)
+                script_frame >= first_click + 80 &&
+                script_frame < first_click + 300)
             {
                 unsigned int step =
-                    (state->synthetic_input_frame - first_click - 80) / 10;
+                    (script_frame - first_click - 80) / 10;
 
                 state->wheel_raw = 0x40000000u | ((step * 16) & 0xff);
                 state->wheel_delta = 0;
@@ -5593,7 +5651,11 @@ static bool vm_run_entry(struct ig_vm_state *state, u32 entry,
         }
 #endif
 #ifdef SIMULATOR
-        execute(&state->machine, &state->cpu);
+        if (state->hardware_exec)
+            execute_until(&state->machine, &state->cpu, IG_VM_TRAP_BASE,
+                          start + IG_VM_PHASE_LIMIT);
+        else
+            execute(&state->machine, &state->cpu);
 #else
 #ifdef USEC_TIMER
         unsigned long profile_start = USEC_TIMER;
@@ -5760,7 +5822,15 @@ static void vm_write_runtime_log(const struct ig_vm_state *state,
                  state->last_save_file);
     rb->fdprintf(fd, "save_exit=%u\n",
                  state->save_exit_requested ? 1 : 0);
+    ig_music_report(fd);
     rb->fdprintf(fd, "input_polls=%u\n", state->input_polls);
+    rb->fdprintf(fd, "frame_rate=%u\nhz=%u\n", state->frame_rate, HZ);
+#ifdef SIMULATOR
+    rb->fdprintf(fd, "execution=%s\n",
+                 state->hardware_exec ? "batched" : "single-step");
+#else
+    rb->fdprintf(fd, "execution=batched\n");
+#endif
     rb->fdprintf(fd, "pacing=%lu:%lu:%lu:%lu:%lu:%lu:%lu\n",
                  state->runtime_elapsed_ticks,
                  state->presented_frames,
@@ -5854,6 +5924,7 @@ void ig_vm_lifecycle_test(const struct ig_game *game, unsigned int frames,
     vm.heap_next = IG_VM_HEAP_BASE;
     vm.scripted_input = true;
     vm.is_vortex = !rb->strcmp(game->guid, "12345");
+    vm.frame_rate = vm.is_vortex ? IG_VM_VORTEX_FPS : IG_VM_DEFAULT_FPS;
 #ifdef SIMULATOR
     vm.reference_raster = getenv("IPODGAMES_SIM_REFERENCE_RASTER") != NULL;
     vm.hardware_exec = getenv("IPODGAMES_SIM_HARDWARE_EXEC") != NULL;
@@ -6287,6 +6358,7 @@ enum ig_vm_result ig_vm_run_game(const struct ig_game *game)
     vm.heap_next = IG_VM_HEAP_BASE;
     vm.wheel_raw = 0x30;
     vm.is_vortex = !rb->strcmp(game->guid, "12345");
+    vm.frame_rate = vm.is_vortex ? IG_VM_VORTEX_FPS : IG_VM_DEFAULT_FPS;
     vm.realtime_clock = true;
 #ifdef SIMULATOR
     vm.reference_raster = getenv("IPODGAMES_SIM_REFERENCE_RASTER") != NULL;
@@ -6433,9 +6505,14 @@ enum ig_vm_result ig_vm_run_game(const struct ig_game *game)
                 next_runtime_log_frame += 180;
             while (vm.presented_frames >= next_runtime_log_frame);
         }
+        /* Vortex's fixed-point frame delta requires a stable 30 Hz pump.
+         * Do not run short catch-up frames after a slow tunnel or save:
+         * keep real guest time, and begin a fresh budget at frame entry. */
+        if (vm.is_vortex)
+            frame_deadline = frame_start;
         frame_fraction += HZ;
-        frame_deadline += frame_fraction / 60;
-        frame_fraction %= 60;
+        frame_deadline += frame_fraction / vm.frame_rate;
+        frame_fraction %= vm.frame_rate;
         if (TIME_BEFORE(*rb->current_tick, frame_deadline))
             rb->sleep(frame_deadline - *rb->current_tick);
         else

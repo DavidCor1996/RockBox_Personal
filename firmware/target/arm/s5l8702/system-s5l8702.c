@@ -400,7 +400,6 @@ void system_hibernate_resume(void)
     /* The direct handoff is executing from application DRAM now. */
     clockgate_enable(CLOCKGATE_SM1, false);
 
-    gpio_hibernate_resume();
     vic_init();
     dma_init();
 }

@@ -1,0 +1,448 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:64:33: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   64 | static void* sEyeTextures[] = { gZelda2EyeOpenTex, gZelda2EyeHalfTex, gZelda2EyeShutTex,
+      |                                 ^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:64:52: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   64 | static void* sEyeTextures[] = { gZelda2EyeOpenTex, gZelda2EyeHalfTex, gZelda2EyeShutTex,
+      |                                                    ^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:64:71: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   64 | static void* sEyeTextures[] = { gZelda2EyeOpenTex, gZelda2EyeHalfTex, gZelda2EyeShutTex,
+      |                                                                       ^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:65:33: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   65 |                                 gZelda2Eye03Tex,   gZelda2Eye04Tex,   gZelda2Eye05Tex,
+      |                                 ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:65:52: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   65 |                                 gZelda2Eye03Tex,   gZelda2Eye04Tex,   gZelda2Eye05Tex,
+      |                                                    ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:65:71: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   65 |                                 gZelda2Eye03Tex,   gZelda2Eye04Tex,   gZelda2Eye05Tex,
+      |                                                                       ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:66:33: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   66 |                                 gZelda2Eye06Tex,   gZelda2Eye07Tex,   gZelda2Eye08Tex };
+      |                                 ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:66:52: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   66 |                                 gZelda2Eye06Tex,   gZelda2Eye07Tex,   gZelda2Eye08Tex };
+      |                                                    ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:66:71: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   66 |                                 gZelda2Eye06Tex,   gZelda2Eye07Tex,   gZelda2Eye08Tex };
+      |                                                                       ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:68:35: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   68 | static void* sMouthTextures[] = { gZelda2MouthSeriousTex, gZelda2MouthHappyTex, gZelda2MouthOpenTex };
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:68:59: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   68 | static void* sMouthTextures[] = { gZelda2MouthSeriousTex, gZelda2MouthHappyTex, gZelda2MouthOpenTex };
+      |                                                           ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:68:81: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   68 | static void* sMouthTextures[] = { gZelda2MouthSeriousTex, gZelda2MouthHappyTex, gZelda2MouthOpenTex };
+      |                                                                                 ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B4F45C':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:448:36: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  448 |         gSPSegment((*gfx)++, 0x0C, sp74);
+      |                                    ^~~~
+      |                                    |
+      |                                    Mtx * {aka MtxS *}
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Mtx *' {aka 'MtxS *'}
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'EnZl2_PostLimbDraw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:542:38: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  542 |             gSPDisplayList((*gfx)++, gZelda2OcarinaDL);
+      |                                      ^~~~~~~~~~~~~~~~
+      |                                      |
+      |                                      const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:554:42: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  554 |                 gSPDisplayList((*gfx)++, gZelda2OcarinaDL);
+      |                                          ^~~~~~~~~~~~~~~~
+      |                                          |
+      |                                          const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B4FD90':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:587:25: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+  587 |     func_80B4FD00(this, &gZelda2Anime1Anim_00B5FC, 0, 0.0f, 0);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                         |
+      |                         const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B50304':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:752:25: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+  752 |     func_80B4FD00(this, &gZelda2Anime1Anim_0003BC, 0, -12.0f, 0);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                         |
+      |                         const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B5042C':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:769:25: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+  769 |     func_80B4FD00(this, &gZelda2Anime1Anim_0022D0, 2, -8.0f, 0);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                         |
+      |                         const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B50488':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:778:29: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+  778 |         func_80B4FD00(this, &gZelda2Anime1Anim_002750, 0, 0.0f, 0);
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                             |
+      |                             const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B504D4':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:785:25: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+  785 |     func_80B4FD00(this, &gZelda2Anime1Anim_00325C, 2, -8.0f, 0);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                         |
+      |                         const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B5053C':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:795:29: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+  795 |         func_80B4FD00(this, &gZelda2Anime1Anim_003538, 0, 0.0f, 0);
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                             |
+      |                             const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B50580':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:801:25: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+  801 |     func_80B4FD00(this, &gZelda2Anime1Anim_000A50, 2, -8.0f, 0);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                         |
+      |                         const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B505D4':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:809:29: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+  809 |         func_80B4FD00(this, &gZelda2Anime1Anim_000EB0, 0, 0.0f, 0);
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                             |
+      |                             const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B50670':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:825:25: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+  825 |     func_80B4FD00(this, &gZelda2Anime1Anim_00B5FC, 0, -8.0f, 0);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                         |
+      |                         const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B506C4':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:832:25: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+  832 |     func_80B4FD00(this, &gZelda2Anime1Anim_00AAD4, 2, -8.0f, 0);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                         |
+      |                         const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B5073C':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:843:29: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+  843 |         func_80B4FD00(this, &gZelda2Anime1Anim_00AFE0, 0, 0.0f, 0);
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                             |
+      |                             const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B50780':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:849:25: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+  849 |     func_80B4FD00(this, &gZelda2Anime1Anim_001670, 2, -8.0f, 0);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                         |
+      |                         const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B507E8':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:859:29: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+  859 |         func_80B4FD00(this, &gZelda2Anime1Anim_001B48, 0, 0.0f, 0);
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                             |
+      |                             const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B5082C':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:865:25: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+  865 |     func_80B4FD00(this, &gZelda2Anime1Anim_002B14, 2, -8.0f, 0);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                         |
+      |                         const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B50880':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:873:29: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+  873 |         func_80B4FD00(this, &gZelda2Anime1Anim_002F30, 0, 0.0f, 0);
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                             |
+      |                             const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B508C8':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:880:25: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+  880 |     func_80B4FD00(this, &gZelda2Anime1Anim_001010, 2, -8.0f, 0);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                         |
+      |                         const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B50928':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:889:29: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+  889 |         func_80B4FD00(this, &gZelda2Anime1Anim_0013A0, 0, 0.0f, 0);
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                             |
+      |                             const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B5135C':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:1171:25: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1171 |     func_80B4FD00(this, &gZelda2Anime1Anim_00A15C, 0, 0.0f, 0);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                         |
+      |                         const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B515D8':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:1249:25: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1249 |     func_80B4FD00(this, &gZelda2Anime1Anim_00A15C, 0, -8.0f, 0);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                         |
+      |                         const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B51644':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:1259:29: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1259 |         func_80B4FD00(this, &gZelda2Anime1Anim_0087B8, 0, -8.0f, 0);
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                             |
+      |                             const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B51678':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:1264:25: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1264 |     func_80B4FD00(this, &gZelda2Anime1Anim_007D0C, 2, -8.0f, 0);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                         |
+      |                         const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B516D0':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:1273:29: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1273 |         func_80B4FD00(this, &gZelda2Anime1Anim_009AD4, 0, -8.0f, 0);
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                             |
+      |                             const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B51704':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:1278:25: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1278 |     func_80B4FD00(this, &gZelda2Anime1Anim_0090D8, 2, -8.0f, 0);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                         |
+      |                         const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B5175C':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:1287:29: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1287 |         func_80B4FD00(this, &gZelda2Anime1Anim_006778, 0, -8.0f, 0);
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                             |
+      |                             const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B51790':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:1292:25: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1292 |     func_80B4FD00(this, &gZelda2Anime1Anim_005F40, 2, -8.0f, 0);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                         |
+      |                         const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B517E0':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:1300:29: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1300 |         func_80B4FD00(this, &gZelda2Anime1Anim_002750, 0, -8.0f, 0);
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                             |
+      |                             const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B51824':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:1306:25: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1306 |     func_80B4FD00(this, &gZelda2Anime1Anim_0022D0, 2, -8.0f, 0);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                         |
+      |                         const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B5187C':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:1315:29: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1315 |         func_80B4FD00(this, &gZelda2Anime1Anim_00A79C, 0, -8.0f, 0);
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                             |
+      |                             const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:10:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B518C0':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:1321:46: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1321 |     func_80B4FD00(this, SEGMENTED_TO_VIRTUAL(&gZelda2Anime1Anim_004900), 2, -8.0f, 0);
+      |                                              ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                              |
+      |                                              const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B51EBC':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:1490:25: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1490 |     func_80B4FD00(this, &gZelda2Anime1Anim_00B224, 0, 0.0f, 0);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                         |
+      |                         const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B51F38':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:1501:33: warning: passing argument 2 of 'func_80B4FD00' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1501 |             func_80B4FD00(this, &gZelda2Anime1Anim_00B5FC, 0, -8.0f, 0);
+      |                                 ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                 |
+      |                                 const char (*)[58]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:567:50: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[58]'
+  567 | void func_80B4FD00(EnZl2* this, AnimationHeader* animation, u8 arg2, f32 transitionRate, s32 arg4) {
+      |                                 ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B521A0':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:1584:48: warning: passing argument 1 of 'Animation_GetLastFrame' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+ 1584 |         this->unk_278 = Animation_GetLastFrame(&gZelda2Anime1Anim_0022D0);
+      |                                                ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1278:34: note: expected 'void *' but argument is of type 'const char (*)[58]'
+ 1278 | s16 Animation_GetLastFrame(void* animation);
+      |                            ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'EnZl2_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:1606:48: warning: passing argument 3 of 'SkelAnime_InitFlex' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1606 |     SkelAnime_InitFlex(play, &this->skelAnime, &gZelda2Skel, NULL, NULL, NULL, 0);
+      |                                                ^~~~~~~~~~~~
+      |                                                |
+      |                                                const char (*)[38]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1329:83: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[38]'
+ 1329 | s32 SkelAnime_InitFlex(PlayState* play, SkelAnime* skelAnime, FlexSkeletonHeader* skeletonHeaderSeg,
+      |                                                               ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B523C8':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:1648:60: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1648 |     gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(eyeTex));
+      |                                                            ^~~~~~
+      |                                                            |
+      |                                                            void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:1649:60: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1649 |     gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(eyeTex2));
+      |                                                            ^~~~~~~
+      |                                                            |
+      |                                                            void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:1650:60: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1650 |     gSPSegment(POLY_OPA_DISP++, 0x0A, SEGMENTED_TO_VIRTUAL(mouthTex));
+      |                                                            ^~~~~~~~
+      |                                                            |
+      |                                                            void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:1652:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1652 |     gSPSegment(POLY_OPA_DISP++, 0x0B, &D_80116280[2]);
+      |                                       ^~~~~~~~~~~~~~
+      |                                       |
+      |                                       Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c: In function 'func_80B525D4':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:1673:60: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1673 |     gSPSegment(POLY_XLU_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(eyeTex));
+      |                                                            ^~~~~~
+      |                                                            |
+      |                                                            void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:1674:60: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1674 |     gSPSegment(POLY_XLU_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(eyeTex));
+      |                                                            ^~~~~~
+      |                                                            |
+      |                                                            void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:1675:60: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1675 |     gSPSegment(POLY_XLU_DISP++, 0x0A, SEGMENTED_TO_VIRTUAL(mouthTex));
+      |                                                            ^~~~~~~~
+      |                                                            |
+      |                                                            void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Zl2/z_en_zl2.c:1677:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1677 |     gSPSegment(POLY_XLU_DISP++, 0x0B, &D_80116280[0]);
+      |                                       ^~~~~~~~~~~~~~
+      |                                       |
+      |                                       Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~

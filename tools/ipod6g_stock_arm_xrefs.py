@@ -101,11 +101,34 @@ def main() -> int:
     branches: dict[int, list[tuple[int, str, str]]] = {
         target: [] for target in targets
     }
+    pc_relative: dict[int, list[tuple[int, str]]] = {
+        target: [] for target in targets
+    }
     for segment in segments:
         stop = min(len(body), segment.raw_offset + segment.size)
         for offset in range(segment.raw_offset, stop - 3, 4):
             address = segment.address + offset - segment.raw_offset
             word = struct.unpack_from("<I", body, offset)[0]
+
+            # ARM-state ADR is an ADD/SUB-immediate using PC as the base.
+            # Stripped RetailOS code uses it for nearby task/service names,
+            # so absolute-word and branch scans alone miss those references.
+            if (word & 0x0E000000) == 0x02000000:
+                opcode = (word >> 21) & 0xF
+                rn = (word >> 16) & 0xF
+                if rn == 15 and opcode in (0x2, 0x4):
+                    imm = word & 0xFF
+                    rotate = ((word >> 8) & 0xF) * 2
+                    if rotate:
+                        imm = ((imm >> rotate) |
+                               (imm << (32 - rotate))) & 0xFFFFFFFF
+                    base = (address + 8) & 0xFFFFFFFF
+                    referenced = ((base - imm) if opcode == 0x2 else
+                                  (base + imm)) & 0xFFFFFFFF
+                    if referenced in pc_relative:
+                        operation = "sub" if opcode == 0x2 else "add"
+                        pc_relative[referenced].append(
+                            (offset, f"{operation} ..., pc, #0x{imm:x}"))
 
             # Decode ARM-state B/BL/BLX-immediate directly.  Calling Capstone
             # once per 32-bit word made a full Classic OSOS scan take several
@@ -131,6 +154,13 @@ def main() -> int:
                 branches[target].append((offset, mnemonic, f"#0x{target:x}"))
 
     for target in sorted(targets):
+        for offset, instruction in pc_relative[target]:
+            address = raw_address(segments, offset)
+            assert address is not None
+            print(
+                f"target 0x{target:08x}: ADR at body+0x{offset:06x} "
+                f"(0x{address:08x}): {instruction}"
+            )
         for offset, mnemonic, operands in branches[target]:
             address = raw_address(segments, offset)
             assert address is not None

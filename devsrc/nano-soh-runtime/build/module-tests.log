@@ -1,0 +1,7 @@
+Module bounds and every fixture truncation/corruption passed ASan/UBSan.
+Module dependency sharing, last-reference release, budget/I/O rollback and cycles passed ASan/UBSan.
+Whole-file page adapter passed 5000 ranges, cross-page reads, cache switches and bounds under ASan/UBSan.
+Lazy actor acquire/release, live-reference protection, failure rollback and 1000 reloads passed.
+Actor registry -> checked module -> retirement -> release integration passed ASan/UBSan.
+856 ARM module/address comparisons match GNU ld, including every export and BSS.
+All fixture truncations/corruptions, capacity/import/cache failures and recovery passed.

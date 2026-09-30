@@ -1,0 +1,29 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Splash/z_eff_ss_g_splash.c: In function 'EffectSsGSplash_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Splash/z_eff_ss_g_splash.c:36:15: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   36 |     this->gfx = SEGMENTED_TO_VIRTUAL(gEffWaterSplashDL);
+      |               ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Splash/z_eff_ss_g_splash.c: In function 'EffectSsGSplash_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Splash/z_eff_ss_g_splash.c:94:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   94 |         gEffWaterSplash1Tex, gEffWaterSplash2Tex, gEffWaterSplash3Tex, gEffWaterSplash4Tex,
+      |         ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Splash/z_eff_ss_g_splash.c:94:30: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   94 |         gEffWaterSplash1Tex, gEffWaterSplash2Tex, gEffWaterSplash3Tex, gEffWaterSplash4Tex,
+      |                              ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Splash/z_eff_ss_g_splash.c:94:51: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   94 |         gEffWaterSplash1Tex, gEffWaterSplash2Tex, gEffWaterSplash3Tex, gEffWaterSplash4Tex,
+      |                                                   ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Splash/z_eff_ss_g_splash.c:94:72: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   94 |         gEffWaterSplash1Tex, gEffWaterSplash2Tex, gEffWaterSplash3Tex, gEffWaterSplash4Tex,
+      |                                                                        ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Splash/z_eff_ss_g_splash.c:95:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   95 |         gEffWaterSplash5Tex, gEffWaterSplash6Tex, gEffWaterSplash7Tex, gEffWaterSplash8Tex,
+      |         ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Splash/z_eff_ss_g_splash.c:95:30: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   95 |         gEffWaterSplash5Tex, gEffWaterSplash6Tex, gEffWaterSplash7Tex, gEffWaterSplash8Tex,
+      |                              ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Splash/z_eff_ss_g_splash.c:95:51: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   95 |         gEffWaterSplash5Tex, gEffWaterSplash6Tex, gEffWaterSplash7Tex, gEffWaterSplash8Tex,
+      |                                                   ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Splash/z_eff_ss_g_splash.c:95:72: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   95 |         gEffWaterSplash5Tex, gEffWaterSplash6Tex, gEffWaterSplash7Tex, gEffWaterSplash8Tex,
+      |                                                                        ^~~~~~~~~~~~~~~~~~~

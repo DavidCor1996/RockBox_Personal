@@ -1,0 +1,56 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c:71:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[39]' [-Wincompatible-pointer-types]
+   71 |     { &gDogWalkAnim, 1.0f, 0.0f, -1.0f, ANIMMODE_LOOP, 0.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c:71:7: note: (near initialization for 'sAnimationInfo[0].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c:72:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[39]' [-Wincompatible-pointer-types]
+   72 |     { &gDogWalkAnim, 1.0f, 0.0f, -1.0f, ANIMMODE_LOOP, -6.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c:72:7: note: (near initialization for 'sAnimationInfo[1].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c:73:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[38]' [-Wincompatible-pointer-types]
+   73 |     { &gDogRunAnim, 1.0f, 0.0f, -1.0f, ANIMMODE_LOOP, -6.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c:73:7: note: (near initialization for 'sAnimationInfo[2].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c:74:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[39]' [-Wincompatible-pointer-types]
+   74 |     { &gDogBarkAnim, 1.0f, 0.0f, -1.0f, ANIMMODE_LOOP, -6.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c:74:7: note: (near initialization for 'sAnimationInfo[3].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c:75:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[38]' [-Wincompatible-pointer-types]
+   75 |     { &gDogSitAnim, 1.0f, 0.0f, 4.0f, ANIMMODE_ONCE, -6.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c:75:7: note: (near initialization for 'sAnimationInfo[4].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c:76:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[38]' [-Wincompatible-pointer-types]
+   76 |     { &gDogSitAnim, 1.0f, 5.0f, 25.0f, ANIMMODE_LOOP_PARTIAL, -6.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c:76:7: note: (near initialization for 'sAnimationInfo[5].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c:77:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[38]' [-Wincompatible-pointer-types]
+   77 |     { &gDogBowAnim, 1.0f, 0.0f, 6.0f, ANIMMODE_ONCE, -6.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c:77:7: note: (near initialization for 'sAnimationInfo[6].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c:78:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[39]' [-Wincompatible-pointer-types]
+   78 |     { &gDogBow2Anim, 1.0f, 0.0f, -1.0f, ANIMMODE_LOOP, -6.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c:78:7: note: (near initialization for 'sAnimationInfo[7].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c: In function 'EnDog_PlayWalkSFX':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c:92:29: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[39]' [-Wincompatible-pointer-types]
+   92 |     AnimationHeader* walk = &gDogWalkAnim;
+      |                             ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c: In function 'EnDog_PlayRunSFX':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c:102:28: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[38]' [-Wincompatible-pointer-types]
+  102 |     AnimationHeader* run = &gDogRunAnim;
+      |                            ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c: In function 'EnDog_PlayBarkSFX':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c:112:29: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[39]' [-Wincompatible-pointer-types]
+  112 |     AnimationHeader* bark = &gDogBarkAnim;
+      |                             ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c: In function 'EnDog_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c:249:48: warning: passing argument 3 of 'SkelAnime_InitFlex' from incompatible pointer type [-Wincompatible-pointer-types]
+  249 |     SkelAnime_InitFlex(play, &this->skelAnime, &gDogSkel, NULL, this->jointTable, this->morphTable, 13);
+      |                                                ^~~~~~~~~
+      |                                                |
+      |                                                const char (*)[35]
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Dog/z_en_dog.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1329:83: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[35]'
+ 1329 | s32 SkelAnime_InitFlex(PlayState* play, SkelAnime* skelAnime, FlexSkeletonHeader* skeletonHeaderSeg,
+      |                                                               ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~

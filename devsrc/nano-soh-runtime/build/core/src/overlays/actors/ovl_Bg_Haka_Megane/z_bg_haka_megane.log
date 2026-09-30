@@ -1,0 +1,96 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:40:5: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[47]' [-Wincompatible-pointer-types]
+   40 |     &gBotw1Col,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:40:5: note: (near initialization for 'sCollisionHeaders[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:41:5: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[47]' [-Wincompatible-pointer-types]
+   41 |     &gBotw2Col,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:41:5: note: (near initialization for 'sCollisionHeaders[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:43:5: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[66]' [-Wincompatible-pointer-types]
+   43 |     &object_haka_objects_Col_004330,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:43:5: note: (near initialization for 'sCollisionHeaders[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:44:5: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[66]' [-Wincompatible-pointer-types]
+   44 |     &object_haka_objects_Col_0044D0,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:44:5: note: (near initialization for 'sCollisionHeaders[4]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:46:5: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[66]' [-Wincompatible-pointer-types]
+   46 |     &object_haka_objects_Col_004780,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:46:5: note: (near initialization for 'sCollisionHeaders[6]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:47:5: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[66]' [-Wincompatible-pointer-types]
+   47 |     &object_haka_objects_Col_004940,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:47:5: note: (near initialization for 'sCollisionHeaders[7]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:49:5: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[66]' [-Wincompatible-pointer-types]
+   49 |     &object_haka_objects_Col_004B00,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:49:5: note: (near initialization for 'sCollisionHeaders[9]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:51:5: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[66]' [-Wincompatible-pointer-types]
+   51 |     &object_haka_objects_Col_004CC0,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:51:5: note: (near initialization for 'sCollisionHeaders[11]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:56:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   56 |     gBotwFakeWallsAndFloorsDL,     gBotwThreeFakeFloorsDL,        gBotwHoleTrap2DL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:56:5: note: (near initialization for 'sDLists[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:56:36: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   56 |     gBotwFakeWallsAndFloorsDL,     gBotwThreeFakeFloorsDL,        gBotwHoleTrap2DL,
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:56:36: note: (near initialization for 'sDLists[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:56:67: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   56 |     gBotwFakeWallsAndFloorsDL,     gBotwThreeFakeFloorsDL,        gBotwHoleTrap2DL,
+      |                                                                   ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:56:67: note: (near initialization for 'sDLists[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:57:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   57 |     object_haka_objects_DL_0040F0, object_haka_objects_DL_0043B0, object_haka_objects_DL_001120,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:57:5: note: (near initialization for 'sDLists[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:57:36: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   57 |     object_haka_objects_DL_0040F0, object_haka_objects_DL_0043B0, object_haka_objects_DL_001120,
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:57:36: note: (near initialization for 'sDLists[4]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:57:67: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   57 |     object_haka_objects_DL_0040F0, object_haka_objects_DL_0043B0, object_haka_objects_DL_001120,
+      |                                                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:57:67: note: (near initialization for 'sDLists[5]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:58:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   58 |     object_haka_objects_DL_0045A0, object_haka_objects_DL_0047F0, object_haka_objects_DL_0018F0,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:58:5: note: (near initialization for 'sDLists[6]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:58:36: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   58 |     object_haka_objects_DL_0045A0, object_haka_objects_DL_0047F0, object_haka_objects_DL_0018F0,
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:58:36: note: (near initialization for 'sDLists[7]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:58:67: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   58 |     object_haka_objects_DL_0045A0, object_haka_objects_DL_0047F0, object_haka_objects_DL_0018F0,
+      |                                                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:58:67: note: (near initialization for 'sDLists[8]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:59:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   59 |     object_haka_objects_DL_0049B0, object_haka_objects_DL_003CF0, object_haka_objects_DL_004B70,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:59:5: note: (near initialization for 'sDLists[9]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:59:36: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   59 |     object_haka_objects_DL_0049B0, object_haka_objects_DL_003CF0, object_haka_objects_DL_004B70,
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:59:36: note: (near initialization for 'sDLists[10]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:59:67: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   59 |     object_haka_objects_DL_0049B0, object_haka_objects_DL_003CF0, object_haka_objects_DL_004B70,
+      |                                                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:59:67: note: (near initialization for 'sDLists[11]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:60:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   60 |     object_haka_objects_DL_002ED0,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:60:5: note: (near initialization for 'sDLists[12]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c: In function 'BgHakaMegane_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:140:32: warning: passing argument 2 of 'Gfx_DrawDListXlu' from incompatible pointer type [-Wincompatible-pointer-types]
+  140 |         Gfx_DrawDListXlu(play, gBotwBloodSplatterDL);
+      |                                ^~~~~~~~~~~~~~~~~~~~
+      |                                |
+      |                                const char *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Megane/z_bg_haka_megane.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:547:45: note: expected 'Gfx *' but argument is of type 'const char *'
+  547 | void Gfx_DrawDListXlu(PlayState* play, Gfx* dlist);
+      |                                        ~~~~~^~~~~

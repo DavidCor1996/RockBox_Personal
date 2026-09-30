@@ -1,0 +1,11 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_camera.c: In function 'Camera_Demo5':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_camera.c:6208:35: warning: passing argument 1 of 'Sfx_PlaySfxCentered' makes integer from pointer without a cast [-Wint-conversion]
+ 6208 |         Sfx_PlaySfxCentered(camera->data1);
+      |                             ~~~~~~^~~~~~~
+      |                                   |
+      |                                   void *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_camera.c:2:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:984:30: note: expected 'u16' {aka 'short unsigned int'} but argument is of type 'void *'
+  984 | void Sfx_PlaySfxCentered(u16 sfxId);
+      |                          ~~~~^~~~~

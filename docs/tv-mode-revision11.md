@@ -1,0 +1,7 @@
+# Persistent guide preview and Featured launch handoff
+
+The previous YUV guard was correct but its ownership lasted only one decoder frame: vo_draw_frame unconditionally calls tv_video_prepare(NULL) after the PIG draw, and that cleanup released the guide. NULL now ends only the native video frame. A non-NULL full-screen video presentation and explicit guide exit still release the guide. The renderer test now exercises 100 complete PIG/end-frame cycles for each aspect/overscan layout and the transition to full-screen playback, rather than only testing an isolated PIG draw.
+
+Featured now places one bounded title/type request in static main-thread storage and returns GO_TO_VIDEOS to the root dispatcher. Netflix consumes that request once through the existing filtered category selection. Home's list and preview frames no longer remain below Netflix's artwork decoder. The manifest thumbnail lookup is kept out of line so its two 1 KiB parsing buffers are gone before BMP decoding starts. No heap buffer, media resync, guide model or input change is introduced.
+
+The user reported a Featured panic without its text; the mounted Classic has no saved panic report. The stack reduction addresses a concrete hazard in that launch chain, but physical retesting is required to confirm the panic is resolved. Validate native stack sizes, production handoff/selection and full-frame ownership regression, actual renderer, native/simulator builds, and music-navigation stress before deploying. Leave the iPod mounted.

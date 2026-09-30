@@ -9,6 +9,7 @@
  ****************************************************************************/
 
 #include "plugin.h"
+#include "lib/ipodjs_retailos_controls.h"
 #include "lib/helper.h"
 #include "lib/pluginlib_actions.h"
 
@@ -32,12 +33,6 @@
 #define COMIC_COVER_W             68
 #define COMIC_COVER_H             88
 #define COMIC_PIN_LEN             4
-#define COMIC_PIN_PANEL_W         95
-#define COMIC_PIN_PANEL_H         82
-#define COMIC_PIN_SURFACE_W       97
-#define COMIC_PIN_SURFACE_H       32
-#define COMIC_PIN_PANEL_ALPHA_BYTES \
-    (((COMIC_PIN_PANEL_W + 1) / 2) * COMIC_PIN_PANEL_H)
 #define COMIC_APPLE_DIR           ROCKBOX_DIR "/ipodjs/apple"
 #define COMIC_FIT_W               316
 #define COMIC_FIT_H               236
@@ -131,17 +126,7 @@ struct comic_category
     int locked_count;
 };
 
-struct comic_pin_surfaces
-{
-    struct bitmap panel;
-    struct bitmap field;
-    struct bitmap selected;
-    unsigned char *panel_data;
-    unsigned char *field_data;
-    unsigned char *selected_data;
-    bool tried;
-    bool valid;
-};
+/* PIN pixels are held in the existing plugin-owned arena. */
 
 struct comic_cover
 {
@@ -208,7 +193,7 @@ struct comic_app
     struct comic_issue *reading;
     long save_deadline;
     bool state_dirty;
-    struct comic_pin_surfaces pin;
+    struct ipodjs_retailos_pin_cache pin;
     int category_font;
 };
 
@@ -254,14 +239,11 @@ static bool comic_allocate(void)
     app.arena_size = size;
     app.issues = comic_alloc(sizeof(*app.issues) * COMIC_MAX_ISSUES);
     app.pin.panel_data = comic_alloc(
-        BM_SIZE(COMIC_PIN_PANEL_W, COMIC_PIN_PANEL_H,
-                FORMAT_NATIVE, false) + COMIC_PIN_PANEL_ALPHA_BYTES);
+        IPODJS_RETAILOS_PIN_PANEL_BYTES);
     app.pin.field_data = comic_alloc(
-        BM_SIZE(COMIC_PIN_SURFACE_W, COMIC_PIN_SURFACE_H,
-                FORMAT_NATIVE, false));
+        IPODJS_RETAILOS_PIN_FIELD_BYTES);
     app.pin.selected_data = comic_alloc(
-        BM_SIZE(COMIC_PIN_SURFACE_W, COMIC_PIN_SURFACE_H,
-                FORMAT_NATIVE, false));
+        IPODJS_RETAILOS_PIN_SELECTED_BYTES);
     for (i = 0; i < 3; i++)
         app.fit_pixels[i] = comic_alloc(
             BM_SIZE(COMIC_FIT_W, COMIC_FIT_H, FORMAT_NATIVE, false));
@@ -1490,112 +1472,21 @@ static bool comic_read_pin(char pin[5])
     return true;
 }
 
-static bool comic_load_pin_bitmap(const char *path, struct bitmap *bitmap,
-                                unsigned char *data, size_t data_size,
-                                int width, int height)
-{
-    int result;
-
-    if (!rb->file_exists(path))
-        return false;
-    rb->memset(bitmap, 0, sizeof(*bitmap));
-    bitmap->width = width;
-    bitmap->height = height;
-    bitmap->format = FORMAT_NATIVE;
-    bitmap->data = data;
-    result = rb->read_bmp_file(path, bitmap, (int)data_size,
-                               FORMAT_NATIVE | FORMAT_DITHER |
-                               FORMAT_TRANSPARENT, NULL);
-    return result >= 0 && bitmap->width == width &&
-           bitmap->height == height;
-}
-
 static bool comic_load_pin_surfaces(void)
 {
-    if (app.pin.tried)
-        return app.pin.valid;
-    app.pin.tried = true;
-    app.pin.valid =
-        comic_load_pin_bitmap(
-            COMIC_APPLE_DIR "/fast-scroll-blank.apple.95x82x32.bmp",
-            &app.pin.panel, app.pin.panel_data,
-            BM_SIZE(COMIC_PIN_PANEL_W, COMIC_PIN_PANEL_H,
-                    FORMAT_NATIVE, false) + COMIC_PIN_PANEL_ALPHA_BYTES,
-            COMIC_PIN_PANEL_W, COMIC_PIN_PANEL_H) &&
-        comic_load_pin_bitmap(
-            COMIC_APPLE_DIR "/search-field.apple.97x32x24.bmp",
-            &app.pin.field, app.pin.field_data,
-            BM_SIZE(COMIC_PIN_SURFACE_W, COMIC_PIN_SURFACE_H,
-                    FORMAT_NATIVE, false),
-            COMIC_PIN_SURFACE_W, COMIC_PIN_SURFACE_H) &&
-        comic_load_pin_bitmap(
-            COMIC_APPLE_DIR "/search-selected.apple.97x32x24.bmp",
-            &app.pin.selected, app.pin.selected_data,
-            BM_SIZE(COMIC_PIN_SURFACE_W, COMIC_PIN_SURFACE_H,
-                    FORMAT_NATIVE, false),
-            COMIC_PIN_SURFACE_W, COMIC_PIN_SURFACE_H);
-    return app.pin.valid;
+    return ipodjs_retailos_prepare_pin(&app.pin);
 }
 
-static void comic_draw_tiled_pin_part(struct bitmap *bitmap,
-                                    int src_x, int src_y,
-                                    int src_w, int src_h,
-                                    int x, int y, int width, int height)
+static void comic_draw_pin_surface(
+    const struct ipodjs_retailos_image *image, int border,
+    int x, int y, int width, int height)
 {
-    int drawn_y = 0;
-
-    while (drawn_y < height)
-    {
-        int part_h = MIN(src_h, height - drawn_y);
-        int part_src_y = src_y + (src_h - part_h) / 2;
-        int drawn_x = 0;
-
-        while (drawn_x < width)
-        {
-            int part_w = MIN(src_w, width - drawn_x);
-            int part_src_x = src_x + (src_w - part_w) / 2;
-
-            rb->lcd_bmp_part(bitmap, part_src_x, part_src_y,
-                             x + drawn_x, y + drawn_y,
-                             part_w, part_h);
-            drawn_x += part_w;
-        }
-        drawn_y += part_h;
-    }
-}
-
-static void comic_draw_pin_surface(struct bitmap *bitmap, int border,
-                                 int x, int y, int width, int height)
-{
-    int center_w = width - border * 2;
-    int center_h = height - border * 2;
-
-    rb->lcd_set_drawmode(DRMODE_FG);
-    rb->lcd_bmp_part(bitmap, 0, 0, x, y, border, border);
-    rb->lcd_bmp_part(bitmap, bitmap->width - border, 0,
-                     x + width - border, y, border, border);
-    rb->lcd_bmp_part(bitmap, 0, bitmap->height - border,
-                     x, y + height - border, border, border);
-    rb->lcd_bmp_part(bitmap, bitmap->width - border,
-                     bitmap->height - border,
-                     x + width - border, y + height - border,
-                     border, border);
-    comic_draw_tiled_pin_part(bitmap, border, 0,
-        bitmap->width - border * 2, border,
-        x + border, y, center_w, border);
-    comic_draw_tiled_pin_part(bitmap, border, bitmap->height - border,
-        bitmap->width - border * 2, border,
-        x + border, y + height - border, center_w, border);
-    comic_draw_tiled_pin_part(bitmap, 0, border, border,
-        bitmap->height - border * 2,
-        x, y + border, border, center_h);
-    comic_draw_tiled_pin_part(bitmap, bitmap->width - border, border,
-        border, bitmap->height - border * 2,
-        x + width - border, y + border, border, center_h);
-    comic_draw_tiled_pin_part(bitmap, border, border,
-        bitmap->width - border * 2, bitmap->height - border * 2,
-        x + border, y + border, center_w, center_h);
-    rb->lcd_set_drawmode(DRMODE_SOLID);
+    if (image == &app.pin.panel)
+        ipodjs_retailos_draw_nine_slice(rb->screens[SCREEN_MAIN],
+            image, x, y, width, height, border);
+    else
+        ipodjs_retailos_draw_parts(rb->screens[SCREEN_MAIN],
+            image, x, y, width, height);
 }
 
 static void comic_draw_pin_prompt(const char *pin, int digit)
@@ -1631,7 +1522,7 @@ static void comic_draw_pin_prompt(const char *pin, int digit)
 
     comic_draw_pin_surface(&app.pin.panel, 16,
                          panel_x, panel_y, panel_w, panel_h);
-    comic_draw_pin_surface(&app.pin.field, 6,
+    comic_draw_pin_surface(app.pin.field, 6,
                          field_x, field_y, field_w, field_h);
     for (i = 0; i < length && i < COMIC_PIN_LEN; i++)
         masked[i] = '*';
@@ -1661,7 +1552,7 @@ static void comic_draw_pin_prompt(const char *pin, int digit)
             int selected_w = MAX(glyph_w + 6, 16);
             int selected_x = x - (selected_w - glyph_w) / 2;
 
-            comic_draw_pin_surface(&app.pin.selected, 6,
+            comic_draw_pin_surface(app.pin.selected, 6,
                                  selected_x, panel_y + 10,
                                  selected_w, text_h + 3);
             rb->lcd_set_foreground(LCD_WHITE);

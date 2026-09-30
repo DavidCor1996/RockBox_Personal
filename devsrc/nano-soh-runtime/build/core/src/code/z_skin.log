@@ -1,0 +1,23 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skin.c: In function 'Skin_ApplyLimbModifications':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skin.c:129:52: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  129 |     gSPSegment(POLY_OPA_DISP++, 0x08, vtxEntry->buf[vtxEntry->index]);
+      |                                       ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+      |                                                    |
+      |                                                    Vtx *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skin.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skin.c: In function 'Skin_DrawAnimatedLimb':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skin.c:146:14: warning: assignment to 'SkinLimb **' from incompatible pointer type 'void **' [-Wincompatible-pointer-types]
+  146 |     skeleton = SEGMENTED_TO_VIRTUAL(skin->skeletonHeader->segment);
+      |              ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skin.c: In function 'Skin_DrawLimb':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skin.c:168:14: warning: assignment to 'SkinLimb **' from incompatible pointer type 'void **' [-Wincompatible-pointer-types]
+  168 |     skeleton = SEGMENTED_TO_VIRTUAL(skin->skeletonHeader->segment);
+      |              ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skin.c: In function 'Skin_DrawImpl':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skin.c:202:14: warning: assignment to 'SkinLimb **' from incompatible pointer type 'void **' [-Wincompatible-pointer-types]
+  202 |     skeleton = SEGMENTED_TO_VIRTUAL(skin->skeletonHeader->segment);
+      |              ^

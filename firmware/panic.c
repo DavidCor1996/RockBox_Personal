@@ -97,6 +97,7 @@ void panicf( const char *fmt, ...)
     vsnprintf( panic_buf, sizeof(panic_buf), fmt, ap );
     va_end( ap );
 
+    lcd_boot_frame_hold(false);
     lcd_set_viewport(NULL);
 
     int y = 1;

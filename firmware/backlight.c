@@ -77,6 +77,10 @@ enum {
     BACKLIGHT_ON,
     BACKLIGHT_OFF,
     BACKLIGHT_TMO_CHANGED,
+#ifdef HAVE_VIDEOOUT_BACKLIGHT_OFF
+    BACKLIGHT_VIDEOOUT_ACTIVE,
+    BACKLIGHT_VIDEOOUT_OFF,
+#endif
 #ifdef HAVE_BACKLIGHT_BRIGHTNESS
     BACKLIGHT_BRIGHTNESS_CHANGED,
 #endif
@@ -495,6 +499,12 @@ static inline void do_backlight_off(void)
 #endif
 }
 
+#ifdef HAVE_VIDEOOUT_BACKLIGHT_OFF
+/* Owned exclusively by the backlight thread; no UI/playback allocation. */
+static bool backlight_videoout_active;
+static bool backlight_videoout_off = true;
+#endif
+
 /* Update state of backlight according to timeout setting */
 static void backlight_update_state(void)
 {
@@ -502,7 +512,11 @@ static void backlight_update_state(void)
     int timeout = backlight_get_current_timeout();
 
     /* Backlight == OFF in the setting? */
-    if (UNLIKELY(timeout < 0))
+    if (UNLIKELY(timeout < 0)
+#ifdef HAVE_VIDEOOUT_BACKLIGHT_OFF
+        || (backlight_videoout_active && backlight_videoout_off)
+#endif
+       )
     {
         do_backlight_off();
 #if defined(HAVE_TRANSFLECTIVE_LCD) && defined(HAVE_LCD_SLEEP)
@@ -632,6 +646,16 @@ void backlight_thread(void)
                 break;
 #endif /* HAVE_REMOTE_LCD */
 
+#ifdef HAVE_VIDEOOUT_BACKLIGHT_OFF
+            case BACKLIGHT_VIDEOOUT_ACTIVE:
+                backlight_videoout_active = ev.data != 0;
+                backlight_update_state();
+                break;
+            case BACKLIGHT_VIDEOOUT_OFF:
+                backlight_videoout_off = ev.data != 0;
+                backlight_update_state();
+                break;
+#endif
             case BACKLIGHT_TMO_CHANGED:
             case BACKLIGHT_ON:
                 backlight_update_state();
@@ -815,6 +839,18 @@ void backlight_close(void)
     thread_wait(thread);
 }
 #endif /* BACKLIGHT_DRIVER_CLOSE */
+
+#ifdef HAVE_VIDEOOUT_BACKLIGHT_OFF
+void backlight_set_videoout_active(bool active)
+{
+    queue_post(&backlight_queue, BACKLIGHT_VIDEOOUT_ACTIVE, active);
+}
+
+void backlight_set_videoout_off(bool enabled)
+{
+    queue_post(&backlight_queue, BACKLIGHT_VIDEOOUT_OFF, enabled);
+}
+#endif
 
 void backlight_on(void)
 {

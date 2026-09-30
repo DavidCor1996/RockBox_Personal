@@ -5,8 +5,11 @@
 desktop_mode.c
 openh264_player.c
 livetv.c
+#ifndef IPOD_NANO3G
 sitekick.c
+#endif
 netflix_desktop.c
+steam_desktop.c
 #else
 /* plugins common to all models */
 #if !defined(SIMULATOR) && (CONFIG_BATTERY_MEASURE != 0)
@@ -19,9 +22,17 @@ tagcache/tagcache.c
 chessclock.c
 credits.c
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320)
+#if LCD_DEPTH == 16 && LCD_WIDTH == 320 && LCD_HEIGHT == 240 && \
+    CONFIG_KEYPAD == IPOD_4G_PAD && PLUGIN_BUFFER_SIZE >= 0x200000
+8bit_rebellion.c
+#endif
+#ifndef IPOD_NANO3G
 cdogs.c
+#endif
 runepod.c
+#ifndef IPOD_NANO3G
 sitekick.c
+#endif
 /* Live TV needs mpegplayer, which is gated the same way in SUBDIRS */
 #if !defined(RB_PROFILE) && (MEMORYSIZE > 2)
 livetv.c
@@ -33,11 +44,20 @@ cue_playlist.c
 dart_scorer.c
 dict.c
 desktop_mode.c
+netflix_desktop.c
+steam_desktop.c
 youtube.c
+twitch.c
 spotify_wrapped.c
 onlyfans.c
+#ifndef IPOD_NANO3G
 instagram.c
+#endif
 reddit.c
+twitter.c
+#if defined(HAVE_LCD_COLOR) && LCD_WIDTH >= 320 && LCD_HEIGHT >= 240
+msn.c
+#endif
 ipodtiktok.c
 offlineweb.c
 file_picker.c
@@ -80,12 +100,16 @@ pocketcatch_simple.c
 photos.c
 
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
+#ifndef IPOD_NANO3G
 achievements.c
+#endif
 weather.c
 calm.c
 magazines.c
 comics.c
+#ifndef IPOD_NANO3G
 nb_maps.c
+#endif
 pokedex.c
 #endif
 
@@ -132,14 +156,18 @@ h264_poc.c
 
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
 openh264_player.c
+#ifndef IPOD_NANO3G
 wwe_backstage.c
+#endif
 #endif
 
 /* Overlays loaders */
 
 #if defined(IPOD_6G) && !defined(SIMULATOR)
+#if PLUGIN_BUFFER_SIZE >= 0x300000
 sm64.c
 zelda3.c
+#endif
 animalcrossing.c
 #endif
 
@@ -191,6 +219,14 @@ doom_play.c
 
 #if defined(IPOD_6G)
 palmos.c
+#endif
+
+#if defined(IPOD_6G) && defined(HAVE_LCD_COLOR) \
+    && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
+stickrpg.c
+#if defined(HAVE_PLUGIN_CXX) && !defined(ROCKPOD_IOS_EMBED)
+newgrounds.c
+#endif
 #endif
 
 #if defined(HAVE_PLUGIN_CXX) && defined(IPOD_6G) && !defined(ROCKPOD_IOS_EMBED)
@@ -265,7 +301,9 @@ rocklife.c
 #if LCD_DEPTH > 1                  /* non-mono bitmap targets */
 
 matrix.c
+#ifndef IPOD_NANO3G
 minishcap.c
+#endif
 speedread.c
 
 #if (LCD_WIDTH > 138)

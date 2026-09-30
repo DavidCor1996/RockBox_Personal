@@ -1,0 +1,26 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_map_exp.c: In function 'Map_InitData':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_map_exp.c:431:54: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  431 |                 play->interfaceCtx.mapSegmentName[0] = minimapTableOW[sEntranceIconMapIndex];
+      |                                                      ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_map_exp.c:466:50: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  466 |             play->interfaceCtx.mapSegmentName[0] =
+      |                                                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_map_exp.c: In function 'Minimap_DrawCompassIcons':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_map_exp.c:719:40: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  719 |         gSPDisplayList(OVERLAY_DISP++, gCompassArrowDL);
+      |                                        ^~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_map_exp.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_map_exp.c:770:40: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  770 |         gSPDisplayList(OVERLAY_DISP++, gCompassArrowDL);
+      |                                        ^~~~~~~~~~~~~~~
+      |                                        |
+      |                                        const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~

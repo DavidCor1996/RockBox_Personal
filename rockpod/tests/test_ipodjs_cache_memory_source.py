@@ -105,8 +105,8 @@ def test_ipodjs_cache_assets_and_spec_are_packaged_sources():
     root_menu = _read("apps/root_menu.c")
     spec = _read("docs/ipodjs-quick-settings-cache-memory-spec.md")
 
-    assert '"/qs/cache-memory.18x18x24.bmp"' in root_menu
-    assert (REPO_ROOT / "assets/ipodjs/rockbox/qs/cache-memory.18x18x24.bmp").is_file()
+    assert "IPODJS_QS_GLYPH_CACHE_MEMORY" in root_menu
+    assert (REPO_ROOT / "apps/gui/ipodjs_qs_icons.h").is_file()
     assert "Refresh UI Cache" in spec
     assert "Restart to Clear RAM" in spec
     assert "must never seize, shrink, clear, or release" in spec

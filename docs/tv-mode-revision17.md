@@ -1,0 +1,5 @@
+# Restore bidirectional guide scrolling
+
+Revision 16 compared each dock volume byte with Rockbox audio gain while Home or the guide was visible. The dock input forms a moving cursor. In the captured burst, the first Down byte remains higher than audio gain after several Ups, so revision 16 interpreted Down as Up. Preserve the input cursor independently of audio gain; keep the Home and guide guard against absolute volume changes and keep outgoing audio values separate. A repeated input byte after a quiet gap is a new navigation press when a dock resets its cursor to the reported gain. Repeated packets inside one tap remain deduplicated.
+
+Tests execute the captured packet sequence through Home and guide and a second dock model that resets to the outgoing level, checking six gestures produce the six expected directions with unchanged Rockbox gain. This verifies the iPod software path. It cannot establish whether the dock or television adjusts its own audio before sending the navigation packet. Hardware listening confirmation remains necessary.

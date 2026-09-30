@@ -13,6 +13,8 @@
 #undef write
 #undef lseek
 
+#include "lib/desktop_game_pointer.h"
+
 static void *rsc_pool;
 static size_t rsc_pool_size;
 static void *rsc_extra_pool;
@@ -25,6 +27,8 @@ static int rsc_context_index;
 static int rsc_logoff_prompt;
 static int rsc_hold_was_on;
 static int rsc_debug_overlay;
+static bool rsc_desktop;
+static struct desktop_game_pointer rsc_pointer = { .wheel = -1 };
 
 static const char *rsc_offline_profiles[] = {RSC_DEFAULT_NAME,
                                             "AboveChaos"};
@@ -165,7 +169,21 @@ static int rsc_select_offline_profile(mudclient *mud)
         long base;
 
         rsc_draw_offline_profile_screen(mud, selected);
-        button = rb->button_get(true);
+        button = rb->button_get_w_tmo(rsc_desktop ? MAX(1, HZ / 60) :
+                                                  TIMEOUT_BLOCK);
+        if (rsc_desktop && desktop_game_pointer_poll(&rsc_pointer) &&
+            rsc_pointer.armed && (rsc_pointer.buttons & 1) &&
+            !(rsc_pointer.previous_buttons & 1))
+        {
+            int row = rsc_pointer.y >= 138 ? 1 : 0;
+            int top = 82 + row * 56;
+            if (rsc_pointer.x >= 20 && rsc_pointer.x < LCD_WIDTH - 20 &&
+                rsc_pointer.y >= top && rsc_pointer.y < top + 44)
+            {
+                selected = row;
+                button = BUTTON_SELECT;
+            }
+        }
 
         if (button == BUTTON_NONE || (button & BUTTON_REL)) {
             continue;
@@ -801,10 +819,6 @@ void mudclient_poll_events(mudclient *mud)
     mud->key_left = 0;
     mud->key_right = 0;
 
-#ifdef HAVE_WHEEL_POSITION
-    rsc_poll_wheel_position(mud);
-#endif
-
 #ifdef HAS_BUTTON_HOLD
     if (rb->button_hold()) {
         if (!rsc_hold_was_on) {
@@ -815,6 +829,30 @@ void mudclient_poll_events(mudclient *mud)
         return;
     }
     rsc_hold_was_on = 0;
+#endif
+
+    if (rsc_desktop)
+    {
+        desktop_game_pointer_poll(&rsc_pointer);
+        mudclient_mouse_moved(mud, rsc_pointer.x, rsc_pointer.y);
+        if (rsc_pointer.armed)
+            for (int bit = 0; bit < 2; bit++)
+            {
+                int mask = 1 << bit;
+                if ((rsc_pointer.buttons ^ rsc_pointer.previous_buttons) & mask)
+                {
+                    if (rsc_pointer.buttons & mask)
+                        mudclient_mouse_pressed(mud, mud->mouse_x,
+                                                mud->mouse_y, bit == 0 ? 1 : 3);
+                    else
+                        mudclient_mouse_released(mud, mud->mouse_x,
+                                                 mud->mouse_y, bit == 0 ? 1 : 3);
+                }
+            }
+    }
+#ifdef HAVE_WHEEL_POSITION
+    else
+        rsc_poll_wheel_position(mud);
 #endif
 
     held = rb->button_status();
@@ -844,7 +882,9 @@ void mudclient_poll_events(mudclient *mud)
 
         switch (base) {
         case BUTTON_SELECT:
-            if (rsc_ui_mode == RSC_MODE_TABS) {
+            if (rsc_desktop) {
+                rsc_click_button(mud, 1);
+            } else if (rsc_ui_mode == RSC_MODE_TABS) {
                 rsc_enter_ui_panel(mud);
             } else {
                 rsc_click(mud);
@@ -873,6 +913,10 @@ void mudclient_poll_events(mudclient *mud)
 #ifdef BUTTON_PLAY
         case BUTTON_PLAY:
             if (!(button & BUTTON_REPEAT)) {
+                if (rsc_desktop) {
+                    rsc_click_button(mud, 3);
+                    break;
+                }
                 rsc_debug_overlay = !rsc_debug_overlay;
                 if (mud->options != NULL) {
                     mud->options->show_hover_tooltip = 1;
@@ -1164,7 +1208,9 @@ void rsc_surface_draw_rockbox(Surface *surface)
 
 enum plugin_status plugin_start(const void *parameter)
 {
-    (void)parameter;
+    rsc_desktop = parameter && !rb->strcmp(parameter, "-desktop");
+    rsc_pointer.x = LCD_WIDTH / 2;
+    rsc_pointer.y = LCD_HEIGHT / 2;
     rsc_boot_status("RSC starting");
 #ifdef HAVE_WHEEL_POSITION
     rb->wheel_send_events(false);

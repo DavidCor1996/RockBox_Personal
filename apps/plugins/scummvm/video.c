@@ -17,7 +17,8 @@
 
 #include "video.h"
 
-static fb_data scummvm_framebuffer[SCUMMVM_SURFACE_W * SCUMMVM_SURFACE_H];
+static fb_data scummvm_framebuffer[
+    SCUMMVM_SURFACE_W * SCUMMVM_SURFACE_MAX_H];
 
 void scummvm_video_init(struct scummvm_video *video)
 {
@@ -26,6 +27,17 @@ void scummvm_video_init(struct scummvm_video *video)
     video->height = SCUMMVM_SURFACE_H;
     video->screen_x = (LCD_WIDTH - SCUMMVM_SURFACE_W) / 2;
     video->screen_y = (LCD_HEIGHT - SCUMMVM_SURFACE_H) / 2;
+    scummvm_video_clear(video, LCD_RGBPACK(0, 0, 0));
+}
+
+void scummvm_video_set_height(struct scummvm_video *video, int height)
+{
+    if (height < 1)
+        height = 1;
+    else if (height > SCUMMVM_SURFACE_MAX_H)
+        height = SCUMMVM_SURFACE_MAX_H;
+    video->height = height;
+    video->screen_y = (LCD_HEIGHT - height) / 2;
     scummvm_video_clear(video, LCD_RGBPACK(0, 0, 0));
 }
 

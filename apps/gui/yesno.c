@@ -19,6 +19,7 @@
  *
  ****************************************************************************/
 #include "config.h"
+#include "tv_ui.h"
 #include "yesno.h"
 #include "system.h"
 #include "kernel.h"
@@ -32,6 +33,10 @@
 #include "splash.h"
 #include "backlight.h"
 #include "statusbar-skinned.h"
+#ifdef HAVE_IPODJS_UI
+#include "ipodjs_ui.h"
+#include "ipodjs_settings.h"
+#endif
 
 struct gui_yesno
 {
@@ -42,6 +47,10 @@ struct gui_yesno
     /* timeout data */
     long end_tick;
     enum yesno_res tmo_default_res;
+#ifdef HAVE_IPODJS_UI
+    bool retail_confirmation;
+    int selected_button;
+#endif
 };
 
 static void talk_text_message(const struct text_message * message, bool enqueue)
@@ -83,7 +92,27 @@ static void gui_yesno_draw(struct gui_yesno * yn)
     enum yesno_res def_res = yn->tmo_default_res;
     const struct text_message *main_message = yn->main_message;
     int line_shift = 0;
+#ifdef HAVE_IPODJS_UI
+    struct viewport *saved = display->set_viewport(NULL);
+    int seconds = def_res == YESNO_TMO ? -1 :
+        MAX(0, (yn->end_tick - current_tick) / HZ);
+    yn->retail_confirmation = ipodjs_settings_draw_confirmation(display,
+            main_message->message_lines, main_message->nb_lines,
+            str(LANG_SET_BOOL_YES), str(LANG_SET_BOOL_NO),
+            yn->selected_button, seconds);
+    if (yn->retail_confirmation)
+    {
+        display->update();
+        display->set_viewport(saved);
+        return;
+    }
+    display->set_viewport(saved);
+#endif
     viewport_set_defaults(vp, display->screen_type);
+#ifdef HAVE_IPODJS_UI
+    if (ipodjs_settings_dialog_available(display))
+        vp->font = ipodjs_ui_retailos_detail_font();
+#endif
     viewport_set_centered_preset(vp, VIEWPORT_OVERLAY_PRESET_MEDIUM);
     yn->vp_lines = viewport_get_nb_lines(vp);
     int vp_lines = yn->vp_lines;
@@ -185,7 +214,22 @@ static void gui_yesno_draw_result(struct gui_yesno * yn, const struct text_messa
 {
     struct viewport *vp = &yn->vp;
     struct screen * display=yn->display;
+#ifdef HAVE_IPODJS_UI
+    struct viewport *saved = display->set_viewport(NULL);
+    if (ipodjs_settings_draw_message(display, message->message_lines,
+                                    message->nb_lines))
+    {
+        display->update();
+        display->set_viewport(saved);
+        return;
+    }
+    display->set_viewport(saved);
+#endif
     viewport_set_defaults(vp, display->screen_type);
+#ifdef HAVE_IPODJS_UI
+    if (ipodjs_settings_dialog_available(display))
+        vp->font = ipodjs_ui_retailos_detail_font();
+#endif
     viewport_set_centered_preset(vp, VIEWPORT_OVERLAY_PRESET_MEDIUM);
     yn->vp_lines = viewport_get_nb_lines(vp);
     struct viewport *last_vp = display->set_viewport_ex(vp, VP_FLAG_VP_SET_CLEAN);
@@ -248,6 +292,12 @@ enum yesno_res gui_syncyesno_run_w_tmo(int ticks, enum yesno_res tmo_default_res
         yn[i].tmo_default_res = tmo_default_res;
         yn[i].main_message=main_message;
         yn[i].display=&screens[i];
+#ifdef HAVE_IPODJS_UI
+        yn[i].retail_confirmation = false;
+        /* A blocking confirmation starts on the non-destructive choice.
+         * Timed prompts retain their caller-supplied default. */
+        yn[i].selected_button = tmo_default_res == YESNO_YES ? 0 : 1;
+#endif
         screens[i].scroll_stop();
         sb_set_persistent_title(title, Icon_NOICON, i);
         viewportmanager_overlay_begin(i, &(yn[i].vp));
@@ -275,6 +325,14 @@ enum yesno_res gui_syncyesno_run_w_tmo(int ticks, enum yesno_res tmo_default_res
 
         FOR_NB_SCREENS(i)
             gui_yesno_draw(&yn[i]);
+        const char *tv_footer = "Select: Yes   Menu: No";
+#ifdef HAVE_IPODJS_UI
+        if (yn[SCREEN_MAIN].retail_confirmation)
+            tv_footer = yn[SCREEN_MAIN].selected_button ?
+                "Yes   [No]   Select: OK" : "[Yes]   No   Select: OK";
+#endif
+        tv_dialog_draw(title, main_message->message_lines,
+                        main_message->nb_lines, tv_footer);
 
         /* Repeat the question every 5secs (more or less) */
         if (talk_menu && TIME_AFTER(current_tick, talked_tick))
@@ -284,6 +342,31 @@ enum yesno_res gui_syncyesno_run_w_tmo(int ticks, enum yesno_res tmo_default_res
         }
         backlight_on = is_backlight_on(false);
         action = get_action(CONTEXT_YESNOSCREEN, HZ / 2); /* for statubar and tmo */
+#ifdef IPOD_ACCESSORY_PROTOCOL
+        int remote_button;
+        get_action_statuscode(&remote_button);
+        if (global_settings.remote_wake && (remote_button & BUTTON_REMOTE))
+            backlight_on = true;
+#endif
+#ifdef HAVE_IPODJS_UI
+        if (yn[SCREEN_MAIN].retail_confirmation &&
+            (action == ACTION_STD_PREV || action == ACTION_STD_PREVREPEAT ||
+             action == ACTION_STD_NEXT || action == ACTION_STD_NEXTREPEAT))
+        {
+            int selected = (action == ACTION_STD_NEXT ||
+                            action == ACTION_STD_NEXTREPEAT) ? 1 : 0;
+            if (backlight_on)
+            {
+                FOR_NB_SCREENS(i)
+                    yn[i].selected_button = selected;
+                if (talk_menu)
+                    talk_id(selected ? LANG_SET_BOOL_NO : LANG_SET_BOOL_YES,
+                            false);
+            }
+            /* Let the normal idle timeout handling run even while scrolling. */
+            action = ACTION_NONE;
+        }
+#endif
         switch (action)
         {
 #ifdef HAVE_TOUCHSCREEN
@@ -304,6 +387,12 @@ enum yesno_res gui_syncyesno_run_w_tmo(int ticks, enum yesno_res tmo_default_res
             } break;
 #endif
             case ACTION_YESNO_ACCEPT:
+#ifdef HAVE_IPODJS_UI
+                if (yn[SCREEN_MAIN].retail_confirmation)
+                    result = yn[SCREEN_MAIN].selected_button ?
+                        YESNO_NO : YESNO_YES;
+                else
+#endif
                 result = YESNO_YES;
                 break;
             case ACTION_NONE:

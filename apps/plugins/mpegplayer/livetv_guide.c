@@ -381,6 +381,7 @@ static bool livetv_load_guide(void)
             continue;
 
         slot = &livetv_slots[livetv_slot_num];
+        rb->memset(slot, 0, sizeof(*slot));
         slot->chan = chan_index;
         slot->day = day;
         slot->start = (uint32_t)rb->atoi(fields[2]);
@@ -407,7 +408,7 @@ static bool livetv_load_guide(void)
             slot->block_dur = slot->dur;
         }
 
-        if (slot->dur == 0)
+        if (slot->dur == 0 || slot->path_off == 0)
             continue;
 
         livetv_slot_num++;
@@ -562,6 +563,7 @@ void livetv_set_current_channel(int index)
 
 bool livetv_step_channel(int delta)
 {
+    char path[MAX_PATH];
     int probe;
     int step;
     int tried;
@@ -587,10 +589,8 @@ bool livetv_step_channel(int delta)
         if (livetv_channels[probe].parental_locked &&
             !livetv_parental_unlocked)
             continue;
-        if (livetv_slot_at(probe, 0, NULL) == NULL)
+        if (!livetv_tune(probe, path, sizeof(path), NULL))
             continue;
-
-        livetv_channel_cur = probe;
         return true;
     }
 
@@ -670,11 +670,8 @@ bool livetv_slot_path(const struct livetv_slot *slot, char *buf, size_t size)
         return false;
 
     if (rel[0] == '/')
-        rb->strlcpy(buf, rel, size);
-    else
-        rb->snprintf(buf, size, "%s/%s", livetv_root, rel);
-
-    return true;
+        return rb->strlcpy(buf, rel, size) < size;
+    return rb->snprintf(buf, size, "%s/%s", livetv_root, rel) < (int)size;
 }
 
 /* Clock --------------------------------------------------------------- */
@@ -790,14 +787,25 @@ bool livetv_tune(int chan, char *videofile, size_t size, uint32_t *resume)
 {
     const struct livetv_slot *slot;
     uint32_t offset = 0;
+    int fd;
+    off_t filesize;
 
-    if (!livetv_ready)
+    if (!livetv_ready || chan < 0 || chan >= livetv_channel_num ||
+        (livetv_channels[chan].parental_locked && !livetv_parental_unlocked))
         return false;
 
     slot = livetv_slot_at(chan, 0, &offset);
     if (slot == NULL)
         return false;
     if (!livetv_slot_path(slot, videofile, size))
+        return false;
+
+    fd = rb->open(videofile, O_RDONLY);
+    if (fd < 0)
+        return false;
+    filesize = rb->filesize(fd);
+    rb->close(fd);
+    if (filesize <= 0 || (uint64_t)filesize > 0x7fffffffUL)
         return false;
 
     livetv_channel_cur = chan;
@@ -832,10 +840,36 @@ static bool livetv_pig_active(void)
     return mpegplayer_livetv_pig;
 }
 
+static bool livetv_tv_drawing, livetv_tv_restore_lcd;
+static void livetv_tv(enum tv_guide_command command, int x, int y,
+                       int w, int h, unsigned color, const void *data)
+{
+#ifdef HAVE_COMPOSITE_VIDEO_OUT
+    if (livetv_tv_drawing || command==TV_GUIDE_RELEASE)
+    {
+        bool owned=rb->tv_guide_render(command,x,y,w,h,color,data);
+        if (command==TV_GUIDE_RELEASE && owned) livetv_tv_restore_lcd=true;
+    }
+#else
+    (void)command; (void)x; (void)y; (void)w; (void)h; (void)color; (void)data;
+#endif
+}
+
+static void livetv_commit_rect(int x, int y, int w, int h)
+{
+    if (livetv_tv_restore_lcd)
+    {
+        livetv_tv_restore_lcd=false;
+        rb->lcd_update();
+    }
+    else rb->lcd_update_rect(x,y,w,h);
+}
+
 /* Fill a rectangle, splitting it around the picture in guide window so the
  * decoded video is never painted over. */
 static void livetv_fill(int x, int y, int w, int h, unsigned color)
 {
+    livetv_tv(TV_GUIDE_FILL,x,y,w,h,color,NULL);
     int x2 = x + w;
     int y2 = y + h;
     int px = LIVETV_PIG_BOX_X;
@@ -888,16 +922,16 @@ static void livetv_update(int x, int y, int w, int h)
 
     if (!livetv_pig_active() || y2 <= py || y >= py2)
     {
-        rb->lcd_update_rect(origin_x + x, origin_y + y, w, h);
+        livetv_commit_rect(origin_x + x, origin_y + y, w, h);
         return;
     }
 
     if (y < py)
-        rb->lcd_update_rect(origin_x + x, origin_y + y, w, py - y);
+        livetv_commit_rect(origin_x + x, origin_y + y, w, py - y);
     if (y2 > py2)
-        rb->lcd_update_rect(origin_x + x, origin_y + py2, w, y2 - py2);
+        livetv_commit_rect(origin_x + x, origin_y + py2, w, y2 - py2);
     if (x < LIVETV_PIG_BOX_X)
-        rb->lcd_update_rect(
+        livetv_commit_rect(
             origin_x + x, origin_y + MAX(y, py),
             MIN(x + w, LIVETV_PIG_BOX_X) - x,
             MIN(y2, py2) - MAX(y, py));
@@ -919,9 +953,13 @@ static void livetv_gradient(int y, int h, unsigned top, unsigned bottom)
     }
 }
 
+static int livetv_font_height(void);
+
 static void livetv_text_at(int x, int y, unsigned fg, unsigned bg,
                            const char *text)
 {
+    livetv_tv(TV_GUIDE_TEXT,x,y,MAX(0,LIVETV_GUIDE_W-x),
+              livetv_font_height(),fg,text);
     rb->lcd_set_foreground(fg);
     rb->lcd_set_background(bg);
     rb->lcd_putsxy(x, y, text);
@@ -932,8 +970,11 @@ static void livetv_text_fit(int x, int y, int max_width, unsigned fg,
 {
     char buf[96];
 
+    livetv_tv(TV_GUIDE_TEXT,x,y,max_width,livetv_font_height(),fg,text);
     livetv_fit(buf, sizeof(buf), text, max_width);
-    livetv_text_at(x, y, fg, bg, buf);
+    rb->lcd_set_foreground(fg);
+    rb->lcd_set_background(bg);
+    rb->lcd_putsxy(x,y,buf);
 }
 
 static int livetv_font_height(void)
@@ -1281,6 +1322,8 @@ static void livetv_draw_banner_area(void)
     brand = livetv_brand_logo();
     if (brand != NULL)
     {
+        livetv_tv(TV_GUIDE_BITMAP,4,(LIVETV_BANNER_H-brand->height)/2,
+                  brand->width,brand->height,0,brand);
         rb->lcd_bitmap((const fb_data *)brand->data, 4,
                        (LIVETV_BANNER_H - brand->height) / 2,
                        brand->width, brand->height);
@@ -1368,6 +1411,10 @@ static void livetv_draw_banner_area(void)
         if (desc[0] == '\0')
             desc = livetv_channel(chan)->name;
 
+        livetv_tv(TV_GUIDE_PARAGRAPH,4,LIVETV_DESC_Y+4,
+                  desc_right-8,LIVETV_DESC_H-4,LIVETV_TEXT,desc);
+        bool drawing=livetv_tv_drawing;
+        livetv_tv_drawing=false;
         {
             /* Wrap the synopsis over the block, exactly as the receiver
              * prints it under the programme title. */
@@ -1397,13 +1444,14 @@ static void livetv_draw_banner_area(void)
                     used++;
                 }
 
-                livetv_text_at(4, y, LIVETV_TEXT, LIVETV_DESC_BG, line);
+                livetv_text_fit(4, y, desc_right-8, LIVETV_TEXT, LIVETV_DESC_BG, line);
                 y += line_h;
                 p += used;
                 while (*p == ' ')
                     p++;
             }
         }
+        livetv_tv_drawing=drawing;
     }
     else
     {
@@ -1493,6 +1541,8 @@ static void livetv_draw_grid_row(int row, bool selected_row)
     logo = livetv_channel_logo(chan);
     if (logo != NULL && logo->height <= LIVETV_ROW_H - 2)
     {
+        livetv_tv(TV_GUIDE_BITMAP,2,y+(LIVETV_ROW_H-logo->height)/2,
+                  MIN(logo->width,LIVETV_CHANCOL_W-4),logo->height,0,logo);
         rb->lcd_bitmap((const fb_data *)logo->data, 2,
                        y + (LIVETV_ROW_H - logo->height) / 2,
                        MIN(logo->width, LIVETV_CHANCOL_W - 4), logo->height);
@@ -1612,14 +1662,17 @@ static void livetv_draw_hint_bar(void)
                     livetv_guide_filter_name());
 
     rb->lcd_set_foreground(LIVETV_DOT_RED);
+    livetv_tv(TV_GUIDE_FILL,112,dot_y,6,6,LIVETV_DOT_RED,NULL);
     rb->lcd_fillrect(112, dot_y, 6, 6);
     livetv_text_at(121, y, LIVETV_TEXT, LIVETV_HINT_BG, "-12h");
 
     rb->lcd_set_foreground(LIVETV_DOT_GREEN);
+    livetv_tv(TV_GUIDE_FILL,158,dot_y,6,6,LIVETV_DOT_GREEN,NULL);
     rb->lcd_fillrect(158, dot_y, 6, 6);
     livetv_text_at(167, y, LIVETV_TEXT, LIVETV_HINT_BG, "+12h");
 
     rb->lcd_set_foreground(LIVETV_DOT_YELLOW);
+    livetv_tv(TV_GUIDE_FILL,206,dot_y,6,6,LIVETV_DOT_YELLOW,NULL);
     rb->lcd_fillrect(206, dot_y, 6, 6);
     livetv_text_fit(215, y, LIVETV_GUIDE_W - 219, LIVETV_TEXT,
                     LIVETV_HINT_BG,
@@ -1628,6 +1681,11 @@ static void livetv_draw_hint_bar(void)
 
 void livetv_guide_draw(void)
 {
+    livetv_tv_restore_lcd=false;
+#ifdef HAVE_COMPOSITE_VIDEO_OUT
+    livetv_tv_drawing = !mpegplayer_livetv_desktop &&
+        rb->tv_guide_render(TV_GUIDE_BEGIN,0,0,0,0,livetv_pig_active(),NULL);
+#endif
     rb->lcd_set_drawmode(DRMODE_SOLID);
     rb->lcd_setfont(FONT_UI);
 
@@ -1637,6 +1695,8 @@ void livetv_guide_draw(void)
         livetv_draw_grid_row(row, guide.row_top + row == guide.row_sel);
     livetv_draw_hint_bar();
 
+    livetv_tv(TV_GUIDE_PRESENT,0,0,0,0,0,NULL);
+    livetv_tv_drawing=false;
     livetv_update(0, 0, LIVETV_GUIDE_W, LIVETV_GUIDE_H);
     guide.full_redraw = false;
     guide.prev_row_sel = guide.row_sel;
@@ -1669,6 +1729,7 @@ const char *livetv_options_label(int index)
 
 void livetv_options_draw(int selected)
 {
+    livetv_tv(TV_GUIDE_RELEASE,0,0,0,0,0,NULL);
     int text_h = livetv_font_height();
     int row_h = text_h + 6;
     int w = 190;
@@ -1708,7 +1769,7 @@ void livetv_options_draw(int selected)
 
     rb->lcd_set_foreground(LCD_WHITE);
     rb->lcd_drawrect(x, y, w, h);
-    rb->lcd_update_rect(x, y, w, h);
+    livetv_commit_rect(x, y, w, h);
 }
 
 bool livetv_options_activate(int index)
@@ -1741,6 +1802,7 @@ bool livetv_options_activate(int index)
 
 void livetv_draw_info_banner(int chan)
 {
+    livetv_tv(TV_GUIDE_RELEASE,0,0,0,0,0,NULL);
     const struct livetv_slot *slot;
     const struct livetv_channel *ch = livetv_channel(chan);
     uint32_t offset = 0;
@@ -1790,11 +1852,12 @@ void livetv_draw_info_banner(int chan)
                         LIVETV_DESC_BG, buf);
     }
 
-    rb->lcd_update_rect(0, y, LCD_WIDTH, LIVETV_INFO_H);
+    livetv_commit_rect(0, y, LCD_WIDTH, LIVETV_INFO_H);
 }
 
 void livetv_draw_mini_guide(int chan)
 {
+    livetv_tv(TV_GUIDE_RELEASE,0,0,0,0,0,NULL);
     const struct livetv_slot *now_slot;
     const struct livetv_slot *next_slot;
     const struct livetv_channel *ch = livetv_channel(chan);
@@ -1844,7 +1907,7 @@ void livetv_draw_mini_guide(int chan)
                     LIVETV_ROW_BG,
                     next_slot != NULL ? livetv_slot_display_title(next_slot) : "--");
 
-    rb->lcd_update_rect(0, y, LCD_WIDTH, LIVETV_MINI_H);
+    livetv_commit_rect(0, y, LCD_WIDTH, LIVETV_MINI_H);
 }
 
 bool livetv_desktop_prepare(void)
@@ -1866,6 +1929,7 @@ bool livetv_desktop_prepare(void)
 
 void livetv_desktop_draw_window(void)
 {
+    livetv_tv(TV_GUIDE_RELEASE,0,0,0,0,0,NULL);
     const struct livetv_channel *ch =
         livetv_channel(livetv_current_channel());
 #if LCD_WIDTH < 1920
@@ -1973,19 +2037,19 @@ void livetv_desktop_draw_window(void)
     }
 #endif
 
-    rb->lcd_update_rect(LIVETV_DM_WIN_X, LIVETV_DM_WIN_Y,
+    livetv_commit_rect(LIVETV_DM_WIN_X, LIVETV_DM_WIN_Y,
                         LIVETV_DM_WIN_W, LIVETV_DM_TITLE_H);
     if (LIVETV_DM_VIDEO_BOX_Y > body_y)
-        rb->lcd_update_rect(LIVETV_DM_WIN_X, body_y, LIVETV_DM_WIN_W,
+        livetv_commit_rect(LIVETV_DM_WIN_X, body_y, LIVETV_DM_WIN_W,
                             LIVETV_DM_VIDEO_BOX_Y - body_y);
-    rb->lcd_update_rect(LIVETV_DM_WIN_X, LIVETV_DM_VIDEO_BOX_Y,
+    livetv_commit_rect(LIVETV_DM_WIN_X, LIVETV_DM_VIDEO_BOX_Y,
                         LIVETV_DM_VIDEO_BOX_X - LIVETV_DM_WIN_X,
                         LIVETV_DM_VIDEO_BOX_H);
-    rb->lcd_update_rect(video_right, LIVETV_DM_VIDEO_BOX_Y,
+    livetv_commit_rect(video_right, LIVETV_DM_VIDEO_BOX_Y,
                         LIVETV_DM_WIN_X + LIVETV_DM_WIN_W - video_right,
                         LIVETV_DM_VIDEO_BOX_H);
     if (video_bottom < body_bottom)
-        rb->lcd_update_rect(LIVETV_DM_WIN_X, video_bottom,
+        livetv_commit_rect(LIVETV_DM_WIN_X, video_bottom,
                             LIVETV_DM_WIN_W, body_bottom - video_bottom);
 
     rb->lcd_set_foreground(oldfg);
@@ -2000,7 +2064,7 @@ void livetv_clear_overlay(void)
     rb->lcd_set_foreground(LCD_BLACK);
     rb->lcd_fillrect(0, LCD_HEIGHT - LIVETV_INFO_H, LCD_WIDTH,
                      LIVETV_INFO_H);
-    rb->lcd_update_rect(0, LCD_HEIGHT - LIVETV_INFO_H, LCD_WIDTH,
+    livetv_commit_rect(0, LCD_HEIGHT - LIVETV_INFO_H, LCD_WIDTH,
                         LIVETV_INFO_H);
 }
 
@@ -2039,8 +2103,9 @@ void livetv_clear_overlay(void)
 /* mpegplayer reads raw plugin buttons, so the normal action/keymap layer does
  * not translate 30-pin iAP remote events for this modal guide.  Normalize the
  * standard remote buttons here and retain the clickwheel mapping above.  A
- * remote Play press selects immediately (matching Rockbox's standard iPod
- * remote keymap); its later release is consumed so it cannot tune twice. */
+ * remote Select/Play completes on release, like the local center button.
+ * Consuming the whole gesture here prevents its trailing release from being
+ * interpreted as a fresh Open Guide command after fullscreen takes over. */
 static int livetv_remote_button(int button)
 {
 #ifdef BUTTON_RC_PLAY
@@ -2051,24 +2116,38 @@ static int livetv_remote_button(int button)
     switch (base)
     {
     case BUTTON_RC_UP:
+#ifdef BUTTON_RC_VOL_UP
+    case BUTTON_RC_VOL_UP:
+#endif
         if (release)
             return BUTTON_NONE;
         return LIVETV_BTN_UP | (repeat ? BUTTON_REPEAT : 0);
     case BUTTON_RC_DOWN:
+#ifdef BUTTON_RC_VOL_DOWN
+    case BUTTON_RC_VOL_DOWN:
+#endif
         if (release)
             return BUTTON_NONE;
         return LIVETV_BTN_DOWN | (repeat ? BUTTON_REPEAT : 0);
     case BUTTON_RC_LEFT:
-        if (release)
-            return BUTTON_NONE;
-        return LIVETV_BTN_LEFT;
+    {
+        static bool held;
+        if (!repeat && !release) { held = false; return BUTTON_NONE; }
+        if (repeat)
+        {
+            if (held) return BUTTON_NONE;
+            held = true;
+            return LIVETV_BTN_EXIT;
+        }
+        return held ? BUTTON_NONE : LIVETV_BTN_LEFT;
+    }
     case BUTTON_RC_RIGHT:
         if (release)
             return BUTTON_NONE;
         return LIVETV_BTN_RIGHT;
     case BUTTON_RC_PLAY:
     case BUTTON_RC_SELECT:
-        return (repeat || release) ? BUTTON_NONE : LIVETV_BTN_SELECT;
+        return (release && !repeat) ? LIVETV_BTN_SELECT : BUTTON_NONE;
     case BUTTON_RC_MENU:
     case BUTTON_RC_STOP:
 #ifdef LIVETV_BTN_EXIT_REL
@@ -2087,6 +2166,7 @@ static int livetv_remote_button(int button)
 
 static void livetv_parental_draw_pin(const char *pin, int digit)
 {
+    livetv_tv(TV_GUIDE_RELEASE,0,0,0,0,0,NULL);
     char masked[5];
     char glyph[2];
     int length = rb->strlen(pin);
@@ -2341,6 +2421,7 @@ static long livetv_reminder_start_delta(const struct livetv_slot *slot,
 static void livetv_reminder_draw(const struct livetv_slot *slot, int chan,
                                  int selected)
 {
+    livetv_tv(TV_GUIDE_RELEASE,0,0,0,0,0,NULL);
     static const char * const labels[] = {
         "Set Reminder", "Cancel Reminder", "Back to Guide"
     };
@@ -2495,7 +2576,8 @@ int livetv_guide_run(void)
 
     while (!done)
     {
-        int button = livetv_remote_button(mpeg_button_get(HZ / 4));
+        int raw_button = mpeg_button_get(HZ / 4);
+        int button = livetv_remote_button(raw_button);
 
         if (mpeg_sysevent() != 0)
             return LIVETV_GUIDE_EXIT;
@@ -2557,6 +2639,7 @@ int livetv_guide_run(void)
 
         case LIVETV_BTN_SELECT:
         {
+            char path[MAX_PATH];
             if (unlock_pending)
             {
                 unlock_pending = false;
@@ -2580,7 +2663,12 @@ int livetv_guide_run(void)
 
             result = (chan == livetv_channel_cur) ? LIVETV_GUIDE_WATCH
                                                   : LIVETV_GUIDE_TUNE;
-            livetv_channel_cur = chan;
+            if (!livetv_tune(chan, path, sizeof(path), NULL))
+            {
+                rb->splash(HZ, "No playable programming");
+                livetv_guide_draw();
+                break;
+            }
             livetv_save_state();
             done = true;
             break;
@@ -2588,6 +2676,16 @@ int livetv_guide_run(void)
 
 #ifdef LIVETV_BTN_UNLOCK
         case LIVETV_BTN_EXIT:
+#ifdef BUTTON_RC_LEFT
+            /* Held remote Left is a complete Back gesture. Its release is
+             * consumed by the adapter, so it cannot use Menu's release gate. */
+            if (raw_button == (BUTTON_RC_LEFT | BUTTON_REPEAT))
+            {
+                result = LIVETV_GUIDE_EXIT;
+                done = true;
+                break;
+            }
+#endif
             menu_pending = true;
             break;
 
@@ -3527,6 +3625,7 @@ void livetv_weather_tick(uint32_t stream_seconds)
 
 void livetv_weather_draw(void)
 {
+    livetv_tv(TV_GUIDE_RELEASE,0,0,0,0,0,NULL);
     if (!wx.loaded)
     {
         livetv_wx_draw_empty();
@@ -3555,6 +3654,7 @@ void livetv_weather_draw(void)
 
 void livetv_weather_draw_commercial_overlay(void)
 {
+    livetv_tv(TV_GUIDE_RELEASE,0,0,0,0,0,NULL);
     const struct livetv_wx_hour *hour;
     struct livetv_wx_day *today;
     int text_h = livetv_font_height();

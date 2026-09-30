@@ -1,0 +1,32 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_fbdemo_circle.c: In function 'TransitionCircle_Start':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_fbdemo_circle.c:52:27: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   52 |             this->texture = sTransCircleWaveTex;
+      |                           ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_fbdemo_circle.c:55:27: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   55 |             this->texture = sTransCircleRippleTex;
+      |                           ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_fbdemo_circle.c:58:27: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   58 |             this->texture = sTransCircleStarburstTex;
+      |                           ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_fbdemo_circle.c:61:27: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   61 |             this->texture = sTransCircleNormalTex;
+      |                           ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_fbdemo_circle.c: In function 'TransitionCircle_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_fbdemo_circle.c:159:26: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  159 |     gSPSegment(gfx++, 9, texScroll);
+      |                          ^~~~~~~~~
+      |                          |
+      |                          Gfx *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_fbdemo_circle.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_fbdemo_circle.c:160:30: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  160 |     gSPSegment(gfx++, 8, this->texture);
+      |                          ~~~~^~~~~~~~~
+      |                              |
+      |                              void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~

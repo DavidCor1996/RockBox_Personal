@@ -16,6 +16,25 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from services.video_rvp import VideoRvpTranscoder
+
+
+def mark_tracks_for_device(videos, missing_ids=(), device_tracks=(), verified=False):
+    """Replace library-wide sync flags with facts for the selected iPod."""
+    missing = {int(value) for value in missing_ids}
+    paths = {
+        int(dict(row)["local_track_id"]): str(dict(row).get("device_path") or "")
+        for row in device_tracks if dict(row).get("local_track_id")
+    }
+    for video in videos:
+        video_id = int(video.get("id") or 0)
+        on_device = bool(verified and video_id and video_id not in missing)
+        video["synced_to_device"] = on_device
+        video["device_path"] = paths.get(video_id, "") if on_device else ""
+        video["device_device_path"] = video["device_path"]
+        video["device_status_unknown"] = not verified
+    return videos
+
 
 class VideoSyncPanel(QWidget):
     """Compact iTunes-style video sync picker."""
@@ -75,8 +94,14 @@ class VideoSyncPanel(QWidget):
         self._hide_btn = QPushButton("Hide Selected")
         self._lock_btn = QPushButton("Lock & Hide on iPod")
         self._preview_btn = QPushButton("Preview Sync")
+        self._sync_h264_btn = QPushButton("Sync as H.264")
         self._sync_rvp_btn = QPushButton("Sync as RVP")
         self._sync_mpeg_btn = QPushButton("Sync as MPEG")
+        self._sync_h264_btn.setToolTip(
+            "The measured iTunes 9.2.1 / QuickTime 7.6.6 iPod recipe: "
+            "source aspect ratio up to 640×480, two-slice Constrained "
+            "Baseline H.264, and 44.1 kHz AAC-LC."
+        )
         self._sync_rvp_btn.setToolTip(
             "Sync selected new videos as native 320×240 RVP. "
             "RVP is very large but uses the RVP player."
@@ -96,6 +121,7 @@ class VideoSyncPanel(QWidget):
         action_layout.addStretch(1)
         for button in (
             self._preview_btn,
+            self._sync_h264_btn,
             self._sync_rvp_btn,
             self._sync_mpeg_btn,
         ):
@@ -127,6 +153,11 @@ class VideoSyncPanel(QWidget):
         self._preview_btn.clicked.connect(
             lambda: self.preview_requested.emit(self.syncable_track_ids())
         )
+        self._sync_h264_btn.clicked.connect(
+            lambda: self.sync_requested.emit(
+                self.syncable_track_ids(), "h264_apple_exact"
+            )
+        )
         self._sync_rvp_btn.clicked.connect(
             lambda: self.sync_requested.emit(self.syncable_track_ids(), "native_raw")
         )
@@ -147,7 +178,8 @@ class VideoSyncPanel(QWidget):
             kind = str(video.get("video_sync_label") or video.get("video_kind") or "video").replace("_", " ").title()
             device_path = str(video.get("device_path") or video.get("device_device_path") or "")
             on_ipod = bool(video.get("synced_to_device") or device_path)
-            status = "On iPod" if on_ipod else "Not on iPod"
+            status = ("Checking iPod" if video.get("device_status_unknown")
+                      else "On iPod" if on_ipod else "Not on iPod")
             if video.get("video_hidden"):
                 status += " · Hidden"
             if video.get("video_locked"):
@@ -190,6 +222,7 @@ class VideoSyncPanel(QWidget):
             int(video.get("id") or 0)
             for video in self.selected_videos()
             if int(video.get("id") or 0)
+            and not video.get("device_status_unknown")
             and not (video.get("synced_to_device") or video.get("device_path"))
         }
 
@@ -205,7 +238,8 @@ class VideoSyncPanel(QWidget):
                     video.get("synced_to_device")
                     or video.get("device_path")
                     or video.get("device_device_path")
-                    or item.text(2) == "Not on iPod"
+                    or (item.text(2) == "Not on iPod"
+                        and not video.get("device_status_unknown"))
                 )
                 else Qt.Unchecked,
             )
@@ -241,13 +275,18 @@ class VideoSyncPanel(QWidget):
         )
         selected = len(self.selected_track_ids())
         syncable = len(self.syncable_track_ids())
-        missing = total - on_ipod
+        unknown = sum(bool(video.get("device_status_unknown")) for video in self._videos)
+        missing = total - on_ipod - unknown
         self._subhead.setText(
             f"{total} video{'s' if total != 1 else ''} in library. "
-            f"{missing} not on iPod. {selected} selected; {syncable} new to sync. "
+            f"{missing} not on iPod. "
+            + (f"{unknown} awaiting device check. " if unknown else "")
+            + f"{selected} selected; {syncable} new to sync. "
             "Existing copies are skipped; remove one before changing its format."
+            + self._selected_size_comparison()
         )
         self._preview_btn.setEnabled(syncable > 0)
+        self._sync_h264_btn.setEnabled(syncable > 0)
         self._sync_rvp_btn.setEnabled(syncable > 0)
         self._sync_mpeg_btn.setEnabled(syncable > 0)
         selected_videos = self.selected_videos()
@@ -264,6 +303,35 @@ class VideoSyncPanel(QWidget):
             "Move to Normal iPod Folder"
             if selected_videos and all(video.get("video_locked") for video in selected_videos)
             else "Lock & Hide on iPod"
+        )
+
+    @staticmethod
+    def _format_size(value):
+        gib = float(value) / (1024.0 * 1024.0 * 1024.0)
+        if gib >= 0.1:
+            return f"{gib:.1f} GB"
+        return f"{float(value) / (1024.0 * 1024.0):.0f} MB"
+
+    def _selected_size_comparison(self):
+        duration = 0.0
+        for video in self.selected_videos():
+            if video.get("synced_to_device") or video.get("device_path"):
+                continue
+            try:
+                duration += max(0.0, float(video.get("duration") or 0))
+            except (TypeError, ValueError):
+                continue
+        if duration <= 0:
+            return ""
+        h264_size = VideoRvpTranscoder.estimated_profile_bytes(
+            "h264_apple_exact", duration
+        )
+        raw_size = VideoRvpTranscoder.estimated_profile_bytes(
+            "raw", duration
+        )
+        return (
+            f" Estimated H.264: {self._format_size(h264_size)}; "
+            f"RVP: {self._format_size(raw_size)}."
         )
 
     def _resize_columns(self):

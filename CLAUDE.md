@@ -67,6 +67,14 @@ There is no unit test framework. Testing is done through:
 
 ## Physical iPod Deploy Rule
 
+The `Rockbox` Applications launcher is reserved exclusively for official
+upstream Rockbox nightly builds; see `docs/rockbox-upstream-app-spec.md`.
+Its isolated `/rockbox-upstream.ipod` and `/.rbupstream` pair must never contain
+personal features, unmerged Gerrit changes, or experimental builds. Rebuilding
+the official nightly source with only `--rbdir=/.rbupstream` is permitted to
+isolate its matching runtime. This alternate RoLo install does not replace
+either main boot firmware location or RoloLauncher's TV-out runtime.
+
 When deploying a hardware iPod build, always install the built `rockbox.ipod`
 to both firmware locations on the mounted iPod:
 

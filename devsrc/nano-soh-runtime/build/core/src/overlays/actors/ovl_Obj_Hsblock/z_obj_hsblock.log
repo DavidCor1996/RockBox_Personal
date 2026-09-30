@@ -1,0 +1,24 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Hsblock/z_obj_hsblock.c:46:49: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[49]' [-Wincompatible-pointer-types]
+   46 | static CollisionHeader* sCollisionHeaders[] = { &gHookshotPostCol, &gHookshotPostCol, &gHookshotTargetCol };
+      |                                                 ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Hsblock/z_obj_hsblock.c:46:49: note: (near initialization for 'sCollisionHeaders[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Hsblock/z_obj_hsblock.c:46:68: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[49]' [-Wincompatible-pointer-types]
+   46 | static CollisionHeader* sCollisionHeaders[] = { &gHookshotPostCol, &gHookshotPostCol, &gHookshotTargetCol };
+      |                                                                    ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Hsblock/z_obj_hsblock.c:46:68: note: (near initialization for 'sCollisionHeaders[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Hsblock/z_obj_hsblock.c:46:87: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[51]' [-Wincompatible-pointer-types]
+   46 | static CollisionHeader* sCollisionHeaders[] = { &gHookshotPostCol, &gHookshotPostCol, &gHookshotTargetCol };
+      |                                                                                       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Hsblock/z_obj_hsblock.c:46:87: note: (near initialization for 'sCollisionHeaders[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Hsblock/z_obj_hsblock.c:50:27: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   50 | static Gfx* sDLists[] = { gHookshotPostDL, gHookshotPostDL, gHookshotTargetDL };
+      |                           ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Hsblock/z_obj_hsblock.c:50:27: note: (near initialization for 'sDLists[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Hsblock/z_obj_hsblock.c:50:44: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   50 | static Gfx* sDLists[] = { gHookshotPostDL, gHookshotPostDL, gHookshotTargetDL };
+      |                                            ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Hsblock/z_obj_hsblock.c:50:44: note: (near initialization for 'sDLists[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Hsblock/z_obj_hsblock.c:50:61: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   50 | static Gfx* sDLists[] = { gHookshotPostDL, gHookshotPostDL, gHookshotTargetDL };
+      |                                                             ^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Hsblock/z_obj_hsblock.c:50:61: note: (near initialization for 'sDLists[2]')

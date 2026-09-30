@@ -1,0 +1,19 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_cheap_proc.c: In function 'Gfx_DrawDListOpa':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_cheap_proc.c:10:33: warning: passing argument 1 of 'ResourceMgr_OTRSigCheck' from incompatible pointer type [-Wincompatible-pointer-types]
+   10 |     if (ResourceMgr_OTRSigCheck(dlist) == 1)
+      |                                 ^~~~~
+      |                                 |
+      |                                 Gfx *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_cheap_proc.c:2:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:70:35: note: expected 'char *' but argument is of type 'Gfx *'
+   70 | int ResourceMgr_OTRSigCheck(char* imgData);
+      |                             ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_cheap_proc.c: In function 'Gfx_DrawDListXlu':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_cheap_proc.c:24:33: warning: passing argument 1 of 'ResourceMgr_OTRSigCheck' from incompatible pointer type [-Wincompatible-pointer-types]
+   24 |     if (ResourceMgr_OTRSigCheck(dlist) == 1)
+      |                                 ^~~~~
+      |                                 |
+      |                                 Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:70:35: note: expected 'char *' but argument is of type 'Gfx *'
+   70 | int ResourceMgr_OTRSigCheck(char* imgData);
+      |                             ~~~~~~^~~~~~~

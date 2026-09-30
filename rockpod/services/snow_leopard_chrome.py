@@ -138,6 +138,42 @@ def _row(image: Image.Image, y: int, left: int, width: int) -> Image.Image:
     return image.crop((left, y, left + width, y + 1))
 
 
+def compose_dashboard_widget(widget: Image.Image, width: int,
+                             height: int) -> Image.Image:
+    """Scale an owned Dashboard widget while preserving its real coverage.
+
+    Dashboard's HTML normally composites these transparent PNGs over its
+    darkened desktop.  Keep that same source alpha in the RGA1 output so the
+    runtime can blend the rounded corners over the live shell scrim instead of
+    baking a white or synthetic background into the widget.
+    """
+    return widget.convert("RGBA").resize(
+        (width, height), Image.Resampling.LANCZOS
+    )
+
+
+def compose_dashboard_weather(widget: Image.Image, width: int,
+                              height: int) -> Image.Image:
+    """Make Apple's Weather shell a clean compact current-conditions card.
+
+    The owned Weather artwork is the unloaded six-day shell, so its interior
+    contains literal white dash placeholders and column rules.  At iPod size
+    those collide with the synced temperature.  Preserve the real resized
+    rounded frame, alpha corners, gloss, and info button, but rebuild only the
+    inner pane from a clean one-pixel column of that same Apple artwork.
+    """
+    frame = compose_dashboard_widget(widget, width, height)
+    left = max(1, width * 5 // 104)
+    right = width - max(1, width * 5 // 104)
+    top = max(1, height * 10 // 59)
+    bottom = height - max(1, height * 6 // 59)
+    clean = widget.convert("RGBA").crop((20, 31, 21, 61)).resize(
+        (right - left, bottom - top), Image.Resampling.LANCZOS
+    )
+    frame.paste(clean, (left, top), clean)
+    return frame
+
+
 # --------------------------------------------------------------------------
 # window frame
 # --------------------------------------------------------------------------
@@ -424,41 +460,58 @@ def crop_apple_glyph(capture: Image.Image) -> Image.Image:
 # scroller
 # --------------------------------------------------------------------------
 
-# 10-6-Snow-Leopard-iTunes-v9.png (1162x735, 1:1): the list scroller
-SCROLLER_LEFT = 1105
-SCROLLER_RIGHT = 1121
-SCROLLER_TRACK_ROW = 130
-SCROLLER_THUMB_TOP = 141
-SCROLLER_THUMB_BOTTOM = 640
+# 10-6-Snow-Leopard-iTunes-v9.png (1162x735, 1:1).  Its vertical right edge
+# has no visible thumb, but the bottom of the same list contains a complete
+# Aqua horizontal scroller.  Rotate those exact pixels to make the vertical
+# control instead of mistaking table dividers and selected-row text for it.
+SCROLLER_SOURCE_TOP = 639
+SCROLLER_SOURCE_BOTTOM = 654
+SCROLLER_TRACK_COLUMN = 1000
+SCROLLER_THUMB_LEFT = 246
+SCROLLER_THUMB_MIDDLE = 500
+SCROLLER_THUMB_RIGHT = 990
 SCROLLER_CAP = 10
-SCROLLER_WIDTH = SCROLLER_RIGHT - SCROLLER_LEFT
+SCROLLER_WIDTH = 16
+
+
+def _rotate_scroller_part(part: Image.Image) -> Image.Image:
+    rotated = part.transpose(Image.Transpose.ROTATE_270)
+    if rotated.width != SCROLLER_WIDTH:
+        rotated = rotated.resize(
+            (SCROLLER_WIDTH, rotated.height), Image.Resampling.LANCZOS
+        )
+    return rotated
 
 
 def compose_scroller_track(itunes: Image.Image, height: int) -> Image.Image:
     """The real scroller track, repeated down `height`."""
-    return _tile_v(
-        _row(itunes, SCROLLER_TRACK_ROW, SCROLLER_LEFT, SCROLLER_WIDTH), height
+    cross_section = _rotate_scroller_part(
+        itunes.crop((SCROLLER_TRACK_COLUMN, SCROLLER_SOURCE_TOP,
+                     SCROLLER_TRACK_COLUMN + 1, SCROLLER_SOURCE_BOTTOM))
     )
+    return _tile_v(cross_section, height)
 
 
 def compose_scroller_thumb(itunes: Image.Image, height: int) -> Image.Image:
     """The real scroller knob: real rounded caps, real repeating middle."""
     cap = min(SCROLLER_CAP, height // 2)
-    thumb = _tile_v(
-        _row(itunes, 300, SCROLLER_LEFT, SCROLLER_WIDTH), height
+    middle = _rotate_scroller_part(
+        itunes.crop((SCROLLER_THUMB_MIDDLE, SCROLLER_SOURCE_TOP,
+                     SCROLLER_THUMB_MIDDLE + 1, SCROLLER_SOURCE_BOTTOM))
     )
+    thumb = _tile_v(middle, height)
     thumb.paste(
-        itunes.crop(
-            (SCROLLER_LEFT, SCROLLER_THUMB_TOP,
-             SCROLLER_RIGHT, SCROLLER_THUMB_TOP + cap)
-        ),
+        _rotate_scroller_part(itunes.crop(
+            (SCROLLER_THUMB_LEFT, SCROLLER_SOURCE_TOP,
+             SCROLLER_THUMB_LEFT + cap, SCROLLER_SOURCE_BOTTOM)
+        )),
         (0, 0),
     )
     thumb.paste(
-        itunes.crop(
-            (SCROLLER_LEFT, SCROLLER_THUMB_BOTTOM - cap,
-             SCROLLER_RIGHT, SCROLLER_THUMB_BOTTOM)
-        ),
+        _rotate_scroller_part(itunes.crop(
+            (SCROLLER_THUMB_RIGHT - cap, SCROLLER_SOURCE_TOP,
+             SCROLLER_THUMB_RIGHT, SCROLLER_SOURCE_BOTTOM)
+        )),
         (0, height - cap),
     )
     return thumb
@@ -481,6 +534,10 @@ ITUNES_ROW_TOP = 399
 ITUNES_BOTTOM_COLUMN = 450
 ITUNES_ROW_HEIGHT = 17
 ITUNES_SELECTION_TOP = 141
+# x=600 crosses the selected track's duration text in the reference capture;
+# sampling it reproduced those pale glyph strokes as a horizontal band across
+# every generated row.  x=900 is an untouched part of the same real gradient.
+ITUNES_SELECTION_COLUMN = 900
 ITUNES_BOTTOM_TOP = 656
 ITUNES_BOTTOM_BOTTOM = 680
 ITUNES_SOURCE_FILL = (217, 223, 231)
@@ -489,7 +546,13 @@ ITUNES_LCD_LEFT = 349
 ITUNES_LCD_RIGHT = 813
 ITUNES_LCD_CAP = 20
 ITUNES_TRANSPORT_CAP = 150
-ITUNES_EDGE_CAP = 31
+ITUNES_EDGE_CAP = 12
+# The screenshot's centred title crosses x=600, and the LCD's raised top edge
+# already reaches into the final title-bar row from x349..813.  x=200 is clean
+# title chrome; x=500 is blank LCD glass.  Sampling them separately prevents
+# either source feature from becoming a full-width horizontal rule.
+ITUNES_TITLE_CLEAN_COLUMN = 200
+ITUNES_LCD_CLEAN_COLUMN = 500
 
 ITUNES_WINDOW_W = 304
 ITUNES_WINDOW_H = 174
@@ -518,8 +581,8 @@ def compose_itunes_window(itunes: Image.Image, width: int = ITUNES_WINDOW_W,
 
     # title bar
     window.paste(
-        _tile_h(_column(itunes, 600, ITUNES_TITLE_TOP, ITUNES_TITLE_H),
-                width),
+        _tile_h(_column(itunes, ITUNES_TITLE_CLEAN_COLUMN,
+                        ITUNES_TITLE_TOP, ITUNES_TITLE_H), width),
         (0, 0),
     )
     window.paste(
@@ -552,7 +615,8 @@ def compose_itunes_window(itunes: Image.Image, width: int = ITUNES_WINDOW_W,
     lcd_w = width - ITUNES_EDGE_CAP - 4 - lcd_x
     if lcd_w > ITUNES_LCD_CAP * 2:
         window.paste(
-            _tile_h(_column(itunes, 600, ITUNES_TRANSPORT_TOP,
+            _tile_h(_column(itunes, ITUNES_LCD_CLEAN_COLUMN,
+                            ITUNES_TRANSPORT_TOP,
                             ITUNES_TRANSPORT_H), lcd_w),
             (lcd_x, y),
         )
@@ -616,7 +680,8 @@ def compose_itunes_window(itunes: Image.Image, width: int = ITUNES_WINDOW_W,
 def compose_itunes_selection(itunes: Image.Image, width: int) -> Image.Image:
     """The real iTunes track-selection gradient."""
     return _tile_h(
-        _column(itunes, 600, ITUNES_SELECTION_TOP, ITUNES_ROW_HEIGHT), width
+        _column(itunes, ITUNES_SELECTION_COLUMN, ITUNES_SELECTION_TOP,
+                ITUNES_ROW_HEIGHT), width
     )
 
 

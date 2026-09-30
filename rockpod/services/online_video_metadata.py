@@ -246,7 +246,9 @@ class OMDbVideoMetadataProvider(VideoMetadataProvider):
                 "plot_long": detail.get("Plot") or "",
                 "artwork_url": item.get("Poster") or "",
                 "runtime_seconds": self._parse_runtime(detail.get("Runtime")),
-                "content_rating": detail.get("Rated") or ""
+                "content_rating": detail.get("Rated") or "",
+                "external_rating": self._parse_rating(detail.get("imdbRating")),
+                "external_rating_votes": self._parse_votes(detail.get("imdbVotes")),
             })
         return results
 
@@ -274,7 +276,9 @@ class OMDbVideoMetadataProvider(VideoMetadataProvider):
                 "plot_long": detail.get("Plot") or "",
                 "artwork_url": item.get("Poster") or "",
                 "runtime_seconds": 0,
-                "content_rating": detail.get("Rated") or ""
+                "content_rating": detail.get("Rated") or "",
+                "external_rating": self._parse_rating(detail.get("imdbRating")),
+                "external_rating_votes": self._parse_votes(detail.get("imdbVotes")),
             })
         return results
 
@@ -299,7 +303,9 @@ class OMDbVideoMetadataProvider(VideoMetadataProvider):
             "plot_long": detail.get("Plot") or "",
             "artwork_url": detail.get("Poster") or "",
             "runtime_seconds": self._parse_runtime(detail.get("Runtime")),
-            "content_rating": detail.get("Rated") or ""
+            "content_rating": detail.get("Rated") or "",
+            "external_rating": self._parse_rating(detail.get("imdbRating")),
+            "external_rating_votes": self._parse_votes(detail.get("imdbVotes")),
         }
 
     @staticmethod
@@ -308,6 +314,277 @@ class OMDbVideoMetadataProvider(VideoMetadataProvider):
             return 0
         match = re.search(r"(\d+)\s*min", text, re.IGNORECASE)
         return int(match.group(1)) * 60 if match else 0
+
+    @staticmethod
+    def _parse_rating(value):
+        try:
+            rating = float(value)
+        except (TypeError, ValueError):
+            return 0.0
+        return rating if 0.0 <= rating <= 10.0 else 0.0
+
+    @staticmethod
+    def _parse_votes(value):
+        digits = re.sub(r"[^0-9]", "", str(value or ""))
+        try:
+            return int(digits or 0)
+        except ValueError:
+            return 0
+
+
+class TMDbVideoMetadataProvider(VideoMetadataProvider):
+    """Rich movie/TV provider with posters, backdrops, seasons and ratings.
+
+    TMDb is optional because it needs a user API key.  When configured it is
+    the preferred provider: it supplies the extra artwork and TV hierarchy
+    that a filename parser cannot provide.  The provider is deliberately kept
+    independent of the Ollama client so metadata remains grounded in a
+    catalogue response rather than model memory.
+    """
+
+    API_ROOT = "https://api.themoviedb.org/3"
+    IMAGE_ROOT = "https://image.tmdb.org/t/p/original"
+
+    def __init__(self, api_key="", language="en-US", timeout=10.0):
+        self.api_key = str(api_key or "").strip()
+        self.language = str(language or "en-US").strip()
+        self.timeout = float(timeout or 10.0)
+
+    def _fetch_json(self, path, params=None):
+        if not self.api_key:
+            raise VideoMetadataError("TMDb API key not configured")
+        query = dict(params or {})
+        query.update({"api_key": self.api_key, "language": self.language})
+        url = f"{self.API_ROOT}{path}?{urllib.parse.urlencode(query)}"
+        request = Request(url, headers={"User-Agent": "RockPod/1.0"})
+        try:
+            with urlopen(request, timeout=self.timeout) as response:
+                return json.loads(response.read().decode("utf-8"))
+        except HTTPError as exc:
+            if exc.code == 404:
+                return {}
+            raise VideoMetadataNetworkError(f"TMDb HTTP error {exc.code}") from exc
+        except URLError as exc:
+            raise VideoMetadataNetworkError("TMDb connection failed") from exc
+        except (OSError, ValueError) as exc:
+            raise VideoMetadataError("TMDb response could not be read") from exc
+
+    @classmethod
+    def _image_url(cls, path):
+        return f"{cls.IMAGE_ROOT}{path}" if path else ""
+
+    @staticmethod
+    def _year(value):
+        text = str(value or "")
+        return int(text[:4]) if len(text) >= 4 and text[:4].isdigit() else None
+
+    @staticmethod
+    def _rating(value):
+        try:
+            value = float(value or 0)
+        except (TypeError, ValueError):
+            return 0.0
+        return value if 0.0 <= value <= 10.0 else 0.0
+
+    @staticmethod
+    def _votes(value):
+        try:
+            return max(0, int(value or 0))
+        except (TypeError, ValueError):
+            return 0
+
+    @staticmethod
+    def _genres(item):
+        return ", ".join(
+            str(value.get("name") or "").strip()
+            for value in item.get("genres") or []
+            if isinstance(value, dict) and value.get("name")
+        )
+
+    @staticmethod
+    def _us_rating(items, key):
+        for country in items or []:
+            if str(country.get("iso_3166_1") or "").upper() != "US":
+                continue
+            values = country.get(key) or []
+            if isinstance(values, str):
+                return values.strip()
+            for result in values:
+                if not isinstance(result, dict):
+                    continue
+                value = str(result.get("certification") or result.get("rating") or "").strip()
+                if value:
+                    return value
+        return ""
+
+    def _movie_result(self, item, detail=None):
+        detail = detail or item
+        external = self._fetch_json(
+            f"/movie/{item.get('id')}/external_ids"
+        ) if item.get("id") else {}
+        release_dates = self._fetch_json(
+            f"/movie/{item.get('id')}/release_dates"
+        ) if item.get("id") else {}
+        return {
+            "provider": "tmdb",
+            "provider_id": str(item.get("id") or ""),
+            "imdb_id": str(external.get("imdb_id") or ""),
+            "tmdb_id": str(item.get("id") or ""),
+            "title": str(detail.get("title") or detail.get("original_title") or ""),
+            "media_type": "movie",
+            "year": self._year(detail.get("release_date")),
+            "release_date": str(detail.get("release_date") or ""),
+            "genre": self._genres(detail),
+            "plot_short": str(detail.get("overview") or "").strip(),
+            "plot_long": str(detail.get("overview") or "").strip(),
+            "artwork_url": self._image_url(detail.get("poster_path")),
+            "banner_url": self._image_url(detail.get("backdrop_path")),
+            "runtime_seconds": int(detail.get("runtime") or 0) * 60,
+            "content_rating": self._us_rating(release_dates.get("results"), "release_dates"),
+            "external_rating": self._rating(detail.get("vote_average")),
+            "external_rating_votes": self._votes(detail.get("vote_count")),
+            "status": str(detail.get("status") or ""),
+            "original_language": str(detail.get("original_language") or ""),
+        }
+
+    def _show_result(self, item, detail=None):
+        detail = detail or item
+        external = self._fetch_json(
+            f"/tv/{item.get('id')}/external_ids"
+        ) if item.get("id") else {}
+        ratings = self._fetch_json(
+            f"/tv/{item.get('id')}/content_ratings"
+        ) if item.get("id") else {}
+        return {
+            "provider": "tmdb",
+            "provider_id": str(item.get("id") or ""),
+            "imdb_id": str(external.get("imdb_id") or ""),
+            "tmdb_id": str(item.get("id") or ""),
+            "title": str(detail.get("name") or detail.get("original_name") or ""),
+            "media_type": "tv_show",
+            "year": self._year(detail.get("first_air_date")),
+            "release_date": str(detail.get("first_air_date") or ""),
+            "genre": self._genres(detail),
+            "plot_short": str(detail.get("overview") or "").strip(),
+            "plot_long": str(detail.get("overview") or "").strip(),
+            "artwork_url": self._image_url(detail.get("poster_path")),
+            "banner_url": self._image_url(detail.get("backdrop_path")),
+            "runtime_seconds": int(
+                detail.get("episode_run_time", [0])[0]
+                if detail.get("episode_run_time") else 0
+            ) * 60,
+            "content_rating": self._us_rating(ratings.get("results"), "rating"),
+            "external_rating": self._rating(detail.get("vote_average")),
+            "external_rating_votes": self._votes(detail.get("vote_count")),
+            "status": str(detail.get("status") or ""),
+            "original_language": str(detail.get("original_language") or ""),
+        }
+
+    def search_movie(self, query, year=None):
+        params = {"query": query, "include_adult": "false"}
+        if year:
+            params["year"] = str(year)
+        payload = self._fetch_json("/search/movie", params)
+        results = []
+        for item in (payload or {}).get("results", [])[:10]:
+            if not item.get("id"):
+                continue
+            detail = self._fetch_json(f"/movie/{item['id']}")
+            results.append(self._movie_result(item, detail))
+        return results
+
+    def search_show(self, query, year=None):
+        params = {"query": query, "include_adult": "false"}
+        if year:
+            params["first_air_date_year"] = str(year)
+        payload = self._fetch_json("/search/tv", params)
+        results = []
+        for item in (payload or {}).get("results", [])[:10]:
+            if not item.get("id"):
+                continue
+            detail = self._fetch_json(f"/tv/{item['id']}")
+            results.append(self._show_result(item, detail))
+        return results
+
+    def lookup_by_imdb(self, imdb_id):
+        payload = self._fetch_json(
+            f"/find/{urllib.parse.quote(str(imdb_id or '').strip())}",
+            {"external_source": "imdb_id"},
+        )
+        movie = next(iter(payload.get("movie_results") or []), None)
+        if movie:
+            return self._movie_result(movie, self._fetch_json(f"/movie/{movie['id']}"))
+        show = next(iter(payload.get("tv_results") or []), None)
+        if show:
+            return self._show_result(show, self._fetch_json(f"/tv/{show['id']}"))
+        return None
+
+    def list_seasons(self, provider_id):
+        detail = self._fetch_json(f"/tv/{provider_id}")
+        return [
+            {
+                "number": int(season.get("season_number")),
+                "episode_count": int(season.get("episode_count") or 0),
+                "premiered": str(season.get("air_date") or ""),
+                "summary": str(season.get("overview") or "").strip(),
+                "artwork_url": self._image_url(season.get("poster_path")),
+            }
+            for season in detail.get("seasons") or []
+            if season.get("season_number") is not None
+        ]
+
+    def list_episodes(self, provider_id):
+        episodes = {}
+        for season in self.list_seasons(provider_id):
+            number = int(season["number"])
+            payload = self._fetch_json(f"/tv/{provider_id}/season/{number}")
+            for item in payload.get("episodes") or []:
+                episode = item.get("episode_number")
+                if episode is None:
+                    continue
+                episodes[(number, int(episode))] = {
+                    "title": str(item.get("name") or ""),
+                    "plot_short": str(item.get("overview") or "").strip(),
+                    "plot_long": str(item.get("overview") or "").strip(),
+                    "release_date": str(item.get("air_date") or ""),
+                    "year": self._year(item.get("air_date")),
+                    "runtime_seconds": int(item.get("runtime") or 0) * 60,
+                    "artwork_url": self._image_url(item.get("still_path")),
+                }
+        return episodes
+
+    def search_episode(self, show_title, season, episode, episode_title=None):
+        shows = self.search_show(show_title)
+        if not shows:
+            return None
+        show = shows[0]
+        detail = self._fetch_json(
+            f"/tv/{show['provider_id']}/season/{int(season)}"
+        )
+        for item in detail.get("episodes") or []:
+            if int(item.get("episode_number") or -1) != int(episode):
+                continue
+            result = dict(show)
+            summary = str(item.get("overview") or "").strip() or show.get("plot_short", "")
+            result.update(
+                {
+                    "provider_id": str(item.get("id") or show["provider_id"]),
+                    "title": str(item.get("name") or episode_title or ""),
+                    "media_type": "tv_episode",
+                    "year": self._year(item.get("air_date")) or show.get("year"),
+                    "release_date": str(item.get("air_date") or ""),
+                    "plot_short": summary,
+                    "plot_long": summary,
+                    "artwork_url": self._image_url(item.get("still_path")) or show.get("artwork_url", ""),
+                    "runtime_seconds": int(item.get("runtime") or 0) * 60,
+                }
+            )
+            return result
+        return None
+
+    def get_title_by_id(self, provider_id):
+        item = self._fetch_json(f"/tv/{provider_id}")
+        return self._show_result(item, item) if item else None
 
 
 class TVmazeVideoMetadataProvider(VideoMetadataProvider):
@@ -503,11 +780,27 @@ class VideoMetadataService:
 
     def _configure_provider(self):
         if self._config:
+            tmdb_key = str(self._config.get("tmdb_api_key", "") or "").strip()
+            if tmdb_key:
+                self._provider = TMDbVideoMetadataProvider(api_key=tmdb_key)
+                return
             omdb_key = self._config.get("omdb_api_key", "").strip()
             if omdb_key:
                 self._provider = OMDbVideoMetadataProvider(api_key=omdb_key)
                 return
         self._provider = ITunesVideoMetadataProvider()
+
+    @property
+    def provider(self):
+        """Return the configured primary provider for advanced integrations."""
+        return self._provider
+
+    @property
+    def show_provider(self):
+        """Return a provider that supports show hierarchy artwork and episodes."""
+        if isinstance(self._provider, (TMDbVideoMetadataProvider, TVmazeVideoMetadataProvider)):
+            return self._provider
+        return self._show_fallback
 
     def search(self, query, media_type="any", year=None):
         """Perform provider lookup for Movie, TV Show, or both.

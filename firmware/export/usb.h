@@ -131,6 +131,9 @@ enum
 #ifdef HAVE_BOOTLOADER_USB_MODE
     USB_HANDLED,             /* Bootloader status code */
 #endif
+#ifdef HAVE_USB_HOST_ROLE_PROBE
+    USB_HOST_PROBE_REQUEST,
+#endif
 };
 
 /* Supported usb modes. */

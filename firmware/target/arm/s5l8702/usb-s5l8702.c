@@ -30,6 +30,36 @@
 #include "s5l87xx.h"
 #include "clocking-s5l8702.h"
 #include "usb-designware.h"
+#ifdef HAVE_USB_DW_CAPABILITY_SNAPSHOT
+#include "usb_dw_capabilities.h"
+
+static struct usb_dw_capabilities capability_snapshot;
+
+static void usb_dw_read_capabilities(struct usb_dw_capabilities *caps)
+{
+    caps->core_id = DWC_GSNPSID;
+    caps->hwcfg[0] = DWC_GHWCFG1;
+    caps->hwcfg[1] = DWC_GHWCFG2;
+    caps->hwcfg[2] = DWC_GHWCFG3;
+    caps->hwcfg[3] = DWC_GHWCFG4;
+}
+
+void usb_dw_target_capture_capabilities(void)
+{
+    struct usb_dw_capabilities first = {0}, second = {0};
+    usb_dw_read_capabilities(&first);
+    usb_dw_read_capabilities(&second);
+    usb_dw_capabilities_record(&capability_snapshot, &first, &second);
+}
+
+void usb_dw_get_capabilities(struct usb_dw_capabilities *caps)
+{
+    /* Copy RAM only. Prevent a USB worker context switch during the copy. */
+    int oldlevel = disable_irq_save();
+    *caps = capability_snapshot;
+    restore_irq(oldlevel);
+}
+#endif
 #include "ipodnano3g/bringup-nano3g.h"
 #if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
         IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)

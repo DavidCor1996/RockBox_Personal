@@ -78,9 +78,11 @@ continue from the intact browser state. The one-shot source-list cache remains
 valid across WPS and must not be rejected using a raw CRC containing pointers
 that buflib legitimately relocates while the codec starts.
 
-The iPodJS WPS must not enter the current-playlist viewer. A short center-button
-press is consumed without leaving Now Playing; a center-button hold launches
-Lyrics directly. Suppress `ACTION_WPS_VIEW_PLAYLIST` as a defensive boundary,
+The iPodJS WPS must not enter the current-playlist viewer. At the user's request,
+a short center-button press cycles artwork, rating, scrubber, shuffle and
+available text pages without leaving Now Playing. The equalizer page was
+removed at the user’s request; a center-button hold launches Lyrics directly.
+Suppress `ACTION_WPS_VIEW_PLAYLIST` as a defensive boundary,
 so no skin or alternate mapping can bypass that behavior. Playlist list-row
 formatting elsewhere may copy the current track or tagcache RAM-cache metadata,
 but must never fall back to opening and parsing each track file under iPodJS.

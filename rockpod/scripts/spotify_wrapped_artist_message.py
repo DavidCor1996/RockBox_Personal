@@ -26,6 +26,7 @@ if str(ROOT) not in sys.path:
 
 from services.android_media import build_ffmpeg_command  # noqa: E402
 from services.rockbox_tagcache import read_rockbox_tagcache_tracks  # noqa: E402
+from services.wrapped_history import lifetime_history  # noqa: E402
 
 
 REJECT_PHRASES = (
@@ -119,7 +120,8 @@ def _current_year_tracks(mount: Path, tracks: list[dict]) -> list[dict]:
 
 def _write_snapshot(mount: Path) -> str:
     """Publish a complete, deterministic Wrapped snapshot for the iPod UI."""
-    lifetime_tracks = read_rockbox_tagcache_tracks(str(mount), include_runtime=True)
+    lifetime_tracks = lifetime_history(mount, read_rockbox_tagcache_tracks(
+        str(mount), include_runtime=True))
     lifetime_played = [
         track for track in lifetime_tracks
         if max(int(track.get("play_count") or 0), 0)
@@ -140,9 +142,9 @@ def _write_snapshot(mount: Path) -> str:
         ),
         default={},
     )
-    annual_tracks = _current_year_tracks(mount, lifetime_tracks)
-    tracks = annual_tracks or lifetime_tracks
-    scope = "annual" if annual_tracks else "lifetime"
+    # A new annual log must never replace the user's lifetime recap.
+    tracks = lifetime_tracks
+    scope = "lifetime"
     played = [track for track in tracks if max(int(track.get("play_count") or 0), 0)]
 
     artists: dict[str, list] = defaultdict(lambda: [0, 0, "", -1])

@@ -4845,6 +4845,8 @@ static enum plugin_status launcher_run(void)
 static enum plugin_status launcher_run_ipodgames_sim_gate(void)
 {
     struct system_entry *system = find_system_entry("ipodgames");
+    const char *expected_game = getenv("IPODGAMES_TEST_METADATA");
+    bool expected_found = false;
     bool tetris_found = false;
     bool phase_found = false;
     bool covers_present = true;
@@ -4877,11 +4879,14 @@ static enum plugin_status launcher_run_ipodgames_sim_gate(void)
             tetris_found = true;
         if (!rb->strcmp(entry->title, "Phase"))
             phase_found = true;
+        if (expected_game && !rb->strcmp(entry->rom_path, expected_game))
+            expected_found = true;
         if (!entry->cover_path[0] || !rb->file_exists(entry->cover_path))
             covers_present = false;
     }
     rb->fdprintf(fd, "status=%s\n",
-                 tetris_found && phase_found && covers_present &&
+                 (expected_game ? expected_found :
+                  tetris_found && phase_found) && covers_present &&
                  !rb->strcmp(system->title, "iPod Games") &&
                  !rb->strcmp(system->plugin_path, IPODGAMES_PLUGIN_PATH)
                      ? "pass" : "fail");

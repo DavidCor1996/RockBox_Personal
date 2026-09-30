@@ -1,0 +1,18 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Item_Etcetera/z_item_etcetera.c: In function 'ItemEtcetera_UpdateFireArrow':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:135:40: warning: passing argument 2 of 'LogUtils_LogThreadId' makes integer from pointer without a cast [-Wint-conversion]
+  135 |         LogUtils_LogThreadId(__FILE__, __FILE__);           \
+      |                                        ^~~~~~~~
+      |                                        |
+      |                                        char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:146:29: note: in expansion of macro 'LOG'
+  146 | #define LOG_NUM(exp, value) LOG(exp, value, "%d")
+      |                             ^~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Item_Etcetera/z_item_etcetera.c:185:9: note: in expansion of macro 'LOG_NUM'
+  185 |         LOG_NUM("(game_play->demo_play.npcdemopnt[0]->dousa)", play->csCtx.npcActions[0]->action);
+      |         ^~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Item_Etcetera/z_item_etcetera.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Item_Etcetera/z_item_etcetera.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:94:49: note: expected 's32' {aka 'long int'} but argument is of type 'char *'
+   94 | void LogUtils_LogThreadId(const char* name, s32 line);
+      |                                             ~~~~^~~~

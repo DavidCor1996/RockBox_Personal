@@ -70,6 +70,15 @@ fi
 require_text "${symbols}" '[[:space:]]svid_write_clock$' \
     "bounded local SVID clock writer"
 videoout_source="$(<"${repo_root}/firmware/target/arm/s5l8702/ipod6g/videoout-6g.c")"
+require_text "${videoout_source}" \
+    'svid_begin_reset\(\);[[:space:]]*\n[[:space:]]*/\* Only the hardware settling time is interruptible\.' \
+    "SVID reset assertion inside the first atomic section"
+require_text "${videoout_source}" \
+    'restore_irq\(oldlevel\);[[:space:]]*\n[[:space:]]*udelay\(10000\);[[:space:]]*\n[[:space:]]*/\* Complete initialization and publish the pipeline as one short critical' \
+    "interruptible reset delay before the second atomic section"
+require_text "${videoout_source}" \
+    'oldlevel = disable_irq_save\(\);[[:space:]]*\n[[:space:]]*svid_finish_reset\(\);[[:space:]]*\n[[:space:]]*svid_select_composite\(\);[[:space:]]*\n[[:space:]]*svid_start_pipeline\(\);' \
+    "atomic SVID programming and pipeline start after reset delay"
 color_gate="$(python3 "${repo_root}/tools/ipod6g_videoout_color_gate.py")"
 require_text "${color_gate}" 'all 65,536 RGB565 values are bit-identical' \
     "exhaustive qualified-color equivalence"
@@ -112,14 +121,14 @@ normal_frame="$(arm-elf-eabi-objdump -d \
     --disassemble=ipod6g_videoout_show_framebuffer "${elf}")"
 require_text "${normal_frame}" '<svid_show_planar' \
     "RetailOS format-8 planar normal mirror path"
-for geometry in \
-    'SVID_UI_DESTINATION_X[[:space:]]+36u' \
-    'SVID_UI_DESTINATION_Y[[:space:]]+24u' \
-    'SVID_UI_DESTINATION_WIDTH[[:space:]]+648u' \
-    'SVID_UI_DESTINATION_HEIGHT[[:space:]]+432u'; do
-    require_text "${videoout_source}" "${geometry}" \
-        "qualified centered 90-percent UI geometry"
-done
+require_text "${videoout_source}" 'videoout_calc_geometry' \
+    "shared sample-aspect aware presentation geometry"
+require_text "${videoout_source}" 'svid_tv_screen' \
+    "user-selected TV aspect independent of accessory classification"
+"${CC:-cc}" -std=c99 -Wall -Wextra -Werror \
+    -I"${repo_root}/firmware/export" \
+    "${repo_root}/tools/tests/composite_geometry.c" -o "${build_dir}/geometry-host"
+"${build_dir}/geometry-host"
 
 copy_rgb565="$(arm-elf-eabi-objdump -d \
     --disassemble=svid_copy_framebuffer_rgb565 "${elf}")"
@@ -159,11 +168,11 @@ require_text "${videoout_source}" \
     'y < SVID_PLANAR_Y_HEIGHT' \
     "bounded 240-line planar pattern loop"
 require_text "${videoout_source}" \
-    'SVID_PLANAR_Y_HEIGHT[[:space:]]+LCD_HEIGHT' \
-    "stock 240-line format-8 luma plane"
+    'SVID_PLANAR_Y_HEIGHT[[:space:]]+\(LCD_HEIGHT \* SVID_PLANAR_SCALE\)' \
+    "native-height source with existing optional 2x sampling"
 require_text "${videoout_source}" \
-    'SVID_PLANAR_Y_WIDTH[[:space:]]+LCD_WIDTH' \
-    "stock 320-pixel format-8 luma plane"
+    'SVID_PLANAR_SOURCE_WIDTH[[:space:]]+\(LCD_WIDTH \* SVID_PLANAR_SCALE\)' \
+    "native-width source with existing optional 2x sampling"
 require_text "${videoout_source}" \
     'SVID_PLANAR_C_HEIGHT[[:space:]]+\(SVID_PLANAR_Y_HEIGHT / 2\)' \
     "planar 4:2:0 half-height chroma planes"
@@ -193,7 +202,7 @@ require_text "${videoout_source}" \
     'SVID_VP_IMG_HEIGHT\) =[[:space:]]*\n[[:space:]]*SVID_PLANAR_Y_HEIGHT' \
     "stock native 240-line image height"
 require_text "${videoout_source}" \
-    '\(\(SVID_PLANAR_Y_WIDTH << 12\) / destination_width\) >> 3' \
+    '\(\(SVID_PLANAR_SOURCE_WIDTH << 12\) / destination_width\) >> 3' \
     "exact stock 9-bit fixed-point VP horizontal ratio"
 require_text "${videoout_source}" \
     'SVID_VP_SRC_HEIGHT\) =[[:space:]]*\n[[:space:]]*source_register_height' \
@@ -222,6 +231,24 @@ if rg -q 'SVID_VP_SHADOW_UPDATE' \
    "${repo_root}/firmware/target/arm/s5l8702/ipod6g/videoout-6g.c"; then
     fail "format-8 path still issues the non-RetailOS VP shadow update"
 fi
+require_text "${videoout_source}" \
+    'SVID_PLANAR_BUFFER_COUNT[[:space:]]+2u' \
+    "two target-owned private-planar scanout buffers"
+require_text "${videoout_source}" \
+    'back = svid_planar_front_buffer \^ 1u' \
+    "inactive planar back-buffer selection"
+require_text "${videoout_source}" \
+    'SVID_REG\(SVID_ENCODER_BASE, SVID_SDO_FIELD_INFO\) != field' \
+    "bounded SDO field-edge synchronization"
+require_text "${videoout_source}" \
+    'svid_wait_for_field_edge\(\)' \
+    "field-synchronized private descriptor handoff"
+require_text "${videoout_source}" \
+    'SVID_REG\(SVID_COMPOSITOR_BASE, SVID_VP_PLANE0_PTR\) = luma' \
+    "atomic Y-plane back-buffer handoff"
+require_text "${videoout_source}" \
+    'commit_dcache_range\(svid_planar_write_buffer, SVID_PLANAR_FRAME_SIZE\)' \
+    "complete back-buffer cache publication"
 
 copy_planar="$(arm-elf-eabi-objdump -d \
     --disassemble=svid_copy_framebuffer_planar "${elf}")"
@@ -300,9 +327,12 @@ require_text "${direct_yuv}" '<svid_copy_yuv_plane>' \
     fail "direct decoded-YUV mirror does not copy exactly three planes"
 require_text "${direct_yuv}" '<svid_commit_planar_rect>' \
     "batched direct-YUV cache clean"
-if rg -q 'svid_rgb565_to_ycbcr' <<<"${direct_yuv}"; then
-    fail "direct decoded-YUV mirror still round-trips through RGB565"
-fi
+# The compiler may inline the presentation sampler, whose optional UI band is
+# RGB565. Movie samples must remain plane-to-plane; exercise the actual sampler
+# on host memory to check all three planes independently of that overlay.
+require_text "${videoout_source}" 'out\[x\]=row\[svid_sample_x\[x\]\]' \
+    "decoded-plane sampling without RGB conversion"
+python3 "${repo_root}/tools/tests/test_composite_presenter.py"
 require_text "${videoout_source}" \
     'svid_copy_yuv_plane\(luma \+[^;]*source_luma' \
     "direct luma-plane ordering"

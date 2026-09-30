@@ -112,4 +112,9 @@
 #define HAVE_SDL
 #define HAVE_SDL_AUDIO
 
+/* The iPod 6G hibernate experiment is hardware-only.  Keep its target
+ * instrumentation out of the hosted simulator, where the ARM context and
+ * retained-memory symbols do not exist. */
+#undef IPOD6G_HIBERNATE_STAGE3
+
 #define _ISOC99_SOURCE 1

@@ -1,0 +1,28 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Sgami/z_bg_haka_sgami.c: In function 'BgHakaSgami_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Sgami/z_bg_haka_sgami.c:304:32: warning: passing argument 2 of 'Gfx_DrawDListXlu' from incompatible pointer type [-Wincompatible-pointer-types]
+  304 |         Gfx_DrawDListXlu(play, object_haka_objects_DL_00BF20);
+      |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                |
+      |                                const char *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Sgami/z_bg_haka_sgami.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Sgami/z_bg_haka_sgami.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:547:45: note: expected 'Gfx *' but argument is of type 'const char *'
+  547 | void Gfx_DrawDListXlu(PlayState* play, Gfx* dlist);
+      |                                        ~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Sgami/z_bg_haka_sgami.c:306:32: warning: passing argument 2 of 'Gfx_DrawDListOpa' from incompatible pointer type [-Wincompatible-pointer-types]
+  306 |         Gfx_DrawDListOpa(play, object_haka_objects_DL_00BF20);
+      |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                |
+      |                                const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:546:45: note: expected 'Gfx *' but argument is of type 'const char *'
+  546 | void Gfx_DrawDListOpa(PlayState* play, Gfx* dlist);
+      |                                        ~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Sgami/z_bg_haka_sgami.c:308:32: warning: passing argument 2 of 'Gfx_DrawDListOpa' from incompatible pointer type [-Wincompatible-pointer-types]
+  308 |         Gfx_DrawDListOpa(play, object_ice_objects_DL_0021F0);
+      |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                |
+      |                                const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:546:45: note: expected 'Gfx *' but argument is of type 'const char *'
+  546 | void Gfx_DrawDListOpa(PlayState* play, Gfx* dlist);
+      |                                        ~~~~~^~~~~

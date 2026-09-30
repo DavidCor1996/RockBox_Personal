@@ -18,6 +18,7 @@
  * KIND, either express or implied.
  *
  ****************************************************************************/
+#include "ambient_clock.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -59,6 +60,7 @@
 #if defined(HAVE_TAGCACHE) && defined(HAVE_LCD_COLOR)
 #include "gui/albumlist_art.h"
 #endif
+#include "gui/tv_ui.h"
 #ifdef HAVE_RECORDING
 #include "recorder/recording.h"
 #endif
@@ -766,6 +768,7 @@ static int dirbrowse(void)
 #endif
 
     start_wps = false;
+    ambient_clock_ready(true);
     numentries = update_dir();
     reload_dir = false;
     if (numentries == -1)
@@ -786,11 +789,19 @@ static int dirbrowse(void)
         keyclick_set_callback(gui_synclist_keyclick_callback, &tree_lists);
         button = get_action(CONTEXT_TREE|ALLOW_SOFTLOCK,
                             list_do_action_timeout(&tree_lists, HZ/2));
+        if (ambient_clock_ready(button != ACTION_NONE ||
+                                *tc.dirfilter > NUM_FILTER_MODES))
+        {
+            button = ambient_clock_run(false);
+            gui_synclist_draw(&tree_lists);
+            restore = true;
+        }
         oldbutton = button;
 #ifdef HAVE_IPODJS_UI
         /* The iPod Menu button walks back through Music hierarchy levels. */
         if (global_settings.ui_engine == UI_ENGINE_IPODJS &&
-            button == ACTION_STD_MENU)
+            button == ACTION_STD_MENU &&
+            !(tv_ui_active() && (get_action_statuscode(NULL) & ACTION_REMOTE)))
         {
             button = ACTION_STD_CANCEL;
         }
@@ -829,6 +840,8 @@ static int dirbrowse(void)
         }
         if (button == ACTION_NONE && button_queue_empty() &&
             albumlist_art_service_pending())
+            gui_synclist_draw(&tree_lists);
+        if (albumlist_tv_service(&tree_lists, oldbutton == ACTION_NONE))
             gui_synclist_draw(&tree_lists);
 #endif
         tc.selected_item = gui_synclist_get_sel_pos(&tree_lists);

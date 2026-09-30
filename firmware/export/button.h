@@ -24,6 +24,9 @@
 #include <stdbool.h>
 #include <inttypes.h>
 #include "config.h"
+#ifdef IPOD_ACCESSORY_PROTOCOL
+void button_set_remote_wake(bool enabled);
+#endif
 #if defined(CHECKWPS) || !defined(__PCTOOL__)
 #include "button-target.h"
 #endif
@@ -53,6 +56,11 @@ void button_close(void);
         IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
 /* Reset retained debounce/repeat state before the first post-hibernate tick. */
 void button_hibernate_resume_state(void);
+void button_hibernate_resume_complete(void);
+bool button_hibernate_event_filtered(long id);
+bool button_hibernate_take_action_reset(void);
+void button_hibernate_wheel_sample(int buttons);
+void button_clear_hibernate_wake(void);
 #endif
 
 int button_status(void);

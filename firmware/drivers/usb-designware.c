@@ -36,6 +36,9 @@
 #include "usb_core.h"
 
 #include "usb-designware.h"
+#ifdef HAVE_USB_DW_CAPABILITY_SNAPSHOT
+#include "usb_dw_capabilities.h"
+#endif
 
 /* Define LOGF_ENABLE to enable logf output in this file */
 /* #define LOGF_ENABLE */
@@ -1477,6 +1480,12 @@ static void usb_dw_init(void)
 
     /* Enable PHY clocks */
     DWC_PCGCCTL = 0;
+
+#ifdef HAVE_USB_DW_CAPABILITY_SNAPSHOT
+    /* Passive reads under the existing DEVICE owner, before its HW checks.
+     * Do not power up or force a role solely to obtain a diagnostic. */
+    usb_dw_target_capture_capabilities();
+#endif
 
     usb_dw_check_hw();
 

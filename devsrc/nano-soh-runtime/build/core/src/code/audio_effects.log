@@ -1,0 +1,8 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_effects.c:5:9: warning: 'ROUND' redefined
+    5 | #define ROUND(num) floorf((num)*100) / 100;
+      |         ^~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/libultraship/include/libultraship/libultra.h:10,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_effects.c:2:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/libultraship/include/libultraship/libultra/gu.h:9:9: note: this is the location of the previous definition
+    9 | #define ROUND(x) (s32)(((x) >= 0.0) ? ((x) + 0.5) : ((x)-0.5))
+      |         ^~~~~

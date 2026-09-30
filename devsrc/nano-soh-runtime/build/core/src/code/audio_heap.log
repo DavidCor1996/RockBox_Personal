@@ -1,0 +1,14 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_heap.c: In function 'AudioHeap_ChangeStorage':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_heap.c:1328:19: warning: comparison between pointer and integer
+ 1328 |         if (start <= sample->sampleAddr && sample->sampleAddr < end) {
+      |                   ^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_heap.c:1328:63: warning: comparison between pointer and integer
+ 1328 |         if (start <= sample->sampleAddr && sample->sampleAddr < end) {
+      |                                                               ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_heap.c: In function 'AudioHeap_ApplySampleBankCacheInternal':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_heap.c:1366:20: warning: assignment to 'uintptr_t' {aka 'unsigned int'} from 'void *' makes integer from pointer without a cast [-Wint-conversion]
+ 1366 |     change.oldAddr = AudioHeap_SearchCaches(SAMPLE_TABLE, CACHE_EITHER, sampleBankId);
+      |                    ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/audio_heap.c:1381:15: warning: assignment to 'u32 *' {aka 'long unsigned int *'} from incompatible pointer type 'uintptr_t *' {aka 'unsigned int *'} [-Wincompatible-pointer-types]
+ 1381 |     fakematch = &change.oldAddr;
+      |               ^

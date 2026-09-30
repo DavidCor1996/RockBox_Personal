@@ -934,13 +934,20 @@ int button_read_device(void)
         ROCKPOD_SIM_BUTTON_GATE("ROCKPOD_SIM_RIGHT_GATE", BUTTON_RIGHT);
 #endif
 #undef ROCKPOD_SIM_BUTTON_GATE
+        intptr_t gated_data = 0;
+#if defined(BUTTON_SCROLL_FWD) && defined(BUTTON_SCROLL_BACK)
+        /* Match scrollwheel_event(): the top byte is the detent count.
+         * A zero-data test event is ignored by the normal list engine. */
+        if (gated_buttons & (BUTTON_SCROLL_FWD | BUTTON_SCROLL_BACK))
+            gated_data = 1 << 24;
+#endif
         if (gated_buttons != previous_gated_buttons)
         {
             if (previous_gated_buttons)
                 button_queue_post(BUTTON_REL | previous_gated_buttons, 0);
             if (gated_buttons)
             {
-                button_queue_post(gated_buttons, 0);
+                button_queue_post(gated_buttons, gated_data);
                 gated_button_started = current_tick;
                 gated_button_repeated = false;
             }
@@ -949,7 +956,7 @@ int button_read_device(void)
         else if (gated_buttons && !gated_button_repeated &&
                  TIME_AFTER(current_tick, gated_button_started + HZ / 3))
         {
-            button_queue_post(BUTTON_REPEAT | gated_buttons, 0);
+            button_queue_post(BUTTON_REPEAT | gated_buttons, gated_data);
             gated_button_repeated = true;
         }
     }

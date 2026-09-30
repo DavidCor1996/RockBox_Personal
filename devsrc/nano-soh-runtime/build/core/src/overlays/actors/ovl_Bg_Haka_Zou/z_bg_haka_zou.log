@@ -1,0 +1,56 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Zou/z_bg_haka_zou.c: In function 'BgHakaZou_Wait':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Zou/z_bg_haka_zou.c:174:44: warning: passing argument 1 of 'CollisionHeader_GetVirtual' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  174 |                 CollisionHeader_GetVirtual(&object_haka_objects_Col_006F70, &colHeader);
+      |                                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Zou/z_bg_haka_zou.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Zou/z_bg_haka_zou.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:673:39: note: expected 'void *' but argument is of type 'const char (*)[66]'
+  673 | void CollisionHeader_GetVirtual(void* colHeader, CollisionHeader** dest);
+      |                                 ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Zou/z_bg_haka_zou.c:182:44: warning: passing argument 1 of 'CollisionHeader_GetVirtual' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  182 |                 CollisionHeader_GetVirtual(&object_haka_objects_Col_005E30, &colHeader);
+      |                                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:673:39: note: expected 'void *' but argument is of type 'const char (*)[66]'
+  673 | void CollisionHeader_GetVirtual(void* colHeader, CollisionHeader** dest);
+      |                                 ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Zou/z_bg_haka_zou.c:185:44: warning: passing argument 1 of 'CollisionHeader_GetVirtual' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  185 |                 CollisionHeader_GetVirtual(&gBotwBombSpotCol, &colHeader);
+      |                                            ^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:673:39: note: expected 'void *' but argument is of type 'const char (*)[54]'
+  673 | void CollisionHeader_GetVirtual(void* colHeader, CollisionHeader** dest);
+      |                                 ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Zou/z_bg_haka_zou.c: In function 'BgHakaZou_SpawnRubbleParticles':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Zou/z_bg_haka_zou.c:258:80: warning: passing argument 10 of 'EffectSsHahen_SpawnBurst' from incompatible pointer type [-Wincompatible-pointer-types]
+  258 |     EffectSsHahen_SpawnBurst(play, &fragmentPos, 10.0f, 0, 10, 10, 4, 141, 40, gBotwBombSpotDL);
+      |                                                                                ^~~~~~~~~~~~~~~
+      |                                                                                |
+      |                                                                                const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:309:88: note: expected 'Gfx *' but argument is of type 'const char *'
+  309 |                               s16 randScaleRange, s16 count, s16 objId, s16 life, Gfx* dList);
+      |                                                                                   ~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Zou/z_bg_haka_zou.c:264:88: warning: passing argument 10 of 'EffectSsHahen_SpawnBurst' from incompatible pointer type [-Wincompatible-pointer-types]
+  264 |             EffectSsHahen_SpawnBurst(play, &fragmentPos, 10.0f, 0, 10, 10, 4, 141, 40, gBotwBombSpotDL);
+      |                                                                                        ^~~~~~~~~~~~~~~
+      |                                                                                        |
+      |                                                                                        const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:309:88: note: expected 'Gfx *' but argument is of type 'const char *'
+  309 |                               s16 randScaleRange, s16 count, s16 objId, s16 life, Gfx* dList);
+      |                                                                                   ~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Zou/z_bg_haka_zou.c: In function 'BgHakaZou_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Zou/z_bg_haka_zou.c:405:9: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  405 |         object_haka_objects_DL_0064E0,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Zou/z_bg_haka_zou.c:405:9: note: (near initialization for 'dLists[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Zou/z_bg_haka_zou.c:406:9: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  406 |         object_haka_objects_DL_005CE0,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Zou/z_bg_haka_zou.c:406:9: note: (near initialization for 'dLists[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Zou/z_bg_haka_zou.c:407:9: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  407 |         gBotwBombSpotDL,
+      |         ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Zou/z_bg_haka_zou.c:407:9: note: (near initialization for 'dLists[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Zou/z_bg_haka_zou.c:408:9: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  408 |         object_haka_objects_DL_005CE0,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Haka_Zou/z_bg_haka_zou.c:408:9: note: (near initialization for 'dLists[3]')

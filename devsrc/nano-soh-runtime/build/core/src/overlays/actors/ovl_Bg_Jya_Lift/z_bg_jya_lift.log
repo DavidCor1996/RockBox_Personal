@@ -1,0 +1,21 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Lift/z_bg_jya_lift.c: In function 'BgJyaLift_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Lift/z_bg_jya_lift.c:66:40: warning: passing argument 3 of 'BgJyaLift_InitDynapoly' from incompatible pointer type [-Wincompatible-pointer-types]
+   66 |     BgJyaLift_InitDynapoly(this, play, &gLiftCol, DPM_UNK);
+      |                                        ^~~~~~~~~
+      |                                        |
+      |                                        const char (*)[39]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Lift/z_bg_jya_lift.c:46:80: note: expected 'CollisionHeader *' but argument is of type 'const char (*)[39]'
+   46 | void BgJyaLift_InitDynapoly(BgJyaLift* this, PlayState* play, CollisionHeader* collisionHeader, s32 moveFlag) {
+      |                                                               ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Lift/z_bg_jya_lift.c: In function 'BgJyaLift_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Lift/z_bg_jya_lift.c:164:28: warning: passing argument 2 of 'Gfx_DrawDListOpa' from incompatible pointer type [-Wincompatible-pointer-types]
+  164 |     Gfx_DrawDListOpa(play, gLiftDL);
+      |                            ^~~~~~~
+      |                            |
+      |                            const char *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Lift/z_bg_jya_lift.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Lift/z_bg_jya_lift.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:546:45: note: expected 'Gfx *' but argument is of type 'const char *'
+  546 | void Gfx_DrawDListOpa(PlayState* play, Gfx* dlist);
+      |                                        ~~~~~^~~~~

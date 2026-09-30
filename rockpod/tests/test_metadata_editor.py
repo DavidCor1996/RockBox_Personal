@@ -6,7 +6,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from PySide6.QtCore import QTimer
-from PySide6.QtWidgets import QApplication, QMessageBox
+from PySide6.QtWidgets import QApplication, QLabel, QMessageBox
 
 from services.device_detector import DeviceDetector
 from services.library_scanner import LibraryScanner
@@ -99,6 +99,23 @@ def test_metadata_editor_partial_video_edit_preserves_title_and_type():
 
     assert editor._video_kind_combo.currentData() == "music_video"
     assert saved == [(9, {"comment": "New comment"})]
+
+
+def test_metadata_editor_summary_shows_provider_rating_and_content_rating():
+    app = QApplication.instance() or QApplication([])
+    editor = MetadataEditor({
+        "id": 10,
+        "media_type": "video",
+        "video_kind": "movie",
+        "title": "A Movie",
+        "external_rating": 8.4,
+        "external_rating_votes": 1200,
+        "content_rating": "PG-13",
+    })
+
+    labels = [label.text() for label in editor.findChildren(QLabel)]
+    assert "8.4/10 (1,200 votes)" in labels
+    assert "PG-13" in labels
 
 
 def test_update_track_metadata_recomputes_hash_for_tag_changes(db):

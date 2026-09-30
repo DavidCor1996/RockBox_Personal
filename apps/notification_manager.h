@@ -15,6 +15,9 @@ struct notification_record
 
 void notification_manager_init(void);
 void notification_manager_service(void);
+void notification_manager_hibernate_prepare(void);
+void notification_manager_hibernate_resume(void);
+void notification_manager_hibernate_abort(void);
 bool notification_post(const struct notification_request *request);
 bool notification_schedule(const struct notification_request *request,
                            long rtc_deadline);
@@ -29,6 +32,9 @@ void notification_manager_clear(void);
 const struct notification_record *notification_manager_banner(void);
 long notification_manager_banner_started(void);
 void notification_manager_set_center_active(bool active);
+bool notification_manager_banners_suppressed(void);
+void notification_manager_set_banners_suppressed(bool suppressed);
+void notification_manager_set_desktop_mode(bool active);
 void notification_manager_flush(void);
 void notification_manager_prepare_visuals(void);
 int notification_manager_visual_font(bool bold);

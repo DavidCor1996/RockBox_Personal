@@ -6,7 +6,7 @@ build_dir_arg="${1:-${repo_root}/build-sim-ipod6g}"
 build_dir="$(cd "${build_dir_arg}" && pwd)"
 out_dir="${2:-/tmp/ipodjs-fast-scroll-regression}"
 rockboxui="${build_dir}/rockboxui"
-source_root="${build_dir}/simdisk"
+source_root="${IPODJS_FAST_SCROLL_SOURCE_ROOT:-${build_dir}/simdisk}"
 runtime_root=""
 sim_pid=""
 sim_wid=""
@@ -145,6 +145,10 @@ prepare_root()
         fi
     done
 
+    mkdir -p "${runtime_root}/.rockbox/ipodjs/apple"
+    cp -a "${repo_root}/assets/ipodjs/apple/." \
+          "${runtime_root}/.rockbox/ipodjs/apple/"
+
     source_track="$(find "${source_root}/Music" -type f -iname '*.mp3' -print -quit)"
     if [ -z "${source_track}" ]; then
         printf "no MP3 fixture found under %s/Music\n" "${source_root}" >&2
@@ -158,6 +162,7 @@ prepare_root()
     awk '
         /^ui engine:/ { next }
         /^ui engine dark mode:/ { next }
+        /^ui engine hold effect:/ { next }
         /^start in screen:/ { next }
         /^(tagcache_autoupdate|autoupdate):/ { next }
         /^resume:/ { next }
@@ -165,6 +170,7 @@ prepare_root()
         END {
             print "ui engine: ipodjs"
             print "ui engine dark mode: off"
+            print "ui engine hold effect: lockscreen"
             print "start in screen: root"
             print "tagcache_autoupdate: off"
             print "resume: off"
@@ -334,7 +340,7 @@ main()
         printf "missing simulator build: %s\n" "${rockboxui}" >&2
         exit 1
     }
-    [ -f "${source_root}/.rockbox/ipodjs/apple/fast-scroll-blank.apple.95x82x32.bmp" ] || {
+    [ -f "${repo_root}/assets/ipodjs/apple/retailos-2.0.4/resources/004.rga" ] || {
         printf "prepared private Apple fast-scroll assets are missing\n" >&2
         exit 1
     }

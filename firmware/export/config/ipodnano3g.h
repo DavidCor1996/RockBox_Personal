@@ -4,71 +4,6 @@
 
 #define IPOD_ARCH 1
 
-/* The metadata-driven WinPod mount is a read-only hardware candidate.  Keep
- * the proven exact P9 mount as the default until the general path passes the
- * volume-wide acceptance gates in ipodnano3g-completion-spec.md. */
-#ifndef NANO3G_NATIVE_FULL_READONLY_MOUNT
-#define NANO3G_NATIVE_FULL_READONLY_MOUNT 0
-#endif
-
-/* Nano 3G hardware bring-up guard.
- * Keep the application firmware guarded, but allow bootloader LCD/backlight
- * bring-up tests to touch target hardware.
- */
-#ifdef BOOTLOADER
-#define NAN03G_SAFE_BRINGUP 0
-#define NANO3G_VISIBILITY_ONLY 1
-#define NANO3G_DISPLAY_BRINGUP 1
-#define NANO3G_LCD_COLOR_PROBE 0
-#ifndef NANO3G_SYSCFG_PROBE
-#define NANO3G_SYSCFG_PROBE 0
-#endif
-#ifndef NANO3G_DUALBOOT_SELECT
-/* The metadata-driven candidate is intended for persistent dual boot.  Keep
- * the older exact-map probes on their historical no-button path. */
-#define NANO3G_DUALBOOT_SELECT NANO3G_NATIVE_FULL_READONLY_MOUNT
-#endif
-#define NANO3G_NATIVE_PRESTOR_ONLY 0
-#define NANO3G_NATIVE_SAFE_BOOT 0
-#define NANO3G_NATIVE_CHAIN 0
-#define NANO3G_NATIVE_CHAIN_SIZE 102484u
-#define NANO3G_NATIVE_CHAIN_CHECKSUM 0x00a4d5b8u
-#define NANO3G_NATIVE_LANE_PROBE 0
-#define NANO3G_NATIVE_CURRENT_FILE_READ 1
-#define NANO3G_NATIVE_DISK_HANDOFF 1
-#define NANO3G_NATIVE_USB_RETURN 0
-#define NANO3G_INSTALLED_PRESTOR_PATCH 0
-#define NANO3G_FULL_IMAGE_PRESTOR_CHECKPOINT 0
-#define NANO3G_FULL_IMAGE_PRESERVE_EXCEPTION 1
-#define NANO3G_FULL_IMAGE_READONLY_CONTINUE 1
-#define NANO3G_FULL_IMAGE_IPODJS_CONTINUE 0
-#if NANO3G_NATIVE_USB_RETURN
-#define HAVE_BOOTLOADER_USB_MODE
-#define USB_ENABLE_SERIAL
-#endif
-#else
-#define NAN03G_SAFE_BRINGUP 1
-#define NANO3G_VISIBILITY_ONLY 0
-#define NANO3G_DISPLAY_BRINGUP 1
-#define NANO3G_LCD_COLOR_PROBE 0
-#define NANO3G_NATIVE_PRESTOR_ONLY 0
-#define NANO3G_NATIVE_SAFE_BOOT 1
-#define NANO3G_NATIVE_DRAM_PERSIST_PROBE 0
-#define NANO3G_NATIVE_INPUT_PROBE 0
-#define NANO3G_NATIVE_STORAGE_PROBE 1
-#define NANO3G_NATIVE_LANE_PROBE 0
-#define NANO3G_NATIVE_STORAGE_SCREEN_STAGE 0
-#define NANO3G_NATIVE_CHAIN 0
-#define NANO3G_NATIVE_CURRENT_FILE_READ 1
-#define NANO3G_NATIVE_USB_RETURN 0
-#define NANO3G_INSTALLED_PRESTOR_PATCH 0
-#endif
-
-/* Keep transient chained probes within the 128 KiB IRAM0 DFU staging body. */
-#if NANO3G_NATIVE_PRESTOR_ONLY || NANO3G_NATIVE_CHAIN
-#define DISABLE_BACKTRACE
-#endif
-
 /* For Rolo and boot loader */
 #define MODEL_NUMBER 117
 
@@ -145,6 +80,12 @@
 
 #define CONFIG_STORAGE STORAGE_NAND
 
+/* The flash controller DMAs straight into and out of the caller's buffer
+ * and only handles word-aligned ones: a read into a buffer 1-3 bytes off
+ * returns wrong data and writes past the buffer (measured). The FAT code
+ * bounces unaligned transfers, as on the Classic 6G. */
+#define STORAGE_NEEDS_BOUNCE_BUFFER
+
 // TODO
 //#define CONFIG_NAND NAND_SAMSUNG
 #define CONFIG_NAND 0
@@ -153,13 +94,17 @@
    needs to do cleanup on shutdown */
 #define HAVE_STORAGE_FLUSH
 
-/*
- * Nano 3G NAND pages are 2048 bytes, but the Whimory/FTL path exposes the
- * restored WinPod volume in 512-byte logical sectors.  The FTL reader handles
- * the page/slice translation internally; Rockbox's disk/FAT layer must see the
- * same 512-byte sector units used by the MBR partition table.
- */
-#define SECTOR_SIZE 512
+/* Chips not validated are mounted read-only; USB hosts are told so */
+#define HAVE_STORAGE_READONLY
+
+/* The NAND flash has 2048-byte sectors, and is our only storage */
+#define SECTOR_SIZE 2048
+
+/* Apple's partition table on the NAND counts 4096-byte sectors */
+#define MAX_VIRT_SECTOR_SIZE 4096
+
+/* If we have no valid partitions, advertise this as our sector size */
+#define DEFAULT_VIRT_SECTOR_SIZE 4096
 
 /* LCD dimensions */
 #define LCD_WIDTH  320
@@ -192,7 +137,6 @@
 /* Define this to enable morse code input */
 #define HAVE_MORSE_INPUT
 
-// TODO
 /* define this if you have a real-time clock */
 #define CONFIG_RTC RTC_NANO3G
 
@@ -201,13 +145,10 @@
 
 #define CONFIG_LCD LCD_IPOD6GNANO3G4G
 
-// TODO
-#if 0
-/* Define the type of audio codec */
+/* Define the type of audio codec. The Nano 3G has a Wolfson WM1870 at I2C
+ * address 0x34, which the original firmware drives as a WM8975 plus a few
+ * registers above the WM8975's range, so wm8975.c covers it. */
 #define HAVE_WM1870
-#endif
-// XXX: dummy for preliminary build, WRONG CODEC!!!
-#define HAVE_CS42L55
 
 #define HAVE_PCM_DMA_ADDRESS
 
@@ -221,12 +162,8 @@
 /* The number of bytes reserved for loadable codecs */
 #define CODEC_SIZE 0x100000
 
-/* The number of bytes reserved for loadable plugins.
- * Nano 3G has the same 32 MiB RAM class as iPod Video/Classic, which both
- * reserve 3 MiB.  Two MiB cannot link the configured ScummVM plugin (it is
- * about 74 KiB over), so match those proven targets and retain roughly
- * 28 MiB for the core and audio buffer. */
-#define PLUGIN_BUFFER_SIZE 0x300000
+/* The number of bytes reserved for loadable plugins */
+#define PLUGIN_BUFFER_SIZE 0x80000
 
 // TODO: actually these are the nano2g defines
 #define BATTERY_CAPACITY_DEFAULT 400 /* default battery capacity */
@@ -257,6 +194,22 @@
 //#define CONFIG_RDS RDS_CFG_PUSH
 
 /* The exact type of CPU */
+#define NANO3G_NATIVE_SAFE_BOOT 1
+
+#define NANO3G_NATIVE_FULL_READONLY_MOUNT 0
+#define NANO3G_NATIVE_PRESTOR_ONLY 0
+#define NANO3G_NATIVE_CHAIN 0
+#define NANO3G_NATIVE_CHAIN_SIZE 102484u
+#define NANO3G_NATIVE_CHAIN_CHECKSUM 0x00a4d5b8u
+#define NANO3G_NATIVE_LANE_PROBE 0
+#define NANO3G_NATIVE_CURRENT_FILE_READ 1
+#define NANO3G_NATIVE_DISK_HANDOFF 1
+#define NANO3G_NATIVE_USB_RETURN 0
+#define NANO3G_NATIVE_DRAM_PERSIST_PROBE 0
+#define NANO3G_NATIVE_INPUT_PROBE 0
+#define NANO3G_NATIVE_STORAGE_PROBE 1
+#define NANO3G_NATIVE_STORAGE_SCREEN_STAGE 0
+#define NANO3G_DISPLAY_BRINGUP 1
 #define CONFIG_CPU S5L8702
 
 /* Define this to the CPU frequency */
@@ -311,8 +264,7 @@
 #define USB_VENDOR_ID 0x05AC
 #define USB_PRODUCT_ID 0x1262
 #define USB_DEVBSS_ATTR __attribute__((aligned(32)))
-// TODO
-//#define HAVE_BOOTLOADER_USB_MODE
+#define HAVE_BOOTLOADER_USB_MODE
 #ifdef BOOTLOADER
 #define USBPOWER_BTN_IGNORE (~0)
 #endif

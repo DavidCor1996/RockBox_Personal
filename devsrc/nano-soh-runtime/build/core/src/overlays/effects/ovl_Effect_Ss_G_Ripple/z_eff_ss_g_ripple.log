@@ -1,0 +1,11 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Ripple/z_eff_ss_g_ripple.c: In function 'EffectSsGRipple_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Ripple/z_eff_ss_g_ripple.c:41:15: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   41 |     this->gfx = SEGMENTED_TO_VIRTUAL(gEffWaterRippleDL);
+      |               ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Ripple/z_eff_ss_g_ripple.c: In function 'EffectSsGRipple_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Ripple/z_eff_ss_g_ripple.c:106:48: warning: passing argument 3 of 'EffectSsGRipple_DrawRipple' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  106 |         EffectSsGRipple_DrawRipple(play, this, gEffWaterRippleTex);
+      |                                                ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Ripple/z_eff_ss_g_ripple.c:62:72: note: expected 'void *' but argument is of type 'const char *'
+   62 | void EffectSsGRipple_DrawRipple(PlayState* play, EffectSs* this, void* segment) {
+      |                                                                  ~~~~~~^~~~~~~

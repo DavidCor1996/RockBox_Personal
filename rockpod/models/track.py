@@ -91,6 +91,8 @@ class Track:
     comment: str = ""
     compilation: int = 0
     rating: int = 0
+    external_rating: float = 0.0
+    external_rating_votes: int = 0
     play_count: int = 0
     last_played: Optional[str] = None
     artwork_path: Optional[str] = None

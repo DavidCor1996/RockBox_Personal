@@ -174,7 +174,7 @@ _ICON_SOURCES = (
 # Dock magnification variants: reduced from Apple's 128-pixel frame so the
 # intermediate sizes keep real detail instead of being blown up from 32.
 _DOCK_MAGNIFIED = ("finder", "itunes", "preview", "textedit", "calculator",
-                   "directv",
+                   "directv", "dashboard",
                    "system_preferences", "trash_empty")
 
 _ICON_CANDIDATES = {name: candidates for name, candidates, _ in _ICON_SOURCES}
@@ -183,11 +183,12 @@ _ICON_CANDIDATES = {name: candidates for name, candidates, _ in _ICON_SOURCES}
 # --------------------------------------------------------------------------
 # Panel profiles
 #
-# The same 1:1 Snow Leopard cuts serve both panels.  At 320x240 the artwork
-# has to be used in fragments; at 1920x1080 it is used at the size Apple drew
-# it, so a window is a real window and the Dock carries real 64-pixel icons.
-# Each profile lives in its own subdirectory of the pack so one install can
-# feed the iPod and the 1080p host panel.
+# The same 1:1 Snow Leopard cuts serve both renderers.  The physical iPod and
+# DCP750 path use the 320x240 source profile; the video-out compositor expands
+# that complete frame to its NTSC viewport.  The optional 1920x1080 profile is
+# only for the desktop simulator on a host display.  Each profile lives in
+# its own subdirectory so one install can feed both environments without ever
+# making the firmware allocate a TV-sized canvas.
 # --------------------------------------------------------------------------
 
 
@@ -464,6 +465,41 @@ ASSET_SPECS = tuple(
         kind="font",
         font_face=0,
         font_size=9,
+    ),
+    AssetSpec(
+        "320x240.dashboard.world_clock",
+        "320x240/dashboard/world-clock.74x74x16.rga",
+        (74, 74), _capture("widgets/world-clock.png"),
+        kind="derived_alpha", recipe="compose_dashboard_widget",
+        recipe_args=(74, 74),
+    ),
+    AssetSpec(
+        "320x240.dashboard.ical",
+        "320x240/dashboard/ical.104x51x16.rga",
+        (104, 51), _capture("widgets/ical.png"),
+        kind="derived_alpha", recipe="compose_dashboard_widget",
+        recipe_args=(104, 51),
+    ),
+    AssetSpec(
+        "320x240.dashboard.weather",
+        "320x240/dashboard/weather.104x59x16.rga",
+        (104, 59), _capture("widgets/weather.png"),
+        kind="derived_alpha", recipe="compose_dashboard_weather",
+        recipe_args=(104, 59),
+    ),
+    AssetSpec(
+        "320x240.dashboard.stickies",
+        "320x240/dashboard/stickies.96x88x16.rga",
+        (96, 88), _capture("widgets/stickies.png"),
+        kind="derived_alpha", recipe="compose_dashboard_widget",
+        recipe_args=(96, 88),
+    ),
+    AssetSpec(
+        "320x240.dashboard.itunes",
+        "320x240/dashboard/itunes.196x82x16.rga",
+        (196, 82), _capture("widgets/itunes.png"),
+        kind="derived_alpha", recipe="compose_dashboard_widget",
+        recipe_args=(196, 82),
     ),
 )
 
@@ -1062,6 +1098,7 @@ def _convert_font(source: Path, destination: Path, spec: AssetSpec) -> dict:
         "font_face": spec.font_face,
         "cell_size": [atlas.cell_w, atlas.cell_h],
         "ascent": atlas.ascent,
+        "atlas_origin": atlas.origin,
         "output_size": [atlas.width, atlas.height],
         "output_depth": 8,
         "alpha": "8-bit-coverage",

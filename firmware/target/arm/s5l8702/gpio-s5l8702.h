@@ -39,7 +39,10 @@ void gpio_preinit(void);
 void gpio_init(void);
 #if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
         IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+void gpio_hibernate_suspend(void);
 void gpio_hibernate_resume(void);
+void eint_hibernate_suspend(void);
+void eint_hibernate_clear_pending(void);
 void eint_hibernate_resume(void);
 #endif
 /* get/set configuration for GPIO groups (0..15) */

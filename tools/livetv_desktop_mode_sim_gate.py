@@ -118,7 +118,8 @@ def install_desktop(repo: Path, build: Path, root: Path) -> None:
         entry, OPEN_PLUGIN_PATH_OFFSET, OPEN_PLUGIN_PATH_SIZE, PLUGIN_PATH
     )
     write_cstring(
-        entry, OPEN_PLUGIN_PARAM_OFFSET, OPEN_PLUGIN_PARAM_SIZE, ""
+        entry, OPEN_PLUGIN_PARAM_OFFSET, OPEN_PLUGIN_PARAM_SIZE,
+        "simulator-desktop"
     )
     (root / ".rockbox/rocks/plugin.dat").write_bytes(entry)
     (root / ".rockbox/config.cfg").write_text(

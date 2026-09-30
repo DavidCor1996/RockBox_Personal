@@ -1,0 +1,21 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Amishutter/z_bg_jya_amishutter.c: In function 'BgJyaAmishutter_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Amishutter/z_bg_jya_amishutter.c:63:46: warning: passing argument 3 of 'BgJyaAmishutter_InitDynaPoly' from incompatible pointer type [-Wincompatible-pointer-types]
+   63 |     BgJyaAmishutter_InitDynaPoly(this, play, &gAmishutterCol, DPM_UNK);
+      |                                              ^~~~~~~~~~~~~~~
+      |                                              |
+      |                                              const char (*)[45]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Amishutter/z_bg_jya_amishutter.c:46:92: note: expected 'CollisionHeader *' but argument is of type 'const char (*)[45]'
+   46 | void BgJyaAmishutter_InitDynaPoly(BgJyaAmishutter* this, PlayState* play, CollisionHeader* collision, s32 flag) {
+      |                                                                           ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Amishutter/z_bg_jya_amishutter.c: In function 'BgJyaAmishutter_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Amishutter/z_bg_jya_amishutter.c:127:28: warning: passing argument 2 of 'Gfx_DrawDListOpa' from incompatible pointer type [-Wincompatible-pointer-types]
+  127 |     Gfx_DrawDListOpa(play, gAmishutterDL);
+      |                            ^~~~~~~~~~~~~
+      |                            |
+      |                            const char *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Amishutter/z_bg_jya_amishutter.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Amishutter/z_bg_jya_amishutter.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:546:45: note: expected 'Gfx *' but argument is of type 'const char *'
+  546 | void Gfx_DrawDListOpa(PlayState* play, Gfx* dlist);
+      |                                        ~~~~~^~~~~

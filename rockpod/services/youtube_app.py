@@ -8,7 +8,9 @@ import os
 import re
 import shutil
 import subprocess
+import calendar
 from datetime import date
+from datetime import datetime
 from pathlib import Path
 from urllib.parse import urlparse, urlunparse
 
@@ -18,6 +20,7 @@ from services.android_media import build_ffmpeg_command
 from services.device_sync_index import DeviceSyncIndex
 from services.file_safety import atomic_write_text
 from services.path_safety import resolve_under_root, validate_device_root
+from services.app_video_sync import device_video_target
 
 
 YOUTUBE_DEVICE_ROOT = ".rockbox/youtube"
@@ -49,6 +52,9 @@ YOUTUBE_FIELDS = (
     "home_section",
     "home_order",
     "my_rating",
+    "is_live",
+    "live_creator_key",
+    "live_start_epoch",
 )
 PROFILE_FIELDS = (
     "username",
@@ -130,6 +136,22 @@ def _source_signature(path):
     return f"{stat.st_size}:{stat.st_mtime_ns}"
 
 
+def _local_epoch_now():
+    """Return Rockbox-compatible seconds for the machine's local wall clock.
+
+    Rockbox's embedded ``mktime`` intentionally treats the RTC fields as a
+    timezone-free epoch.  Treating the host's local fields as UTC produces the
+    same integer and avoids a timezone-sized jump when the iPod joins live.
+    """
+    return int(calendar.timegm(datetime.now().timetuple()))
+
+
+def _live_creator_key(channel_url, uploader):
+    identity = _clean(channel_url, 500).lower() or _clean(uploader, 96).lower()
+    identity = re.sub(r"\s+", "-", identity).strip("-") or "youtube-creator"
+    return hashlib.sha1(identity.encode("utf-8")).hexdigest()[:16]
+
+
 def _duration_text(milliseconds):
     seconds = max(0, int(milliseconds or 0) // 1000)
     hours, remainder = divmod(seconds, 3600)
@@ -194,6 +216,15 @@ class YoutubeAppService:
             for row in self.db.fetchall(
                 "SELECT * FROM youtube_videos "
                 "ORDER BY show_home DESC, home_order, date_added, title"
+            )
+        ]
+
+    def list_live_videos(self):
+        return [
+            dict(row)
+            for row in self.db.fetchall(
+                "SELECT * FROM youtube_videos WHERE is_live = 1 "
+                "ORDER BY uploader, date_modified DESC"
             )
         ]
 
@@ -334,6 +365,14 @@ class YoutubeAppService:
         uploader = _clean(
             metadata.get("uploader") or profile.get("username") or "You", 48
         )
+        channel_url = _clean(metadata.get("channel_url"), 500)
+        is_live = int(bool(metadata.get("is_live", False)))
+        creator_key = _clean(metadata.get("live_creator_key"), 64)
+        if is_live and not creator_key:
+            creator_key = _live_creator_key(channel_url, uploader)
+        live_start_epoch = int(metadata.get("live_start_epoch") or 0)
+        if is_live and live_start_epoch <= 0:
+            live_start_epoch = _local_epoch_now()
         duration_ms = int(
             metadata.get("duration_ms") or _probe_duration_ms(
                 source, self.config.get("ffprobe_binary", "ffprobe")
@@ -360,7 +399,7 @@ class YoutubeAppService:
             "source_type": _clean(
                 metadata.get("source_type") or "personal", 24
             ),
-            "channel_url": _clean(metadata.get("channel_url"), 500),
+            "channel_url": channel_url,
             "thumbnail_path": os.path.abspath(
                 os.path.expanduser(str(metadata.get("thumbnail_path") or ""))
             )
@@ -374,6 +413,9 @@ class YoutubeAppService:
             ),
             "home_order": int(metadata.get("home_order") or 0),
             "my_rating": min(5, max(0, int(metadata.get("my_rating") or 0))),
+            "is_live": is_live,
+            "live_creator_key": creator_key if is_live else "",
+            "live_start_epoch": live_start_epoch if is_live else 0,
         }
         columns = ", ".join(values)
         placeholders = ", ".join("?" for _ in values)
@@ -389,9 +431,18 @@ class YoutubeAppService:
             "date_modified=datetime('now')",
             (video_id, source, _source_signature(source), *values.values()),
         )
+        if is_live:
+            self.db.execute(
+                "UPDATE youtube_videos SET is_live = 0, live_start_epoch = 0 "
+                "WHERE live_creator_key = ? AND id <> ?",
+                (creator_key, video_id),
+            )
         return self.get_video(video_id)
 
-    def import_url(self, url, destination="home", channel_url=""):
+    def import_url(
+        self, url, destination="home", channel_url="", *,
+        is_live=False, live_start_epoch=0,
+    ):
         """Download one YouTube URL into RockPod's managed offline library."""
         youtube_id = _youtube_video_id(url)
         destinations = {
@@ -478,12 +529,54 @@ class YoutubeAppService:
             category=(info.get("categories") or ["People & Blogs"])[0],
             tags=", ".join(info.get("tags") or []),
             source_url=str(url).strip(),
-            source_type="youtube-channel" if channel_url else "youtube",
+            source_type=(
+                "youtube-live" if is_live else
+                "youtube-channel" if channel_url else "youtube"
+            ),
             channel_url=channel_url,
+            is_live=is_live,
+            live_creator_key=_live_creator_key(
+                channel_url or info.get("channel_url") or info.get("uploader_url"),
+                info.get("uploader") or info.get("channel") or "YouTube",
+            ) if is_live else "",
+            live_start_epoch=live_start_epoch or (
+                _local_epoch_now() if is_live else 0
+            ),
             thumbnail_path=str(thumbnail) if thumbnail.is_file() else "",
             show_home=show_home,
             show_profile=show_profile,
             home_order=next_home,
+        )
+
+    def import_live_url(self, url):
+        """Download a URL and make it the creator's sole current live item."""
+        return self.import_url(
+            url, "library", is_live=True, live_start_epoch=_local_epoch_now()
+        )
+
+    def set_live_video(self, video_id, enabled=True, start_epoch=0):
+        row = self.get_video(video_id)
+        if not row:
+            raise ValueError("Choose an existing YouTube video")
+        if not enabled:
+            return self.update_video(
+                video_id,
+                {"is_live": 0, "live_creator_key": "", "live_start_epoch": 0},
+            )
+        creator_key = _live_creator_key(row.get("channel_url"), row.get("uploader"))
+        self.db.execute(
+            "UPDATE youtube_videos SET is_live = 0, live_start_epoch = 0 "
+            "WHERE live_creator_key = ? AND id <> ?",
+            (creator_key, video_id),
+        )
+        return self.update_video(
+            video_id,
+            {
+                "is_live": 1,
+                "live_creator_key": creator_key,
+                "live_start_epoch": int(start_epoch or _local_epoch_now()),
+                "source_type": "youtube-live",
+            },
         )
 
     def update_video(self, video_id, updates):
@@ -495,6 +588,7 @@ class YoutubeAppService:
             "show_home",
             "show_profile",
             "favorite",
+            "is_live",
         ):
             if key in allowed:
                 allowed[key] = int(bool(allowed[key]))
@@ -504,6 +598,7 @@ class YoutubeAppService:
             "rating_count",
             "home_order",
             "my_rating",
+            "live_start_epoch",
         ):
             if key in allowed:
                 allowed[key] = int(allowed[key] or 0)
@@ -522,6 +617,8 @@ class YoutubeAppService:
                 "favorite",
                 "home_order",
                 "my_rating",
+                "is_live",
+                "live_start_epoch",
             }:
                 allowed[key] = _clean(allowed[key], 1000)
         assignment = ", ".join(f"{key} = ?" for key in allowed)
@@ -689,7 +786,7 @@ class YoutubeAppService:
         removed = 0
         expected = set(video_ids)
         for directory, suffixes in (
-            (media_root, {".mpg", ".ytm"}),
+            (media_root, {".mpg", ".m4v", ".ytm"}),
             (thumb_root, {".bmp"}),
             (preview_root, {".bmp"}),
         ):
@@ -708,20 +805,97 @@ class YoutubeAppService:
                         removed += 1
         return removed
 
-    def _sync_media(self, row, mount, staging, sync_index):
+    def _sync_media(
+        self, row, mount, staging, sync_index, device_target=""
+    ):
+        profile = str(self.config.get("video_sync_profile", "quality")).strip().lower()
+        source_signature = _source_signature(row["source_path"])
+        apple_exact = profile == "h264_apple_exact"
+
+        def media_signature(for_profile, selected_device_target):
+            return (
+                f"youtube-media-v3:{for_profile}:{selected_device_target or 'generic'}:"
+                f"{source_signature}"
+            )
+
+        extension = ".m4v" if apple_exact else ".mpg"
         destination = resolve_under_root(
-            mount, f"{YOUTUBE_MEDIA_ROOT}/{row['id']}.mpg"
+            mount, f"{YOUTUBE_MEDIA_ROOT}/{row['id']}{extension}"
         )
-        signature = _source_signature(row["source_path"])
+        signature = media_signature(profile, device_target)
         if sync_index.current_or_seed(
-            "youtube", row["id"], "video-media-v1", signature,
+            "youtube", row["id"], "video-media-v2", signature,
             [destination],
             trust_existing=row.get("last_synced_source_hash") == signature,
         ):
             return False, destination, signature
         os.makedirs(os.path.dirname(destination), exist_ok=True)
-        staged = os.path.join(staging, f"{row['id']}.mpg")
-        if Path(row["source_path"]).suffix.lower() in {".mpg", ".mpeg", ".mpe"}:
+        staged = os.path.join(staging, f"{row['id']}{extension}")
+        if apple_exact:
+            try:
+                from services.video_rvp import VideoRvpTranscoder
+
+                cache_root = os.path.join(
+                    str(self.config.get("cache_dir") or Path.home() / ".rockpod" / "cache"),
+                    "youtube_video",
+                )
+                transcoder = VideoRvpTranscoder(
+                    cache_root,
+                    ffmpeg_path=self.config.get("ffmpeg_binary", "ffmpeg"),
+                    profile="h264_apple_exact",
+                )
+                prepared, _info = transcoder.prepare_track_for_sync(
+                    {
+                        "file_path": row["source_path"],
+                        "title": row.get("title") or "YouTube",
+                        "artist": row.get("uploader") or "YouTube",
+                        "duration": float(row.get("duration_ms") or 0) / 1000.0,
+                        "media_type": "Video",
+                    },
+                    f"youtube-{hashlib.sha1(str(mount).encode()).hexdigest()[:12]}",
+                    device_target=device_target,
+                )
+                shutil.copy2(prepared["sync_source_path"], staged)
+            except Exception:
+                # H.264 conversion failed for one video; keep syncing by
+                # converting this item as MPEG instead of failing the whole run.
+                profile = "quality"
+                extension = ".mpg"
+                destination = resolve_under_root(
+                    mount, f"{YOUTUBE_MEDIA_ROOT}/{row['id']}{extension}"
+                )
+                signature = media_signature(profile, device_target)
+                staged = os.path.join(staging, f"{row['id']}{extension}")
+                current = sync_index.current_or_seed(
+                    "youtube", row["id"], "video-media-v2", signature,
+                    [destination],
+                    trust_existing=row.get("last_synced_source_hash") == signature,
+                )
+                if not current:
+                    if Path(row["source_path"]).suffix.lower() in {".mpg", ".mpeg", ".mpe"}:
+                        shutil.copy2(row["source_path"], staged)
+                    else:
+                        command = build_ffmpeg_command(
+                            row["source_path"],
+                            staged,
+                            "video",
+                            ffmpeg_path=self.config.get("ffmpeg_binary", "ffmpeg"),
+                        )
+                        subprocess.run(command, check=True)
+                    os.replace(staged, destination)
+                    sync_index.mark(
+                        "youtube", row["id"], "video-media-v2", signature, [destination]
+                    )
+                    updated = True
+                else:
+                    updated = False
+                alternate = os.path.splitext(destination)[0] + ".m4v"
+                try:
+                    os.unlink(alternate)
+                except FileNotFoundError:
+                    pass
+                return updated, destination, signature
+        elif Path(row["source_path"]).suffix.lower() in {".mpg", ".mpeg", ".mpe"}:
             shutil.copy2(row["source_path"], staged)
         else:
             command = build_ffmpeg_command(
@@ -732,8 +906,15 @@ class YoutubeAppService:
             )
             subprocess.run(command, check=True)
         os.replace(staged, destination)
+        alternate = os.path.splitext(destination)[0] + (
+            ".mpg" if apple_exact else ".m4v"
+        )
+        try:
+            os.unlink(alternate)
+        except FileNotFoundError:
+            pass
         sync_index.mark(
-            "youtube", row["id"], "video-media-v1", signature, [destination]
+            "youtube", row["id"], "video-media-v2", signature, [destination]
         )
         return True, destination, signature
 
@@ -819,17 +1000,37 @@ class YoutubeAppService:
 
     def sync(
         self, mount_path, device=None, refresh_channels=True,
-        progress_callback=None,
+        progress_callback=None, live_only=False,
     ):
         progress = progress_callback or (lambda _done, _total, _label: None)
         progress(0, 0, "Checking the mounted iPod…")
         mount = validate_device_root(mount_path)
+        video_target = (
+            str(getattr(device, "rockbox_target", "") or "").strip().lower()
+            or device_video_target(mount)
+        )
+        root = resolve_under_root(mount, YOUTUBE_DEVICE_ROOT)
+        existing_library_rows = {}
+        existing_library_path = os.path.join(root, "library.tsv")
+        if live_only and os.path.isfile(existing_library_path):
+            with open(
+                existing_library_path, "r", encoding="utf-8", errors="replace"
+            ) as handle:
+                for raw in handle:
+                    line = raw.rstrip("\r\n")
+                    fields = line.split("\t")
+                    if fields and fields[0] != "id":
+                        existing_library_rows[fields[0]] = line
         channel_report = (
             self.sync_channel_uploads(progress_callback=progress)
-            if refresh_channels
+            if refresh_channels and not live_only
             else {"channels": 0, "videos_added": 0, "videos_removed": 0}
         )
-        videos = self.list_videos()
+        all_videos = self.list_videos()
+        videos = (
+            [row for row in all_videos if row.get("is_live")]
+            if live_only else all_videos
+        )
         export_total = len(videos) + 3
         progress(0, export_total, "Validating YouTube videos and thumbnails…")
         profile = self.get_profile()
@@ -841,8 +1042,11 @@ class YoutubeAppService:
                 raise ValueError(f"Missing YouTube thumbnail: {row['title']}")
         progress(0, export_total, "Importing iPod ratings and favorites…")
         merged = self._merge_device_state(mount)
-        videos = self.list_videos()
-        root = resolve_under_root(mount, YOUTUBE_DEVICE_ROOT)
+        all_videos = self.list_videos()
+        videos = (
+            [row for row in all_videos if row.get("is_live")]
+            if live_only else all_videos
+        )
         media_root = resolve_under_root(mount, YOUTUBE_MEDIA_ROOT)
         thumb_root = resolve_under_root(mount, f"{YOUTUBE_DEVICE_ROOT}/thumbnails")
         preview_root = resolve_under_root(mount, YOUTUBE_PREVIEW_ROOT)
@@ -855,6 +1059,8 @@ class YoutubeAppService:
         sync_index = DeviceSyncIndex(self.config, mount)
         report = {
             "videos": len(videos),
+            "live_videos": sum(1 for row in all_videos if row.get("is_live")),
+            "live_only": bool(live_only),
             "media_updated": 0,
             "media_unchanged": 0,
             "thumbnails_updated": 0,
@@ -872,7 +1078,8 @@ class YoutubeAppService:
             "id\ttitle\tuploader\tduration\tupload_date\tviews\t"
             "rating_x100\trating_count\tcategory\tshow_home\tshow_profile\t"
             "home_order\tvideo_path\tthumb_path\tdescription\ttags\t"
-            "favorite\tmy_rating\tsource_type\tmenu_preview"
+            "favorite\tmy_rating\tsource_type\tmenu_preview\tis_live\t"
+            "live_start_epoch\tlive_creator_key"
         ]
         state_rows = ["id\tmy_rating\tfavorite"]
         for video_index, row in enumerate(videos, 1):
@@ -881,8 +1088,8 @@ class YoutubeAppService:
                 export_total,
                 f"Preparing video {video_index}/{len(videos)}: {row['title']}",
             )
-            updated, _destination, signature = self._sync_media(
-                row, mount, staging, sync_index
+            updated, destination, signature = self._sync_media(
+                row, mount, staging, sync_index, video_target
             )
             report["media_updated" if updated else "media_unchanged"] += 1
             self.db.execute(
@@ -934,6 +1141,8 @@ class YoutubeAppService:
                         f"added={_clean(row['upload_date'], 20)}",
                         f"views={int(row['view_count'] or 0):,} views",
                         f"duration={_duration_text(row['duration_ms'])}",
+                        f"is_live={1 if row.get('is_live') else 0}",
+                        f"live_start_epoch={int(row.get('live_start_epoch') or 0)}",
                     ]
                 )
                 + "\n",
@@ -951,7 +1160,7 @@ class YoutubeAppService:
                 "1" if row["show_home"] else "0",
                 "1" if row["show_profile"] else "0",
                 str(int(row["home_order"] or 0)),
-                f"/YouTube/videos/{row['id']}.mpg",
+                "/" + os.path.relpath(destination, mount).replace(os.sep, "/"),
                 f"/.rockbox/youtube/thumbnails/{row['id']}.bmp",
                 _clean(row["description"], 220),
                 _clean(row["tags"], 110),
@@ -959,6 +1168,9 @@ class YoutubeAppService:
                 str(int(row["my_rating"] or 0)),
                 _clean(row["source_type"], 24),
                 f"/{YOUTUBE_PREVIEW_ROOT}/{row['id']}.bmp",
+                "1" if row.get("is_live") else "0",
+                str(int(row.get("live_start_epoch") or 0)),
+                _clean(row.get("live_creator_key"), 64),
             ]
             library_rows.append("\t".join(values))
             state_rows.append(
@@ -970,12 +1182,32 @@ class YoutubeAppService:
                 export_total,
                 f"Finished video {video_index}/{len(videos)}: {row['title']}",
             )
+        if live_only:
+            synced_ids = {row["id"] for row in videos}
+            for row in all_videos:
+                if row["id"] in synced_ids:
+                    continue
+                existing = existing_library_rows.get(row["id"])
+                if not existing:
+                    continue
+                fields = existing.split("\t")
+                if len(fields) > 22 and not row.get("is_live"):
+                    fields[18] = _clean(row.get("source_type"), 24)
+                    fields[20] = "0"
+                    fields[21] = "0"
+                    fields[22] = ""
+                library_rows.append("\t".join(fields))
+            state_rows = ["id\tmy_rating\tfavorite"] + [
+                f"{row['id']}\t{int(row['my_rating'] or 0)}\t"
+                f"{'1' if row['favorite'] else '0'}"
+                for row in all_videos
+            ]
         progress(
             len(videos) + 1,
             export_total,
             "Removing obsolete YouTube exports…",
         )
-        valid_video_ids = {row["id"] for row in videos}
+        valid_video_ids = {row["id"] for row in all_videos}
         legacy_reconcile = sync_index.needs_legacy_reconcile("youtube")
         if legacy_reconcile:
             report["stale_files_removed"] = self._remove_stale_exports(
@@ -987,6 +1219,7 @@ class YoutubeAppService:
             for stale_id in stale_ids:
                 for path in (
                     os.path.join(media_root, stale_id + ".mpg"),
+                    os.path.join(media_root, stale_id + ".m4v"),
                     os.path.join(media_root, stale_id + ".ytm"),
                     os.path.join(thumb_root, stale_id + ".bmp"),
                     os.path.join(preview_root, stale_id + ".bmp"),

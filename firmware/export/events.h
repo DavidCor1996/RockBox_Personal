@@ -107,6 +107,9 @@ enum {
     /* USB_EXTRACTED
        data = NULL */
     SYS_EVENT_USB_EXTRACTED,
+    /* Effective composite video state changed.
+       data = non-NULL while a framebuffer layer is active, otherwise NULL. */
+    SYS_EVENT_VIDEOOUT_CHANGED,
 };
 
 #endif

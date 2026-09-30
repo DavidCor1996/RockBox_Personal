@@ -190,7 +190,10 @@ class LiveTvTouchCatalog:
         shows = module.ensure_weather_channel(sync, lineup, self.config, shows, ads)
         lineup.save()
         shows, ads = sync.reconcile_missing_sources(lineup, shows, ads)
-        slots = module.LiveTvScheduler(lineup, shows, ads).build()
+        # Touch converts and streams its own MP4 media; Classic's bounded
+        # MPEG files do not belong in its source-to-media lookup.
+        slots = module.LiveTvScheduler(lineup, shows, ads,
+                                       split_media=False).build()
 
         if scope == "forecast":
             channels = [

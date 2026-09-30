@@ -100,18 +100,55 @@ void INIT_ATTR gpio_init(void)
 
 #if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
         IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+struct gpio_hibernate_group
+{
+    uint32_t config;
+    uint8_t pull_b;
+    uint8_t pull_c;
+};
+
+static struct gpio_hibernate_group
+        gpio_hibernate_groups[GPIO_N_GROUPS];
+
+void gpio_hibernate_suspend(void)
+{
+    for (int group = 0; group < GPIO_N_GROUPS; group++)
+    {
+        uint32_t config = PCON(group);
+        uint32_t data = PDAT(group);
+
+        /*
+         * RetailOS 2.0.4 routine 0x0835eb10 snapshots all 16 GPIO
+         * groups.  A pin configured as an output (PCON nibble 1) is
+         * converted to the direct-state encoding E/F using its PDAT bit.
+         * That preserves the actual output level when the configuration is
+         * restored after the resume bootloader has run gpio_preinit().
+         */
+        for (int pin = 0; pin < 8; pin++)
+        {
+            uint32_t shift = pin * 4;
+
+            if (((config >> shift) & 0xf) == 1)
+            {
+                uint32_t output = 0xe | ((data >> pin) & 1);
+                config = (config & ~(0xfu << shift)) | (output << shift);
+            }
+        }
+
+        gpio_hibernate_groups[group].config = config;
+        gpio_hibernate_groups[group].pull_b = PUNB(group);
+        gpio_hibernate_groups[group].pull_c = PUNC(group);
+    }
+}
+
 void gpio_hibernate_resume(void)
 {
-    /* gpio_preinit() already restored the static table in the bootloader.
-     * Reapply only the runtime capture-hardware choice retained in DRAM. */
-    if (rec_hw_ver == 0)
+    /* Match RetailOS routine 0x0835ead0: pulls first, configuration last. */
+    for (int group = 0; group < GPIO_N_GROUPS; group++)
     {
-        GPIOCMD = 0xe060e;
-    }
-    else
-    {
-        GPIOCMD = 0xe0600;
-        PUNB(14) |= 1 << 6;
+        PUNB(group) = gpio_hibernate_groups[group].pull_b;
+        PUNC(group) = gpio_hibernate_groups[group].pull_c;
+        PCON(group) = gpio_hibernate_groups[group].config;
     }
 }
 #endif
@@ -163,32 +200,60 @@ void INIT_ATTR eint_init(void)
 
 #if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
         IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
-void eint_hibernate_resume(void)
+struct eic_hibernate_group
 {
-    /* The handler list is retained; rebuild the reset EIC registers around
-     * it without recreating registrations or touching any event queues. */
+    uint32_t enable;
+    uint32_t level;
+    uint32_t type;
+};
+
+static struct eic_hibernate_group
+        eic_hibernate_groups[EIC_N_GROUPS];
+
+void eint_hibernate_suspend(void)
+{
+    /* RetailOS 2.0.4 routine 0x080d84e4 snapshots these three words for
+     * every one of the seven EIC groups. */
     for (int group = 0; group < EIC_N_GROUPS; group++)
     {
-        EIC_INTEN(group) = 0;
-        EIC_INTLEVEL(group) = 0;
-        EIC_INTTYPE(group) = 0;
-        EIC_INTSTAT(group) = ~0u;
+        eic_hibernate_groups[group].enable = EIC_INTEN(group);
+        eic_hibernate_groups[group].level = EIC_INTLEVEL(group);
+        eic_hibernate_groups[group].type = EIC_INTTYPE(group);
     }
 
-    for (int i = 0; i < EINT_MAX_HANDLERS; i++)
+    /* Reproduce the exact sleep-time topology installed by 0x080d85f0..
+     * 0x080d8620: PMU GPIO on EIC group 3 bit 3, the group-6 bit-28
+     * source, and VIC0 EXT0/EXT3/USB.  The caller has already masked CPU
+     * IRQ and FIQ, as Apple's outer wrapper does before mode 2. */
+    EIC_INTEN(3) = 1u << 3;
+    EIC_INTEN(6) = 1u << 28;
+    EIC_INTLEVEL(3) = 0;
+    EIC_INTTYPE(3) = 1u << 3;
+    VIC0INTENCLEAR = ~0u;
+    VIC0INTENABLE = (1u << IRQ_EXT0) |
+                    (1u << IRQ_EXT3) |
+                    (1u << IRQ_USB_FUNC);
+    eint_hibernate_clear_pending();
+}
+
+void eint_hibernate_clear_pending(void)
+{
+    /* Exact 0x080d7738 pending-clear pair used on both sides of Standby. */
+    EIC_INTSTAT(3) = ~0u;
+    EIC_INTSTAT(6) = ~0u;
+}
+
+void eint_hibernate_resume(void)
+{
+    /* RetailOS 0x080d8ef0 restores the saved VIC enables after clearing
+     * pending groups 3 and 6, then writes every saved EIC enable/level/type
+     * triple.  The coordinator performs those first two steps before calling
+     * this topology restore. */
+    for (int group = 0; group < EIC_N_GROUPS; group++)
     {
-        struct eic_handler *h = l_handlers[i];
-        if (!h)
-            continue;
-
-        int group = EIC_GROUP(h->gpio_n);
-        int index = EIC_INDEX(h->gpio_n);
-        uint32_t bit = 1u << index;
-
-        EIC_INTTYPE(group) |= h->type << index;
-        EIC_INTLEVEL(group) |= h->level << index;
-        EIC_INTSTAT(group) = bit;
-        EIC_INTEN(group) |= bit;
+        EIC_INTEN(group) = eic_hibernate_groups[group].enable;
+        EIC_INTLEVEL(group) = eic_hibernate_groups[group].level;
+        EIC_INTTYPE(group) = eic_hibernate_groups[group].type;
     }
 }
 #endif

@@ -1,0 +1,20 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/libultra/gu/guLookAtHilite.c:3:9: warning: 'FTOFRAC8' redefined
+    3 | #define FTOFRAC8(x) ((s32)MIN(((x) * (128.0f)), 127.0f) & 0xff)
+      |         ^~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/libultraship/include/libultraship/libultra.h:10,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64.h:4,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:4,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/libultra/gu/guLookAtHilite.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/libultraship/include/libultraship/libultra/gu.h:23:9: note: this is the location of the previous definition
+   23 | #define FTOFRAC8(x) ((int)MIN(((x) * (128.0f)), 127.0f) & 0xff)
+      |         ^~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/libultra/gu/guLookAtHilite.c: In function 'guLookAtHilite':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/libultra/gu/guLookAtHilite.c:160:14: warning: passing argument 1 of 'guMtxF2L' from incompatible pointer type [-Wincompatible-pointer-types]
+  160 |     guMtxF2L((MtxF*)mf, m);
+      |              ^~~~~~~~~
+      |              |
+      |              MtxF *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/libultraship/include/libultraship/libultra/gu.h:114:28: note: expected 'float (*)[4]' but argument is of type 'MtxF *'
+  114 | extern void guMtxF2L(float mf[4][4], Mtx* m);
+      |                      ~~~~~~^~~~~~~~

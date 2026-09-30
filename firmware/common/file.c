@@ -617,7 +617,7 @@ static inline ssize_t readwrite_partial(struct filestr_desc *file,
 
 /* read from or write to the file; back end to read() and write() */
 static ssize_t readwrite(struct filestr_desc *file, void *buf, size_t nbyte,
-                         bool write)
+                         bool write, file_size_t limit)
 {
 #ifndef LOGF_ENABLE /* wipes out log before you can save it */
     DEBUGF("readwrite(%p,%lx,%lu,%s)\n",
@@ -631,14 +631,14 @@ static ssize_t readwrite(struct filestr_desc *file, void *buf, size_t nbyte,
     {
         /* if opened in append mode, move pointer to end */
         if (file->stream.flags & FD_APPEND)
-            file->offset = MIN(size, FILE_SIZE_MAX);
+            file->offset = MIN(size, limit);
 
-        filerem = FILE_SIZE_MAX - file->offset;
+        filerem = limit - file->offset;
     }
     else
     {
-        /* limit to maximum possible offset (EOF or FILE_SIZE_MAX) */
-        filerem = MIN(size, FILE_SIZE_MAX) - file->offset;
+        /* limit to maximum possible offset (EOF or limit) */
+        filerem = MIN(size, limit) - file->offset;
     }
 
     if (nbyte > filerem)
@@ -648,7 +648,7 @@ static ssize_t readwrite(struct filestr_desc *file, void *buf, size_t nbyte,
             {}
         else if (write)
             FILE_ERROR_RETURN(EFBIG, -1);     /* would get too large */
-        else if (file->offset >= FILE_SIZE_MAX)
+        else if (file->offset >= limit)
             FILE_ERROR_RETURN(EOVERFLOW, -2); /* can't read here */
     }
 
@@ -965,13 +965,51 @@ ssize_t read(int fildes, void *buf, size_t nbyte)
                                       (unsigned long)nbyte);
 #endif
 
-    rc = readwrite(file, buf, nbyte, false);
+    rc = readwrite(file, buf, nbyte, false, FILE_SIZE_MAX);
     if (rc < 0)
         FILE_ERROR(ERRNO, rc * 10 - 3);
 
 file_error:
     RELEASE_FILESTR(READER, file);
     return rc;
+}
+
+/* Core media readers can address the full FAT range without changing the
+ * legacy off_t API. Preserve the descriptor position for ordinary callers. */
+ssize_t file_read_at(int fildes, void *buf, size_t nbyte, uint32_t offset)
+{
+    struct filestr_desc * const file = GET_FILESTR(READER, fildes);
+    if (!file)
+        FILE_ERROR_RETURN(ERRNO, -1);
+
+    ssize_t rc;
+    if (file->stream.flags & FD_WRONLY)
+        FILE_ERROR(EBADF, -2);
+
+    if (offset >= *file->sizep)
+        rc = 0;
+    else
+    {
+        file_size_t saved_offset = file->offset;
+        file->offset = offset;
+        rc = readwrite(file, buf, nbyte, false, UINT32_MAX);
+        file->offset = saved_offset;
+    }
+
+file_error:
+    RELEASE_FILESTR(READER, file);
+    return rc;
+}
+
+int64_t file_size64(int fildes)
+{
+    struct filestr_desc * const file = GET_FILESTR(READER, fildes);
+    if (!file)
+        FILE_ERROR_RETURN(ERRNO, -1);
+
+    int64_t size = *file->sizep;
+    RELEASE_FILESTR(READER, file);
+    return size;
 }
 
 /* write on a file */
@@ -991,7 +1029,7 @@ ssize_t write(int fildes, const void *buf, size_t nbyte)
         FILE_ERROR(EBADF, -2);
     }
 
-    rc = readwrite(file, (void *)buf, nbyte, true);
+    rc = readwrite(file, (void *)buf, nbyte, true, FILE_SIZE_MAX);
     if (rc < 0)
         FILE_ERROR(ERRNO, rc * 10 - 3);
 

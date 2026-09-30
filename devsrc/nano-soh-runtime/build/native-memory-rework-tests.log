@@ -1,0 +1,7 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/tools/test_native.c: In function ‘test_actors’:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/tools/test_native.c:29:13: note: variable tracking size limit exceeded with ‘-fvar-tracking-assignments’, retrying without
+   29 | static void test_actors(void)
+      |             ^~~~~~~~~~~
+429 actor entries and all unset slots passed
+queue wrap/full/empty and vanilla feature semantics passed
+paged C reader, bounds and malformed headers passed

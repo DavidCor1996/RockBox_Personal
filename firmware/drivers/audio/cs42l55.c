@@ -34,6 +34,25 @@
 static int bass, treble;
 static int active_dsp_modules;  /* powered DSP modules mask */
 
+/* DS773F1 section 4.13: required initialization after RESET or rail loss. */
+static const unsigned char codec_init[][2] =
+{
+    { HIDDENCTL, HIDDENCTL_UNLOCK },
+    { HIDDEN2E, HIDDEN2E_DEFAULT },
+    { HIDDEN32, HIDDEN32_DEFAULT },
+    { HIDDEN33, HIDDEN33_DEFAULT },
+    { HIDDEN34, HIDDEN34_DEFAULT },
+    { HIDDEN35, HIDDEN35_DEFAULT },
+    { HIDDEN36, HIDDEN36_DEFAULT },
+    { HIDDEN37, HIDDEN37_DEFAULT },
+    { HIDDEN3A, HIDDEN3A_DEFAULT },
+    { HIDDEN3C, HIDDEN3C_DEFAULT },
+    { HIDDEN3D, HIDDEN3D_DEFAULT },
+    { HIDDEN3E, HIDDEN3E_DEFAULT },
+    { HIDDEN3F, HIDDEN3F_DEFAULT },
+    { HIDDENCTL, HIDDENCTL_LOCK },
+};
+
 /* convert tenth of dB volume (-600..120) to volume register value */
 static int vol_tenthdb2hw(int db)
 {
@@ -69,21 +88,8 @@ void audiohw_preinit(void)
     treble = 0;
     active_dsp_modules = 0;
 
-    /* Ask Cirrus or maybe Apple what the hell this means */
-    cscodec_write(HIDDENCTL, HIDDENCTL_UNLOCK);
-    cscodec_write(HIDDEN2E, HIDDEN2E_DEFAULT);
-    cscodec_write(HIDDEN32, HIDDEN32_DEFAULT);
-    cscodec_write(HIDDEN33, HIDDEN33_DEFAULT);
-    cscodec_write(HIDDEN34, HIDDEN34_DEFAULT);
-    cscodec_write(HIDDEN35, HIDDEN35_DEFAULT);
-    cscodec_write(HIDDEN36, HIDDEN36_DEFAULT);
-    cscodec_write(HIDDEN37, HIDDEN37_DEFAULT);
-    cscodec_write(HIDDEN3A, HIDDEN3A_DEFAULT);
-    cscodec_write(HIDDEN3C, HIDDEN3C_DEFAULT);
-    cscodec_write(HIDDEN3D, HIDDEN3D_DEFAULT);
-    cscodec_write(HIDDEN3E, HIDDEN3E_DEFAULT);
-    cscodec_write(HIDDEN3F, HIDDEN3F_DEFAULT);
-    cscodec_write(HIDDENCTL, HIDDENCTL_LOCK);
+    for (unsigned int i = 0; i < ARRAYLEN(codec_init); i++)
+        cscodec_write(codec_init[i][0], codec_init[i][1]);
 
     cscodec_write(PWRCTL2, PWRCTL2_PDN_LINA_ALWAYS | PWRCTL2_PDN_LINB_ALWAYS
                          | PWRCTL2_PDN_HPA_NEVER | PWRCTL2_PDN_HPB_NEVER);
@@ -173,6 +179,94 @@ void audiohw_idle_powerup(void)
     udelay(200);
     audiohw_mute(false);
 }
+
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+/* Standby removes LDO4, unlike ordinary PDN_CODEC idle. Save the complete
+ * writable bank before idle mute/PDN changes it. Neither this image nor the
+ * retained bass/treble/DSP bookkeeping is replaced with cold-start defaults. */
+static unsigned char hibernate_regs[CPCTL + 1];
+static bool hibernate_regs_valid;
+
+bool audiohw_hibernate_save(void)
+{
+    hibernate_regs_valid = false;
+    for (int reg = PWRCTL1; reg <= CPCTL; reg++)
+    {
+        if (reg == STATUS) /* read-only, clear-on-read */
+            continue;
+        if (!cscodec_read_checked(reg, &hibernate_regs[reg]))
+            return false;
+    }
+    hibernate_regs_valid = true;
+    return true;
+}
+
+bool audiohw_hibernate_restore(void)
+{
+    /* MCLK and the scheduler must already be live; physical PCM remains
+     * stopped under the output-service lock. DS773F1 4.11 requires at least
+     * 1 ms RESET, 500 ns before control writes, and 75 ms amplifier startup. */
+    cscodec_reset(true);
+    if (!hibernate_regs_valid)
+        return false;
+    hibernate_regs_valid = false;
+    sleep(HZ / 100 + 1);
+    cscodec_reset(false);
+    udelay(1);
+
+    for (unsigned int i = 0; i < ARRAYLEN(codec_init); i++)
+        if (!cscodec_write_checked(codec_init[i][0], codec_init[i][1]))
+            goto failed;
+
+    for (int reg = PWRCTL1; reg <= CPCTL; reg++)
+    {
+        unsigned char value = hibernate_regs[reg];
+        if (reg == STATUS)
+            continue;
+        if (reg == PWRCTL1)
+            value |= PWRCTL1_PDN_CODEC;
+        else if (reg == PLAYCTL)
+            value |= PLAYCTL_MSTAMUTE | PLAYCTL_MSTBMUTE;
+        else if (reg >= HPACTL && reg <= LINEBCTL)
+            value = HPACTL_HPAMUTE | 0x44; /* muted, -60 dB */
+        if (!cscodec_write_checked(reg, value))
+            goto failed;
+    }
+
+    /* Start the analog ramp even for an idle/paused transport. Return its
+     * exact power policy afterward; the normal PCM start releases idle PDN. */
+    if (!cscodec_write_checked(PWRCTL1,
+            hibernate_regs[PWRCTL1] & ~PWRCTL1_PDN_CODEC))
+        goto failed;
+    sleep((HZ * 75 + 999) / 1000 + 1);
+
+    for (int reg = HPACTL; reg <= LINEBCTL; reg++)
+        if (!cscodec_write_checked(reg, hibernate_regs[reg]))
+            goto failed;
+
+    /* Verify the essential clock/output configuration while still muted.
+     * An ACK alone cannot establish that the chip retained a write. */
+    static const unsigned char verify_regs[] =
+        { CLKCTL1, CLKCTL2, PWRCTL2, HPACTL, HPBCTL, LINEACTL, LINEBCTL };
+    for (unsigned int i = 0; i < ARRAYLEN(verify_regs); i++)
+    {
+        unsigned char value;
+        int reg = verify_regs[i];
+        if (!cscodec_read_checked(reg, &value) || value != hibernate_regs[reg])
+            goto failed;
+    }
+    if (!cscodec_write_checked(PWRCTL1, hibernate_regs[PWRCTL1]) ||
+        !cscodec_write_checked(PLAYCTL, hibernate_regs[PLAYCTL]))
+        goto failed;
+    return true;
+
+failed:
+    /* RESET is independent of a broken I2C bus and silences partial restores. */
+    cscodec_reset(true);
+    return false;
+}
+#endif
 
 static void handle_dsp_power(int dsp_module, bool onoff)
 {

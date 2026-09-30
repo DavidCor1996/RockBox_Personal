@@ -389,8 +389,13 @@ static void record_commit_crc(
 
 static volatile bool hibernate_poweroff_enabled;
 #if IPOD6G_HIBERNATE_STAGE3
+#if IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS
 static volatile bool hibernate_runtime_checkpoints_enabled;
 static volatile bool hibernate_runtime_probe_enabled;
+#endif
+static volatile enum ipod6g_hibernate_runtime_refusal
+        hibernate_runtime_refusal;
+static bool hibernate_rolo_capability_republished;
 #endif
 
 bool ipod6g_hibernate_stage1_get_status(
@@ -448,6 +453,23 @@ bool ipod6g_hibernate_stage1_get_status(
     status->runtime_switch_next_id = 0;
     status->runtime_switch_tick = 0;
     status->runtime_switch_usec = 0;
+    status->runtime_switch_running = 0;
+    status->runtime_switch_current = 0;
+    status->runtime_switch_next = 0;
+    status->runtime_switch_rtr_head = 0;
+    status->runtime_switch_tmo_head = 0;
+    status->runtime_switch_next_tmo_check = 0;
+    status->runtime_switch_rtr_mask = 0;
+    status->runtime_switch_timeout_id = 0;
+    status->runtime_switch_timeout_tick = 0;
+    status->runtime_switch_timeout_state = 0;
+    status->runtime_switch_next_state = 0;
+    status->runtime_switch_next_priority = 0;
+    status->runtime_switch_next_context_sp = 0;
+    status->runtime_switch_next_context_lr = 0;
+    status->runtime_switch_next_context_start = 0;
+    status->runtime_switch_next_stack = 0;
+    status->runtime_switch_next_stack_size = 0;
 
     if (!ipod6g_hibernate_record_valid(record))
         return false;
@@ -512,6 +534,31 @@ bool ipod6g_hibernate_stage1_get_status(
             status->runtime_switch_next_id = probe->switch_next_id;
             status->runtime_switch_tick = probe->switch_tick;
             status->runtime_switch_usec = probe->switch_usec;
+            status->runtime_switch_running = probe->switch_running;
+            status->runtime_switch_current = probe->switch_current;
+            status->runtime_switch_next = probe->switch_next;
+            status->runtime_switch_rtr_head = probe->switch_rtr_head;
+            status->runtime_switch_tmo_head = probe->switch_tmo_head;
+            status->runtime_switch_next_tmo_check =
+                    probe->switch_next_tmo_check;
+            status->runtime_switch_rtr_mask = probe->switch_rtr_mask;
+            status->runtime_switch_timeout_id = probe->switch_timeout_id;
+            status->runtime_switch_timeout_tick =
+                    probe->switch_timeout_tick;
+            status->runtime_switch_timeout_state =
+                    probe->switch_timeout_state;
+            status->runtime_switch_next_state = probe->switch_next_state;
+            status->runtime_switch_next_priority =
+                    probe->switch_next_priority;
+            status->runtime_switch_next_context_sp =
+                    probe->switch_next_context_sp;
+            status->runtime_switch_next_context_lr =
+                    probe->switch_next_context_lr;
+            status->runtime_switch_next_context_start =
+                    probe->switch_next_context_start;
+            status->runtime_switch_next_stack = probe->switch_next_stack;
+            status->runtime_switch_next_stack_size =
+                    probe->switch_next_stack_size;
         }
     }
 #endif
@@ -620,9 +667,12 @@ extern uint32_t ipod6g_hibernate_stage3_checkpoint(
 #ifndef BOOTLOADER
 void button_hibernate_suspend(void);
 void button_hibernate_resume(void);
+void button_hibernate_resume_complete(void);
+void pcm_hibernate_abort(void);
 void pcm_hibernate_resume(void);
+bool pcm_hibernate_suspend(void);
+bool pcm_hibernate_resume_complete(void);
 void power_hibernate_resume(void);
-void ata_hibernate_resume(void);
 #endif
 #endif
 
@@ -826,10 +876,38 @@ static uint32_t ipod6g_hibernate_stage2_payload(
 static void __attribute__((noinline, noclone)) stage3_mask_vic(
         const volatile struct ipod6g_hibernate_record *record)
 {
+    (void)record;
     VIC0INTENCLEAR = 0xffffffffu;
     VIC1INTENCLEAR = 0xffffffffu;
-    VIC0INTSELECT = record->irq.vic0_select;
-    VIC1INTSELECT = record->irq.vic1_select;
+}
+
+static void __attribute__((noinline, noclone)) stage3_save_apple_irq(
+        volatile struct ipod6g_hibernate_record *record)
+{
+    /* RetailOS 0x080d84e4 saves both VIC enable words and every EIC triple
+     * in one CPU-masked transaction before installing its sleep topology. */
+    record->irq.vic0_enable = VIC0INTENABLE;
+    record->irq.vic1_enable = VIC1INTENABLE;
+    eint_hibernate_suspend();
+    record_commit_crc(record);
+    commit_dcache();
+}
+
+static void __attribute__((noinline, noclone)) stage3_restore_apple_irq(
+        const volatile struct ipod6g_hibernate_record *record)
+{
+    /* Match 0x080d8eec..0x080d8fb4: clear the two pending EIC groups,
+     * restore the VIC masks, then restore all seven EIC triples.  Rockbox's
+     * cold resume initialized the VICs, so clear those boot-time enables
+     * before applying the retained mask.  Do not add INTSELECT handling:
+     * RetailOS does not save it, and Rockbox's non-vectored IRQ dispatcher
+     * never reads or configures it. */
+    eint_hibernate_clear_pending();
+    VIC0INTENCLEAR = 0xffffffffu;
+    VIC1INTENCLEAR = 0xffffffffu;
+    VIC0INTENABLE = record->irq.vic0_enable;
+    VIC1INTENABLE = record->irq.vic1_enable;
+    eint_hibernate_resume();
 }
 
 #define STAGE3_TICK_DATA             (10u * (1000u / HZ))
@@ -899,8 +977,6 @@ static void __attribute__((noinline, noclone)) stage3_restore_all_vic(
 
     VIC0INTENCLEAR = 0xffffffffu;
     VIC1INTENCLEAR = 0xffffffffu;
-    VIC0INTSELECT = record->irq.vic0_select;
-    VIC1INTSELECT = record->irq.vic1_select;
     VIC0INTENABLE = record->irq.vic0_enable;
     VIC1INTENABLE = record->irq.vic1_enable;
 }
@@ -915,6 +991,7 @@ static void stage3_commit_boundary(
     commit_dcache();
 }
 
+#if IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS
 void ipod6g_hibernate_runtime_checkpoint(uint32_t breadcrumb)
 {
     volatile struct ipod6g_hibernate_record *record =
@@ -936,7 +1013,9 @@ void ipod6g_hibernate_runtime_checkpoint(uint32_t breadcrumb)
     }
     restore_interrupt(oldlevel);
 }
+#endif
 
+#if IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS
 static volatile struct ipod6g_hibernate_runtime_probe *
         stage3_runtime_probe(void)
 {
@@ -1006,8 +1085,14 @@ void ipod6g_hibernate_tick_probe_complete(uint32_t tick, uint32_t count)
     probe->tick_stage = IPOD6G_HIBERNATE_TICK_PROBE_COMPLETE;
 }
 
+bool ipod6g_hibernate_runtime_probe_active(void)
+{
+    return hibernate_runtime_probe_enabled;
+}
+
 void ipod6g_hibernate_switch_probe(uint32_t stage, uint32_t current_id,
-        uint32_t next_id)
+        uint32_t next_id,
+        const struct ipod6g_hibernate_scheduler_snapshot *snapshot)
 {
     volatile struct ipod6g_hibernate_runtime_probe *probe;
 
@@ -1022,7 +1107,25 @@ void ipod6g_hibernate_switch_probe(uint32_t stage, uint32_t current_id,
     probe->switch_next_id = next_id;
     probe->switch_tick = (uint32_t)current_tick;
     probe->switch_usec = USEC_TIMER;
+    probe->switch_running = snapshot->running;
+    probe->switch_current = snapshot->current;
+    probe->switch_next = snapshot->next;
+    probe->switch_rtr_head = snapshot->rtr_head;
+    probe->switch_tmo_head = snapshot->tmo_head;
+    probe->switch_next_tmo_check = snapshot->next_tmo_check;
+    probe->switch_rtr_mask = snapshot->rtr_mask;
+    probe->switch_timeout_id = snapshot->timeout_id;
+    probe->switch_timeout_tick = snapshot->timeout_tick;
+    probe->switch_timeout_state = snapshot->timeout_state;
+    probe->switch_next_state = snapshot->next_state;
+    probe->switch_next_priority = snapshot->next_priority;
+    probe->switch_next_context_sp = snapshot->next_context_sp;
+    probe->switch_next_context_lr = snapshot->next_context_lr;
+    probe->switch_next_context_start = snapshot->next_context_start;
+    probe->switch_next_stack = snapshot->next_stack;
+    probe->switch_next_stack_size = snapshot->next_stack_size;
 }
+#endif
 
 static void stage3_lcd_checkpoint(unsigned int checkpoint, void *context)
 {
@@ -1107,11 +1210,15 @@ bool ipod6g_hibernate_stage3_enter(void)
         /* The bootloader CRT replaced these blocks; rebuild hardware only. */
         system_hibernate_resume();
         ata_hibernate_resume();
-        eint_hibernate_resume();
+        stage3_restore_apple_irq(record);
+        /* RetailOS manager mode 5 restores the click wheel first, then the
+         * complete saved GPIO image, before its remaining platform services. */
+        button_hibernate_resume();
+        gpio_hibernate_resume();
         uart_hibernate_resume();
         pmu_hibernate_resume();
+        button_hibernate_resume_complete();
         power_hibernate_resume();
-        button_hibernate_resume();
         stage3_commit_boundary(record,
                 IPOD6G_HIBERNATE_DIAG_USB_RESET_ENTER,
                 IPOD6G_HIBERNATE_PHASE_HARDWARE_RESTORED);
@@ -1139,11 +1246,6 @@ bool ipod6g_hibernate_stage3_enter(void)
         return true;
     }
 
-    record->irq.vic0_select = VIC0INTSELECT;
-    record->irq.vic1_select = VIC1INTSELECT;
-    record->irq.vic0_enable = VIC0INTENABLE;
-    record->irq.vic1_enable = VIC1INTENABLE;
-
     /* Freeze the complete application IRAM image after context capture. */
     commit_dcache();
     for (uint32_t i = 0; i < IPOD6G_HIBERNATE_IRAM_SHADOW_SIZE / 4; i++)
@@ -1159,6 +1261,16 @@ bool ipod6g_hibernate_stage3_enter(void)
     ipod6g_hibernate_stage1_enter();
 }
 
+static bool __attribute__((noinline, noclone))
+stage3_audio_status_supported(int status)
+{
+    const int allowed = AUDIO_STATUS_PLAY | AUDIO_STATUS_PAUSE;
+
+    return (status & ~allowed) == 0 &&
+           ((status & AUDIO_STATUS_PAUSE) == 0 ||
+            (status & AUDIO_STATUS_PLAY) != 0);
+}
+
 bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
 {
     volatile struct ipod6g_hibernate_record *record =
@@ -1167,23 +1279,51 @@ bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
     bool display_slept = false;
     bool display_ok = false;
     bool tick_ok = false;
+    bool videoout_ok = true;
+    bool audio_ok = true;
     bool resumed;
+    int audio_stat;
     int oldlevel;
 
+#if IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS
     hibernate_runtime_checkpoints_enabled = false;
     hibernate_runtime_probe_enabled = false;
+#endif
+    hibernate_runtime_refusal = IPOD6G_HIBERNATE_REFUSAL_NONE;
 
-    if (!battery_level_safe()
-#if CONFIG_CHARGING
-        || power_input_present()
-#endif
-        || audio_status() != 0 || pcm_is_playing()
-#ifdef HAVE_RECORDING
-        || pcm_is_recording()
-#endif
-        || usb_detect() != USB_EXTRACTED ||
-        ipod6g_videoout_active())
+    if (!battery_level_safe())
     {
+        hibernate_runtime_refusal = IPOD6G_HIBERNATE_REFUSAL_BATTERY;
+        return false;
+    }
+#if CONFIG_CHARGING
+    if (power_input_present())
+    {
+        hibernate_runtime_refusal =
+                IPOD6G_HIBERNATE_REFUSAL_EXTERNAL_POWER;
+        return false;
+    }
+#endif
+    /* The outer media opcode-8 equivalent has already stopped physical PCM.
+     * Preserve Apple's logical transport semantics here: stopped, playing,
+     * and playing+paused are valid; pause-only and all other ownership bits
+     * fail closed. */
+    audio_stat = audio_status();
+    if (!stage3_audio_status_supported(audio_stat))
+    {
+        hibernate_runtime_refusal = IPOD6G_HIBERNATE_REFUSAL_AUDIO;
+        return false;
+    }
+#ifdef HAVE_RECORDING
+    if (pcm_is_recording())
+    {
+        hibernate_runtime_refusal = IPOD6G_HIBERNATE_REFUSAL_RECORDING;
+        return false;
+    }
+#endif
+    if (usb_detect() != USB_EXTRACTED)
+    {
+        hibernate_runtime_refusal = IPOD6G_HIBERNATE_REFUSAL_USB;
         return false;
     }
 
@@ -1191,22 +1331,45 @@ bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
     if (!ipod6g_hibernate_prepare(sequence,
                     IPOD6G_HIBERNATE_MODE_CONTROLLED_CONTEXT))
     {
+        hibernate_runtime_refusal = IPOD6G_HIBERNATE_REFUSAL_PREPARE;
         return false;
     }
 
+#if IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS
     stage3_runtime_probe_init(sequence);
+#endif
 
     if (!ipod6g_hibernate_stage1_i2c_preflight())
     {
         ipod6g_hibernate_stage1_fail(
                 IPOD6G_HIBERNATE_FAILURE_I2C_PREFLIGHT);
+        hibernate_runtime_refusal = IPOD6G_HIBERNATE_REFUSAL_I2C;
         return false;
     }
 
-    if (storage_flush() != 0)
+    if (ata_hibernate_suspend_begin(sequence) != 0)
+    {
+        hibernate_runtime_refusal = IPOD6G_HIBERNATE_REFUSAL_STORAGE;
         return false;
+    }
 
-    storage_sleepnow();
+    if (!ipod6g_videoout_hibernate_suspend())
+    {
+        ata_hibernate_abort(sequence);
+        /* hibernate_suspend records an active output before attempting the
+         * destructive disable. Reapply that saved policy on refusal. */
+        ipod6g_videoout_hibernate_resume();
+        hibernate_runtime_refusal =
+                IPOD6G_HIBERNATE_REFUSAL_VIDEOOUT_SUSPEND;
+        return false;
+    }
+    if (!pcm_hibernate_suspend())
+    {
+        ata_hibernate_abort(sequence);
+        ipod6g_videoout_hibernate_resume();
+        hibernate_runtime_refusal = IPOD6G_HIBERNATE_REFUSAL_CODEC_SAVE;
+        return false;
+    }
     uart_hibernate_suspend();
     lcd_wait_for_dma();
     backlight_hw_kill();
@@ -1217,21 +1380,31 @@ bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
 
     if (!ipod6g_hibernate_stage1_arm())
     {
+        ata_hibernate_abort(sequence);
+        pcm_hibernate_abort();
         if (display_slept)
             lcd_awake();
         backlight_hw_on();
+        ipod6g_videoout_hibernate_resume();
+        hibernate_runtime_refusal = IPOD6G_HIBERNATE_REFUSAL_ARM;
         return false;
     }
 
-    /* RetailOS runs the click-wheel device manager's suspend mode before it
-     * masks the retained interrupt topology.  Stop the controller and discard
-     * the Play edge that generated this request before saving context. */
-    button_hibernate_suspend();
-
     /* Match RetailOS's coordinated power transition: no other retained
-     * thread may start a PMU transaction after the context boundary. */
+     * thread may start a PMU transaction after the context boundary.  Its
+     * outer wrapper masks IRQ/FIQ before device-manager mode 2. */
     i2c_bus_lock(0);
     oldlevel = disable_interrupt_save(IRQ_FIQ_STATUS);
+
+    /* RetailOS mode 2 snapshots all 16 GPIO groups, then suspends the wheel.
+     * Preserve the same order while CPU interrupts are masked. */
+    gpio_hibernate_suspend();
+    button_hibernate_suspend();
+
+    /* The following exact 0x080d84e4 transaction saves the runtime VIC/EIC
+     * topology, installs Apple's sleep-only sources, and clears pending EIC
+     * groups 3 and 6 before the retained entry. */
+    stage3_save_apple_irq(record);
     resumed = ipod6g_hibernate_stage3_enter();
 
     /* R7 proved that restoring every saved VIC source and unmasking the CPU
@@ -1291,7 +1464,9 @@ bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
                     IPOD6G_HIBERNATE_DIAG_ALL_IRQ_ARMED,
                     IPOD6G_HIBERNATE_PHASE_ALL_IRQ_ARMED);
         }
+#if IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS
         hibernate_runtime_probe_enabled = true;
+#endif
         restore_interrupt(oldlevel);
 
         if (display_ok)
@@ -1314,6 +1489,14 @@ bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
             }
         }
 
+        /* Release physical ATA ownership only after the retained scheduler
+         * is healthy. Successful resumes keep client demand closed until the
+         * complete event is committed; failures reopen it immediately. */
+        if (display_ok && tick_ok)
+            ata_hibernate_base_repaired(sequence);
+        else
+            ata_hibernate_abort(sequence);
+
         /* USB insertion is intentionally published only after the normal
          * interrupt topology is live; the USB event may wake another thread
          * immediately. */
@@ -1331,29 +1514,74 @@ bool ipod6g_hibernate_stage3_suspend(uint32_t sequence)
                     IPOD6G_HIBERNATE_DIAG_LCD_EVENT_DONE,
                     IPOD6G_HIBERNATE_PHASE_LCD_EVENT_DONE);
 
-            /* A visible, responsive panel is part of the Stage 3 pass gate. */
-            record->state = IPOD6G_HIBERNATE_RECORD_PASSED;
-            record->failure = IPOD6G_HIBERNATE_FAILURE_NONE;
-            stage3_commit_boundary(record,
-                    IPOD6G_HIBERNATE_DIAG_APP_COMPLETE,
-                    IPOD6G_HIBERNATE_PHASE_RESUME_COMPLETE);
-            hibernate_runtime_checkpoints_enabled = true;
-            pmu_hibernate_runtime_monitor_enable();
+            /* RetailOS restores dock/display services after the base LCD and
+             * scheduler are live.  Reapply Rockbox's retained composite
+             * policy through its normal initialization path. */
+            videoout_ok = ipod6g_videoout_hibernate_resume();
+
+            /* RetailOS's paired output backend restores configuration before
+             * releasing its carried lock. Standby reset the CS42L55 bank;
+             * rebuild it with the scheduler live before the outer PCM start. */
+            audio_ok = pcm_hibernate_resume_complete();
+
+            if (videoout_ok && audio_ok)
+            {
+                /* A visible, responsive panel and any retained composite
+                 * policy are both part of the production pass gate. */
+                record->state = IPOD6G_HIBERNATE_RECORD_PASSED;
+                record->failure = IPOD6G_HIBERNATE_FAILURE_NONE;
+                stage3_commit_boundary(record,
+                        IPOD6G_HIBERNATE_DIAG_APP_COMPLETE,
+                        IPOD6G_HIBERNATE_PHASE_RESUME_COMPLETE);
+#if IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS
+                hibernate_runtime_checkpoints_enabled = true;
+                pmu_hibernate_runtime_monitor_enable();
+#endif
+            }
+            else
+            {
+                ata_hibernate_abort(sequence);
+                record->state = IPOD6G_HIBERNATE_RECORD_FAILED;
+                record->failure = !audio_ok ?
+                        IPOD6G_HIBERNATE_FAILURE_CODEC_RESTORE :
+                        IPOD6G_HIBERNATE_FAILURE_VIDEOOUT_RESTORE;
+                stage3_commit_boundary(record,
+                        IPOD6G_HIBERNATE_DIAG_LCD_EVENT_DONE,
+                        IPOD6G_HIBERNATE_PHASE_LCD_EVENT_DONE);
+            }
         }
         ipod6g_hibernate_token_clear();
     }
     else
     {
         /* A refused/failed entry continues in the live application and must
-         * undo the pre-sleep click-wheel transition before IRQs reopen. */
+         * undo the full mode-2/interrupt transition before IRQs reopen. */
+        stage3_restore_apple_irq(record);
         button_hibernate_resume();
+        gpio_hibernate_resume();
+        button_hibernate_resume_complete();
         restore_interrupt(oldlevel);
+        ata_hibernate_abort(sequence);
+        pcm_hibernate_abort();
         if (display_slept)
             lcd_awake();
         backlight_hw_on();
+        ipod6g_videoout_hibernate_resume();
+        hibernate_runtime_refusal =
+                IPOD6G_HIBERNATE_REFUSAL_ENTRY_RETURNED;
     }
 
-    return resumed && display_ok && tick_ok;
+    if (resumed && !display_ok)
+        hibernate_runtime_refusal = IPOD6G_HIBERNATE_REFUSAL_DISPLAY;
+    else if (resumed && !tick_ok)
+        hibernate_runtime_refusal = IPOD6G_HIBERNATE_REFUSAL_TICK;
+    else if (resumed && !videoout_ok)
+        hibernate_runtime_refusal =
+                IPOD6G_HIBERNATE_REFUSAL_VIDEOOUT_RESUME;
+    else if (resumed && !audio_ok)
+        hibernate_runtime_refusal = IPOD6G_HIBERNATE_REFUSAL_CODEC_RESTORE;
+
+    return resumed && display_ok && tick_ok && videoout_ok && audio_ok;
 }
 #else
 bool ipod6g_hibernate_stage3_enter(void)
@@ -1789,6 +2017,51 @@ void ipod6g_hibernate_set_poweroff_mode(
         enum ipod6g_poweroff_mode mode)
 {
     hibernate_poweroff_enabled = mode == IPOD6G_POWEROFF_RETAINED;
+
+#if IPOD6G_HIBERNATE_STAGE3 && \
+        defined(IPOD6G_HIBERNATE_ROLO_CANDIDATE) && \
+        IPOD6G_HIBERNATE_ROLO_CANDIDATE
+    if (hibernate_poweroff_enabled)
+    {
+        volatile struct ipod6g_hibernate_record *record =
+                (volatile struct ipod6g_hibernate_record *)
+                IPOD6G_HIBERNATE_CONTROL_ADDR;
+
+        /* Rolo does not execute the installed bootloader's cold-start
+         * capability publisher.  The qualification image is linked and
+         * packaged with the already hardware-proven ABI-12 bootloader, so
+         * reconstruct only a missing/invalid handshake here.  Never erase a
+         * valid in-progress or terminal record.  Installed production boots
+         * do not compile this bridge. */
+        if (!ipod6g_hibernate_record_valid(record))
+        {
+            record_clear();
+            record_init(record, IPOD6G_HIBERNATE_RECORD_CAPABLE);
+            record_commit_crc(record);
+            commit_dcache();
+            hibernate_rolo_capability_republished = true;
+        }
+    }
+#endif
+}
+
+enum ipod6g_hibernate_runtime_refusal
+        ipod6g_hibernate_poweroff_last_refusal(void)
+{
+#if IPOD6G_HIBERNATE_STAGE3
+    return hibernate_runtime_refusal;
+#else
+    return IPOD6G_HIBERNATE_REFUSAL_NONE;
+#endif
+}
+
+bool ipod6g_hibernate_rolo_capability_republished(void)
+{
+#if IPOD6G_HIBERNATE_STAGE3
+    return hibernate_rolo_capability_republished;
+#else
+    return false;
+#endif
 }
 
 bool ipod6g_hibernate_poweroff_should_defer(void)

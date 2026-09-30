@@ -16,6 +16,7 @@
  ****************************************************************************/
 
 #include "engine.h"
+#include "agds_loader.h"
 #include "queen_loader.h"
 #include "rbfile.h"
 #include "sky_cpt_loader.h"
@@ -356,6 +357,25 @@ static bool prepare_queen(const struct scummvm_target *target,
     return true;
 }
 
+static bool prepare_nibiru(const struct scummvm_target *target,
+                           struct scummvm_engine_state *state)
+{
+    struct scummvm_agds_info info;
+
+    if (!scummvm_agds_probe(target, &info, state->status,
+                            sizeof(state->status)))
+        return false;
+    state->primary_size = info.grp_entries;
+    state->aux_value = info.adb_entries;
+    rb->snprintf(state->status, sizeof(state->status),
+                 "NiBiRu data ready (%lu images, %lu audio)",
+                 (unsigned long)info.pictures,
+                 (unsigned long)info.audio);
+    /* The backend starts the bounded AGDS image/bootstrap runtime. */
+    state->initialized = true;
+    return true;
+}
+
 bool scummvm_engine_prepare(const struct scummvm_target *target,
                             const struct scummvm_probe_result *probe,
                             struct scummvm_engine_state *state)
@@ -392,6 +412,10 @@ bool scummvm_engine_prepare(const struct scummvm_target *target,
 
     if (!rb->strcasecmp(target->engine, "sky"))
         return prepare_sky(target, state);
+
+    if (!rb->strcasecmp(target->engine, "agds") ||
+        !rb->strcasecmp(target->engine, "nibiru"))
+        return prepare_nibiru(target, state);
 
     rb->strlcpy(state->status, "No runtime for engine",
                 sizeof(state->status));

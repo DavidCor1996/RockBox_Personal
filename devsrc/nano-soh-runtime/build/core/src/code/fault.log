@@ -1,0 +1,45 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/fault.c: In function 'Fault_ProcessClient':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/fault.c:109:16: warning: assignment to 'u32 (*)(u32,  u32)' {aka 'long unsigned int (*)(long unsigned int,  long unsigned int)'} from 'u32' {aka 'long unsigned int'} makes pointer from integer without a cast [-Wint-conversion]
+  109 |     a.callback = callback;
+      |                ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/fault.c: In function 'Fault_DrawStackTrace':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/fault.c:886:37: warning: passing argument 1 of 'Fault_ConvertAddress' makes pointer from integer without a cast [-Wint-conversion]
+  886 |         addr = Fault_ConvertAddress(pc);
+      |                                     ^~
+      |                                     |
+      |                                     u32 {aka long unsigned int}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/fault.c:263:47: note: expected 'FaultAddrConvClient *' but argument is of type 'u32' {aka 'long unsigned int'}
+  263 | u32 Fault_ConvertAddress(FaultAddrConvClient* client) {
+      |                          ~~~~~~~~~~~~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/fault.c: In function 'Fault_LogStackTrace':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/fault.c:905:37: warning: passing argument 1 of 'Fault_ConvertAddress' makes pointer from integer without a cast [-Wint-conversion]
+  905 |         addr = Fault_ConvertAddress(pc);
+      |                                     ^~
+      |                                     |
+      |                                     u32 {aka long unsigned int}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/fault.c:263:47: note: expected 'FaultAddrConvClient *' but argument is of type 'u32' {aka 'long unsigned int'}
+  263 | u32 Fault_ConvertAddress(FaultAddrConvClient* client) {
+      |                          ~~~~~~~~~~~~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/fault.c: In function 'Fault_ResumeThread':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/fault.c:919:33: warning: passing argument 1 of 'osWritebackDCache' makes pointer from integer without a cast [-Wint-conversion]
+  919 |     osWritebackDCache(t->context.pc, 4);
+      |                       ~~~~~~~~~~^~~
+      |                                 |
+      |                                 u32 {aka long unsigned int}
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/libultraship/include/libultraship/libultra/controller.h:162,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/libultraship/include/libultraship/libultra.h:4,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64.h:4,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:4,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/fault.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/libultraship/include/libultraship/libultra/os.h:113:30: note: expected 'void *' but argument is of type 'u32' {aka 'long unsigned int'}
+  113 | void osWritebackDCache(void* p, int32_t x);
+      |                        ~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/fault.c:920:29: warning: passing argument 1 of 'osInvalICache' makes pointer from integer without a cast [-Wint-conversion]
+  920 |     osInvalICache(t->context.pc, 4);
+      |                   ~~~~~~~~~~^~~
+      |                             |
+      |                             u32 {aka long unsigned int}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/libultraship/include/libultraship/libultra/os.h:112:26: note: expected 'void *' but argument is of type 'u32' {aka 'long unsigned int'}
+  112 | void osInvalICache(void* p, int32_t x);
+      |                    ~~~~~~^

@@ -9,6 +9,7 @@
 #include "plugin.h"
 #include "lib/helper.h"
 #include "lib/pluginlib_exit.h"
+#include "lib/video_player.h"
 #include "lib/xlcd.h"
 
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
@@ -54,7 +55,6 @@
 #define MAR_WORLD_SAT_PATH ROCKBOX_DIR "/maps/world_satellite.r16"
 #define MAR_WORLD_GLOBE_PATH ROCKBOX_DIR "/maps/world_globe_%02d.r16"
 #define MAR_DASHCAM_VIDEO_DIR ROCKBOX_DIR "/maps/videos"
-#define MAR_VIDEO_PLAYER_PATH ROCKBOX_DIR "/rocks/viewers/mpegplayer.rock"
 #define MAR_VIDEO_PLAYER_PREFIX "-mapsdash:"
 #define MAR_WORLD_TILE_PATH ROCKBOX_DIR "/maps/world/%d/%d_%d.r16"
 #define MAR_WORLD_TILE_HI_PATH ROCKBOX_DIR "/maps/world/%d_hi/%d_%d.r16"
@@ -2075,6 +2075,7 @@ static bool mar_open_dashcam_video(const char *video)
 {
     char path[MAX_PATH];
     char launch[MAX_PATH + sizeof(MAR_VIDEO_PLAYER_PREFIX)];
+    const char *player;
     int status;
 
     if (!video || !*video)
@@ -2084,13 +2085,14 @@ static bool mar_open_dashcam_video(const char *video)
         rb->splash(HZ * 2, "Dashcam video not synced");
         return false;
     }
-    if (!rb->file_exists(MAR_VIDEO_PLAYER_PATH)) {
-        rb->splash(HZ * 2, "MPEG player missing");
+    player = plugin_video_player_for(path);
+    if (!rb->file_exists(player)) {
+        rb->splash(HZ * 2, "Video player missing");
         return false;
     }
     rb->snprintf(launch, sizeof(launch), "%s%s", MAR_VIDEO_PLAYER_PREFIX,
                  path);
-    status = rb->plugin_open(MAR_VIDEO_PLAYER_PATH, launch);
+    status = rb->plugin_open(player, launch);
     if (status == PLUGIN_GOTO_PLUGIN) {
         mar_pending_plugin_status = PLUGIN_GOTO_PLUGIN;
         return true;

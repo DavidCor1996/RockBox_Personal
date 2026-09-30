@@ -1,0 +1,21 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot12_Saku/z_bg_spot12_saku.c: In function 'BgSpot12Saku_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot12_Saku/z_bg_spot12_saku.c:62:31: warning: passing argument 3 of 'func_808B3420' from incompatible pointer type [-Wincompatible-pointer-types]
+   62 |     func_808B3420(this, play, &gGerudoFortressGTGShutterCol, DPM_UNK);
+      |                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                               |
+      |                               const char (*)[62]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot12_Saku/z_bg_spot12_saku.c:45:74: note: expected 'CollisionHeader *' but argument is of type 'const char (*)[62]'
+   45 | void func_808B3420(BgSpot12Saku* this, PlayState* play, CollisionHeader* collision, s32 flags) {
+      |                                                         ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot12_Saku/z_bg_spot12_saku.c: In function 'BgSpot12Saku_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot12_Saku/z_bg_spot12_saku.c:136:28: warning: passing argument 2 of 'Gfx_DrawDListOpa' from incompatible pointer type [-Wincompatible-pointer-types]
+  136 |     Gfx_DrawDListOpa(play, gGerudoFortressGTGShutterDL);
+      |                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                            |
+      |                            const char *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot12_Saku/z_bg_spot12_saku.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Spot12_Saku/z_bg_spot12_saku.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:546:45: note: expected 'Gfx *' but argument is of type 'const char *'
+  546 | void Gfx_DrawDListOpa(PlayState* play, Gfx* dlist);
+      |                                        ~~~~~^~~~~

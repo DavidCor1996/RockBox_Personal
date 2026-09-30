@@ -4,9 +4,12 @@
 
 #include "plugin.h"
 #include "lib/pluginlib_actions.h"
+#include "lib/video_player.h"
 #include "pluginbitmaps/instagram_heart.h"
 #include "pluginbitmaps/instagram_heart_unliked.h"
 #include "pluginbitmaps/instagram_verified.h"
+#include "pluginbitmaps/instagram_nav.h"
+#include "pluginbitmaps/instagram_tabs.h"
 
 #if !defined(HAVE_LCD_COLOR) || LCD_WIDTH < 320 || LCD_HEIGHT < 240
 #error The Instagram application requires a 320x240 colour display
@@ -25,13 +28,12 @@
 #define IG_LAUNCH       IG_ROOT "/assets/instagram-launch-2010.bmp"
 #define IG_ZOOM_ROOT    IG_ROOT "/zoom"
 #define IG_PROFILE_FEED IG_ROOT "/profile-feed"
-#define IG_PLAYER       VIEWERS_DIR "/mpegplayer.rock"
 #define IG_PREFIX       "instagram-app:"
 #define IG_FEED_PREFIX  "instagram-feed:"
 #define IG_MAX_POSTS    96
 #define IG_MAX_PROFILES 16
 #define IG_MAX_LIKES    256
-#define IG_LINE_SIZE    1024
+#define IG_LINE_SIZE    4096
 /* Keep capacity for already-synced 96x72 thumbnails; new 2010-style syncs
  * decode square 72x72 art into the same bounded buffer. */
 #define IG_THUMB_W      96
@@ -89,7 +91,7 @@ struct ig_post
     char username[64];
     char type[8];
     char title[80];
-    char caption[184];
+    char caption[2204];
     char media[MAX_PATH];
     /* Device-generated path is bounded to /.rockbox/instagram/autoplay/<id>.mpg.
      * Keeping it compact avoids spending another 25 KiB across 96 posts. */
@@ -132,6 +134,10 @@ static int visible_posts[IG_MAX_POSTS];
 static int visible_count;
 static int selection;
 static int home_selection;
+/* At most one offset per byte; caption wrapping needs no heap or audio RAM. */
+static unsigned short caption_lines[2204];
+static int caption_line_count;
+static int caption_scroll;
 static int profile_post_offset;
 static int profile_post_total;
 static int home_post_total;
@@ -148,6 +154,7 @@ enum ig_screen
     IG_SCREEN_PROFILES,
     IG_SCREEN_PROFILE,
     IG_SCREEN_VIEWER,
+    IG_SCREEN_CAPTION,
 };
 
 /* Bounded BSS: three grid thumbnails (41,472 bytes), one 160px feed image
@@ -190,11 +197,19 @@ static bool name_loaded;
 static fb_data list_name_pixels[IG_PROFILE_LIST_ROWS][205 * 18];
 static struct bitmap list_name_bm[IG_PROFILE_LIST_ROWS];
 static int list_name_profile[IG_PROFILE_LIST_ROWS] = { -1, -1, -1, -1, -1 };
+/* Five 24px list portraits cost 5,760 bytes on RGB565 targets. Decode
+ * through the inactive viewer workspace, never through playback memory. */
+#define IG_LIST_AVATAR_W 24
+static fb_data list_avatar_pixels[IG_PROFILE_LIST_ROWS]
+                                 [IG_LIST_AVATAR_W * IG_LIST_AVATAR_W];
+static bool list_avatar_loaded[IG_PROFILE_LIST_ROWS];
+static bool list_name_loaded[IG_PROFILE_LIST_ROWS];
 static fb_data bio_pixels[304 * 30];
 static struct bitmap bio_bm;
 static bool bio_loaded;
 static int avatar_profile_index = -1;
 static int profile_art_index = -1;
+static enum ig_screen caption_return_screen;
 static enum ig_screen viewer_return_screen = IG_SCREEN_HOME;
 static enum ig_screen profile_return_screen = IG_SCREEN_PROFILES;
 
@@ -498,7 +513,7 @@ static bool ig_profile_feed_path(int index, char *path, size_t size)
 
 static void ig_load_profile_page(int index, int offset)
 {
-    char line[IG_LINE_SIZE];
+    static char line[IG_LINE_SIZE];
     char path[MAX_PATH];
     int fd = -1;
     int group_ordinal = -1;
@@ -590,7 +605,7 @@ static bool ig_post_newer(const struct ig_post *left,
 
 static void ig_load_home(void)
 {
-    char line[IG_LINE_SIZE];
+    static char line[IG_LINE_SIZE];
     int fd = rb->open(IG_LIBRARY, O_RDONLY);
 
     post_count = 0;
@@ -622,7 +637,7 @@ static void ig_load_home(void)
 
 static void ig_load_profiles(void)
 {
-    char line[IG_LINE_SIZE];
+    static char line[IG_LINE_SIZE];
     int fd = rb->open(IG_PROFILES, O_RDONLY);
 
     profile_count = 0;
@@ -1094,34 +1109,27 @@ static void ig_scrollbar(int top, int height, int selected, int total)
 
 static void ig_tabbar(int active)
 {
-    static const char * const labels[4] = {
-        "HOME", "FAVORITES", "+", "PROFILE"
-    };
+    static const char * const labels[3] = { "Home", "Favorites", "Profiles" };
     int item;
 
-    rb->lcd_set_foreground(IG_NAVY);
-    rb->lcd_fillrect(0, 216, LCD_WIDTH, 24);
-    rb->lcd_set_foreground(IG_BORDER);
-    rb->lcd_hline(0, LCD_WIDTH - 1, 216);
-    for (item = 0; item < 4; item++)
+    rb->lcd_set_drawmode(DRMODE_SOLID);
+    rb->lcd_bitmap(instagram_tabs, 0, 216, 320, 24);
+    rb->lcd_set_drawmode(DRMODE_FG);
+    for (item = 0; item < 3; item++)
     {
-        int width, height;
-        int x = item * 80;
-
-        if (item == active)
+        int x = item * 106;
+        rb->lcd_set_foreground(LCD_WHITE);
+        rb->lcd_putsxy(x + 38, 222, labels[item]);
+        if (item == (active == 3 ? 2 : active))
         {
-            rb->lcd_set_foreground(IG_LIGHT_BLUE);
-            rb->lcd_fillrect(x + 1, 217, 78, 23);
-            rb->lcd_set_foreground(IG_NAVY);
+            rb->lcd_set_foreground(IG_BLUE);
+            rb->lcd_fillrect(x, 216, 106, 2);
         }
-        else
-            rb->lcd_set_foreground(LCD_WHITE);
-        rb->lcd_getstringsize(labels[item], &width, &height);
-        rb->lcd_putsxy(x + (80 - width) / 2, 222, labels[item]);
     }
 }
 
-static void ig_cache_list_names(enum ig_screen screen)
+/* Service one visible row after input settles; failed assets are cached too. */
+static bool ig_cache_list_names(enum ig_screen screen)
 {
     int first = screen == IG_SCREEN_FAVORITES ?
                 (favorite_selection / IG_PROFILE_LIST_ROWS) *
@@ -1135,18 +1143,36 @@ static void ig_cache_list_names(enum ig_screen screen)
         int ordinal = first + row;
         int profile_index = screen == IG_SCREEN_FAVORITES ?
                             ig_favorite_profile_at(ordinal) : ordinal;
+        struct bitmap portrait;
+        int x, y;
 
         if (profile_index < 0 || profile_index >= profile_count)
             profile_index = -1;
         if (list_name_profile[row] == profile_index)
             continue;
-        list_name_profile[row] = -1;
-        if (profile_index >= 0 && profiles[profile_index].name_art[0] &&
-            ig_read_bmp(profiles[profile_index].name_art,
-                        &list_name_bm[row], list_name_pixels[row],
-                        sizeof(list_name_pixels[row])))
-            list_name_profile[row] = profile_index;
+        list_name_profile[row] = profile_index;
+        list_name_loaded[row] = false;
+        list_avatar_loaded[row] = false;
+        if (profile_index < 0)
+            continue;
+        list_name_loaded[row] = ig_read_bmp(profiles[profile_index].name_art,
+                    &list_name_bm[row], list_name_pixels[row],
+                    sizeof(list_name_pixels[row]));
+        if (ig_read_bmp(profiles[profile_index].avatar, &portrait,
+                        viewer_pixels, sizeof(viewer_pixels)) &&
+            portrait.width > 0 && portrait.height > 0)
+        {
+            for (y = 0; y < IG_LIST_AVATAR_W; y++)
+                for (x = 0; x < IG_LIST_AVATAR_W; x++)
+                    list_avatar_pixels[row][y * IG_LIST_AVATAR_W + x] =
+                        viewer_pixels[(y * portrait.height /
+                                       IG_LIST_AVATAR_W) * portrait.width +
+                                      x * portrait.width / IG_LIST_AVATAR_W];
+            list_avatar_loaded[row] = true;
+        }
+        return true;
     }
+    return false;
 }
 
 static void ig_draw_favorites(void)
@@ -1186,15 +1212,28 @@ static void ig_draw_favorites(void)
         rb->lcd_fillrect(5, y - 3, 310, 30);
         rb->lcd_set_foreground(ordinal == favorite_selection ? IG_BLUE :
                               LCD_BLACK);
-        if (list_name_profile[row] == profile_index)
-            rb->lcd_bitmap_transparent(
-                (const fb_data *)list_name_bm[row].data, 16, y - 4,
-                MIN(list_name_bm[row].width, 198),
+        if (list_name_profile[row] == profile_index &&
+            list_avatar_loaded[row])
+            rb->lcd_bitmap(list_avatar_pixels[row], 12, y,
+                           IG_LIST_AVATAR_W, IG_LIST_AVATAR_W);
+        else
+        {
+            rb->lcd_set_foreground(IG_BORDER);
+            rb->lcd_fillrect(12, y, IG_LIST_AVATAR_W, IG_LIST_AVATAR_W);
+        }
+        rb->lcd_set_foreground(ordinal == favorite_selection ? IG_BLUE :
+                              LCD_BLACK);
+        if (list_name_profile[row] == profile_index && list_name_loaded[row])
+            rb->lcd_bitmap_transparent_part(
+                (const fb_data *)list_name_bm[row].data, 0, 0,
+                list_name_bm[row].width, 44, y - 3,
+                MIN(list_name_bm[row].width, 166),
                 MIN(list_name_bm[row].height, 18));
         else
-            ig_puts_clipped(16, y, 168, profile->username);
+            ig_puts_clipped(44, y, 166, profile->username);
         rb->lcd_set_foreground(IG_GRAY);
-        rb->lcd_putsxyf(16, y + 14, "@%s", profile->username);
+        rb->lcd_set_drawmode(DRMODE_FG);
+        ig_puts_clipped(44, y + 14, 166, profile->username);
         rb->lcd_putsxyf(220, y + 7, "%d posts", profile->posts);
     }
     rb->lcd_set_foreground(IG_GRAY);
@@ -1235,9 +1274,10 @@ static void ig_draw_profiles(void)
         rb->lcd_fillrect(5, y - 3, 310, 30);
         rb->lcd_set_foreground(ordinal == profile_selection ? IG_BLUE :
                               LCD_BLACK);
-        if (list_name_profile[row] == ordinal)
-            rb->lcd_bitmap_transparent(
-                (const fb_data *)list_name_bm[row].data, 16, y - 4,
+        if (list_name_profile[row] == ordinal && list_name_loaded[row])
+            rb->lcd_bitmap_transparent_part(
+                (const fb_data *)list_name_bm[row].data, 0, 0,
+                list_name_bm[row].width, 16, y - 3,
                 MIN(list_name_bm[row].width, 198),
                 MIN(list_name_bm[row].height, 18));
         else
@@ -1276,6 +1316,13 @@ static void ig_cache_thumbnails(void)
 
 static void ig_draw_nav(const char *title, const char *right)
 {
+    rb->lcd_set_drawmode(DRMODE_SOLID);
+    if (!rb->strcmp(title, "Instagram"))
+    {
+        rb->lcd_bitmap(instagram_nav, 0, 0, 320, 28);
+        rb->lcd_set_drawmode(DRMODE_FG);
+        return;
+    }
     rb->lcd_set_background(IG_NAVY);
     rb->lcd_set_foreground(IG_NAVY);
     rb->lcd_fillrect(0, 0, LCD_WIDTH, 28);
@@ -1362,10 +1409,10 @@ static void ig_draw_home(void)
                     (post->liked ? 1 : 0));
     rb->lcd_set_foreground(IG_GRAY);
     if (post->group_count > 1)
-        rb->lcd_putsxyf(172, 96, "%d-PHOTO GROUP", post->group_count);
+        rb->lcd_putsxyf(172, 96, "%d photos", post->group_count);
     else
         rb->lcd_putsxy(172, 96, !rb->strcmp(post->type, "video") ?
-                       "VIDEO POST" : "PHOTO POST");
+                       "Video" : "Photo");
     rb->lcd_putsxyf(172, 113, "%.10s", post->post_date);
     rb->lcd_set_foreground(IG_BLUE);
     ig_puts_clipped(172, 134, 142, post->username);
@@ -1373,9 +1420,76 @@ static void ig_draw_home(void)
     rb->lcd_set_foreground(LCD_BLACK);
     ig_draw_wrapped_text(172, 152, 142, 3, caption);
     rb->lcd_set_foreground(IG_GRAY);
-    ig_puts_clipped(172, 202, 142, "Center open  Play like");
+    ig_puts_clipped(172, 202, 142, "Hold center: options");
     ig_scrollbar(57, 158, selection, visible_count);
     ig_tabbar(false);
+    rb->lcd_update();
+}
+
+/* Wrap once on entering details. Draw calls only consume cached offsets. */
+static void ig_prepare_caption(void)
+{
+    struct ig_post *post = ig_current_post();
+    const char *text = post ? post->caption : "";
+    int start = 0;
+    caption_line_count = 0;
+    caption_scroll = 0;
+    while (text[start] && caption_line_count < (int)ARRAYLEN(caption_lines))
+    {
+        char line[112];
+        int end = start, space = -1, width = 0, height;
+        caption_lines[caption_line_count++] = start;
+        while (text[end] && end - start < (int)sizeof(line) - 1)
+        {
+            line[end - start] = text[end];
+            line[end - start + 1] = '\0';
+            rb->lcd_getstringsize(line, &width, &height);
+            if (width > 296 && end > start)
+                break;
+            if (text[end] == ' ')
+                space = end;
+            end++;
+        }
+        if (text[end] && space > start)
+            end = space + 1;
+        start = MAX(start + 1, end);
+        while (text[start] == ' ')
+            start++;
+    }
+}
+
+static void ig_draw_caption(void)
+{
+    struct ig_post *post = ig_current_post();
+    int row;
+    rb->lcd_set_background(IG_CREAM);
+    rb->lcd_clear_display();
+    ig_draw_nav("Post", "CAPTION");
+    if (post)
+    {
+        rb->lcd_set_foreground(IG_BLUE);
+        ig_puts_clipped(8, 34, 300, post->username);
+        rb->lcd_set_foreground(IG_GRAY);
+        rb->lcd_putsxyf(8, 52, "%.10s  |  %d likes", post->post_date,
+                       post->likes + (post->liked ? 1 : 0));
+        rb->lcd_set_foreground(LCD_BLACK);
+        for (row = 0; row < 9 && caption_scroll + row < caption_line_count; row++)
+        {
+            int index = caption_scroll + row;
+            int begin = caption_lines[index];
+            int end = index + 1 < caption_line_count ? caption_lines[index + 1] :
+                      rb->strlen(post->caption);
+            char line[112];
+            rb->strlcpy(line, post->caption + begin,
+                        MIN(end - begin + 1, (int)sizeof(line)));
+            rb->lcd_putsxy(8, 76 + row * 15, line);
+        }
+        if (!caption_line_count)
+            rb->lcd_putsxy(8, 76, "No caption in this synced post");
+    }
+    rb->lcd_set_foreground(IG_GRAY);
+    rb->lcd_putsxy(8, 222, "Wheel scroll  |  Menu back");
+    ig_scrollbar(76, 132, caption_scroll, caption_line_count);
     rb->lcd_update();
 }
 
@@ -1479,12 +1593,12 @@ static enum plugin_status ig_open_home_autoplay(void)
     ig_save_home_state();
     rb->snprintf(launch, sizeof(launch), IG_FEED_PREFIX "%s",
                  video);
-    return rb->plugin_open(IG_PLAYER, launch);
+    return rb->plugin_open(plugin_video_player_for(video), launch);
 }
 
 static bool ig_restore_path(const char *path)
 {
-    char line[IG_LINE_SIZE];
+    static char line[IG_LINE_SIZE];
     char username[64];
     char group_id[32];
     int fd = rb->open(IG_LIBRARY, O_RDONLY);
@@ -1722,6 +1836,8 @@ enum plugin_status plugin_start(const void *parameter)
     int home_direction = 0;
     const char *home_path = NULL;
     long launch_started = 0;
+    long navigation_tick = 0;
+    bool feed_pending = false;
     bool cold_launch = parameter == NULL;
 
 #if defined(HAVE_LCD_MODES) && (HAVE_LCD_MODES & LCD_MODE_RGB565)
@@ -1807,16 +1923,9 @@ enum plugin_status plugin_start(const void *parameter)
                 rb->sleep(1);
             rb->button_clear_queue();
         }
-        if (!suppress_autoplay && visible_count > 0)
-        {
-            struct ig_post *post = ig_current_post();
-
-            if (post && !rb->strcmp(post->type, "video") &&
-                post->media[0])
-                return ig_open_home_autoplay();
-        }
         ig_load_feed_art();
     }
+    navigation_tick = *rb->current_tick;
     while (running)
     {
         int action;
@@ -1824,7 +1933,9 @@ enum plugin_status plugin_start(const void *parameter)
 
         if (redraw)
         {
-            if (screen == IG_SCREEN_VIEWER)
+            if (screen == IG_SCREEN_CAPTION)
+                ig_draw_caption();
+            else if (screen == IG_SCREEN_VIEWER)
                 ig_draw_viewer();
             else if (screen == IG_SCREEN_FAVORITES)
                 ig_draw_favorites();
@@ -1840,6 +1951,9 @@ enum plugin_status plugin_start(const void *parameter)
         if (screen == IG_SCREEN_VIEWER && viewer_zoom > 0)
             timeout = MAX(1, HZ / 12);
 #endif
+        if (screen == IG_SCREEN_HOME || screen == IG_SCREEN_FAVORITES ||
+            screen == IG_SCREEN_PROFILES)
+            timeout = MAX(1, HZ / 10);
         action = pluginlib_getaction(timeout, contexts,
                                      ARRAYLEN(contexts));
 #ifdef HAVE_WHEEL_POSITION
@@ -1849,18 +1963,81 @@ enum plugin_status plugin_start(const void *parameter)
             continue;
         }
 #endif
+        if (action != ACTION_NONE)
+            navigation_tick = *rb->current_tick;
+        else if (!rb->button_queue_count() &&
+                 TIME_AFTER(*rb->current_tick, navigation_tick + HZ / 5))
+        {
+            if (screen == IG_SCREEN_FAVORITES || screen == IG_SCREEN_PROFILES)
+                redraw |= ig_cache_list_names(screen);
+            else if (screen == IG_SCREEN_HOME)
+            {
+                if (feed_pending)
+                {
+                    ig_load_feed_art();
+                    feed_pending = false;
+                    redraw = true;
+                }
+                if (!suppress_autoplay &&
+                    TIME_AFTER(*rb->current_tick, navigation_tick + HZ / 2))
+                {
+                    struct ig_post *post = ig_current_post();
+
+                    if (post && !rb->strcmp(post->type, "video") &&
+                        post->media[0])
+                        return ig_open_home_autoplay();
+                }
+            }
+        }
         switch (action)
         {
         case PLA_SELECT_REPEAT:
             if (!select_held &&
                 (screen == IG_SCREEN_HOME || screen == IG_SCREEN_PROFILE) &&
-                ig_toggle_current_like())
+                ig_current_post())
+            {
+                MENUITEM_STRINGLIST(menu, "Post options", NULL,
+                    "Read caption", "Open author profile", "Like / unlike",
+                    "Favorite / unfavorite author");
+                int chosen = 0;
+                int result = rb->do_menu(&menu, &chosen, NULL, false);
+                int owner = ig_find_profile(ig_current_post()->username);
+                rb->lcd_setfont(FONT_UI);
+                rb->lcd_set_backdrop(NULL);
+                if (result == 0)
+                {
+                    caption_return_screen = screen;
+                    ig_prepare_caption();
+                    screen = IG_SCREEN_CAPTION;
+                }
+                else if (result == 1 && owner >= 0)
+                {
+                    if (screen == IG_SCREEN_HOME)
+                        ig_save_home_state();
+                    profile_return_screen = screen == IG_SCREEN_HOME ?
+                                            IG_SCREEN_HOME : IG_SCREEN_PROFILES;
+                    ig_select_profile(owner);
+                    ig_cache_thumbnails();
+                    screen = IG_SCREEN_PROFILE;
+                }
+                else if (result == 2)
+                    ig_toggle_current_like();
+                else if (result == 3 && owner >= 0)
+                    ig_toggle_profile_favorite(owner);
+                suppress_autoplay = true;
                 redraw = true;
-            select_held = true;
+            }
+            /* do_menu consumed the select release used to choose an item. */
+            select_held = false;
             break;
         case PLA_SCROLL_BACK:
         case PLA_SCROLL_BACK_REPEAT:
-            if (screen == IG_SCREEN_VIEWER && viewer_zoom > 0)
+            if (screen == IG_SCREEN_CAPTION)
+            {
+                caption_scroll = MAX(0, caption_scroll - 1);
+                redraw = true;
+            }
+            else if (screen == IG_SCREEN_VIEWER && viewer_zoom > 0)
             {
                 if (ig_load_viewer_level(viewer_zoom - 1, IG_PAN_CENTER))
                     redraw = true;
@@ -1869,24 +2046,24 @@ enum plugin_status plugin_start(const void *parameter)
                      favorite_selection > 0)
             {
                 favorite_selection--;
-                ig_cache_list_names(IG_SCREEN_FAVORITES);
+
                 redraw = true;
             }
             else if (screen == IG_SCREEN_PROFILES && profile_selection > 0)
             {
                 profile_selection--;
-                ig_cache_list_names(IG_SCREEN_PROFILES);
+
                 redraw = true;
             }
             else if (screen == IG_SCREEN_HOME && selection > 0)
             {
                 selection--;
                 home_selection = selection;
-                ig_save_home_state();
-                if (!rb->strcmp(ig_current_post()->type, "video") &&
-                    ig_current_post()->media[0])
-                    return ig_open_home_autoplay();
-                ig_load_feed_art();
+                suppress_autoplay = false;
+                feed_pending = true;
+                feed_loaded = false;
+                avatar_loaded = false;
+                avatar_profile_index = -1;
                 redraw = true;
             }
             else if (screen == IG_SCREEN_PROFILE && selection > 0)
@@ -1904,7 +2081,13 @@ enum plugin_status plugin_start(const void *parameter)
             break;
         case PLA_SCROLL_FWD:
         case PLA_SCROLL_FWD_REPEAT:
-            if (screen == IG_SCREEN_VIEWER &&
+            if (screen == IG_SCREEN_CAPTION)
+            {
+                caption_scroll = MIN(MAX(0, caption_line_count - 9),
+                                     caption_scroll + 1);
+                redraw = true;
+            }
+            else if (screen == IG_SCREEN_VIEWER &&
                 viewer_zoom + 1 < IG_ZOOM_LEVELS)
             {
                 if (ig_load_viewer_level(viewer_zoom + 1, IG_PAN_CENTER))
@@ -1914,14 +2097,14 @@ enum plugin_status plugin_start(const void *parameter)
                      favorite_selection + 1 < ig_favorite_profile_count())
             {
                 favorite_selection++;
-                ig_cache_list_names(IG_SCREEN_FAVORITES);
+
                 redraw = true;
             }
             else if (screen == IG_SCREEN_PROFILES &&
                      profile_selection + 1 < profile_count)
             {
                 profile_selection++;
-                ig_cache_list_names(IG_SCREEN_PROFILES);
+
                 redraw = true;
             }
             else if (screen == IG_SCREEN_HOME &&
@@ -1929,11 +2112,11 @@ enum plugin_status plugin_start(const void *parameter)
             {
                 selection++;
                 home_selection = selection;
-                ig_save_home_state();
-                if (!rb->strcmp(ig_current_post()->type, "video") &&
-                    ig_current_post()->media[0])
-                    return ig_open_home_autoplay();
-                ig_load_feed_art();
+                suppress_autoplay = false;
+                feed_pending = true;
+                feed_loaded = false;
+                avatar_loaded = false;
+                avatar_profile_index = -1;
                 redraw = true;
             }
             else if (screen == IG_SCREEN_PROFILE &&
@@ -1996,7 +2179,8 @@ enum plugin_status plugin_start(const void *parameter)
                         ig_save_home_state();
                     rb->snprintf(launch, sizeof(launch), IG_PREFIX "%s",
                                  post->media);
-                    return rb->plugin_open(IG_PLAYER, launch);
+                    return rb->plugin_open(
+                        plugin_video_player_for(post->media), launch);
                 }
                 viewer_zoom = 0;
                 viewer_post_index = visible_posts[selection];
@@ -2039,14 +2223,19 @@ enum plugin_status plugin_start(const void *parameter)
             else if (screen == IG_SCREEN_PROFILE)
             {
                 screen = profile_return_screen;
-                ig_cache_list_names(screen);
+                if (screen == IG_SCREEN_HOME)
+                {
+                    ig_load_home();
+                    ig_restore_home_state();
+                    ig_load_feed_art();
+                }
                 redraw = true;
             }
             else if (screen == IG_SCREEN_PROFILES)
             {
                 favorite_selection = 0;
                 screen = IG_SCREEN_FAVORITES;
-                ig_cache_list_names(screen);
+
                 redraw = true;
             }
             else if (screen == IG_SCREEN_FAVORITES)
@@ -2059,9 +2248,10 @@ enum plugin_status plugin_start(const void *parameter)
             }
             else if (screen == IG_SCREEN_HOME)
             {
+                ig_save_home_state();
                 favorite_selection = 0;
                 screen = IG_SCREEN_FAVORITES;
-                ig_cache_list_names(screen);
+
                 redraw = true;
             }
             break;
@@ -2077,7 +2267,7 @@ enum plugin_status plugin_start(const void *parameter)
                 home_selection = selection;
                 ig_save_home_state();
                 screen = IG_SCREEN_PROFILES;
-                ig_cache_list_names(screen);
+
                 redraw = true;
             }
             else if (screen == IG_SCREEN_PROFILE && profile_count > 1)
@@ -2090,12 +2280,17 @@ enum plugin_status plugin_start(const void *parameter)
             else if (screen == IG_SCREEN_FAVORITES)
             {
                 screen = IG_SCREEN_PROFILES;
-                ig_cache_list_names(screen);
+
                 redraw = true;
             }
             break;
         case PLA_CANCEL:
-            if (screen == IG_SCREEN_VIEWER)
+            if (screen == IG_SCREEN_CAPTION)
+            {
+                screen = caption_return_screen;
+                redraw = true;
+            }
+            else if (screen == IG_SCREEN_VIEWER)
             {
                 screen = viewer_return_screen;
                 viewer_loaded = false;
@@ -2115,13 +2310,18 @@ enum plugin_status plugin_start(const void *parameter)
             else if (screen == IG_SCREEN_PROFILE)
             {
                 screen = profile_return_screen;
-                ig_cache_list_names(screen);
+                if (screen == IG_SCREEN_HOME)
+                {
+                    ig_load_home();
+                    ig_restore_home_state();
+                    ig_load_feed_art();
+                }
                 redraw = true;
             }
             else if (screen == IG_SCREEN_PROFILES)
             {
                 screen = IG_SCREEN_FAVORITES;
-                ig_cache_list_names(screen);
+
                 redraw = true;
             }
             else if (screen == IG_SCREEN_FAVORITES)

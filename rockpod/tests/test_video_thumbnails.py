@@ -158,6 +158,62 @@ def test_thumbnail_service_prefers_local_poster_file(tmp_dir):
         assert rendered.size == (120, 180)
 
 
+def test_thumbnail_service_matches_title_variant_poster(tmp_dir):
+    home_dir = os.path.join(tmp_dir, "Home Videos")
+    os.makedirs(home_dir, exist_ok=True)
+    video_path = os.path.join(home_dir, "Spirited Away (2001).mkv")
+    with open(video_path, "wb") as handle:
+        handle.write(b"video")
+    poster_path = os.path.join(home_dir, "Spirited Away.jpg")
+    Image.new("RGB", (600, 900), color=(50, 80, 120)).save(poster_path, "JPEG")
+
+    runner = _FakeFrameRunner()
+    service = VideoThumbnailService(tmp_dir, command_runner=runner)
+    service._ffmpeg = "/usr/bin/ffmpeg"
+
+    thumb = service.thumbnail_path(
+        {
+            "file_path": video_path,
+            "title": "Spirited Away",
+            "video_kind": "movie",
+        },
+        size=120,
+    )
+
+    assert os.path.exists(thumb)
+    assert runner.commands == []
+    with Image.open(thumb) as rendered:
+        assert rendered.size == (120, 180)
+
+
+def test_thumbnail_service_matches_known_movie_canonical_title_spelling(tmp_dir):
+    home_dir = os.path.join(tmp_dir, "Movies")
+    os.makedirs(home_dir, exist_ok=True)
+    video_path = os.path.join(home_dir, "Kiki's Devlivery Service (1989).mkv")
+    with open(video_path, "wb") as handle:
+        handle.write(b"video")
+    poster_path = os.path.join(home_dir, "Kiki's Delivery Service.jpg")
+    Image.new("RGB", (640, 960), color=(90, 70, 100)).save(poster_path, "JPEG")
+
+    runner = _FakeFrameRunner()
+    service = VideoThumbnailService(tmp_dir, command_runner=runner)
+    service._ffmpeg = "/usr/bin/ffmpeg"
+
+    thumb = service.thumbnail_path(
+        {
+            "file_path": video_path,
+            "title": "Kiki's Devlivery Service",
+            "video_kind": "movie",
+        },
+        size=120,
+    )
+
+    assert os.path.exists(thumb)
+    assert runner.commands == []
+    with Image.open(thumb) as rendered:
+        assert rendered.size == (120, 180)
+
+
 def test_thumbnail_service_prefers_online_poster_from_artwork_manager(tmp_dir):
     video_path = os.path.join(tmp_dir, "Movie", "movie.mkv")
     os.makedirs(os.path.dirname(video_path), exist_ok=True)
@@ -291,7 +347,7 @@ def test_video_list_thumbnail_and_manifest_generated_for_ipod(tmp_dir):
         data = handle.read()
     assert "video_id\tthumb\tpreview\ttitle\tkind\tgroup_key\tdevice_path" in data
     assert f"{video_id}\tthumbs/{device_name}\tpreviews/{preview_name}\tReal Movie\tmovie" in data
-    assert data.startswith("# rockpod videolist v7\n")
+    assert data.startswith("# rockpod videolist v8\n")
     assert "\t1\t2007\tDrama\t4\tA concise synopsis." in data
     # show_art_id, season_art_id and show_plot trail the poster columns.
     assert f"netflix-detail/{detail_name}" in data
@@ -356,12 +412,66 @@ def test_verified_imdb_catalog_drives_show_and_season_art(tmp_dir):
     )
     with open(manifest_path, "r", encoding="utf-8") as handle:
         rows = handle.read().splitlines()
-    assert rows[0] == "# rockpod videolist v7"
+    assert rows[0] == "# rockpod videolist v8"
     assert rows[1].endswith(
         "show_art_id\tseason_art_id\tshow_plot\tintro_start\tintro_end"
-        "\tcredits_start\tcredits_duration"
+        "\tcredits_start\tcredits_duration\texternal_rating_tenths"
+        "\texternal_rating_votes\tbanner_art_id"
     )
     assert rows[2].split("\t")[20:22] == [show_id, season_id]
+
+
+def test_verified_catalog_banner_exports_device_bitmap_and_rating_encoding(tmp_dir):
+    from services.imdb_video_artwork import IMDbVideoArtworkCatalog
+
+    asset_dir = os.path.join(tmp_dir, "catalog-art")
+    os.makedirs(asset_dir, exist_ok=True)
+    banner_path = os.path.join(asset_dir, "sample-banner.jpg")
+    source = Image.new("RGB", (1280, 640), (80, 40, 120))
+    source.paste((230, 20, 20), (0, 0, 80, 640))
+    source.paste((20, 20, 230), (1200, 0, 1280, 640))
+    source.save(banner_path, "JPEG")
+    catalog_path = os.path.join(asset_dir, "catalog.json")
+    with open(catalog_path, "w", encoding="utf-8") as handle:
+        json.dump(
+            {
+                "version": 1,
+                "titles": [{
+                    "imdb_id": "tt9999999",
+                    "tmdb_id": "9999",
+                    "title": "Sample Show",
+                    "kind": "show",
+                    "banner_art": "sample-banner.jpg",
+                }],
+            },
+            handle,
+        )
+
+    service = VideoThumbnailService(tmp_dir)
+    service._imdb_artwork = IMDbVideoArtworkCatalog(catalog_path)
+    track = {
+        "show_title": "Sample Show",
+        "video_kind": "show",
+        "imdb_id": "tt9999999",
+    }
+
+    assert service.video_catalog_banner_path(track) == banner_path
+    banner, banner_hash, banner_name, banner_id = (
+        service.export_video_list_banner(track)
+    )
+    assert banner_hash
+    assert banner_name == f"{banner_id}.bmp"
+    with Image.open(banner) as rendered:
+        assert rendered.size == (320, 180)
+        # A 2:1 source fits at 320x160 with ten black rows above and below.
+        # Both colored source edges survive, proving this is contain/fit rather
+        # than the old center crop.
+        assert max(rendered.getpixel((160, 0))) < 8
+        assert rendered.getpixel((0, 90))[0] > 180
+        assert rendered.getpixel((319, 90))[2] > 180
+        assert rendered.getpixel((160, 90))[0] > 50
+    assert service.manifest_external_rating_tenths(8.779) == "88"
+    assert service.manifest_external_rating_tenths(0) == ""
 
 
 def test_video_heavy_fixture_records_thumbnail_manifest_profile(tmp_dir):

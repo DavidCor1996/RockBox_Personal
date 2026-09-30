@@ -35,6 +35,10 @@ CODEC_HEADER
 
 static void update_playing_time(void)
 {
+    /* Byte offsets cannot determine elapsed time without a known bitrate. */
+    if (ci->id3->bitrate <= 0)
+        return;
+
     ci->set_elapsed((unsigned long)((ci->id3->offset - ci->id3->first_frame_offset) * 8LL / ci->id3->bitrate));
 }
 

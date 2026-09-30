@@ -53,7 +53,9 @@ static inline void call_tick_tasks(void)
     current_tick++;
 
 #if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
-        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+        IPOD6G_HIBERNATE_STAGE3 && \
+        defined(IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS) && \
+        IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS && !defined(BOOTLOADER)
     extern void ipod6g_hibernate_tick_probe_start(uint32_t tick);
     extern void ipod6g_hibernate_tick_probe_task(uint32_t tick,
             uint32_t index, const void *function, bool entering);
@@ -66,13 +68,17 @@ static inline void call_tick_tasks(void)
     for(fn = *p; fn != NULL; fn = *(++p))
     {
 #if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
-        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+        IPOD6G_HIBERNATE_STAGE3 && \
+        defined(IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS) && \
+        IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS && !defined(BOOTLOADER)
         ipod6g_hibernate_tick_probe_task((uint32_t)current_tick, index,
                                          (const void *)fn, true);
 #endif
         fn();
 #if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
-        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+        IPOD6G_HIBERNATE_STAGE3 && \
+        defined(IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS) && \
+        IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS && !defined(BOOTLOADER)
         ipod6g_hibernate_tick_probe_task((uint32_t)current_tick, index,
                                          (const void *)fn, false);
 #endif
@@ -80,7 +86,9 @@ static inline void call_tick_tasks(void)
     }
 
 #if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
-        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+        IPOD6G_HIBERNATE_STAGE3 && \
+        defined(IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS) && \
+        IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS && !defined(BOOTLOADER)
     ipod6g_hibernate_tick_probe_complete((uint32_t)current_tick, index);
 #endif
 }

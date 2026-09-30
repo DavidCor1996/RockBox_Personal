@@ -18,6 +18,7 @@
  ****************************************************************************/
 
 #include "plugin.h"
+#include "video_completion.h"
 #include "lib/helper.h"
 #include "netflix_intro.h"
 #include "settings.h"
@@ -3325,13 +3326,16 @@ static int play_raw_rvp(const char *path, bool netflix_launch,
 
     if (exited_by_user)
     {
-        raw_resume_save(path, last_position, total_video_frames,
-                        raw_config.fps);
-        /* raw_resume_save() drops the record past 95%, treating the title as
-         * finished. Record that here or the checkmark would be lost with it. */
-        if (netflix_launch && total_video_frames > 0 &&
-            last_position >= (total_video_frames * 95) / 100)
+        if (netflix_launch && last_position >= 0 &&
+            video_at_completion(last_position, total_video_frames,
+                                raw_netflix_credits_start_frame))
+        {
+            raw_resume_clear(path);
             raw_netflix_mark_watched(path);
+        }
+        else
+            raw_resume_save(path, last_position, total_video_frames,
+                            raw_config.fps);
     }
     else if (rc == PLUGIN_OK && i >= segment_count)
     {
@@ -3506,18 +3510,27 @@ static enum plugin_status play_h264_tiktok_feed(const char *feed_path)
 static int play_h264_mp4(const char *launch_parameter, const char *path,
                          bool netflix_launch)
 {
+    static char fallback_path[MAX_PATH];
+    static char fallback_launch[MAX_PATH + 80];
     int rc;
     bool youtube_launch =
         !rb->strncmp(launch_parameter, "youtube-app:", 12) ||
         !rb->strncmp(launch_parameter, "youtube-live:", 13);
     bool youtube_live =
         !rb->strncmp(launch_parameter, "youtube-live:", 13);
+    bool twitch_launch =
+        !rb->strncmp(launch_parameter, "twitch-app:", 11) ||
+        !rb->strncmp(launch_parameter, "twitch-live:", 12);
+    bool twitch_live =
+        !rb->strncmp(launch_parameter, "twitch-live:", 12);
     bool onlyfans_launch =
         !rb->strncmp(launch_parameter, "onlyfans-app:", 13);
     bool instagram_feed =
         !rb->strncmp(launch_parameter, "instagram-feed:", 15);
     bool instagram_launch = instagram_feed ||
         !rb->strncmp(launch_parameter, "instagram-app:", 14);
+    bool twitter_launch =
+        !rb->strncmp(launch_parameter, "twitter-app:", 12);
     bool reddit_launch =
         !rb->strncmp(launch_parameter, "reddit-app:", 11);
     bool spotify_launch =
@@ -3533,14 +3546,41 @@ static int play_h264_mp4(const char *launch_parameter, const char *path,
     raw_prepare_output();
     do
     {
-        rc = rb->video_h264_play(launch_parameter,
+        rc = rb->video_h264_play(twitter_launch ? path : launch_parameter,
                                  raw_pool, raw_pool_size);
     }
     while (youtube_live && rc == 0);
     if (netflix_launch && rc == 0)
         raw_netflix_mark_watched(path);
     raw_audio_shutdown();
-    if (rc < 0)
+    if (rc < 0 && twitch_launch)
+    {
+        char *dot;
+        size_t prefix_length;
+
+        rb->strlcpy(fallback_path, path, sizeof(fallback_path));
+        dot = rb->strrchr(fallback_path, '.');
+        if (dot != NULL)
+        {
+            rb->strlcpy(dot, ".mpg",
+                        sizeof(fallback_path) - (dot - fallback_path));
+            if (rb->file_exists(fallback_path))
+            {
+#if defined(IPOD_6G) && !defined(SIMULATOR)
+                raw_video_restore_composite_output();
+#endif
+                prefix_length = rb->strlen(launch_parameter) - rb->strlen(path);
+                rb->snprintf(fallback_launch, sizeof(fallback_launch),
+                             "%.*s%s", (int)prefix_length,
+                             launch_parameter, fallback_path);
+                rb->splash(HZ, "Using MPEG fallback");
+                return rb->plugin_open(
+                    VIEWERS_DIR "/mpegplayer.rock", fallback_launch
+                );
+            }
+        }
+    }
+    if (rc < 0 && !twitch_launch)
         return PLUGIN_ERROR;
 
 #if defined(IPOD_6G) && !defined(SIMULATOR)
@@ -3566,6 +3606,53 @@ static int play_h264_mp4(const char *launch_parameter, const char *path,
         return rb->plugin_open(PLUGIN_APPS_DIR "/youtube.rock",
                                return_parameter);
     }
+    if (twitch_launch)
+    {
+        static char return_parameter[MAX_PATH + 24];
+
+#if defined(HAVE_LCD_MODES) && (HAVE_LCD_MODES & LCD_MODE_YUV)
+        rb->lcd_set_mode(LCD_MODE_RGB565);
+#endif
+        rb->lcd_set_foreground(LCD_BLACK);
+        rb->lcd_set_background(LCD_BLACK);
+        rb->lcd_clear_display();
+        rb->lcd_update();
+        if (twitch_live && rc == 0)
+        {
+            const char *epoch = launch_parameter + 12;
+            const char *creator = rb->strchr(epoch, ':');
+            const char *separator = creator != NULL ?
+                                    rb->strchr(creator + 1, ':') : NULL;
+            int length = separator != NULL ? separator - creator - 1 : 0;
+
+            if (length > 0)
+                rb->snprintf(return_parameter, sizeof(return_parameter),
+                             "continue:%.*s", length, creator + 1);
+            else
+                rb->snprintf(return_parameter, sizeof(return_parameter),
+                             "return:%s", path);
+        }
+        else if (twitch_live)
+        {
+            const char *epoch = launch_parameter + 12;
+            const char *creator = rb->strchr(epoch, ':');
+            const char *separator = creator != NULL ?
+                                    rb->strchr(creator + 1, ':') : NULL;
+            int length = separator != NULL ? separator - creator - 1 : 0;
+
+            if (length > 0)
+                rb->snprintf(return_parameter, sizeof(return_parameter),
+                             "return-live:%.*s", length, creator + 1);
+            else
+                rb->snprintf(return_parameter, sizeof(return_parameter),
+                             "return:%s", path);
+        }
+        else
+            rb->snprintf(return_parameter, sizeof(return_parameter),
+                         "return:%s", path);
+        return rb->plugin_open(PLUGIN_APPS_DIR "/twitch.rock",
+                               return_parameter);
+    }
     if (onlyfans_launch)
     {
         static char return_parameter[MAX_PATH + 8];
@@ -3589,6 +3676,12 @@ static int play_h264_mp4(const char *launch_parameter, const char *path,
         return rb->plugin_open(PLUGIN_APPS_DIR "/instagram.rock",
                                return_parameter);
     }
+    if (twitter_launch)
+    {
+        static char return_parameter[MAX_PATH + 8];
+        rb->snprintf(return_parameter, sizeof(return_parameter), "return:%s", path);
+        return rb->plugin_open(PLUGIN_APPS_DIR "/twitter.rock", return_parameter);
+    }
     if (reddit_launch)
     {
         static char return_parameter[MAX_PATH + 8];
@@ -3609,7 +3702,8 @@ static int play_h264_mp4(const char *launch_parameter, const char *path,
 static const char *video_parameter_path(const char *parameter)
 {
     static const char * const prefixes[] = {
-        "youtube-app:", "youtube:", "reddit-app:", "onlyfans-app:",
+        "youtube-app:", "youtube:", "twitch-app:",
+        "reddit-app:", "twitter-app:", "onlyfans-app:",
         "instagram-app:", "instagram-feed:", "spotify-wrapped:",
         "tiktok-app:", "-mapsdash:",
     };
@@ -3618,6 +3712,14 @@ static const char *video_parameter_path(const char *parameter)
     if (!rb->strncmp(parameter, "youtube-live:", 13))
     {
         const char *separator = rb->strchr(parameter + 13, ':');
+
+        return separator != NULL ? separator + 1 : parameter;
+    }
+    if (!rb->strncmp(parameter, "twitch-live:", 12))
+    {
+        const char *creator = rb->strchr(parameter + 12, ':');
+        const char *separator = creator != NULL ?
+                                rb->strchr(creator + 1, ':') : NULL;
 
         return separator != NULL ? separator + 1 : parameter;
     }

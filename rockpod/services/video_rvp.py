@@ -28,6 +28,8 @@ from services.apple_video_exact import (
     rewrite_mp4_as_apple,
 )
 from services.command_runner import CommandRunner
+from services.video_capabilities import require_h264, contract_digest
+from services.video_validation import validate_full_h264
 
 logger = logging.getLogger(__name__)
 
@@ -51,8 +53,8 @@ IPOD5G_H264_CONTRACT = (
 IPOD_H264_PROFILE_KEY = "sync-h264-v7-apple-ipod-exact-adaptive24-32"
 IPOD5G_H264_PROFILE_KEY = "sync-h264-v2-apple-ipod-video-5g-320x240-l13"
 IPOD5G_TARGETS = frozenset({"ipodvideo", "ipodvideo64mb"})
-IPOD_H264_THREADS_HD_SOURCE = 24
-IPOD_H264_THREADS_SD_SOURCE = 32
+IPOD_H264_THREADS_HD_SOURCE = 2
+IPOD_H264_THREADS_SD_SOURCE = 2
 RVP_PROFILE_DEFAULT = "raw"
 RVP_CACHE_SPACE_RESERVE = 1024 * 1024 * 1024
 RVP_PROFILE_DEFINITIONS = {
@@ -62,9 +64,8 @@ RVP_PROFILE_DEFINITIONS = {
         "max_height": 480,
         "fps": 30,
         "sample_rate": 44100,
-        # Native FFmpeg AAC q=0.28 measured 42.2 kbit/s for the corpus tone;
-        # QuickTime 7.6.6 measured 37.6-41.7 kbit/s for the same inputs.
-        "audio_bitrate": 48,
+        # Conservative stereo AAC-LC; size estimates include this bitrate.
+        "audio_bitrate": 128,
         "audio_quality": 0.28,
         "rate_mode": "abr",
         "video_bitrate": 1500,
@@ -176,6 +177,12 @@ class VideoRvpTranscoder:
         return fallback
 
     def set_profile(self, profile):
+        from services.video_pipeline import PREFIX, options, profile_string
+        self._pipeline_options = options(profile) if str(profile).startswith(PREFIX) else None
+        if self._pipeline_options is not None:
+            self._profile = profile_string(self._pipeline_options)
+            self._format = 'pipeline'
+            return self._profile
         self._profile = self._normalize_profile(profile)
         cfg = RVP_PROFILE_DEFINITIONS.get(self._profile, RVP_PROFILE_DEFINITIONS[RVP_PROFILE_DEFAULT])
         self._profile_config = dict(cfg)
@@ -205,7 +212,8 @@ class VideoRvpTranscoder:
         return bool(self.ffmpeg_bin())
 
     def prepare_track_for_sync(
-        self, track_row, device_key: str, device_target: str = ""
+        self, track_row, device_key: str, device_target: str = "",
+        device_mount: str | None = None,
     ):
         row = dict(track_row) if hasattr(track_row, "keys") else dict(track_row or {})
         source_path = os.path.abspath(str(row.get("file_path") or ""))
@@ -215,11 +223,21 @@ class VideoRvpTranscoder:
         if not os.path.isfile(source_path):
             raise RuntimeError("source video not found")
 
+        if self._pipeline_options is not None:
+            from services.video_pipeline import VideoPipeline
+            return VideoPipeline(self).prepare(row, self._pipeline_options,
+                                               device_mount, device_target)
+
         if self._format == "mpeg2":
             return self._prepare_mpeg_track(
                 row, source_path, ffmpeg_bin, device_key
             )
         if self._format == "h264":
+            if device_mount is not None:
+                installed = require_h264(device_mount)
+                device_target = installed["target"]
+                row["sync_video_capability_digest"] = installed["contract_sha256"]
+                row["sync_video_hardware_qualified"] = installed["capabilities"]["h264"]["hardware_qualified"]
             return self._prepare_h264_track(
                 row, source_path, ffmpeg_bin, device_key, device_target
             )
@@ -525,7 +543,7 @@ class VideoRvpTranscoder:
         try:
             stat = os.stat(source_path)
             fingerprint = (
-                f"{source_path}|{int(stat.st_mtime)}|{int(stat.st_size)}"
+                f"{source_path}|{stat.st_mtime_ns}|{int(stat.st_size)}"
             )
         except OSError:
             fingerprint = source_path
@@ -538,6 +556,7 @@ class VideoRvpTranscoder:
                 profile_key,
                 contract,
                 APPLE_X264_MARKER,
+                contract_digest(),
                 self._profile,
                 str(width),
                 str(height),
@@ -691,8 +710,7 @@ class VideoRvpTranscoder:
             "--range", "tv", "--profile", "baseline",
             "--level", level_name, "--preset", "slow",
             # The v4 patch keeps Apple's exact sample syntax in both modes.
-            # Native-SD inputs peak at 32 frame threads on the reference host;
-            # HD downscales peak at 24 because decoding/scaling also needs CPU.
+            # Bound frame buffers and CPU pressure on 8-GB desktop hosts.
             "--threads", str(self._h264_frame_threads(
                 source_width or width, source_height or height
             )),
@@ -734,13 +752,13 @@ class VideoRvpTranscoder:
             "-map", "0:a:0?", "-map", "1:v:0", "-sn", "-dn",
             "-map_metadata", "-1",
             "-c:a", "aac", "-profile:a", "aac_low",
-            "-q:a", str(self._profile_config.get("audio_quality") or 0.28),
+            "-b:a", str(self._profile_config.get("audio_bitrate") or 128) + "k",
             "-ar", "44100", "-ac", "2",
             "-c:v", "copy", "-tag:v", "avc1",
             "-metadata:s:a:0", "handler_name=Apple Sound Media Handler",
-            "-metadata:s:a:0", "language=eng",
+
             "-metadata:s:v:0", "handler_name=Apple Video Media Handler",
-            "-metadata:s:v:0", "language=eng",
+
             "-video_track_timescale", str(
                 apple_video_timescale(fps_num, fps_den)
             ),
@@ -905,6 +923,7 @@ class VideoRvpTranscoder:
                 f"H.264 output violates {contract}: "
                 + "; ".join(failures)
             )
+        full_validation = validate_full_h264(path, video, ffprobe_bin, ffmpeg_bin)
         format_info = dict(payload.get("format") or {})
         try:
             bitrate_kbps = int(format_info.get("bit_rate") or 0) // 1000
@@ -919,6 +938,7 @@ class VideoRvpTranscoder:
                 "atoms": atoms,
                 "movie_timescale": movie_timescale,
                 "avc_contract": avc_contract,
+                "full_stream": full_validation,
             },
             sort_keys=True,
             separators=(",", ":"),
@@ -934,6 +954,7 @@ class VideoRvpTranscoder:
             "atoms": atoms,
             "movie_timescale": movie_timescale,
             "avc_contract": avc_contract,
+            "full_stream": full_validation,
         }
 
     @staticmethod
@@ -1037,7 +1058,7 @@ class VideoRvpTranscoder:
         try:
             stat = os.stat(source_path)
             fingerprint = (
-                f"{source_path}|{int(stat.st_mtime)}|{int(stat.st_size)}"
+                f"{source_path}|{stat.st_mtime_ns}|{int(stat.st_size)}"
             )
         except OSError:
             fingerprint = source_path
@@ -1260,7 +1281,7 @@ class VideoRvpTranscoder:
     def _cache_marker_path(self, source_path: str, row: dict, device_key: str) -> str:
         try:
             stat = os.stat(source_path)
-            fingerprint = f"{source_path}|{int(stat.st_mtime)}|{int(stat.st_size)}"
+            fingerprint = f"{source_path}|{stat.st_mtime_ns}|{int(stat.st_size)}"
         except OSError:
             fingerprint = source_path
         material = "|".join(

@@ -101,10 +101,14 @@ from services import sitekick
 from services import livetv
 from services.calm import CalmService
 from services.youtube_app import YoutubeAppService
+from services.twitch_app import TwitchAppService
 from services.tiktok_app import TikTokAppService
 from services.onlyfans_app import OnlyFansAppService
 from services.instagram_app import InstagramAppService
 from services.reddit_app import RedditAppService
+from services.twitter_app import TwitterAppService
+from services.msn_app import MsnAppService
+from services.application_layout import ApplicationLayoutService
 from services.rockbox_deploy import RockboxDeployService
 from services.rockbox_boot import RockboxBootService, RockboxBuildSyncJob
 from services.rockbox_games import RockboxGameService
@@ -181,14 +185,18 @@ from ui.theme_designer import ThemeDesignerWidget
 from ui.ipodjs_engine_designer import IPodJSEngineDesignerWidget
 from ui.video_library import VideoGridView, build_video_browser_groups, classify_video_track
 from ui.video_player import VideoPlayerWindow
-from ui.video_sync import VideoSyncPanel
+from ui.video_sync import VideoSyncPanel, mark_tracks_for_device
 from ui.livetv_panel import LiveTvPanel, LiveTvStorePanel
 from ui.calm_panel import CalmLibraryPanel, CalmStorePanel
 from ui.youtube_panel import YoutubePanel
+from ui.twitch_panel import TwitchPanel
 from ui.tiktok_panel import TikTokPanel
 from ui.onlyfans_panel import OnlyFansPanel
 from ui.instagram_panel import InstagramPanel
 from ui.reddit_panel import RedditPanel
+from ui.twitter_panel import TwitterPanel
+from ui.msn_panel import MsnPanel
+from ui.applications_panel import ApplicationsPanel
 from ui.dialogs.livetv_editor import LiveTvEditorDialog
 from ui.website_sync import WebsiteSyncPanel
 from ui.android_workflows import summarize_android_import
@@ -252,12 +260,17 @@ class MainWindow(QMainWindow):
         self._youtube_app = YoutubeAppService(
             self._db, self._config, self._repo_root
         )
+        self._twitch_app = TwitchAppService(
+            self._db, self._config, self._repo_root
+        )
         self._tiktok_app = TikTokAppService(
             self._db, self._config, self._repo_root
         )
         self._onlyfans_app = OnlyFansAppService(self._config, self._repo_root)
         self._instagram_app = InstagramAppService(self._config, self._repo_root)
         self._reddit_app = RedditAppService(self._config, self._repo_root)
+        self._twitter_app = TwitterAppService(self._config, self._repo_root)
+        self._msn_app = MsnAppService(self._config, self._repo_root)
         self._comics_store_client = ArchiveOrgComicsClient(
             self._config, self._repo_root
         )
@@ -521,6 +534,10 @@ class MainWindow(QMainWindow):
             self._youtube_app,
             lambda: self._device_detector.current_device,
         )
+        self._twitch_panel = TwitchPanel(
+            self._twitch_app,
+            lambda: self._device_detector.current_device,
+        )
         self._tiktok_panel = TikTokPanel(
             self._tiktok_app,
             lambda: self._device_detector.current_device,
@@ -535,6 +552,17 @@ class MainWindow(QMainWindow):
         )
         self._reddit_panel = RedditPanel(
             self._reddit_app,
+            lambda: self._device_detector.current_device,
+        )
+        self._twitter_panel = TwitterPanel(
+            self._twitter_app,
+            lambda: self._device_detector.current_device,
+        )
+        self._msn_panel = MsnPanel(
+            self._msn_app, lambda: self._device_detector.current_device,
+        )
+        self._applications_panel = ApplicationsPanel(
+            ApplicationLayoutService(self._repo_root),
             lambda: self._device_detector.current_device,
         )
         self._livetv_panel = LiveTvPanel()
@@ -599,10 +627,14 @@ class MainWindow(QMainWindow):
         self._content_stack.addWidget(self._sitekick_panel)
         self._content_stack.addWidget(self._calm_panel)
         self._content_stack.addWidget(self._youtube_panel)
+        self._content_stack.addWidget(self._twitch_panel)
         self._content_stack.addWidget(self._tiktok_panel)
         self._content_stack.addWidget(self._onlyfans_panel)
         self._content_stack.addWidget(self._instagram_panel)
         self._content_stack.addWidget(self._reddit_panel)
+        self._content_stack.addWidget(self._twitter_panel)
+        self._content_stack.addWidget(self._msn_panel)
+        self._content_stack.addWidget(self._applications_panel)
         self._content_stack.addWidget(self._livetv_panel)
         self._content_stack.addWidget(self._store_page)
         self._content_stack.addWidget(self._photo_manager)
@@ -642,6 +674,14 @@ class MainWindow(QMainWindow):
         file_menu.addAction("Fetch Missing Artwork", self._refresh_missing_artwork)
         file_menu.addAction(
             "Fill In Missing Video Metadata", self._fill_missing_video_metadata
+        )
+        file_menu.addAction(
+            "Run Ollama Video Metadata (Sample)",
+            self._run_ollama_video_metadata_sample,
+        )
+        file_menu.addAction(
+            "Run Ollama Video Metadata for All Videos...",
+            self._run_ollama_video_metadata_all,
         )
         file_menu.addAction("New Playlist...", self._new_playlist, "Ctrl+N")
         file_menu.addSeparator()
@@ -786,6 +826,7 @@ class MainWindow(QMainWindow):
             lambda: self._refresh_livetv_panel(rescan=True))
         self._livetv_panel.autobuild_requested.connect(self._livetv_autobuild)
         self._livetv_panel.sync_requested.connect(self._livetv_sync)
+        self._livetv_panel.sync_selected_requested.connect(self._livetv_sync)
         self._livetv_panel.assign_requested.connect(self._livetv_assign)
         self._livetv_panel.unassign_requested.connect(self._livetv_unassign)
         self._livetv_panel.delete_media_requested.connect(
@@ -1358,6 +1399,20 @@ class MainWindow(QMainWindow):
             tracks = self._db.get_all_tracks()
 
         tracks = normalize_tracks_for_ui(tracks)
+        if not self._current_view.startswith("device_") and tracks:
+            verified = bool(self._device_detector.current_device) and (
+                self._sync_engine.device_inventory_has_local_links()
+            )
+            device_tracks = self._sync_engine.get_device_tracks() if verified else []
+            linked = {
+                int(dict(row)["local_track_id"]) for row in device_tracks
+                if dict(row).get("local_track_id")
+            }
+            missing = {
+                int(track["id"]) for track in tracks if track.get("id")
+                and int(track["id"]) not in linked
+            }
+            mark_tracks_for_device(tracks, missing, device_tracks, verified)
         if include_search:
             tracks = filter_tracks_for_search(tracks, self._toolbar.search_text.strip())
         return tracks
@@ -1552,10 +1607,14 @@ class MainWindow(QMainWindow):
             "rockbox_sitekick": "Sitekick",
             "rockbox_calm": "Calm Sync",
             "rockbox_youtube": "YouTube",
+            "rockbox_twitch": "Twitch",
             "rockbox_tiktok": "TikTok",
             "rockbox_onlyfans": "OnlyFans",
             "rockbox_instagram": "Instagram",
             "rockbox_reddit": "Reddit",
+            "rockbox_twitter": "Twitter",
+            "rockbox_msn": "MSN Messenger",
+            "rockbox_applications": "Applications",
             "rockbox_livetv": "Live TV",
             "rockbox_games": "Store",
             "rockbox_movies": "Store",
@@ -1885,6 +1944,9 @@ class MainWindow(QMainWindow):
         elif self._current_view == "rockbox_youtube":
             self._content_stack.setCurrentWidget(self._youtube_panel)
             self._youtube_panel.refresh()
+        elif self._current_view == "rockbox_twitch":
+            self._content_stack.setCurrentWidget(self._twitch_panel)
+            self._twitch_panel.refresh()
         elif self._current_view == "rockbox_tiktok":
             self._content_stack.setCurrentWidget(self._tiktok_panel)
             self._tiktok_panel.refresh()
@@ -1897,6 +1959,15 @@ class MainWindow(QMainWindow):
         elif self._current_view == "rockbox_reddit":
             self._content_stack.setCurrentWidget(self._reddit_panel)
             self._reddit_panel.refresh()
+        elif self._current_view == "rockbox_applications":
+            self._content_stack.setCurrentWidget(self._applications_panel)
+            self._applications_panel.refresh()
+        elif self._current_view == "rockbox_msn":
+            self._content_stack.setCurrentWidget(self._msn_panel)
+            self._msn_panel.refresh()
+        elif self._current_view == "rockbox_twitter":
+            self._content_stack.setCurrentWidget(self._twitter_panel)
+            self._twitter_panel.refresh()
         elif self._current_view == "rockbox_games":
             self._content_stack.setCurrentWidget(self._store_page)
             self._store_page.setCurrentWidget(self._game_browser_panel)
@@ -3345,6 +3416,98 @@ class MainWindow(QMainWindow):
             message += "; sync to refresh the iPod"
         self._status_bar.set_left_text(message)
 
+    def _run_ollama_video_metadata_sample(self):
+        """Run the conservative configured sample, never the full library."""
+        try:
+            limit = int(self._config.get("ollama_video_metadata_sample_limit", 5) or 5)
+        except (TypeError, ValueError):
+            limit = 5
+        limit = max(1, min(1000, limit))
+        self._run_ollama_video_metadata(limit=limit, confirm=False)
+
+    def _run_ollama_video_metadata_all(self):
+        rows = self._db.get_tracks_by_media_type("video", order_by="id")
+        if not rows:
+            self._status_bar.set_left_text("No videos in the library")
+            return
+        reply = QMessageBox.question(
+            self,
+            "Run Ollama Metadata for All Videos",
+            f"Ask Ollama to review all {len(rows)} video rows?\n\n"
+            "Only unlocked movies and TV shows are eligible. Each TV show is "
+            "parsed once, then provider metadata is applied to its episodes. "
+            "This may take time and download artwork.",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+        if reply == QMessageBox.Yes:
+            self._run_ollama_video_metadata(limit=None, confirm=False)
+
+    def _run_ollama_video_metadata(self, limit=None, confirm=False):
+        del confirm
+        if not self._config.get("ollama_video_metadata_enabled", False):
+            QMessageBox.information(
+                self,
+                "Ollama Video Metadata",
+                "Enable the Ollama video metadata assistant in Preferences > Metadata first.",
+            )
+            return
+        rows = [dict(row) for row in self._db.get_tracks_by_media_type("video", order_by="id")]
+        if not rows:
+            self._status_bar.set_left_text("No videos in the library")
+            return
+
+        from services.video_metadata_jobs import OllamaVideoMetadataJob
+
+        job = OllamaVideoMetadataJob(
+            rows,
+            self._config,
+            limit=limit,
+            fetch_artwork=bool(
+                self._config.get("ollama_video_metadata_fetch_artwork", True)
+            ),
+        )
+        job.signals.progress.connect(
+            lambda index, total, title: self._status_bar.set_left_text(
+                f"Ollama metadata ({index}/{total}): {title}"
+            )
+        )
+        job.signals.error.connect(
+            lambda message: self._status_bar.set_left_text(
+                f"Ollama metadata failed: {message}"
+            )
+        )
+        job.signals.result.connect(self._on_ollama_video_metadata_finished)
+        run_kind = "sample" if limit is not None else "full run"
+        self._status_bar.set_left_text(f"Starting Ollama video metadata {run_kind}...")
+        QThreadPool.globalInstance().start(job)
+
+    def _on_ollama_video_metadata_finished(self, result):
+        result = result or {}
+        updates = list(result.get("updates") or [])
+        with self._db.transaction():
+            for update in updates:
+                values = {
+                    key: value
+                    for key, value in (update.get("values") or {}).items()
+                    if key != "metadata_hash"
+                }
+                self._db.update_track_metadata(update.get("id"), values)
+        self._refresh_view()
+        self._refresh_browser()
+        if self._current_view == "library_video_sync":
+            self._refresh_video_sync_panel()
+        message = (
+            f"Ollama reviewed {result.get('processed', 0)} target(s); "
+            f"updated {len(updates)} video row(s)"
+        )
+        unmatched = list(result.get("unmatched") or [])
+        if unmatched:
+            message += f"; skipped {len(unmatched)} uncertain/unmatched target(s)"
+        if updates:
+            message += "; sync to refresh the iPod"
+        self._status_bar.set_left_text(message)
+
     def _video_artwork_groups(self):
         tracks = normalize_tracks_for_ui(
             self._db.get_tracks_by_media_type("video", order_by="artist, album, disc_number, track_number, title")
@@ -3969,8 +4132,7 @@ class MainWindow(QMainWindow):
         self._status_bar.set_left_text(f"Using cached device inventory ({cached} tracks)")
         self._update_status_bar()
         self._refresh_device_playlists()
-        if self._current_view in ("device_music", "device_not_on_ipod"):
-            self._refresh_view()
+        self._refresh_view()
         if self._current_view == "device_root":
             self._update_device_summary()
         if self._current_view == "device_desktop_mode":
@@ -4059,7 +4221,9 @@ class MainWindow(QMainWindow):
         self._sitekick_panel.set_disconnected()
 
     def _refresh_current_rockbox_panel(self):
-        if self._current_view == "rockbox_themes":
+        if self._current_view == "rockbox_applications":
+            self._applications_panel.refresh()
+        elif self._current_view == "rockbox_themes":
             self._refresh_theme_hub()
         elif self._current_view == "rockbox_wallpapers":
             self._refresh_ipone_wallpapers()
@@ -4207,8 +4371,7 @@ class MainWindow(QMainWindow):
         self._update_status_bar()
         self._update_sync_status()
         self._refresh_playlists()
-        if self._current_view in ("device_music", "device_not_on_ipod"):
-            self._refresh_view()
+        self._refresh_view()
         if self._current_view == "device_root":
             self._update_device_summary()
         if repair_pending:
@@ -4849,11 +5012,26 @@ class MainWindow(QMainWindow):
         if not self._show_hidden_wallpapers:
             rows = [row for row in rows if not bool(dict(row).get("video_hidden"))]
         videos = self._video_sync_candidates(rows)
+        device = self._device_detector.current_device
+        verified = bool(device) and self._sync_engine.device_inventory_is_verified()
+        missing_ids = set()
+        device_tracks = []
+        if verified:
+            track_ids = [int(video["id"]) for video in videos if video.get("id")]
+            if track_ids:
+                missing_ids = {
+                    int(dict(row)["id"])
+                    for row in self._sync_engine.get_not_on_device_tracks(track_ids)
+                }
+            device_tracks = self._sync_engine.get_device_tracks()
+        mark_tracks_for_device(videos, missing_ids, device_tracks, verified)
         self._video_sync_panel.set_videos(videos)
         if not videos:
             self._video_sync_panel.set_status("No videos in the library. Add movies from the Store or scan your video folders.")
-        elif not self._device_detector.is_connected:
+        elif not device:
             self._video_sync_panel.set_status("Connect an iPod to preview or sync selected videos.")
+        elif not verified:
+            self._video_sync_panel.set_status("Checking the selected iPod's video inventory.")
         else:
             missing = sum(1 for video in videos if not video.get("synced_to_device"))
             self._video_sync_panel.set_status(
@@ -4914,11 +5092,20 @@ class MainWindow(QMainWindow):
         ids = {int(track_id) for track_id in (track_ids or []) if int(track_id or 0)}
         if not ids:
             return []
-        return [
+        rows = [
             dict(row)
             for row in self._db.get_tracks_by_ids(ids, media_type=None)
             if str(dict(row).get("media_type") or "") == "video"
         ]
+        verified = bool(self._device_detector.current_device) and (
+            self._sync_engine.device_inventory_is_verified()
+        )
+        missing = (
+            {int(dict(row)["id"]) for row in self._sync_engine.get_not_on_device_tracks(ids)}
+            if verified else set()
+        )
+        device_tracks = self._sync_engine.get_device_tracks() if verified else []
+        return mark_tracks_for_device(rows, missing, device_tracks, verified)
 
     def _toggle_video_hidden_ids(self, track_ids):
         rows = self._video_rows_for_ids(track_ids)
@@ -5028,6 +5215,8 @@ class MainWindow(QMainWindow):
         self._status_bar.set_left_text(f"Removed {deleted} video{'s' if deleted != 1 else ''} from iPod")
 
     def _remove_video_rows_from_device(self, rows):
+        if not self._sync_engine.device_inventory_is_verified():
+            return 0
         device_tracks = [dict(row) for row in self._sync_engine.get_device_tracks()]
         by_local_id = {
             int(row.get("local_track_id") or 0): row
@@ -5045,8 +5234,6 @@ class MainWindow(QMainWindow):
             local_id = int(row.get("id") or 0)
             device_path = str(row.get("device_path") or "")
             device_row = by_local_id.get(local_id) or by_path.get(device_path)
-            if not device_row and device_path:
-                device_row = {"device_path": device_path, "local_track_id": local_id}
             if not device_row or not device_row.get("device_path"):
                 continue
             ok, msg = self._sync_engine.delete_device_track(device_row)
@@ -5124,6 +5311,19 @@ class MainWindow(QMainWindow):
             self._video_sync_panel.set_status("No Rockbox device is connected.")
             QMessageBox.warning(self, "No Device", "No Rockbox device is connected.")
             return
+
+        if video_profile not in ("raw", "native_raw", "compact_raw"):
+            from ui.video_preparation import VideoPreparationDialog
+            from services.video_pipeline import profile_string
+            device = self._device_detector.current_device
+            choices = {}
+            for row in self._video_rows_for_ids(track_ids):
+                review = VideoPreparationDialog(row, self._config, device.mount_path,
+                    device.rockbox_target, video_profile, self)
+                if not review.exec():
+                    return
+                choices[str(row['id'])] = review.settings
+            video_profile = profile_string({'items': choices})
 
         plan = self._build_sync_plan_with_feedback(
             track_ids=track_ids,
@@ -9349,7 +9549,7 @@ class MainWindow(QMainWindow):
             f"{channel.callsign} will use {os.path.basename(path)} in the "
             "guide once you sync.")
 
-    def _livetv_sync(self):
+    def _livetv_sync(self, channel_number=None):
         if getattr(self, "_livetv_sync_job", None) is not None:
             return
         device = self._device_detector.current_device
@@ -9369,7 +9569,8 @@ class MainWindow(QMainWindow):
         self._livetv_panel.set_status("Converting and copying Live TV...")
         job = livetv.LiveTvSyncJob(
             livetv.LiveTvSync(self._livetv_library()), mount_path, lineup,
-            shows, ads, config=self._config)
+            shows, ads, config=self._config,
+            channel_numbers=None if channel_number is None else {channel_number})
         self._livetv_sync_job = job
         job.signals.progress.connect(self._on_livetv_scan_progress)
         job.signals.finished.connect(self._on_livetv_sync_finished)
@@ -9380,6 +9581,11 @@ class MainWindow(QMainWindow):
         self._livetv_panel.set_busy(False)
         self._livetv_panel.clear_progress()
 
+        if result.get("cancelled"):
+            self._livetv_panel.set_status(
+                "Live TV sync cancelled. The previous device guide was kept.")
+            return
+
         if not result.get("success"):
             self._livetv_panel.set_status(
                 f"Live TV sync failed: {result.get('message', 'unknown error')}")
@@ -9387,7 +9593,8 @@ class MainWindow(QMainWindow):
 
         parts = [
             f"Synced {result.get('copied', 0)} files "
-            f"({result.get('skipped', 0)} already current) across "
+            f"({result.get('skipped', 0) + result.get('reused', 0)} "
+            f"already current) across "
             f"{result.get('channels', 0)} channels, "
             f"{result.get('slots', 0)} listings.",
         ]
@@ -9403,7 +9610,7 @@ class MainWindow(QMainWindow):
             parts.append(warning)
         errors = result.get("errors") or []
         if errors:
-            parts.append(f"{len(errors)} items failed to convert: "
+            parts.append(f"{len(errors)} items could not sync: "
                          f"{errors[0]}")
 
         self._livetv_panel.set_status(" ".join(parts))

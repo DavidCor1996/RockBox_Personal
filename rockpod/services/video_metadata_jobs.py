@@ -193,3 +193,37 @@ class VideoMetadataBackfillJob(QRunnable):
             self.signals.error.emit(str(exc))
         finally:
             self.signals.finished.emit()
+
+
+class OllamaVideoMetadataJob(QRunnable):
+    """Run a bounded Ollama-guided metadata plan off the Qt UI thread."""
+
+    def __init__(self, rows, config, limit=5, fetch_artwork=True):
+        super().__init__()
+        self.signals = JobSignals()
+        self._rows = [dict(row) for row in rows or []]
+        self._config = config
+        self._limit = limit
+        self._fetch_artwork = bool(fetch_artwork)
+
+    @Slot()
+    def run(self):
+        try:
+            from services.ollama_video_metadata import OllamaVideoMetadataRunner
+
+            runner = OllamaVideoMetadataRunner(config=self._config)
+            result = runner.plan(
+                self._rows,
+                limit=self._limit,
+                fetch_artwork=self._fetch_artwork,
+                progress=self.signals.progress.emit,
+            )
+            # Artwork is downloaded while planning, but the catalog is written
+            # only once after all targets have been evaluated.
+            runner.save_catalog()
+            self.signals.result.emit(result)
+        except Exception as exc:
+            logger.exception("Ollama video metadata failed")
+            self.signals.error.emit(str(exc))
+        finally:
+            self.signals.finished.emit()

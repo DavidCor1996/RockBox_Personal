@@ -37,7 +37,7 @@ void audiohw_init(void)
 
 unsigned char cscodec_read(int reg)
 {
-    unsigned char data;
+    unsigned char data = 0;
     i2c_read(0, 0x94, reg, 1, &data);
     return data;
 }
@@ -46,6 +46,19 @@ void cscodec_write(int reg, unsigned char data)
 {
     i2c_write(0, 0x94, reg, 1, &data);
 }
+
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+bool cscodec_read_checked(int reg, unsigned char *data)
+{
+    return i2c_read(0, 0x94, reg, 1, data) == 0;
+}
+
+bool cscodec_write_checked(int reg, unsigned char data)
+{
+    return i2c_write(0, 0x94, reg, 1, &data) == 0;
+}
+#endif
 
 void cscodec_power(bool state)
 {

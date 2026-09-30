@@ -77,6 +77,16 @@ CONFIGFILE := $(FIRMDIR)/export/config/$(MODELNAME).h
 PLUGIN_LDS := $(APPSDIR)/plugins/plugin.lds
 PLUGINLINK_LDS := $(BUILDDIR)/apps/plugins/plugin.link
 OVERLAYREF_LDS := $(BUILDDIR)/apps/plugins/overlay_ref.link
+
+# plugin.lds includes the iPod 6G hibernate layout header.  Make does not see
+# preprocessor includes in linker scripts, so changing the retained-memory
+# reservation previously left plugin.link (and every .rock load address)
+# stale while the firmware moved pluginbuf.  Rockbox then reported those
+# otherwise valid plugins as "Incompatible model".
+ifeq ($(MODELNAME),ipod6g)
+PLUGINLINK_EXTRA_DEPS := \
+	$(FIRMDIR)/target/arm/s5l8702/ipod6g/hibernate-6g.h
+endif
 endif
 OTHER_SRC += $(ROOTDIR)/apps/plugins/plugin_crt0.c
 PLUGIN_CRT0 := $(BUILDDIR)/apps/plugins/plugin_crt0.o
@@ -128,7 +138,7 @@ $(PLUGINLIB): $(PLUGINLIB_OBJ)
 	$(SILENT)$(shell rm -f $@)
 	$(call PRINTS,AR $(@F))$(AR) rcs $@ $^ >/dev/null
 
-$(PLUGINLINK_LDS): $(PLUGIN_LDS) $(CONFIGFILE)
+$(PLUGINLINK_LDS): $(PLUGIN_LDS) $(CONFIGFILE) $(PLUGINLINK_EXTRA_DEPS)
 	$(call PRINTS,PP $(@F))
 	$(shell mkdir -p $(dir $@))
 	$(call preprocess2file,$<,$@,-DLOADADDRESS=$(LOADADDRESS))

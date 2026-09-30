@@ -62,7 +62,7 @@ def test_manifest_header_and_rows_come_from_one_column_list():
     # cannot drift out of step the way a hand-maintained pair would.
     assert '"\\t".join(self._MANIFEST_COLUMNS)' in body
     assert "for name in self._MANIFEST_COLUMNS" in body
-    assert len(_manifest_columns()) == 27
+    assert len(_manifest_columns()) == 30
 
 
 def test_manifest_appends_show_plot_without_moving_existing_columns():
@@ -78,9 +78,10 @@ def test_manifest_appends_show_plot_without_moving_existing_columns():
     ]
     assert columns[22:] == [
         "show_plot", "intro_start", "intro_end", "credits_start",
-        "credits_duration",
+        "credits_duration", "external_rating_tenths",
+        "external_rating_votes", "banner_art_id",
     ]
-    assert "# rockpod videolist v7" in (
+    assert "# rockpod videolist v8" in (
         ROCKPOD / "services/video_thumbnails.py"
     ).read_text()
 

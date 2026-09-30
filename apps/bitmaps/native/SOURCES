@@ -96,3 +96,13 @@ usblogo.104x27x1.bmp
 #endif
 
 #endif /* BOOTLOADER */
+
+#if defined(HAVE_IPODJS_UI) && defined(HAVE_LCD_COLOR) && !defined(BOOTLOADER)
+/* Resident Applications pane: instant reveal without storage access. */
+ipodjs_app_weather.80x80x16.bmp
+ipodjs_app_youtube.80x80x16.bmp
+ipodjs_app_maps.80x80x16.bmp
+ipodjs_app_clock.80x80x16.bmp
+ipodjs_app_instagram.80x80x16.bmp
+ipodjs_app_pocket_sky.80x80x16.bmp
+#endif

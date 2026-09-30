@@ -1,0 +1,43 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Oceff_Wipe4/z_oceff_wipe4.c: In function 'OceffWipe4_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Oceff_Wipe4/z_oceff_wipe4.c:79:40: warning: passing argument 1 of 'ResourceMgr_LoadVtxByName' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   79 |     vtxPtr = ResourceMgr_LoadVtxByName(sFrustumVtx);
+      |                                        ^~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Oceff_Wipe4/z_oceff_wipe4.c:9:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:59:38: note: expected 'char *' but argument is of type 'const char *'
+   59 | Vtx* ResourceMgr_LoadVtxByName(char* path);
+      |                                ~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Oceff_Wipe4/z_oceff_wipe4.c:102:41: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  102 |         gSPDisplayList(POLY_XLU_DISP++, sUnusedMaterialDL);
+      |                                         ^~~~~~~~~~~~~~~~~
+      |                                         |
+      |                                         const char *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Oceff_Wipe4/z_oceff_wipe4.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Oceff_Wipe4/z_oceff_wipe4.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Oceff_Wipe4/z_oceff_wipe4.c:104:41: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  104 |         gSPDisplayList(POLY_XLU_DISP++, sMaterialDL);
+      |                                         ^~~~~~~~~~~
+      |                                         |
+      |                                         const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Oceff_Wipe4/z_oceff_wipe4.c:107:37: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  107 |     gSPDisplayList(POLY_XLU_DISP++, sMaterial2DL);
+      |                                     ^~~~~~~~~~~~
+      |                                     |
+      |                                     const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Oceff_Wipe4/z_oceff_wipe4.c:111:43: warning: passing argument 2 of 'gSPDisplayListOffset' from incompatible pointer type [-Wincompatible-pointer-types]
+  111 |     gSPDisplayListOffset(POLY_XLU_DISP++, sMaterial2DL, 11 + 2 + 1);
+      |                                           ^~~~~~~~~~~~
+      |                                           |
+      |                                           const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:28:42: note: expected 'Gfx *' but argument is of type 'const char *'
+   28 | void gSPDisplayListOffset(Gfx* pkt, Gfx* dl, int offset);
+      |                                     ~~~~~^~

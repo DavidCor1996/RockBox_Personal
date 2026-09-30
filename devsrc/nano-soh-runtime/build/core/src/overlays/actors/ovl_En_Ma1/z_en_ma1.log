@@ -1,0 +1,70 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ma1/z_en_ma1.c:75:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[46]' [-Wincompatible-pointer-types]
+   75 |     { &gMalonChildIdleAnim, 1.0f, ANIMMODE_LOOP, 0.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ma1/z_en_ma1.c:75:7: note: (near initialization for 'sAnimationInfo[0].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ma1/z_en_ma1.c:76:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[46]' [-Wincompatible-pointer-types]
+   76 |     { &gMalonChildIdleAnim, 1.0f, ANIMMODE_LOOP, -10.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ma1/z_en_ma1.c:76:7: note: (near initialization for 'sAnimationInfo[1].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ma1/z_en_ma1.c:77:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[46]' [-Wincompatible-pointer-types]
+   77 |     { &gMalonChildSingAnim, 1.0f, ANIMMODE_LOOP, 0.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ma1/z_en_ma1.c:77:7: note: (near initialization for 'sAnimationInfo[2].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ma1/z_en_ma1.c:78:7: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[46]' [-Wincompatible-pointer-types]
+   78 |     { &gMalonChildSingAnim, 1.0f, ANIMMODE_LOOP, -10.0f },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ma1/z_en_ma1.c:78:7: note: (near initialization for 'sAnimationInfo[3].animation')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ma1/z_en_ma1.c:84:5: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   84 |     gMalonChildNeutralMouthTex,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ma1/z_en_ma1.c:85:5: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   85 |     gMalonChildSmilingMouthTex,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ma1/z_en_ma1.c:86:5: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   86 |     gMalonChildTalkingMouthTex,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ma1/z_en_ma1.c:90:5: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   90 |     gMalonChildEyeOpenTex,
+      |     ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ma1/z_en_ma1.c:91:5: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   91 |     gMalonChildEyeHalfTex,
+      |     ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ma1/z_en_ma1.c:92:5: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   92 |     gMalonChildEyeClosedTex,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ma1/z_en_ma1.c: In function 'EnMa1_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ma1/z_en_ma1.c:284:48: warning: passing argument 3 of 'SkelAnime_InitFlex' from incompatible pointer type [-Wincompatible-pointer-types]
+  284 |     SkelAnime_InitFlex(play, &this->skelAnime, &gMalonChildSkel, NULL, NULL, NULL, 0);
+      |                                                ^~~~~~~~~~~~~~~~
+      |                                                |
+      |                                                const char (*)[42]
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ma1/z_en_ma1.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ma1/z_en_ma1.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1329:83: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[42]'
+ 1329 | s32 SkelAnime_InitFlex(PlayState* play, SkelAnime* skelAnime, FlexSkeletonHeader* skeletonHeaderSeg,
+      |                                                               ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:10:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ma1/z_en_ma1.c: In function 'EnMa1_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ma1/z_en_ma1.c:486:74: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  486 |     gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(sMouthTextures[this->mouthIndex]));
+      |                                                            ~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~
+      |                                                                          |
+      |                                                                          void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ma1/z_en_ma1.c:487:72: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  487 |     gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(sEyeTextures[this->eyeIndex]));
+      |                                                            ~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+      |                                                                        |
+      |                                                                        void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~

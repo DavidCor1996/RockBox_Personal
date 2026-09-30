@@ -1,0 +1,227 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:100:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  100 |     { gDTDungeonDoor1DL, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |       ^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:100:7: note: (near initialization for 'sShutterInfo[0].a')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:100:26: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  100 |     { gDTDungeonDoor1DL, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |                          ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:100:26: note: (near initialization for 'sShutterInfo[0].b')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:101:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  101 |     { gDTDungeonDoor2DL, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |       ^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:101:7: note: (near initialization for 'sShutterInfo[1].a')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:101:26: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  101 |     { gDTDungeonDoor2DL, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |                          ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:101:26: note: (near initialization for 'sShutterInfo[1].b')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:102:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  102 |     { gDodongoDoorDL, gDodongoBarsDL, 240, 14, 70, 15 },
+      |       ^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:102:7: note: (near initialization for 'sShutterInfo[2].a')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:102:23: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  102 |     { gDodongoDoorDL, gDodongoBarsDL, 240, 14, 70, 15 },
+      |                       ^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:102:23: note: (near initialization for 'sShutterInfo[2].b')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:103:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  103 |     { gJabuDoorSection1DL, gJabuWebDoorDL, 0, 110, 50, 15 },
+      |       ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:103:7: note: (near initialization for 'sShutterInfo[3].a')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:103:28: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  103 |     { gJabuDoorSection1DL, gJabuWebDoorDL, 0, 110, 50, 15 },
+      |                            ^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:103:28: note: (near initialization for 'sShutterInfo[3].b')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:104:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  104 |     { gPhantomGanonBarsDL, NULL, 130, 12, 50, 15 },
+      |       ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:104:7: note: (near initialization for 'sShutterInfo[4].a')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:105:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  105 |     { gGohmaDoorDL, NULL, 130, 12, 50, 15 },
+      |       ^~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:105:7: note: (near initialization for 'sShutterInfo[5].a')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:106:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  106 |     { gSpiritDoorDL, gJyaDoorMetalBarsDL, 240, 14, 50, 15 },
+      |       ^~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:106:7: note: (near initialization for 'sShutterInfo[6].a')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:106:22: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  106 |     { gSpiritDoorDL, gJyaDoorMetalBarsDL, 240, 14, 50, 15 },
+      |                      ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:106:22: note: (near initialization for 'sShutterInfo[6].b')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:107:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  107 |     { gBossDoorDL, NULL, 130, 12, 50, 15 },
+      |       ^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:107:7: note: (near initialization for 'sShutterInfo[7].a')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:108:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  108 |     { gDungeonDoorDL, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |       ^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:108:7: note: (near initialization for 'sShutterInfo[8].a')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:108:23: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  108 |     { gDungeonDoorDL, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |                       ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:108:23: note: (near initialization for 'sShutterInfo[8].b')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:109:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  109 |     { gFireTempleDoorFrontDL, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |       ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:109:7: note: (near initialization for 'sShutterInfo[9].a')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:109:31: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  109 |     { gFireTempleDoorFrontDL, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |                               ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:109:31: note: (near initialization for 'sShutterInfo[9].b')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:110:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  110 |     { gFireTempleDoorBackDL, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |       ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:110:7: note: (near initialization for 'sShutterInfo[10].a')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:110:30: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  110 |     { gFireTempleDoorBackDL, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |                              ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:110:30: note: (near initialization for 'sShutterInfo[10].b')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:111:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  111 |     { object_ganon_objects_DL_0000C0, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:111:7: note: (near initialization for 'sShutterInfo[11].a')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:111:39: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  111 |     { object_ganon_objects_DL_0000C0, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |                                       ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:111:39: note: (near initialization for 'sShutterInfo[11].b')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:112:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  112 |     { gObjectMizuObjectsDoorShutterDL_005D90, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:112:7: note: (near initialization for 'sShutterInfo[12].a')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:112:47: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  112 |     { gObjectMizuObjectsDoorShutterDL_005D90, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |                                               ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:112:47: note: (near initialization for 'sShutterInfo[12].b')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:113:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  113 |     { gObjectMizuObjectsDoorShutterDL_007000, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:113:7: note: (near initialization for 'sShutterInfo[13].a')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:113:47: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  113 |     { gObjectMizuObjectsDoorShutterDL_007000, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |                                               ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:113:47: note: (near initialization for 'sShutterInfo[13].b')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:114:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  114 |     { object_haka_door_DL_002620, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:114:7: note: (near initialization for 'sShutterInfo[14].a')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:114:35: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  114 |     { object_haka_door_DL_002620, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |                                   ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:114:35: note: (near initialization for 'sShutterInfo[14].b')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:115:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  115 |     { object_haka_door_DL_003890, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:115:7: note: (near initialization for 'sShutterInfo[15].a')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:115:35: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  115 |     { object_haka_door_DL_003890, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |                                   ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:115:35: note: (near initialization for 'sShutterInfo[15].b')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:116:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  116 |     { object_ice_objects_DL_001D10, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:116:7: note: (near initialization for 'sShutterInfo[16].a')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:116:37: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  116 |     { object_ice_objects_DL_001D10, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |                                     ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:116:37: note: (near initialization for 'sShutterInfo[16].b')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:117:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  117 |     { gGTGDoorDL, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |       ^~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:117:7: note: (near initialization for 'sShutterInfo[17].a')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:117:19: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  117 |     { gGTGDoorDL, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |                   ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:117:19: note: (near initialization for 'sShutterInfo[17].b')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:118:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  118 |     { gGanonsCastleDoorDL, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |       ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:118:7: note: (near initialization for 'sShutterInfo[18].a')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:118:28: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  118 |     { gGanonsCastleDoorDL, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |                            ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:118:28: note: (near initialization for 'sShutterInfo[18].b')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:119:7: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  119 |     { object_ouke_haka_DL_0000C0, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:119:7: note: (near initialization for 'sShutterInfo[19].a')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:119:35: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  119 |     { object_ouke_haka_DL_0000C0, gDoorMetalBarsDL, 130, 12, 20, 15 },
+      |                                   ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:119:35: note: (near initialization for 'sShutterInfo[19].b')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:176:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  176 |     gJabuDoorSection1DL, gJabuDoorSection2DL, gJabuDoorSection7DL, gJabuDoorSection4DL,
+      |     ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:176:5: note: (near initialization for 'sJabuDoorDLists[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:176:26: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  176 |     gJabuDoorSection1DL, gJabuDoorSection2DL, gJabuDoorSection7DL, gJabuDoorSection4DL,
+      |                          ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:176:26: note: (near initialization for 'sJabuDoorDLists[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:176:47: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  176 |     gJabuDoorSection1DL, gJabuDoorSection2DL, gJabuDoorSection7DL, gJabuDoorSection4DL,
+      |                                               ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:176:47: note: (near initialization for 'sJabuDoorDLists[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:176:68: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  176 |     gJabuDoorSection1DL, gJabuDoorSection2DL, gJabuDoorSection7DL, gJabuDoorSection4DL,
+      |                                                                    ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:176:68: note: (near initialization for 'sJabuDoorDLists[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:177:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  177 |     gJabuDoorSection5DL, gJabuDoorSection4DL, gJabuDoorSection3DL, gJabuDoorSection2DL,
+      |     ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:177:5: note: (near initialization for 'sJabuDoorDLists[4]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:177:26: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  177 |     gJabuDoorSection5DL, gJabuDoorSection4DL, gJabuDoorSection3DL, gJabuDoorSection2DL,
+      |                          ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:177:26: note: (near initialization for 'sJabuDoorDLists[5]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:177:47: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  177 |     gJabuDoorSection5DL, gJabuDoorSection4DL, gJabuDoorSection3DL, gJabuDoorSection2DL,
+      |                                               ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:177:47: note: (near initialization for 'sJabuDoorDLists[6]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:177:68: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  177 |     gJabuDoorSection5DL, gJabuDoorSection4DL, gJabuDoorSection3DL, gJabuDoorSection2DL,
+      |                                                                    ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:177:68: note: (near initialization for 'sJabuDoorDLists[7]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:181:5: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  181 |     gBossDoorDefaultTex,      gBossDoorFireTex,   gBossDoorWaterTex,  gBossDoorShadowTex,
+      |     ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:181:31: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  181 |     gBossDoorDefaultTex,      gBossDoorFireTex,   gBossDoorWaterTex,  gBossDoorShadowTex,
+      |                               ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:181:51: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  181 |     gBossDoorDefaultTex,      gBossDoorFireTex,   gBossDoorWaterTex,  gBossDoorShadowTex,
+      |                                                   ^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:181:71: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  181 |     gBossDoorDefaultTex,      gBossDoorFireTex,   gBossDoorWaterTex,  gBossDoorShadowTex,
+      |                                                                       ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:182:5: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  182 |     gBossDoorGanonsCastleTex, gBossDoorForestTex, gBossDoorSpiritTex,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:182:31: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  182 |     gBossDoorGanonsCastleTex, gBossDoorForestTex, gBossDoorSpiritTex,
+      |                               ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:182:51: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  182 |     gBossDoorGanonsCastleTex, gBossDoorForestTex, gBossDoorSpiritTex,
+      |                                                   ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c: In function 'DoorShutter_SetupType':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:310:97: warning: pointer type mismatch in conditional expression [-Wincompatible-pointer-types]
+  310 |             CollisionHeader_GetVirtual((this->doorType == SHUTTER_GOHMA_BLOCK) ? &gGohmaDoorCol : &gPhantomGanonBarsCol,
+      |                                                                                                 ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:310:82: note: first expression has type 'const char (*)[41]'
+  310 |             CollisionHeader_GetVirtual((this->doorType == SHUTTER_GOHMA_BLOCK) ? &gGohmaDoorCol : &gPhantomGanonBarsCol,
+      |                                                                                  ^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:310:99: note: second expression has type 'const char (*)[47]'
+  310 |             CollisionHeader_GetVirtual((this->doorType == SHUTTER_GOHMA_BLOCK) ? &gGohmaDoorCol : &gPhantomGanonBarsCol,
+      |                                                                                                   ^~~~~~~~~~~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:10,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c: In function 'DoorShutter_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Door_Shutter/z_door_shutter.c:766:82: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  766 |                 gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(D_809982D4[this->bossDoorTexIndex]));
+      |                                                                        ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                                  |
+      |                                                                                  void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~

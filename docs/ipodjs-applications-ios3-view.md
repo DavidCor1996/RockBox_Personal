@@ -58,8 +58,8 @@ reproducible with `tools/prepare_ipodjs_application_icons.sh`.
 
 ## Memory and lifecycle
 
-The eighteen decoded icons occupy at most 76,176 bytes
-(`18 * 46 * 46 * 2`) on the RGB565 targets.  Their slots are a new arm of the
+The twenty-two decoded icons occupy at most 93,104 bytes
+(`22 * 46 * 46 * 2`) on the RGB565 targets.  Their slots are an arm of the
 existing root-menu preview-cache union, whose other arms have non-overlapping
 screen lifetimes.  This adds no BSS and performs no `core_alloc()`.
 

@@ -1,0 +1,6 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_map_mark.c:45:7: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   45 |     { gMapChestIconTex, G_IM_FMT_RGBA, G_IM_SIZ_16b, 8, 8, 32, 32, 1 << 10, 1 << 10 }, // Chest Icon
+      |       ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_map_mark.c:46:7: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   46 |     { gMapBossIconTex, G_IM_FMT_IA, G_IM_SIZ_8b, 8, 8, 32, 32, 1 << 10, 1 << 10 },     // Boss Skull Icon
+      |       ^~~~~~~~~~~~~~~

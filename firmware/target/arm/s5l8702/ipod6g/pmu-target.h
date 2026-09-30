@@ -92,7 +92,10 @@ void pmu_init(void);
         !defined(BOOTLOADER)
 void pmu_hibernate_resume(void);
 void pmu_hibernate_resume_complete(void);
+#if defined(IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS) && \
+        IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS
 void pmu_hibernate_runtime_monitor_enable(void);
+#endif
 #endif
 unsigned char pmu_read(int address);
 int pmu_write(int address, unsigned char val);

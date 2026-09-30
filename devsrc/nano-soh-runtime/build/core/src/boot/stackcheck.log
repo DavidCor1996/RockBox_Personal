@@ -1,0 +1,14 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/boot/stackcheck.c: In function 'StackCheck_GetState':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/boot/stackcheck.c:81:15: warning: assignment to 'u32 *' {aka 'long unsigned int *'} from incompatible pointer type 'uintptr_t *' {aka 'unsigned int *'} [-Wincompatible-pointer-types]
+   81 |     for (last = (uintptr_t*)entry->head; (uintptr_t)last < entry->tail; last++) {
+      |               ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/boot/stackcheck.c:106:34: warning: passing argument 1 of 'LogUtils_LogHexDump' makes pointer from integer without a cast [-Wint-conversion]
+  106 |         LogUtils_LogHexDump(entry->head, entry->tail - entry->head);
+      |                             ~~~~~^~~~~~
+      |                                  |
+      |                                  uintptr_t {aka unsigned int}
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/boot/stackcheck.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:89:32: note: expected 'void *' but argument is of type 'uintptr_t' {aka 'unsigned int'}
+   89 | void LogUtils_LogHexDump(void* ptr, ptrdiff_t size0);
+      |                          ~~~~~~^~~

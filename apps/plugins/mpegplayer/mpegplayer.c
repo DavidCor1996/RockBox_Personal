@@ -100,9 +100,27 @@
  *     very fine resolution ;-)
  *****************************************************************************/
 #include "plugin.h"
+#include "video_completion.h"
+#define NF_API(name) rb->name
+#include "netflix_captions.h"
+const unsigned char *mpegplayer_tv_caption(void)
+{
+    static unsigned char mask[NF_CAP_BYTES];
+    return nf_caption_snapshot(mask) ? mask : NULL;
+}
+
+#include "netflix_brand.h"
+#undef NF_API
 #include "mpegplayer.h"
 #include "lib/helper.h"
 #include "mpeg_settings.h"
+#define VLS_API rb->
+#include "video_library_state.h"
+#undef VLS_API
+static uint32_t library_last_position, library_duration;
+static long library_saved_tick;
+static int library_previous_status;
+
 #include "video_out.h"
 #include "stream_thread.h"
 #include "stream_mgr.h"
@@ -117,6 +135,14 @@
 #define MPEGPLAYER_NETFLIX_RESTART_PREFIX_LEN 16
 #define MPEGPLAYER_YOUTUBE_APP_PREFIX "youtube-app:"
 #define MPEGPLAYER_YOUTUBE_APP_PREFIX_LEN 12
+#define MPEGPLAYER_YOUTUBE_LIVE_PREFIX "youtube-live:"
+#define MPEGPLAYER_YOUTUBE_LIVE_PREFIX_LEN 13
+#define MPEGPLAYER_TWITCH_APP_PREFIX "twitch-app:"
+#define MPEGPLAYER_TWITCH_APP_PREFIX_LEN 11
+#define MPEGPLAYER_TWITCH_LIVE_PREFIX "twitch-live:"
+#define MPEGPLAYER_TWITCH_LIVE_PREFIX_LEN 12
+#define MPEG_TWITCH_OVERLAY_H 38
+#define MPEG_TWITCH_LIVE_OVERLAY_H 28
 #define MPEGPLAYER_ONLYFANS_APP_PREFIX "onlyfans-app:"
 #define MPEGPLAYER_ONLYFANS_APP_PREFIX_LEN 13
 #define MPEGPLAYER_INSTAGRAM_APP_PREFIX "instagram-app:"
@@ -130,6 +156,13 @@ bool mpegplayer_netflix_launch;
 bool mpegplayer_youtube_launch;
 bool mpegplayer_youtube_embedded;
 static bool mpegplayer_youtube_app_launch;
+static bool mpegplayer_youtube_live_launch;
+static uint32_t mpegplayer_youtube_live_epoch;
+static bool mpegplayer_twitch_app_launch;
+static bool mpegplayer_twitch_live_launch;
+static bool mpegplayer_twitch_continue;
+static uint32_t mpegplayer_twitch_live_epoch;
+static char mpegplayer_twitch_creator[17];
 static bool mpegplayer_onlyfans_app_launch;
 static bool mpegplayer_instagram_app_launch;
 static bool mpegplayer_instagram_feed_launch;
@@ -137,6 +170,8 @@ static bool mpegplayer_instagram_feed_expanded;
 static int mpegplayer_instagram_return_direction;
 static bool mpegplayer_instagram_return_profile;
 static bool mpegplayer_reddit_app_launch;
+static bool mpegplayer_twitter_app_launch;
+static bool mpegplayer_msn_app_launch;
 bool mpegplayer_livetv_launch;
 bool mpegplayer_livetv_pig;
 bool mpegplayer_livetv_desktop;
@@ -242,6 +277,19 @@ static uint32_t livetv_resume;
     ROCKBOX_DIR "/ipodjs/youtube/youtube-player-seek-knob-2007.bmp"
 #define YOUTUBE_VOLUME_KNOB_PATH \
     ROCKBOX_DIR "/ipodjs/youtube/youtube-player-volume-knob-2007.bmp"
+#define TWITCH_PLAYER_ICON_PATH \
+    ROCKBOX_DIR "/ipodjs/twitch/twitch-glitch-current.18x20.bmp"
+#define TWITCH_CHAT_W 146
+#define TWITCH_CHAT_ROWS 5
+#define TWITCH_CHAT_USER 25
+#define TWITCH_CHAT_TEXT 160
+#define TWITCH_CHAT_LINE 320
+#define TWITCH_CHAT_ANIMATION_TICKS MAX(1, (HZ * 2) / 5)
+#define TWITCH_CHAT_EASE_SCALE 1024
+#define TWITCH_EMOJI_SIZE 14
+#define TWITCH_EMOJI_CACHE 32
+#define TWITCH_EMOJI_BYTES (TWITCH_EMOJI_SIZE * TWITCH_EMOJI_SIZE * 4)
+#define TWITCH_EMOJI_HEADER 10
 #define INSTAGRAM_LIKES_PATH ROCKBOX_DIR "/instagram/likes.tsv"
 #define INSTAGRAM_LIKES_TMP_PATH ROCKBOX_DIR "/instagram/likes.mpeg.tmp"
 #define INSTAGRAM_LIBRARY_PATH ROCKBOX_DIR "/instagram/library.tsv"
@@ -257,6 +305,8 @@ static bool youtube_player_valid;
 static bool youtube_seek_knob_valid;
 static bool youtube_volume_knob_valid;
 #include "pluginbitmaps/instagram_video_play.h"
+#include "pluginbitmaps/instagram_nav.h"
+#include "pluginbitmaps/instagram_tabs.h"
 #include "pluginbitmaps/instagram_heart.h"
 #include "pluginbitmaps/instagram_heart_unliked.h"
 static char instagram_group_id[32];
@@ -271,6 +321,46 @@ static char youtube_uploader[40];
 static char youtube_added[24];
 static char youtube_views[32];
 static char youtube_duration[20];
+static unsigned char twitch_player_icon_data[18 * 20 * sizeof(fb_data)]
+    CACHEALIGN_ATTR;
+static struct bitmap twitch_player_icon_bmp;
+static bool twitch_player_icon_valid;
+static char twitch_title[64];
+static char twitch_creator[40];
+static char twitch_game[40];
+static char twitch_views[32];
+struct twitch_chat_message
+{
+    uint32_t offset;
+    uint32_t color;
+    char user[TWITCH_CHAT_USER];
+    char text[TWITCH_CHAT_TEXT];
+};
+struct twitch_chat_emoji
+{
+    int index;
+    unsigned char rgba[TWITCH_EMOJI_BYTES];
+};
+struct twitch_chat_state
+{
+    int fd;
+    int emoji_fd;
+    bool available;
+    bool visible;
+    int panel_width;
+    int animation_from;
+    long animation_started;
+    bool pending_valid;
+    uint16_t emoji_count;
+    int emoji_next;
+    int first;
+    int count;
+    uint32_t last_position;
+    struct twitch_chat_message pending;
+    struct twitch_chat_message rows[TWITCH_CHAT_ROWS];
+    struct twitch_chat_emoji emojis[TWITCH_EMOJI_CACHE];
+};
+static struct twitch_chat_state twitch_chat = {.fd = -1, .emoji_fd = -1};
 #endif
 
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240)
@@ -355,6 +445,329 @@ static void youtube_load_metadata(const char *videofile)
     rb->close(fd);
 }
 
+static void twitch_chat_sidecar_path(const char *video, const char *extension,
+                                     char *path, size_t size)
+{
+    char *dot;
+
+    rb->strlcpy(path, video, size);
+    dot = rb->strrchr(path, '.');
+    if (dot != NULL)
+        rb->strlcpy(dot, extension, size - (dot - path));
+    else
+        path[0] = '\0';
+}
+
+static char *twitch_chat_tab(char **cursor)
+{
+    char *value = *cursor;
+    char *tab = rb->strchr(value, '\t');
+
+    if (tab == NULL)
+        return NULL;
+    *tab = '\0';
+    *cursor = tab + 1;
+    return value;
+}
+
+static bool twitch_chat_read_next(void)
+{
+    char line[TWITCH_CHAT_LINE];
+
+    twitch_chat.pending_valid = false;
+    while (twitch_chat.fd >= 0 &&
+           rb->read_line(twitch_chat.fd, line, sizeof(line)) > 0)
+    {
+        char *cursor = line;
+        char *offset;
+        char *color;
+        char *user;
+
+        if (line[0] == '#')
+            continue;
+        offset = twitch_chat_tab(&cursor);
+        color = twitch_chat_tab(&cursor);
+        user = twitch_chat_tab(&cursor);
+        if (offset == NULL || color == NULL || user == NULL || !cursor[0])
+            continue;
+        twitch_chat.pending.offset = rb->strtoul(offset, NULL, 10);
+        twitch_chat.pending.color = rb->strtoul(color, NULL, 16);
+        rb->strlcpy(twitch_chat.pending.user, user,
+                    sizeof(twitch_chat.pending.user));
+        rb->strlcpy(twitch_chat.pending.text, cursor,
+                    sizeof(twitch_chat.pending.text));
+        twitch_chat.pending_valid = true;
+        return true;
+    }
+    return false;
+}
+
+static int twitch_chat_hex(char value)
+{
+    if (value >= '0' && value <= '9')
+        return value - '0';
+    if (value >= 'A' && value <= 'F')
+        return value - 'A' + 10;
+    if (value >= 'a' && value <= 'f')
+        return value - 'a' + 10;
+    return -1;
+}
+
+static int twitch_chat_token(const char *text)
+{
+    int index = 0;
+    int digit;
+    int i;
+
+    if (text[0] != '~' || text[1] != 'E' || text[6] != '~')
+        return -1;
+    for (i = 2; i < 6; i++)
+    {
+        digit = twitch_chat_hex(text[i]);
+        if (digit < 0)
+            return -1;
+        index = index * 16 + digit;
+    }
+    return index;
+}
+
+static struct twitch_chat_emoji *twitch_chat_cached_emoji(int index)
+{
+    int i;
+
+    for (i = 0; i < TWITCH_EMOJI_CACHE; i++)
+        if (twitch_chat.emojis[i].index == index)
+            return &twitch_chat.emojis[i];
+    return NULL;
+}
+
+static void twitch_chat_load_emoji(int index)
+{
+    struct twitch_chat_emoji *emoji;
+    off_t offset;
+
+    if (twitch_chat.emoji_fd < 0 || index < 0 ||
+        index >= twitch_chat.emoji_count ||
+        twitch_chat_cached_emoji(index) != NULL)
+        return;
+    emoji = &twitch_chat.emojis[twitch_chat.emoji_next];
+    twitch_chat.emoji_next =
+        (twitch_chat.emoji_next + 1) % TWITCH_EMOJI_CACHE;
+    emoji->index = -1;
+    offset = TWITCH_EMOJI_HEADER + (off_t)index * TWITCH_EMOJI_BYTES;
+    if (rb->lseek(twitch_chat.emoji_fd, offset, SEEK_SET) == offset &&
+        rb->read(twitch_chat.emoji_fd, emoji->rgba,
+                 sizeof(emoji->rgba)) == (ssize_t)sizeof(emoji->rgba))
+        emoji->index = index;
+}
+
+static void twitch_chat_prefetch(const char *text)
+{
+    while (text[0])
+    {
+        int index = twitch_chat_token(text);
+
+        if (index >= 0)
+        {
+            twitch_chat_load_emoji(index);
+            text += 7;
+        }
+        else
+            text++;
+    }
+}
+
+static void twitch_chat_push(void)
+{
+    int slot;
+
+    if (twitch_chat.count < TWITCH_CHAT_ROWS)
+    {
+        slot = (twitch_chat.first + twitch_chat.count) % TWITCH_CHAT_ROWS;
+        twitch_chat.count++;
+    }
+    else
+    {
+        slot = twitch_chat.first;
+        twitch_chat.first = (twitch_chat.first + 1) % TWITCH_CHAT_ROWS;
+    }
+    twitch_chat.rows[slot] = twitch_chat.pending;
+    twitch_chat_prefetch(twitch_chat.rows[slot].text);
+}
+
+static void twitch_chat_reset(void)
+{
+    int i;
+
+    twitch_chat.first = 0;
+    twitch_chat.count = 0;
+    twitch_chat.last_position = 0;
+    for (i = 0; i < TWITCH_EMOJI_CACHE; i++)
+        twitch_chat.emojis[i].index = -1;
+    twitch_chat.emoji_next = 0;
+    if (twitch_chat.fd >= 0 &&
+        rb->lseek(twitch_chat.fd, 0, SEEK_SET) >= 0)
+        twitch_chat_read_next();
+    else
+        twitch_chat.pending_valid = false;
+}
+
+static void twitch_chat_update(uint32_t position, bool unbounded)
+{
+    int advanced = 0;
+
+    if (!twitch_chat.available)
+        return;
+    if (position + 2 < twitch_chat.last_position)
+        twitch_chat_reset();
+    while (twitch_chat.pending_valid &&
+           twitch_chat.pending.offset <= position &&
+           (unbounded || advanced < 64))
+    {
+        twitch_chat_push();
+        twitch_chat_read_next();
+        advanced++;
+    }
+    twitch_chat.last_position = position;
+}
+
+static bool twitch_chat_animate(void)
+{
+    int target = twitch_chat.visible ? TWITCH_CHAT_W : 0;
+    int elapsed;
+    int progress;
+    int eased;
+    int width;
+
+    if (twitch_chat.panel_width == target)
+        return false;
+    elapsed = MIN(TWITCH_CHAT_ANIMATION_TICKS,
+                  MAX(1, (int)(*rb->current_tick -
+                               twitch_chat.animation_started)));
+    progress = elapsed * TWITCH_CHAT_EASE_SCALE /
+        TWITCH_CHAT_ANIMATION_TICKS;
+    /* Smoothstep eases both ends of the slide without a lookup table. */
+    eased = progress * progress *
+        (3 * TWITCH_CHAT_EASE_SCALE - 2 * progress) /
+        (TWITCH_CHAT_EASE_SCALE * TWITCH_CHAT_EASE_SCALE);
+    width = twitch_chat.animation_from +
+        (target - twitch_chat.animation_from) * eased /
+        TWITCH_CHAT_EASE_SCALE;
+    if (elapsed >= TWITCH_CHAT_ANIMATION_TICKS)
+        width = target;
+    width = MAX(0, MIN(TWITCH_CHAT_W, width));
+    if (width != target)
+        width = MAX(2, width & ~1);
+    if (width == twitch_chat.panel_width)
+        return false;
+    twitch_chat.panel_width = width;
+    return true;
+}
+
+static void twitch_chat_toggle(void)
+{
+    twitch_chat.visible = !twitch_chat.visible;
+    twitch_chat.animation_from = twitch_chat.panel_width;
+    twitch_chat.animation_started = *rb->current_tick;
+    /* Make the first compositor frame observable even in the same tick. */
+    twitch_chat.animation_started--;
+    twitch_chat_animate();
+}
+
+static void twitch_chat_close(void)
+{
+    if (twitch_chat.fd >= 0)
+        rb->close(twitch_chat.fd);
+    if (twitch_chat.emoji_fd >= 0)
+        rb->close(twitch_chat.emoji_fd);
+    twitch_chat.fd = -1;
+    twitch_chat.emoji_fd = -1;
+    twitch_chat.available = false;
+    twitch_chat.visible = false;
+    twitch_chat.panel_width = 0;
+}
+
+static void twitch_chat_open(const char *video)
+{
+    unsigned char header[TWITCH_EMOJI_HEADER];
+    char path[MAX_PATH];
+
+    twitch_chat_close();
+    rb->memset(&twitch_chat, 0, sizeof(twitch_chat));
+    twitch_chat.fd = -1;
+    twitch_chat.emoji_fd = -1;
+    twitch_chat_sidecar_path(video, ".twc", path, sizeof(path));
+    if (!path[0])
+        return;
+    twitch_chat.fd = rb->open(path, O_RDONLY);
+    if (twitch_chat.fd < 0)
+        return;
+    twitch_chat_sidecar_path(video, ".twe", path, sizeof(path));
+    twitch_chat.emoji_fd = rb->open(path, O_RDONLY);
+    if (twitch_chat.emoji_fd >= 0 &&
+        rb->read(twitch_chat.emoji_fd, header,
+                 sizeof(header)) == (ssize_t)sizeof(header) &&
+        !rb->memcmp(header, "TWE1", 4) &&
+        header[6] == TWITCH_EMOJI_SIZE &&
+        header[8] == TWITCH_EMOJI_SIZE)
+        twitch_chat.emoji_count = header[4] | ((uint16_t)header[5] << 8);
+    else if (twitch_chat.emoji_fd >= 0)
+    {
+        rb->close(twitch_chat.emoji_fd);
+        twitch_chat.emoji_fd = -1;
+    }
+    twitch_chat_reset();
+    twitch_chat.available = twitch_chat.pending_valid;
+    if (!twitch_chat.available)
+    {
+        rb->close(twitch_chat.fd);
+        twitch_chat.fd = -1;
+    }
+}
+
+static void twitch_load_metadata(const char *videofile)
+{
+    char path[MAX_PATH];
+    char line[128];
+    char *dot;
+    int fd;
+
+    twitch_title[0] = '\0';
+    twitch_creator[0] = '\0';
+    twitch_game[0] = '\0';
+    twitch_views[0] = '\0';
+    twitch_chat_open(videofile);
+    twitch_player_icon_bmp.data = twitch_player_icon_data;
+    twitch_player_icon_valid =
+        rb->read_bmp_file(TWITCH_PLAYER_ICON_PATH,
+                          &twitch_player_icon_bmp,
+                          sizeof(twitch_player_icon_data),
+                          FORMAT_NATIVE, NULL) > 0 &&
+        twitch_player_icon_bmp.width == 18 &&
+        twitch_player_icon_bmp.height == 20;
+
+    rb->strlcpy(path, videofile, sizeof(path));
+    dot = rb->strrchr(path, '.');
+    if (dot == NULL)
+        return;
+    rb->strlcpy(dot, ".twm", sizeof(path) - (dot - path));
+    fd = rb->open(path, O_RDONLY);
+    if (fd < 0)
+        return;
+    while (rb->read_line(fd, line, sizeof(line)) > 0)
+    {
+        if (!rb->strncmp(line, "title=", 6))
+            rb->strlcpy(twitch_title, line + 6, sizeof(twitch_title));
+        else if (!rb->strncmp(line, "creator=", 8))
+            rb->strlcpy(twitch_creator, line + 8, sizeof(twitch_creator));
+        else if (!rb->strncmp(line, "game=", 5))
+            rb->strlcpy(twitch_game, line + 5, sizeof(twitch_game));
+        else if (!rb->strncmp(line, "views=", 6))
+            rb->strlcpy(twitch_views, line + 6, sizeof(twitch_views));
+    }
+    rb->close(fd);
+}
+
 static void instagram_copy_metadata_value(char *target, size_t size,
                                           const char *value)
 {
@@ -370,7 +783,7 @@ static void instagram_copy_metadata_value(char *target, size_t size,
 static void instagram_load_metadata(const char *videofile)
 {
     char path[MAX_PATH];
-    char line[1024];
+    static char line[4096];
     char *dot;
     int fd;
 
@@ -547,6 +960,9 @@ static void youtube_draw_embedded_chrome(void)
 #else
 #define youtube_load_metadata(videofile)
 #define youtube_draw_embedded_chrome()
+#define twitch_load_metadata(videofile)
+#define twitch_chat_update(position, unbounded)
+#define twitch_chat_close()
 #define instagram_load_metadata(videofile)
 #define instagram_toggle_like() false
 #endif
@@ -586,7 +1002,8 @@ static void youtube_draw_embedded_chrome(void)
 #define MPEG_RC_RW      BUTTON_RC_LEFT
 #define MPEG_RC_FF      BUTTON_RC_RIGHT
 #define MPEG_RC_ZOOM    (BUTTON_RC_SELECT | BUTTON_REL)
-#define MPEG_RC_GUIDE   BUTTON_RC_PLAY
+/* Live TV routes Select and Play to its guide; other players keep playback
+ * controls. Held Left opens the guide, then exits from within it. */
 #endif
 
 #elif CONFIG_KEYPAD == IAUDIO_X5M5_PAD
@@ -1153,6 +1570,7 @@ struct osd
     bool stock_layout;
     bool netflix_layout;
     bool youtube_layout;
+    bool twitch_layout;
     bool instagram_layout;
 };
 
@@ -1188,6 +1606,7 @@ static uint32_t netflix_credits_duration;
 /* Set by every user-initiated stop, so the natural fall-through out of the
  * button loop can be recognised as end of stream. */
 static bool mpeg_stop_requested;
+static void mpeg_netflix_mark_on_exit(uint32_t position);
 
 #if MPEG_STOCK_CONTROLS
 struct mpeg_stock_assets
@@ -4390,9 +4809,10 @@ static void osd_text_init(void)
     osd.use_wps_layout = false;
     osd.netflix_layout = mpegplayer_netflix_launch && !feed.active;
     osd.youtube_layout = mpegplayer_youtube_app_launch && !feed.active;
+    osd.twitch_layout = mpegplayer_twitch_app_launch && !feed.active;
     osd.instagram_layout = mpegplayer_instagram_app_launch && !feed.active;
     osd.stock_layout = !osd.netflix_layout && !osd.youtube_layout &&
-                       !osd.instagram_layout && !feed.active &&
+                       !osd.twitch_layout && !osd.instagram_layout && !feed.active &&
                        mpeg_stock_assets_loaded();
     osd.x = 0;
     osd.width = SCREEN_WIDTH;
@@ -4412,10 +4832,11 @@ static void osd_text_init(void)
         return;
     }
 
-    if (osd.netflix_layout || osd.youtube_layout)
+    if (osd.netflix_layout || osd.youtube_layout || osd.twitch_layout)
     {
         netflix_overlay_duration = stream_get_duration();
-        osd.height = osd.youtube_layout ? MPEG_YOUTUBE_OVERLAY_H :
+        osd.height = osd.twitch_layout ? MPEG_TWITCH_OVERLAY_H :
+                     osd.youtube_layout ? MPEG_YOUTUBE_OVERLAY_H :
                      MPEG_NETFLIX_OVERLAY_H;
         osd.y = SCREEN_HEIGHT - osd.height;
         draw_setfont(FONT_SYSFIXED);
@@ -4593,6 +5014,7 @@ static void osd_init(void)
     osd.stock_layout = false;
     osd.netflix_layout = false;
     osd.youtube_layout = false;
+    osd.twitch_layout = false;
     osd.instagram_layout = false;
     
     /* The iPone slider layout makes the OSD update rectangle full-screen.
@@ -5268,7 +5690,7 @@ static void osd_refresh(int hint)
     }
 
 #if MPEG_STOCK_CONTROLS
-    if (osd.netflix_layout || osd.youtube_layout)
+    if (osd.netflix_layout || osd.youtube_layout || osd.twitch_layout)
     {
         draw_setfont(FONT_SYSFIXED);
         mylcd_set_foreground(oldfg);
@@ -5357,9 +5779,10 @@ static void osd_show(unsigned show)
     /* Inline Instagram owns a permanent feed surface, not a timed playback
      * OSD. Ignore the generic two-second hide until Select explicitly marks
      * the stream expanded; that transition then follows the normal hide path
-     * below and reveals full-screen video. */
+     * below and reveals full-screen video. Keep the card visible during stop
+     * too: hiding it redraws an uncovered frame before stream_stop(). */
     if (!(show & OSD_SHOW) && mpegplayer_instagram_feed_launch &&
-        !mpegplayer_instagram_feed_expanded && !mpeg_stop_requested)
+        !mpegplayer_instagram_feed_expanded)
     {
         osd.flags |= OSD_SHOW;
         return;
@@ -5396,6 +5819,7 @@ static void osd_show(unsigned show)
             };
             stream_vo_set_clip(&rc);
         } else if (osd.netflix_layout || osd.youtube_layout ||
+                   osd.twitch_layout ||
                    osd.use_wps_layout) {
             /* YUV-composited and WPS overlays leave video full-screen. */
             stream_vo_set_clip(NULL);
@@ -5412,6 +5836,7 @@ static void osd_show(unsigned show)
         osd.flags &= ~OSD_SHOW;
 
         if (!osd.netflix_layout && !osd.youtube_layout &&
+            !osd.twitch_layout &&
             !osd.use_wps_layout) {
             /* Only draw clear background in non-WPS mode */
             draw_clear_area(0, 0, osd.width, osd.height);
@@ -5419,7 +5844,8 @@ static void osd_show(unsigned show)
 
         if (!(show & OSD_NODRAW)) {
             stream_vo_set_clip(NULL);
-            if (!osd.netflix_layout && !osd.youtube_layout)
+            if (!osd.netflix_layout && !osd.youtube_layout &&
+                !osd.twitch_layout)
             {
                 vo_lock();
                 draw_update_rect(0, 0, osd.width, osd.height);
@@ -5632,7 +6058,7 @@ static void osd_set_volume(int delta)
 #endif
 
 #if MPEG_STOCK_CONTROLS
-    if (osd.youtube_layout && !feed.active)
+    if ((osd.youtube_layout || osd.twitch_layout) && !feed.active)
     {
         osd_show(OSD_SHOW);
         osd_refresh(OSD_REFRESH_VOLUME | OSD_REFRESH_TIME);
@@ -5775,9 +6201,14 @@ static void osd_stop(void)
     stream_stop();
 
     resume_time = stream_get_resume_time();
-
     if (resume_time != INVALID_TIMESTAMP)
         settings.resume_time = resume_time;
+    mpeg_netflix_mark_on_exit(resume_time);
+    if (library_duration != INVALID_TIMESTAMP && library_duration > 0)
+        video_library_save(settings.resume_filename,
+            (uint64_t)library_last_position*1000/TS_SECOND,
+            (uint64_t)library_duration*1000/TS_SECOND,
+            video_at_completion(library_last_position,library_duration,0));
 
     osdbacklight_hw_on_video_mode(false);
     osd_backlight_brightness_video_mode(false);
@@ -6068,6 +6499,192 @@ static void mpeg_yuv_text(uint8_t * const *planes, int width, int height,
     }
 }
 
+static void mpeg_yuv_youtube_sprite(uint8_t * const *planes,
+                                    int width, int height,
+                                    const struct bitmap *sprite,
+                                    int dst_x, int dst_y);
+
+static void twitch_yuv_blend_pixel(uint8_t * const *planes,
+                                   int width, int height, int x, int y,
+                                   int red, int green, int blue, int alpha)
+{
+    unsigned char py;
+    unsigned char pu;
+    unsigned char pv;
+    int index;
+
+    if (x < 0 || x >= width || y < 0 || y >= height || alpha <= 0)
+        return;
+    if (alpha >= 255)
+    {
+        mpeg_yuv_pixel(planes, width, height, x, y, red, green, blue);
+        return;
+    }
+    mpeg_yuv_color(red, green, blue, &py, &pu, &pv);
+    index = y * width + x;
+    planes[0][index] =
+        (planes[0][index] * (255 - alpha) + py * alpha) / 255;
+    if ((x & 1) == 0 && (y & 1) == 0)
+    {
+        index = (y / 2) * (width / 2) + x / 2;
+        planes[1][index] =
+            (planes[1][index] * (255 - alpha) + pu * alpha) / 255;
+        planes[2][index] =
+            (planes[2][index] * (255 - alpha) + pv * alpha) / 255;
+    }
+}
+
+static void twitch_yuv_blend_rect(uint8_t * const *planes,
+                                  int width, int height,
+                                  int x, int y, int rect_w, int rect_h,
+                                  int red, int green, int blue, int alpha)
+{
+    int row;
+    int column;
+
+    for (row = MAX(0, y); row < MIN(height, y + rect_h); row++)
+        for (column = MAX(0, x);
+             column < MIN(width, x + rect_w); column++)
+            twitch_yuv_blend_pixel(planes, width, height, column, row,
+                                   red, green, blue, alpha);
+}
+
+static void twitch_chat_yuv_text(uint8_t * const *planes,
+                                 int width, int height, int x, int y,
+                                 const char *text,
+                                 int red, int green, int blue)
+{
+    mpeg_yuv_text(planes, width, height, x + 1, y + 1,
+                  text, 0, 0, 0);
+    mpeg_yuv_text(planes, width, height, x, y,
+                  text, red, green, blue);
+}
+
+static void twitch_chat_yuv_emoji(uint8_t * const *planes,
+                                  int width, int height,
+                                  struct twitch_chat_emoji *emoji,
+                                  int x, int y)
+{
+    int row;
+    int column;
+
+    if (emoji == NULL)
+        return;
+    for (row = 0; row < TWITCH_EMOJI_SIZE; row++)
+        for (column = 0; column < TWITCH_EMOJI_SIZE; column++)
+        {
+            const unsigned char *pixel = emoji->rgba +
+                (row * TWITCH_EMOJI_SIZE + column) * 4;
+
+            twitch_yuv_blend_pixel(planes, width, height,
+                                   x + column, y + row,
+                                   pixel[0], pixel[1], pixel[2], pixel[3]);
+        }
+}
+
+static void twitch_chat_yuv_message(uint8_t * const *planes,
+                                    int width, int height,
+                                    const char *text, int x, int y,
+                                    int left, int right)
+{
+    struct font *font = rb->font_get(FONT_SYSFIXED);
+    int line = 0;
+
+    if (font == NULL)
+        return;
+    while (*text && line < 2)
+    {
+        int emoji_index = twitch_chat_token(text);
+        int glyph_width;
+
+        if (emoji_index >= 0)
+        {
+            glyph_width = TWITCH_EMOJI_SIZE + 1;
+            if (x + glyph_width > right &&
+                x > left + 6)
+            {
+                line++;
+                x = left + 6;
+                y += 14;
+                if (line >= 2)
+                    break;
+            }
+            twitch_chat_yuv_emoji(
+                planes, width, height,
+                twitch_chat_cached_emoji(emoji_index), x, y - 2);
+            x += glyph_width;
+            text += 7;
+            continue;
+        }
+        glyph_width = rb->font_get_width(font, (unsigned char)*text);
+        if (x + glyph_width > right)
+        {
+            line++;
+            x = left + 6;
+            y += 14;
+            while (*text == ' ')
+                text++;
+            continue;
+        }
+        {
+            char character[2] = {*text++, '\0'};
+
+            twitch_chat_yuv_text(planes, width, height, x, y, character,
+                                 239, 239, 241);
+        }
+        x += glyph_width;
+    }
+}
+
+static void twitch_chat_yuv_draw(uint8_t * const *planes,
+                                 int width, int height)
+{
+    int panel_x = width - twitch_chat.panel_width;
+    int row_y = height - twitch_chat.count * 40;
+    int i;
+
+    if (!twitch_chat.available || twitch_chat.panel_width <= 0)
+        return;
+    twitch_yuv_blend_rect(planes, width, height,
+                          panel_x, 0, twitch_chat.panel_width, height,
+                          14, 14, 16, 224);
+    mpeg_yuv_rect(planes, width, height, panel_x, 0, 2, height,
+                  145, 70, 255);
+    twitch_yuv_blend_rect(planes, width, height,
+                          panel_x + 2, 0,
+                          MAX(0, twitch_chat.panel_width - 2), 24,
+                          92, 22, 197, 214);
+    if (twitch_player_icon_valid)
+        mpeg_yuv_youtube_sprite(planes, width, height,
+                                &twitch_player_icon_bmp,
+                                panel_x + 5, 2);
+    twitch_chat_yuv_text(planes, width, height,
+                         panel_x + 29, 7, "CHAT", 255, 255, 255);
+    row_y = MAX(28, row_y);
+    for (i = 0; i < twitch_chat.count; i++)
+    {
+        struct twitch_chat_message *message =
+            &twitch_chat.rows[(twitch_chat.first + i) % TWITCH_CHAT_ROWS];
+        int red = (message->color >> 16) & 0xff;
+        int green = (message->color >> 8) & 0xff;
+        int blue = message->color & 0xff;
+
+        if (red + green + blue < 210)
+        {
+            red = (red + 255) / 2;
+            green = (green + 255) / 2;
+            blue = (blue + 255) / 2;
+        }
+        twitch_chat_yuv_text(planes, width, height,
+                             panel_x + 6, row_y, message->user,
+                             red, green, blue);
+        twitch_chat_yuv_message(planes, width, height, message->text,
+                                panel_x + 6, row_y + 12,
+                                panel_x, width - 5);
+        row_y += 40;
+    }
+}
+
 static void mpeg_yuv_text_scaled(uint8_t * const *planes,
                                  int width, int height,
                                  int x, int y, const char *text, int scale,
@@ -6263,6 +6880,16 @@ static void mpeg_yuv_feed_bitmap_scaled_alpha(
 
 int mpegplayer_yuv_overlay_height(void)
 {
+    if (nf_caps.enabled && nf_caps.visible &&
+        livetv_volume_until == 0 && netflix_skip_active == NETFLIX_SKIP_NONE)
+        return 58 + ((osd.flags & OSD_SHOW) ? MPEG_NETFLIX_OVERLAY_H : 0);
+    if (mpegplayer_twitch_app_launch &&
+        (twitch_chat.visible || twitch_chat.panel_width > 0))
+        return LCD_HEIGHT;
+    if (mpegplayer_twitch_live_launch)
+        return MPEG_TWITCH_LIVE_OVERLAY_H;
+    if (mpegplayer_youtube_live_launch)
+        return 22;
     if (feed.active)
         return LCD_HEIGHT;
     if (osd.instagram_layout && (osd.flags & OSD_SHOW))
@@ -6274,6 +6901,8 @@ int mpegplayer_yuv_overlay_height(void)
         mpegplayer_livetv_weather_commercial)
         return LIVETV_WEATHER_COMMERCIAL_OVERLAY_H;
 #if MPEG_STOCK_CONTROLS
+    if (osd.twitch_layout && (osd.flags & OSD_SHOW))
+        return MPEG_TWITCH_OVERLAY_H;
     if (osd.youtube_layout && (osd.flags & OSD_SHOW))
         return MPEG_YOUTUBE_OVERLAY_H;
     if (osd.netflix_layout && (osd.flags & OSD_SHOW))
@@ -6332,9 +6961,147 @@ bool mpegplayer_instagram_inline_rect(struct vo_rect *rect)
     return true;
 }
 
+bool mpegplayer_twitch_chat_video_rect(struct vo_rect *rect)
+{
+    if (!mpegplayer_twitch_app_launch || rect == NULL ||
+        (!twitch_chat.visible && twitch_chat.panel_width <= 0))
+        return false;
+    vo_rect_set_ext(rect, 0, 0,
+                    MAX(2, LCD_WIDTH - twitch_chat.panel_width),
+                    LCD_HEIGHT);
+    return true;
+}
+
 void mpegplayer_yuv_overlay_draw(uint8_t * const *planes,
                                  int width, int height)
 {
+    if (nf_caps.enabled && livetv_volume_until == 0 &&
+        netflix_skip_active == NETFLIX_SKIP_NONE)
+        nf_caption_draw(planes, width,
+            height - ((osd.flags & OSD_SHOW) ? MPEG_NETFLIX_OVERLAY_H : 0));
+    if (mpegplayer_twitch_app_launch && twitch_chat.panel_width > 0)
+    {
+#if MPEG_STOCK_CONTROLS
+        int base_y;
+        int video_width = MAX(2, width - twitch_chat.panel_width);
+
+        if (mpegplayer_twitch_live_launch)
+        {
+            char title[48];
+
+            base_y = height - MPEG_TWITCH_LIVE_OVERLAY_H;
+            rb->strlcpy(title,
+                        twitch_title[0] ? twitch_title : "Twitch VOD",
+                        sizeof(title));
+            while (title[0] &&
+                   mpeg_yuv_text_width(title) > video_width - 78)
+                title[rb->strlen(title) - 1] = '\0';
+            mpeg_yuv_rect(planes, width, height, 0, base_y, video_width,
+                          MPEG_TWITCH_LIVE_OVERLAY_H, 14, 14, 16);
+            mpeg_yuv_rect(planes, width, height, 0, base_y, video_width, 3,
+                          145, 70, 255);
+            if (twitch_player_icon_valid)
+                mpeg_yuv_youtube_sprite(
+                    planes, width, height, &twitch_player_icon_bmp,
+                    5, base_y + 5);
+            mpeg_yuv_rect(planes, width, height, 29, base_y + 6, 39, 16,
+                          204, 24, 40);
+            mpeg_yuv_text(planes, width, height, 34, base_y + 10, "LIVE",
+                          255, 255, 255);
+            mpeg_yuv_text(
+                planes, width, height, 75, base_y + 5,
+                twitch_creator[0] ? twitch_creator : "Twitch",
+                191, 148, 255);
+            mpeg_yuv_text(planes, width, height, 75, base_y + 15, title,
+                          255, 255, 255);
+        }
+        else if (osd.twitch_layout && (osd.flags & OSD_SHOW))
+        {
+            char current[24];
+            char title[48];
+            uint32_t current_time = osd.curr_time;
+            uint32_t total_time = netflix_overlay_duration;
+            int progress;
+
+            base_y = height - MPEG_TWITCH_OVERLAY_H;
+            if (total_time == INVALID_TIMESTAMP || total_time == 0)
+                total_time = 1;
+            if (current_time > total_time)
+                current_time = total_time;
+            rb->strlcpy(title,
+                        twitch_title[0] ? twitch_title : "Twitch VOD",
+                        sizeof(title));
+            while (title[0] &&
+                   mpeg_yuv_text_width(title) > video_width - 35)
+                title[rb->strlen(title) - 1] = '\0';
+            mpeg_yuv_rect(planes, width, height, 0, base_y, video_width,
+                          MPEG_TWITCH_OVERLAY_H, 14, 14, 16);
+            mpeg_yuv_rect(planes, width, height, 0, base_y, video_width, 3,
+                          145, 70, 255);
+            if (twitch_player_icon_valid)
+                mpeg_yuv_youtube_sprite(
+                    planes, width, height, &twitch_player_icon_bmp,
+                    5, base_y + 4);
+            mpeg_yuv_text(planes, width, height, 29, base_y + 5, title,
+                          255, 255, 255);
+            mpeg_stock_format_time(current_time, current, sizeof(current));
+            mpeg_yuv_text(planes, width, height, 5, base_y + 27, current,
+                          222, 217, 229);
+            mpeg_yuv_rect(planes, width, height, 60, base_y + 17,
+                          MAX(1, video_width - 68), 4, 63, 63, 70);
+            progress = 60 + (int)(((uint64_t)current_time *
+                                    MAX(1, video_width - 68)) / total_time);
+            mpeg_yuv_rect(planes, width, height, 60, base_y + 17,
+                          MAX(0, progress - 60), 4, 145, 70, 255);
+            mpeg_yuv_rect(planes, width, height, progress - 2, base_y + 14,
+                          5, 10, 191, 148, 255);
+        }
+        twitch_chat_yuv_draw(planes, width, height);
+#endif
+        return;
+    }
+
+    if (mpegplayer_twitch_live_launch)
+    {
+#if MPEG_STOCK_CONTROLS
+        char title[48];
+
+        rb->strlcpy(title, twitch_title[0] ? twitch_title : "Twitch VOD",
+                    sizeof(title));
+        while (title[0] && mpeg_yuv_text_width(title) > width - 126)
+            title[rb->strlen(title) - 1] = '\0';
+        mpeg_yuv_rect(planes, width, height, 0, 0, width, height,
+                      14, 14, 16);
+        mpeg_yuv_rect(planes, width, height, 0, 0, width, 3,
+                      145, 70, 255);
+        if (twitch_player_icon_valid)
+            mpeg_yuv_youtube_sprite(planes, width, height,
+                                    &twitch_player_icon_bmp, 5, 5);
+        mpeg_yuv_rect(planes, width, height, 29, 6, 39, 16,
+                      204, 24, 40);
+        mpeg_yuv_text(planes, width, height, 34, 10, "LIVE",
+                      255, 255, 255);
+        mpeg_yuv_text(planes, width, height, 75, 5,
+                      twitch_creator[0] ? twitch_creator : "Twitch",
+                      191, 148, 255);
+        mpeg_yuv_text(planes, width, height, 75, 15, title,
+                      255, 255, 255);
+#endif
+        return;
+    }
+
+    if (mpegplayer_youtube_live_launch)
+    {
+        /* YouTube's live-state mark belongs on the video itself, not in a
+         * transient seek OSD.  Keep it visible in the bottom-left corner
+         * while the decoded pixels remain untouched around it. */
+        mpeg_yuv_rect(planes, width, height, 5, 3, 47, 16,
+                      204, 0, 0);
+        mpeg_yuv_text(planes, width, height, 11, 7, "LIVE",
+                      255, 255, 255);
+        return;
+    }
+
     if (osd.instagram_layout)
     {
         char likes[24];
@@ -6392,8 +7159,8 @@ void mpegplayer_yuv_overlay_draw(uint8_t * const *planes,
                           213, 217, 220);
             mpeg_yuv_rect(planes, width, height, 0, 222, width, 18,
                           43, 79, 107);
-            mpeg_yuv_text(planes, width, height, 33, 7, "Instagram",
-                          255, 255, 255);
+            mpeg_yuv_feed_bitmap(planes, width, height, instagram_nav,
+                                 320, 28, 0, 0, 0, 0, 320, 28, false);
             mpeg_yuv_text(planes, width, height, 267, 34, "HOME",
                           118, 118, 118);
             mpeg_yuv_rect(planes, width, height, 4, 32, 18, 18,
@@ -6415,7 +7182,7 @@ void mpegplayer_yuv_overlay_draw(uint8_t * const *planes,
                          instagram_likes + (instagram_liked ? 1 : 0));
             mpeg_yuv_text(planes, width, height, 210, 68, likes,
                           63, 114, 150);
-            mpeg_yuv_text(planes, width, height, 172, 96, "VIDEO POST",
+            mpeg_yuv_text(planes, width, height, 172, 96, "Video",
                           118, 118, 118);
             mpeg_yuv_text(planes, width, height, 172, 122,
                           instagram_username[0] ? instagram_username :
@@ -6425,9 +7192,12 @@ void mpegplayer_yuv_overlay_draw(uint8_t * const *planes,
                           "Video", 0, 0, 0);
             mpeg_yuv_text(planes, width, height, 172, 202,
                           "Select full screen", 118, 118, 118);
-            mpeg_yuv_text(planes, width, height, 8, 226,
-                          "Home       Favorites       Profile",
-                          255, 255, 255);
+            mpeg_yuv_feed_bitmap(planes, width, height, instagram_tabs,
+                                 320, 24, 0, 0, 0, 216, 320, 24, false);
+            mpeg_yuv_rect(planes, width, height, 0, 216, 106, 2, 63, 114, 150);
+            mpeg_yuv_text(planes, width, height, 38, 222, "Home", 255, 255, 255);
+            mpeg_yuv_text(planes, width, height, 144, 222, "Favorites", 255, 255, 255);
+            mpeg_yuv_text(planes, width, height, 250, 222, "Profiles", 255, 255, 255);
         }
         /* Authentic play artwork is retained as the compact feed-video cue. */
         mpeg_yuv_feed_bitmap_scaled_alpha(
@@ -7056,6 +7826,47 @@ void mpegplayer_yuv_overlay_draw(uint8_t * const *planes,
     }
 
 #if MPEG_STOCK_CONTROLS
+    if (osd.twitch_layout && (osd.flags & OSD_SHOW))
+    {
+        char current[24];
+        char title[48];
+        uint32_t current_time = osd.curr_time;
+        uint32_t total_time = netflix_overlay_duration;
+        int progress;
+
+        if (total_time == INVALID_TIMESTAMP || total_time == 0)
+            total_time = 1;
+        if (current_time > total_time)
+            current_time = total_time;
+        rb->strlcpy(title, twitch_title[0] ? twitch_title : "Twitch VOD",
+                    sizeof(title));
+        while (title[0] && mpeg_yuv_text_width(title) > width - 35)
+            title[rb->strlen(title) - 1] = '\0';
+        mpeg_yuv_rect(planes, width, height, 0, 0, width, height,
+                      14, 14, 16);
+        mpeg_yuv_rect(planes, width, height, 0, 0, width, 3,
+                      145, 70, 255);
+        if (twitch_player_icon_valid)
+            mpeg_yuv_youtube_sprite(planes, width, height,
+                                    &twitch_player_icon_bmp, 5, 5);
+        mpeg_yuv_text(planes, width, height, 29, 5, title,
+                      255, 255, 255);
+        mpeg_stock_format_time(current_time, current, sizeof(current));
+        mpeg_yuv_text(planes, width, height, 5, 27, current,
+                      222, 217, 229);
+        /* Keep the progress rail on its own row. Hour-long timestamps can
+         * reach x=60, so sharing their y band visibly struck through text. */
+        mpeg_yuv_rect(planes, width, height, 60, 17, width - 68, 4,
+                      63, 63, 70);
+        progress = 60 + (int)(((uint64_t)current_time * (width - 68)) /
+                              total_time);
+        mpeg_yuv_rect(planes, width, height, 60, 17,
+                      MAX(0, progress - 60), 4, 145, 70, 255);
+        mpeg_yuv_rect(planes, width, height, progress - 2, 14, 5, 10,
+                      191, 148, 255);
+        return;
+    }
+
     if (osd.youtube_layout && (osd.flags & OSD_SHOW))
     {
         char current[24];
@@ -7189,6 +8000,7 @@ void mpegplayer_yuv_overlay_draw(uint8_t * const *planes,
 
     if (osd.netflix_layout && (osd.flags & OSD_SHOW))
     {
+        int base_y = height - MPEG_NETFLIX_OVERLAY_H;
         char current[24];
         char duration_text[24];
         char title[MPEG_STOCK_TITLE_SIZE];
@@ -7214,25 +8026,24 @@ void mpegplayer_yuv_overlay_draw(uint8_t * const *planes,
                  osd.status == OSD_STATUS_FF ? "FORWARD" :
                  osd.status == OSD_STATUS_RW ? "REWIND" : "PLAYING";
 
-        mpeg_yuv_rect(planes, width, height, 0, 0, width, height,
+        mpeg_yuv_rect(planes, width, height, 0, base_y, width, MPEG_NETFLIX_OVERLAY_H,
                       20, 20, 20);
-        mpeg_yuv_rect(planes, width, height, 0, 0, width, 3,
+        mpeg_yuv_rect(planes, width, height, 0, base_y, width, 3,
                       180, 19, 29);
-        mpeg_yuv_text(planes, width, height, 7, 7, "NETFLIX",
-                      180, 19, 29);
+        nf_brand_draw(planes, width, height, 7, base_y + 4);
         title_w = mpeg_yuv_text_width(title);
-        mpeg_yuv_text(planes, width, height, width - 7 - title_w, 7,
+        mpeg_yuv_text(planes, width, height, width - 7 - title_w, base_y + 7,
                       title, 255, 255, 255);
 
         status_w = mpeg_yuv_text_width(status);
         duration_w = mpeg_yuv_text_width(duration_text);
-        mpeg_yuv_text(planes, width, height, 8, 27, current,
+        mpeg_yuv_text(planes, width, height, 8, base_y + 27, current,
                       255, 255, 255);
         mpeg_yuv_text(planes, width, height,
-                      (width - status_w) / 2, 27, status,
+                      (width - status_w) / 2, base_y + 27, status,
                       180, 19, 29);
         mpeg_yuv_text(planes, width, height,
-                      width - 8 - duration_w, 27, duration_text,
+                      width - 8 - duration_w, base_y + 27, duration_text,
                       255, 255, 255);
 
         mpeg_yuv_rect(planes, width, height, 8, height - 12,
@@ -7386,6 +8197,25 @@ static void livetv_update_weather_view(uint32_t stream_seconds, bool entering)
     {
         stream_vo_set_clip(NULL);
     }
+}
+
+static int livetv_playback_button(int button)
+{
+    if (!mpegplayer_livetv_launch || mpegplayer_livetv_desktop)
+        return button;
+    if (button == MPEG_PAUSE
+#ifdef MPEG_ZOOM
+        || button == MPEG_ZOOM
+#endif
+#ifdef MPEG_RC_PAUSE
+        || button == MPEG_RC_PAUSE
+#endif
+#ifdef MPEG_RC_ZOOM
+        || button == MPEG_RC_ZOOM
+#endif
+       )
+        return MPEG_MENU;
+    return button;
 }
 
 /* Run the guide without disturbing playback. Returns a VIDEO_* action for
@@ -7649,11 +8479,31 @@ static void mpeg_netflix_mark_watched(void)
     rb->close(fd);
 }
 
+/* Use the saved stop position: the live clock is gone after stream_stop(). */
+static void mpeg_netflix_mark_on_exit(uint32_t position)
+{
+    uint32_t duration = stream_get_duration();
+    uint32_t credits_start = netflix_credits_start;
+
+    if (!mpegplayer_netflix_launch || position == INVALID_TIMESTAMP)
+        return;
+    if (credits_start == 0 && netflix_credits_duration > 0 &&
+        duration != INVALID_TIMESTAMP && duration > netflix_credits_duration)
+        credits_start = duration - netflix_credits_duration;
+    if (video_at_completion(position, duration, credits_start))
+    {
+        mpeg_netflix_mark_watched();
+        settings.resume_time = 0;
+    }
+}
+
 static int button_loop(void)
 {
     /* TikTok is repeat-one by design: reaching EOS keeps the same card on
      * screen. Only a completed, accepted wheel gesture sets NEXT or PREV. */
-    int next_action = (feed.active || mpegplayer_instagram_feed_launch) ?
+    int next_action = mpegplayer_twitch_live_launch ? VIDEO_NEXT :
+                      mpegplayer_youtube_live_launch ? VIDEO_REPEAT :
+                      (feed.active || mpegplayer_instagram_feed_launch) ?
                       VIDEO_REPEAT :
                       (mpegplayer_livetv_launch ? VIDEO_NEXT :
                       ((settings.play_mode == 0) ? VIDEO_STOP : VIDEO_NEXT));
@@ -7721,7 +8571,14 @@ static int button_loop(void)
     }
 #endif
 
+    if (mpegplayer_twitch_app_launch)
+        twitch_chat_update(settings.resume_time / TS_SECOND, true);
+
     /* Start playback at the specified starting time */
+    library_last_position = settings.resume_time;
+    library_duration = stream_get_duration();
+    library_saved_tick = *rb->current_tick;
+    library_previous_status = STREAM_STOPPED;
     if (osd_play(settings.resume_time) < STREAM_OK) {
         if (feed.active)
         {
@@ -7740,7 +8597,7 @@ static int button_loop(void)
         /* Follow the audio-master stream timestamp, not a wall clock started
          * before osd_play(). Opening/seek latency otherwise advances the
          * Weather phase early and can hide a report while its audio plays. */
-        livetv_update_weather_view(stream_get_time() / TS_SECOND, false);
+        livetv_update_weather_view(stream_get_time() / CLOCK_RATE, false);
         if (mpegplayer_livetv_weather_hidden)
             livetv_weather_draw();
         else if (mpegplayer_livetv_weather_active)
@@ -7818,7 +8675,64 @@ static int button_loop(void)
 feed_repeat_playback:
     while (stream_status() != STREAM_STOPPED)
     {
-        int button = mpeg_button_get(OSD_MIN_UPDATE_INTERVAL/2);
+        nf_caption_service((uint64_t)stream_get_time() * 1000 / CLOCK_RATE);
+        int input_wait = OSD_MIN_UPDATE_INTERVAL / 2;
+        int button;
+
+        if (mpegplayer_twitch_app_launch &&
+            twitch_chat.panel_width !=
+                (twitch_chat.visible ? TWITCH_CHAT_W : 0))
+            input_wait = MAX(1, HZ / 50);
+        if (stream_status() == STREAM_PLAYING || stream_status() == STREAM_PAUSED)
+        {
+            library_last_position = TICKS_TO_TS(stream_get_time());
+            if (library_duration != INVALID_TIMESTAMP && library_duration > 0 &&
+                (TIME_AFTER(*rb->current_tick, library_saved_tick + 30*HZ) ||
+                (stream_status() == STREAM_PAUSED &&
+                 library_previous_status != STREAM_PAUSED)))
+            {
+                video_library_save(settings.resume_filename,
+                    (uint64_t)library_last_position*1000/TS_SECOND,
+                    (uint64_t)library_duration*1000/TS_SECOND, false);
+                library_saved_tick = *rb->current_tick;
+            }
+        }
+        library_previous_status = stream_status();
+        button = mpeg_button_get(input_wait);
+#ifdef BUTTON_SELECT
+        static bool caption_held;
+        if (button == BUTTON_SELECT) caption_held = false;
+        if (button == (BUTTON_SELECT|BUTTON_REL) && caption_held)
+            button = BUTTON_NONE;
+        if (button == (BUTTON_SELECT|BUTTON_REPEAT))
+        {
+            if (!caption_held) nf_caption_toggle();
+            caption_held = true;
+            button = BUTTON_NONE;
+        }
+#endif
+
+#if (CONFIG_KEYPAD == IPOD_4G_PAD) && defined(BUTTON_RC_LEFT)
+        /* Universal Dock drops Menu. Short Left seeks; held Left returns to
+         * the library. Both center IR codes arrive as RC_PLAY. */
+        if (button == (BUTTON_RC_LEFT | BUTTON_REPEAT))
+            button = mpegplayer_livetv_launch ? MPEG_MENU : MPEG_STOP;
+        else if (button == BUTTON_RC_LEFT)
+            button = BUTTON_NONE;
+        else if (button == (BUTTON_RC_LEFT | BUTTON_REL))
+            button = MPEG_RC_RW;
+#endif
+
+#ifdef HAVE_LCD_COLOR
+        button = livetv_playback_button(button);
+#endif
+
+        if (mpegplayer_twitch_app_launch)
+        {
+            twitch_chat_update(stream_get_time() / CLOCK_RATE, false);
+            if (twitch_chat_animate())
+                stream_draw_frame(false);
+        }
         if (button != BUTTON_NONE)
             MPLOG("button=0x%x stream=%d osd=%d\n",
                   button, stream_status(), osd_get_status());
@@ -7833,7 +8747,7 @@ feed_repeat_playback:
             livetv_overlay_until == 0 &&
             livetv_volume_until == 0)
         {
-            uint32_t seconds = stream_get_time() / TS_SECOND;
+            uint32_t seconds = stream_get_time() / CLOCK_RATE;
             livetv_update_weather_view(seconds, false);
             if (mpegplayer_livetv_weather_hidden)
                 livetv_weather_tick(seconds);
@@ -8167,7 +9081,7 @@ feed_repeat_playback:
                 break;
             }
 
-            if (mpegplayer_youtube_app_launch)
+            if (mpegplayer_youtube_app_launch || mpegplayer_twitch_app_launch)
             {
                 next_action = VIDEO_STOP;
                 osd_stop();
@@ -8265,6 +9179,14 @@ feed_repeat_playback:
         case MPEG_RC_PAUSE:
 #endif
         {
+            /* An offline live item follows broadcast time.  Play cannot
+             * pause it because resuming a frozen decoder clock would no
+             * longer represent what is live now. */
+            if (mpegplayer_youtube_live_launch || mpegplayer_twitch_live_launch)
+            {
+                stream_draw_frame(false);
+                break;
+            }
 #ifdef HAVE_LCD_COLOR
             if (mpegplayer_livetv_launch)
             {
@@ -8310,6 +9232,16 @@ feed_repeat_playback:
         case MPEG_RC_ZOOM:
 #endif
         {
+#if defined(HAVE_LCD_COLOR) && LCD_WIDTH >= 320 && LCD_HEIGHT >= 240
+            if (mpegplayer_twitch_app_launch && twitch_chat.available)
+            {
+                twitch_chat_toggle();
+                if (twitch_chat.visible)
+                    osd_show(OSD_SHOW);
+                stream_draw_frame(false);
+                break;
+            }
+#endif
 #ifdef HAVE_LCD_COLOR
             if (mpegplayer_livetv_launch)
             {
@@ -8510,6 +9442,12 @@ feed_repeat_playback:
         {
             int old_button = button;
 
+            if (mpegplayer_youtube_live_launch || mpegplayer_twitch_live_launch)
+            {
+                stream_draw_frame(false);
+                break;
+            }
+
 #ifdef HAVE_LCD_COLOR
             if (mpegplayer_livetv_launch)
             {
@@ -8598,6 +9536,12 @@ feed_repeat_playback:
 #endif
         {
             int old_button = button;
+
+            if (mpegplayer_youtube_live_launch || mpegplayer_twitch_live_launch)
+            {
+                stream_draw_frame(false);
+                break;
+            }
 
 #ifdef HAVE_LCD_COLOR
             if (mpegplayer_livetv_launch)
@@ -8691,7 +9635,10 @@ feed_repeat_playback:
     /* Reaching here without a requested stop means the stream ended on its
      * own. Every in-loop user stop goes through osd_stop() first. */
     if (!mpeg_stop_requested)
+    {
         mpeg_netflix_mark_watched();
+        library_last_position = library_duration;
+    }
 
     osd_stop();
 
@@ -8770,6 +9717,55 @@ enum plugin_status plugin_start(const void* parameter)
         !rb->strncmp((const char *)parameter,
                      MPEGPLAYER_YOUTUBE_APP_PREFIX,
                      MPEGPLAYER_YOUTUBE_APP_PREFIX_LEN);
+    mpegplayer_youtube_live_launch =
+        !rb->strncmp((const char *)parameter,
+                     MPEGPLAYER_YOUTUBE_LIVE_PREFIX,
+                     MPEGPLAYER_YOUTUBE_LIVE_PREFIX_LEN);
+    mpegplayer_youtube_live_epoch = 0;
+    if (mpegplayer_youtube_live_launch)
+    {
+        const char *epoch = (const char *)parameter +
+                            MPEGPLAYER_YOUTUBE_LIVE_PREFIX_LEN;
+        const char *separator = rb->strchr(epoch, ':');
+
+        if (separator == NULL || separator[1] == '\0')
+        {
+            rb->splash(HZ * 2, "Invalid YouTube Live item");
+            return PLUGIN_ERROR;
+        }
+        mpegplayer_youtube_live_epoch = rb->strtoul(epoch, NULL, 10);
+        mpegplayer_youtube_app_launch = true;
+    }
+    mpegplayer_twitch_app_launch =
+        !rb->strncmp((const char *)parameter,
+                     MPEGPLAYER_TWITCH_APP_PREFIX,
+                     MPEGPLAYER_TWITCH_APP_PREFIX_LEN);
+    mpegplayer_twitch_live_launch =
+        !rb->strncmp((const char *)parameter,
+                     MPEGPLAYER_TWITCH_LIVE_PREFIX,
+                     MPEGPLAYER_TWITCH_LIVE_PREFIX_LEN);
+    mpegplayer_twitch_continue = false;
+    mpegplayer_twitch_live_epoch = 0;
+    mpegplayer_twitch_creator[0] = '\0';
+    if (mpegplayer_twitch_live_launch)
+    {
+        const char *epoch = (const char *)parameter +
+                            MPEGPLAYER_TWITCH_LIVE_PREFIX_LEN;
+        const char *creator = rb->strchr(epoch, ':');
+        const char *path = creator != NULL ? rb->strchr(creator + 1, ':') : NULL;
+
+        if (creator == NULL || path == NULL || creator[1] == '\0' ||
+            path[1] == '\0')
+        {
+            rb->splash(HZ * 2, "Invalid Twitch LIVE item");
+            return PLUGIN_ERROR;
+        }
+        mpegplayer_twitch_live_epoch = rb->strtoul(epoch, NULL, 10);
+        rb->strlcpy(mpegplayer_twitch_creator, creator + 1,
+                    MIN(sizeof(mpegplayer_twitch_creator),
+                        (size_t)(path - creator)));
+        mpegplayer_twitch_app_launch = true;
+    }
     mpegplayer_onlyfans_app_launch =
         !rb->strncmp((const char *)parameter,
                      MPEGPLAYER_ONLYFANS_APP_PREFIX,
@@ -8781,11 +9777,16 @@ enum plugin_status plugin_start(const void* parameter)
     mpegplayer_instagram_return_direction = 0;
     mpegplayer_instagram_return_profile = false;
     mpegplayer_instagram_feed_expanded = false;
+    mpegplayer_msn_app_launch =
+        !rb->strncmp((const char *)parameter, "msn-app:", 8);
+    mpegplayer_twitter_app_launch =
+        !rb->strncmp((const char *)parameter, "twitter-app:", 12);
     mpegplayer_reddit_app_launch =
         !rb->strncmp((const char *)parameter,
                      MPEGPLAYER_REDDIT_APP_PREFIX,
                      MPEGPLAYER_REDDIT_APP_PREFIX_LEN);
-    mpegplayer_youtube_launch = mpegplayer_youtube_app_launch ||
+    mpegplayer_youtube_launch = mpegplayer_youtube_live_launch ||
+        mpegplayer_youtube_app_launch ||
         !rb->strncmp((const char *)parameter, "youtube:", 8);
     /* Offline Web retains its embedded watch-page presentation. The
      * standalone app has already shown a video detail page, so Watch Video
@@ -8826,10 +9827,43 @@ enum plugin_status plugin_start(const void* parameter)
         rb->strlcpy(videofile, (const char *)parameter +
                     MPEGPLAYER_INSTAGRAM_APP_PREFIX_LEN, sizeof(videofile));
     }
+    else if (mpegplayer_msn_app_launch)
+    {
+        rb->strlcpy(videofile, (const char *)parameter + 8, sizeof(videofile));
+    }
+    else if (mpegplayer_twitter_app_launch)
+    {
+        rb->strlcpy(videofile, (const char *)parameter + 12, sizeof(videofile));
+    }
     else if (mpegplayer_reddit_app_launch)
     {
         rb->strlcpy(videofile, (const char *)parameter +
                     MPEGPLAYER_REDDIT_APP_PREFIX_LEN, sizeof(videofile));
+    }
+    else if (mpegplayer_twitch_live_launch)
+    {
+        const char *epoch = (const char *)parameter +
+                            MPEGPLAYER_TWITCH_LIVE_PREFIX_LEN;
+        const char *creator = rb->strchr(epoch, ':');
+        const char *path = rb->strchr(creator + 1, ':');
+
+        rb->strlcpy(videofile, path + 1, sizeof(videofile));
+        twitch_load_metadata(videofile);
+    }
+    else if (mpegplayer_twitch_app_launch)
+    {
+        rb->strlcpy(videofile, (const char *)parameter +
+                    MPEGPLAYER_TWITCH_APP_PREFIX_LEN, sizeof(videofile));
+        twitch_load_metadata(videofile);
+    }
+    else if (mpegplayer_youtube_live_launch)
+    {
+        const char *epoch = (const char *)parameter +
+                            MPEGPLAYER_YOUTUBE_LIVE_PREFIX_LEN;
+        const char *separator = rb->strchr(epoch, ':');
+
+        rb->strlcpy(videofile, separator + 1, sizeof(videofile));
+        youtube_load_metadata(videofile);
     }
     else if (mpegplayer_youtube_launch)
     {
@@ -8887,8 +9921,12 @@ enum plugin_status plugin_start(const void* parameter)
         if (!livetv_tune(livetv_current_channel(), videofile,
                          sizeof(videofile), &livetv_resume))
         {
-            rb->splash(HZ * 3, "No Live TV programming");
-            return PLUGIN_ERROR;
+            if (!livetv_step_channel(1) ||
+                !livetv_advance(videofile, sizeof(videofile), &livetv_resume))
+            {
+                rb->splash(HZ * 3, "No playable Live TV programming");
+                return PLUGIN_OK;
+            }
         }
 
         mpegplayer_livetv_launch = true;
@@ -8940,6 +9978,7 @@ enum plugin_status plugin_start(const void* parameter)
             init_settings(videofile);
             rb->strlcpy(mpeg_osd_path, videofile, sizeof(mpeg_osd_path));
             mpeg_netflix_load_markers(videofile);
+            nf_caption_open(videofile, mpegplayer_netflix_launch);
 
 #ifdef HAVE_LCD_COLOR
             if (mpegplayer_livetv_launch)
@@ -8970,7 +10009,7 @@ enum plugin_status plugin_start(const void* parameter)
                 stream_vo_set_display_mode(settings.display_mode);
                 feed.state_dirty = true;
             }
-            else if (mpegplayer_instagram_feed_launch)
+            else if (mpegplayer_instagram_feed_launch || mpegplayer_twitter_app_launch || mpegplayer_msn_app_launch)
             {
                 settings.display_mode = MPEG_VIDEO_DISPLAY_FIT;
                 settings.play_mode = 0;
@@ -8978,11 +10017,18 @@ enum plugin_status plugin_start(const void* parameter)
                 settings.resume_time = 0;
                 stream_vo_set_display_mode(settings.display_mode);
             }
-            else if (mpegplayer_youtube_launch)
+            else if (mpegplayer_youtube_launch || mpegplayer_twitch_app_launch)
             {
                 settings.display_mode = MPEG_VIDEO_DISPLAY_FIT;
                 settings.play_mode = 0;
-                settings.resume_options = MPEG_RESUME_ALWAYS;
+                settings.resume_options =
+                    (mpegplayer_youtube_live_launch ||
+                     mpegplayer_twitch_live_launch) ?
+                                          MPEG_RESUME_RESTART :
+                                          MPEG_RESUME_ALWAYS;
+                if (mpegplayer_youtube_live_launch ||
+                    mpegplayer_twitch_live_launch)
+                    settings.resume_time = 0;
                 stream_vo_set_display_mode(settings.display_mode);
             }
             else if (mpegplayer_maps_dashcam_launch)
@@ -9015,12 +10061,28 @@ enum plugin_status plugin_start(const void* parameter)
                 livetv_open_failures = 0;
 #endif
                 if (feed.active || mpegplayer_instagram_feed_launch ||
-                    mpegplayer_livetv_launch ||
+                    mpegplayer_twitter_app_launch || mpegplayer_msn_app_launch || mpegplayer_livetv_launch ||
                     mpegplayer_maps_dashcam_launch)
                 {
                     result = MPEG_START_RESTART;
                 }
-                else if (mpegplayer_youtube_launch)
+                else if (mpegplayer_youtube_live_launch ||
+                         mpegplayer_twitch_live_launch)
+                {
+                    uint32_t duration = stream_get_duration();
+                    time_t now = rb->mktime(rb->get_time());
+                    uint32_t epoch = mpegplayer_twitch_live_launch ?
+                        mpegplayer_twitch_live_epoch :
+                        mpegplayer_youtube_live_epoch;
+                    uint64_t elapsed = now > (time_t)epoch ?
+                        (uint64_t)(now - epoch) : 0;
+
+                    settings.resume_time = duration > TS_SECOND ?
+                        (uint32_t)((elapsed * TS_SECOND) % duration) : 0;
+                    result = MPEG_START_RESTART;
+                }
+                else if (mpegplayer_youtube_launch ||
+                         mpegplayer_twitch_app_launch)
                 {
                     /* Continue immediately from the saved per-file position.
                      * mpeg_start_menu() remains UI-free in RESUME_ALWAYS mode
@@ -9061,7 +10123,8 @@ enum plugin_status plugin_start(const void* parameter)
                     rb->lcd_update();
                 }
 
-                if (!feed.active)
+                if (!feed.active && !mpegplayer_youtube_live_launch &&
+                    !mpegplayer_twitch_live_launch)
                     save_settings();
             } else {
                 /* Problem with file; display message about it - not
@@ -9171,6 +10234,12 @@ enum plugin_status plugin_start(const void* parameter)
 
             case VIDEO_NEXT:
             {
+                if (mpegplayer_twitch_live_launch)
+                {
+                    mpegplayer_twitch_continue = true;
+                    quit = true;
+                    break;
+                }
 #ifdef HAVE_LCD_COLOR
                 if (mpegplayer_livetv_launch)
                 {
@@ -9180,6 +10249,11 @@ enum plugin_status plugin_start(const void* parameter)
                     get_videofile_says = livetv_advance(videofile,
                                                         sizeof(videofile),
                                                         &livetv_resume);
+                    if (!get_videofile_says && livetv_step_channel(1))
+                        get_videofile_says = livetv_advance(videofile,
+                            sizeof(videofile), &livetv_resume);
+                    if (!get_videofile_says)
+                        rb->splash(HZ * 2, "No playable Live TV programming");
                     quit = !get_videofile_says;
                     break;
                 }
@@ -9231,6 +10305,8 @@ enum plugin_status plugin_start(const void* parameter)
 #endif
 
     stream_exit();
+    nf_caption_close();
+    twitch_chat_close();
     MPLOG("stream_exit done\n");
 
     /* Actually handle delayed processing of system events of interest
@@ -9245,6 +10321,23 @@ enum plugin_status plugin_start(const void* parameter)
         rb->snprintf(return_parameter, sizeof(return_parameter), "return:%s",
                      videofile);
         return rb->plugin_open(PLUGIN_APPS_DIR "/youtube.rock",
+                               return_parameter);
+    }
+
+    if (mpegplayer_twitch_app_launch && status != PLUGIN_USB_CONNECTED)
+    {
+        static char return_parameter[MAX_PATH + 24];
+
+        if (mpegplayer_twitch_live_launch && mpegplayer_twitch_continue)
+            rb->snprintf(return_parameter, sizeof(return_parameter),
+                         "continue:%s", mpegplayer_twitch_creator);
+        else if (mpegplayer_twitch_live_launch)
+            rb->snprintf(return_parameter, sizeof(return_parameter),
+                         "return-live:%s", mpegplayer_twitch_creator);
+        else
+            rb->snprintf(return_parameter, sizeof(return_parameter),
+                         "return:%s", videofile);
+        return rb->plugin_open(PLUGIN_APPS_DIR "/twitch.rock",
                                return_parameter);
     }
 
@@ -9277,6 +10370,20 @@ enum plugin_status plugin_start(const void* parameter)
                      prefix, videofile);
         return rb->plugin_open(PLUGIN_APPS_DIR "/instagram.rock",
                                return_parameter);
+    }
+
+    if (mpegplayer_msn_app_launch && status != PLUGIN_USB_CONNECTED)
+    {
+        static char return_parameter[MAX_PATH + 8];
+        rb->snprintf(return_parameter, sizeof(return_parameter), "return:%s", videofile);
+        return rb->plugin_open(PLUGIN_APPS_DIR "/msn.rock", return_parameter);
+    }
+
+    if (mpegplayer_twitter_app_launch && status != PLUGIN_USB_CONNECTED)
+    {
+        static char return_parameter[MAX_PATH + 8];
+        rb->snprintf(return_parameter, sizeof(return_parameter), "return:%s", videofile);
+        return rb->plugin_open(PLUGIN_APPS_DIR "/twitter.rock", return_parameter);
     }
 
     if (mpegplayer_reddit_app_launch && status != PLUGIN_USB_CONNECTED)

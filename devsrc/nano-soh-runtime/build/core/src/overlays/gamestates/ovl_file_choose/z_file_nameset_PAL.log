@@ -1,0 +1,296 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:93:39: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   93 | static void* sNameLabelTextures[] = { gFileSelNameENGTex, gFileSelNameENGTex, gFileSelNameFRATex };
+      |                                       ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:93:59: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   93 | static void* sNameLabelTextures[] = { gFileSelNameENGTex, gFileSelNameENGTex, gFileSelNameFRATex };
+      |                                                           ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:93:79: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   93 | static void* sNameLabelTextures[] = { gFileSelNameENGTex, gFileSelNameENGTex, gFileSelNameFRATex };
+      |                                                                               ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:96:7: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   96 |     { gFileSelBackspaceButtonTex, gFileSelENDButtonENGTex },
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:96:35: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   96 |     { gFileSelBackspaceButtonTex, gFileSelENDButtonENGTex },
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:97:7: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   97 |     { gFileSelBackspaceButtonTex, gFileSelENDButtonGERTex },
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:97:35: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   97 |     { gFileSelBackspaceButtonTex, gFileSelENDButtonGERTex },
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:98:7: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   98 |     { gFileSelBackspaceButtonTex, gFileSelENDButtonFRATex },
+      |       ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:98:35: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   98 |     { gFileSelBackspaceButtonTex, gFileSelENDButtonFRATex },
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c: In function 'FileChoose_SetNameEntryVtx':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:135:32: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+  135 |     gSPVertex(POLY_OPA_DISP++, D_80811BB0, 24, 0);
+      |                                ^~~~~~~~~~
+      |                                |
+      |                                const char *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/file_choose.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:208:36: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+  208 |     gSPVertex(POLY_OPA_DISP++, this->nameEntryVtx, 4, 0);
+      |                                ~~~~^~~~~~~~~~~~~~
+      |                                    |
+      |                                    Vtx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:216:51: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+  216 |     gSPVertex(POLY_OPA_DISP++, this->nameEntryVtx + 4, 32, 0);
+      |                                ~~~~~~~~~~~~~~~~~~~^~~
+      |                                                   |
+      |                                                   Vtx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c: In function 'FileChoose_DrawKeyboard':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:253:36: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+  253 |         gSPVertex(POLY_OPA_DISP++, &this->keyboardVtx[vtx], 32, 0);
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~
+      |                                    |
+      |                                    Vtx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:262:32: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+  262 |     gSPVertex(POLY_OPA_DISP++, &this->keyboardVtx[0x100], 4, 0);
+      |                                ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                |
+      |                                Vtx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c: In function 'FileChoose_DrawNameEntry':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:291:47: warning: passing argument 1 of 'ResourceMgr_LoadVtxByName' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  291 |     Vtx* vertices = ResourceMgr_LoadVtxByName(D_80811BB0);
+      |                                               ^~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:59:38: note: expected 'char *' but argument is of type 'const char *'
+   59 | Vtx* ResourceMgr_LoadVtxByName(char* path);
+      |                                ~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:325:32: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+  325 |     gSPVertex(POLY_OPA_DISP++, &this->nameEntryVtx[36], 8, 0);
+      |                                ^~~~~~~~~~~~~~~~~~~~~~~
+      |                                |
+      |                                Vtx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:404:48: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+  404 |                     gSPVertex(POLY_OPA_DISP++, &this->keyboardVtx[this->charIndex * 4], 4, 0);
+      |                                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                |
+      |                                                Vtx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c: At top level:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:845:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  845 |     { { gFileSelOptionsENGTex, gFileSelOptionsGERTex, gFileSelOptionsENGTex }, { 128, 128, 128 }, 16 },
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:845:32: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  845 |     { { gFileSelOptionsENGTex, gFileSelOptionsGERTex, gFileSelOptionsENGTex }, { 128, 128, 128 }, 16 },
+      |                                ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:845:55: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  845 |     { { gFileSelOptionsENGTex, gFileSelOptionsGERTex, gFileSelOptionsENGTex }, { 128, 128, 128 }, 16 },
+      |                                                       ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:846:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  846 |     { { gFileSelSOUNDENGTex, gFileSelSOUNDENGTex, gFileSelSOUNDFRATex }, { 64, 64, 64 }, 16 },
+      |         ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:846:30: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  846 |     { { gFileSelSOUNDENGTex, gFileSelSOUNDENGTex, gFileSelSOUNDFRATex }, { 64, 64, 64 }, 16 },
+      |                              ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:846:51: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  846 |     { { gFileSelSOUNDENGTex, gFileSelSOUNDENGTex, gFileSelSOUNDFRATex }, { 64, 64, 64 }, 16 },
+      |                                                   ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:847:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  847 |     { { gFileSelLTargetingENGTex, gFileSelLTargetingGERTex, gFileSelLTargetingFRATex }, { 64, 144, 64 }, 16 },
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:847:35: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  847 |     { { gFileSelLTargetingENGTex, gFileSelLTargetingGERTex, gFileSelLTargetingFRATex }, { 64, 144, 64 }, 16 },
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:847:61: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  847 |     { { gFileSelLTargetingENGTex, gFileSelLTargetingGERTex, gFileSelLTargetingFRATex }, { 64, 144, 64 }, 16 },
+      |                                                             ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:848:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  848 |     { { gFileSelCheckBrightnessENGTex, gFileSelCheckBrightnessGERTex, gFileSelCheckBrightnessFRATex },
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:848:40: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  848 |     { { gFileSelCheckBrightnessENGTex, gFileSelCheckBrightnessGERTex, gFileSelCheckBrightnessFRATex },
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:848:71: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  848 |     { { gFileSelCheckBrightnessENGTex, gFileSelCheckBrightnessGERTex, gFileSelCheckBrightnessFRATex },
+      |                                                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:851:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  851 |     { { gFileSelLanguageENGTex, gFileSelLanguageGERTex, gFileSelLanguageFRATex }, { 64, 64, 64 }, 16 },
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:851:33: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  851 |     { { gFileSelLanguageENGTex, gFileSelLanguageGERTex, gFileSelLanguageFRATex }, { 64, 64, 64 }, 16 },
+      |                                 ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:851:57: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  851 |     { { gFileSelLanguageENGTex, gFileSelLanguageGERTex, gFileSelLanguageFRATex }, { 64, 64, 64 }, 16 },
+      |                                                         ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:855:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  855 |     { { gFileSelStereoENGTex, gFileSelStereoENGTex, gFileSelStereoFRATex }, { 48, 48, 48 }, 16 },
+      |         ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:855:31: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  855 |     { { gFileSelStereoENGTex, gFileSelStereoENGTex, gFileSelStereoFRATex }, { 48, 48, 48 }, 16 },
+      |                               ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:855:53: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  855 |     { { gFileSelStereoENGTex, gFileSelStereoENGTex, gFileSelStereoFRATex }, { 48, 48, 48 }, 16 },
+      |                                                     ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:856:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  856 |     { { gFileSelMonoENGTex, gFileSelMonoENGTex, gFileSelMonoENGTex }, { 48, 48, 48 }, 16 },
+      |         ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:856:29: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  856 |     { { gFileSelMonoENGTex, gFileSelMonoENGTex, gFileSelMonoENGTex }, { 48, 48, 48 }, 16 },
+      |                             ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:856:49: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  856 |     { { gFileSelMonoENGTex, gFileSelMonoENGTex, gFileSelMonoENGTex }, { 48, 48, 48 }, 16 },
+      |                                                 ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:857:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  857 |     { { gFileSelHeadsetENGTex, gFileSelHeadsetGERTex, gFileSelHeadsetFRATex }, { 48, 48, 48 }, 16 },
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:857:32: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  857 |     { { gFileSelHeadsetENGTex, gFileSelHeadsetGERTex, gFileSelHeadsetFRATex }, { 48, 48, 48 }, 16 },
+      |                                ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:857:55: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  857 |     { { gFileSelHeadsetENGTex, gFileSelHeadsetGERTex, gFileSelHeadsetFRATex }, { 48, 48, 48 }, 16 },
+      |                                                       ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:858:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  858 |     { { gFileSelSurroundENGTex, gFileSelSurroundENGTex, gFileSelSurroundENGTex }, { 48, 48, 48 }, 16 },
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:858:33: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  858 |     { { gFileSelSurroundENGTex, gFileSelSurroundENGTex, gFileSelSurroundENGTex }, { 48, 48, 48 }, 16 },
+      |                                 ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:858:57: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  858 |     { { gFileSelSurroundENGTex, gFileSelSurroundENGTex, gFileSelSurroundENGTex }, { 48, 48, 48 }, 16 },
+      |                                                         ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:859:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  859 |     { { gFileSelSwitchENGTex, gFileSelSwitchGERTex, gFileSelSwitchFRATex }, { 48, 80, 48 }, 16 },
+      |         ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:859:31: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  859 |     { { gFileSelSwitchENGTex, gFileSelSwitchGERTex, gFileSelSwitchFRATex }, { 48, 80, 48 }, 16 },
+      |                               ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:859:53: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  859 |     { { gFileSelSwitchENGTex, gFileSelSwitchGERTex, gFileSelSwitchFRATex }, { 48, 80, 48 }, 16 },
+      |                                                     ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:860:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  860 |     { { gFileSelHoldENGTex, gFileSelHoldGERTex, gFileSelHoldFRATex }, { 48, 80, 48 }, 16 },
+      |         ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:860:29: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  860 |     { { gFileSelHoldENGTex, gFileSelHoldGERTex, gFileSelHoldFRATex }, { 48, 80, 48 }, 16 },
+      |                             ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:860:49: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  860 |     { { gFileSelHoldENGTex, gFileSelHoldGERTex, gFileSelHoldFRATex }, { 48, 80, 48 }, 16 },
+      |                                                 ^~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:861:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  861 |     { { gFileSelLangEnglishENGTex, gFileSelLangEnglishENGTex, gFileSelLangEnglishENGTex }, { 48, 48, 48 }, 16 },
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:861:36: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  861 |     { { gFileSelLangEnglishENGTex, gFileSelLangEnglishENGTex, gFileSelLangEnglishENGTex }, { 48, 48, 48 }, 16 },
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:861:63: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  861 |     { { gFileSelLangEnglishENGTex, gFileSelLangEnglishENGTex, gFileSelLangEnglishENGTex }, { 48, 48, 48 }, 16 },
+      |                                                               ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:862:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  862 |     { { gFileSelLangDeutschGERTex, gFileSelLangDeutschGERTex, gFileSelLangDeutschGERTex }, { 48, 48, 48 }, 16 },
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:862:36: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  862 |     { { gFileSelLangDeutschGERTex, gFileSelLangDeutschGERTex, gFileSelLangDeutschGERTex }, { 48, 48, 48 }, 16 },
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:862:63: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  862 |     { { gFileSelLangDeutschGERTex, gFileSelLangDeutschGERTex, gFileSelLangDeutschGERTex }, { 48, 48, 48 }, 16 },
+      |                                                               ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:863:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  863 |     { { gFileSelLangFrancaisFRATex, gFileSelLangFrancaisFRATex, gFileSelLangFrancaisFRATex }, { 48, 48, 48 }, 16 },
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:863:37: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  863 |     { { gFileSelLangFrancaisFRATex, gFileSelLangFrancaisFRATex, gFileSelLangFrancaisFRATex }, { 48, 48, 48 }, 16 },
+      |                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:863:65: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  863 |     { { gFileSelLangFrancaisFRATex, gFileSelLangFrancaisFRATex, gFileSelLangFrancaisFRATex }, { 48, 48, 48 }, 16 },
+      |                                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c: In function 'FileChoose_DrawOptionsImpl':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:972:36: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+  972 |         gSPVertex(POLY_OPA_DISP++, D_80811E30, 32, 0);
+      |                                    ^~~~~~~~~~
+      |                                    |
+      |                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:974:36: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+  974 |         gSPVertex(POLY_OPA_DISP++, D_80811D30, 32, 0);
+      |                                    ^~~~~~~~~~
+      |                                    |
+      |                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:1008:36: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+ 1008 |         gSPVertex(POLY_OPA_DISP++, D_80812130, 32, 0);
+      |                                    ^~~~~~~~~~
+      |                                    |
+      |                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:1012:40: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+ 1012 |             gSPVertex(POLY_OPA_DISP++, D_80811F30, 52, 0);
+      |                                        ^~~~~~~~~~
+      |                                        |
+      |                                        const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:1014:40: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+ 1014 |             gSPVertex(POLY_OPA_DISP++, D_80811F30, 32, 0);
+      |                                        ^~~~~~~~~~
+      |                                        |
+      |                                        const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:1133:32: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+ 1133 |     gSPVertex(POLY_OPA_DISP++, gOptionsDividerTopVtx, 4, 0);
+      |                                ^~~~~~~~~~~~~~~~~~~~~
+      |                                |
+      |                                const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:1141:32: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+ 1141 |     gSPVertex(POLY_OPA_DISP++, gOptionsDividerMiddleVtx, 4, 0);
+      |                                ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                |
+      |                                const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:1148:32: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+ 1148 |     gSPVertex(POLY_OPA_DISP++, gOptionsDividerBottomVtx, 4, 0);
+      |                                ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                |
+      |                                const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/gamestates/ovl_file_choose/z_file_nameset_PAL.c:1157:36: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+ 1157 |         gSPVertex(POLY_OPA_DISP++, gOptionsDividerChangeLangVtx, 4, 0);
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                    |
+      |                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^

@@ -20,6 +20,7 @@
 #include "metadata.h"
 #include "mp4_demux.h"
 #include "video_audio.h"
+#include "video_file.h"
 #include "video_pcm.h"
 
 #include <stdint.h>
@@ -37,9 +38,10 @@ extern struct codec_api ci;
 static struct codec_api video_ci;
 static struct mp3entry video_id3;
 static int audio_fd = -1;
-static off_t audio_file_size;
+static size_t audio_file_size;
+static size_t audio_file_pos;
 static uint8_t audio_file_buffer[AUDIO_FILE_BUFFER_SIZE];
-static off_t audio_file_buffer_offset;
+static size_t audio_file_buffer_offset;
 static size_t audio_file_buffer_length;
 static int16_t audio_pcm[AUDIO_PCM_FRAMES * 2];
 static void *audio_codec_workspace;
@@ -84,14 +86,14 @@ static void *audio_codec_get_buffer(size_t *size)
     return audio_codec_workspace;
 }
 
-static bool audio_refill(off_t position)
+static bool audio_refill(size_t position)
 {
     ssize_t count;
 
-    if (position < 0 || position > audio_file_size ||
-        lseek(audio_fd, position, SEEK_SET) < 0)
+    if (position > audio_file_size)
         return false;
-    count = read(audio_fd, audio_file_buffer, sizeof(audio_file_buffer));
+    count = file_read_at(audio_fd, audio_file_buffer,
+                         sizeof(audio_file_buffer), position);
     if (count < 0)
         return false;
     audio_file_buffer_offset = position;
@@ -103,19 +105,19 @@ static size_t audio_read_filebuf(void *destination, size_t size)
 {
     size_t done = 0;
 
-    while (done < size && video_ci.curpos < audio_file_size)
+    while (done < size && audio_file_pos < audio_file_size)
     {
         size_t in_buffer;
         size_t chunk;
 
-        if (video_ci.curpos < audio_file_buffer_offset ||
-            video_ci.curpos >= audio_file_buffer_offset +
-                               (off_t)audio_file_buffer_length)
+        if (audio_file_pos < audio_file_buffer_offset ||
+            audio_file_pos >= audio_file_buffer_offset +
+                               audio_file_buffer_length)
         {
-            if (!audio_refill(video_ci.curpos))
+            if (!audio_refill(audio_file_pos))
                 break;
         }
-        in_buffer = (size_t)(video_ci.curpos - audio_file_buffer_offset);
+        in_buffer = (size_t)(audio_file_pos - audio_file_buffer_offset);
         chunk = audio_file_buffer_length - in_buffer;
         if (chunk > size - done)
             chunk = size - done;
@@ -123,7 +125,8 @@ static size_t audio_read_filebuf(void *destination, size_t size)
             break;
         memcpy((uint8_t *)destination + done,
                audio_file_buffer + in_buffer, chunk);
-        video_ci.curpos += chunk;
+        audio_file_pos += chunk;
+        video_ci.curpos = (off_t)audio_file_pos;
         done += chunk;
     }
     return done;
@@ -134,30 +137,30 @@ static void *audio_request_buffer(size_t *real_size, size_t requested)
     size_t available;
     size_t in_buffer;
     size_t needed;
-    off_t remaining;
+    size_t remaining;
 
-    if (video_ci.curpos >= audio_file_size)
+    if (audio_file_pos >= audio_file_size)
     {
         *real_size = 0;
         return audio_file_buffer;
     }
 
-    remaining = audio_file_size - video_ci.curpos;
+    remaining = audio_file_size - audio_file_pos;
     needed = requested;
-    if ((off_t)needed > remaining)
+    if (needed > remaining)
         needed = (size_t)remaining;
 
-    if (video_ci.curpos < audio_file_buffer_offset ||
-        video_ci.curpos >= audio_file_buffer_offset +
-                           (off_t)audio_file_buffer_length)
+    if (audio_file_pos < audio_file_buffer_offset ||
+        audio_file_pos >= audio_file_buffer_offset +
+                           audio_file_buffer_length)
     {
-        if (!audio_refill(video_ci.curpos))
+        if (!audio_refill(audio_file_pos))
         {
             *real_size = 0;
             return audio_file_buffer;
         }
     }
-    in_buffer = (size_t)(video_ci.curpos - audio_file_buffer_offset);
+    in_buffer = (size_t)(audio_file_pos - audio_file_buffer_offset);
     available = audio_file_buffer_length - in_buffer;
 
     /* codec_api.request_buffer promises the requested span whenever that
@@ -165,7 +168,7 @@ static void *audio_request_buffer(size_t *real_size, size_t requested)
      * cache: FAAD treats a truncated AAC frame as a fatal decode error. */
     if (available < needed)
     {
-        if (!audio_refill(video_ci.curpos))
+        if (!audio_refill(audio_file_pos))
         {
             *real_size = 0;
             return audio_file_buffer;
@@ -182,19 +185,21 @@ static void *audio_request_buffer(size_t *real_size, size_t requested)
 
 static void audio_advance_buffer(size_t amount)
 {
-    off_t remaining = audio_file_size - video_ci.curpos;
+    size_t remaining = audio_file_size - audio_file_pos;
 
-    if ((off_t)amount > remaining)
+    if (amount > remaining)
         amount = remaining > 0 ? (size_t)remaining : 0;
-    video_ci.curpos += amount;
-    video_id3.offset = video_ci.curpos;
+    audio_file_pos += amount;
+    video_ci.curpos = (off_t)audio_file_pos;
+    video_id3.offset = audio_file_pos;
 }
 
 static bool audio_seek_buffer(size_t position)
 {
-    if ((off_t)position > audio_file_size)
+    if (position > audio_file_size)
         return false;
-    video_ci.curpos = position;
+    audio_file_pos = position;
+    video_ci.curpos = (off_t)position;
     video_id3.offset = position;
     return true;
 }
@@ -365,6 +370,7 @@ int video_audio_init(const char *filepath,
                      void *codec_workspace, size_t workspace_size)
 {
     size_t required_workspace = video_audio_workspace_size(demux);
+    int64_t file_length;
 
     if (audio_initialized || filepath == NULL || demux == NULL ||
         codec_workspace == NULL || required_workspace == 0 ||
@@ -376,14 +382,15 @@ int video_audio_init(const char *filepath,
     audio_fd = open(filepath, O_RDONLY);
     if (audio_fd < 0)
         return -1;
-    audio_file_size = filesize(audio_fd);
-    if (audio_file_size <= 0)
+    file_length = file_size64(audio_fd);
+    if (file_length <= 0 || (uint64_t)file_length > UINT32_MAX)
     {
         close(audio_fd);
         audio_fd = -1;
         return -1;
     }
 
+    audio_file_size = (size_t)file_length;
     audio_codec_workspace = codec_workspace;
     audio_codec_workspace_size = workspace_size;
     audio_file_buffer_offset = 0;
@@ -404,8 +411,11 @@ int video_audio_init(const char *filepath,
     video_id3.lead_trim = demux->audio_lead_trim;
 
     video_ci = ci;
-    video_ci.filesize = audio_file_size;
+    /* The codec API transports positions in native-width fields. AAC treats
+     * them as unsigned offsets, matching its size_t seek callback. */
+    video_ci.filesize = (off_t)audio_file_size;
     video_ci.curpos = 0;
+    audio_file_pos = 0;
     video_ci.id3 = &video_id3;
     video_ci.audio_hid = -1;
     video_ci.codec_get_buffer = audio_codec_get_buffer;

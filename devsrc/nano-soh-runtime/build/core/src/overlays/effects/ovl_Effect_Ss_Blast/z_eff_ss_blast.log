@@ -1,0 +1,4 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Blast/z_eff_ss_blast.c: In function 'EffectSsBlast_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_Blast/z_eff_ss_blast.c:39:15: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   39 |     this->gfx = SEGMENTED_TO_VIRTUAL(gEffShockwaveDL);
+      |               ^

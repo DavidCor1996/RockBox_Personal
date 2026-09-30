@@ -558,7 +558,7 @@ drivers/audio/wm8740.c
 drivers/audio/wm8751.c
 #elif defined(HAVE_WM8978)
 drivers/audio/wm8978.c
-#elif defined(HAVE_WM8975)
+#elif defined(HAVE_WM8975) || defined(HAVE_WM1870)
 drivers/audio/wm8975.c
 #elif defined(HAVE_WM8985)
 drivers/audio/wm8985.c
@@ -815,6 +815,13 @@ target/arm/s5l8702/debug-s5l8702.c
 #endif
 #if !defined(BOOTLOADER) || defined(HAVE_BOOTLOADER_USB_MODE)
 target/arm/s5l8702/usb-s5l8702.c
+#ifdef HAVE_USB_DW_CAPABILITY_SNAPSHOT
+usbhost/capabilities.c
+#endif
+#ifdef HAVE_USB_HOST_ROLE_PROBE
+usbhost/role_probe.c
+target/arm/s5l8702/usb-host-probe.c
+#endif
 #endif
 #if defined(USB_ENABLE_IPHETH_HOST) && !defined(SIMULATOR)
 target/arm/s5l8702/usb-iphone-tether.c
@@ -1596,8 +1603,12 @@ target/arm/s5l8700/ipodnano2g/lcd-nano2g.c
 target/arm/s5l8700/ipodnano2g/lcd-asm-nano2g.S
 target/arm/s5l8700/ipodnano2g/powermgmt-nano2g.c
 target/arm/s5l8700/ipodnano2g/power-nano2g.c
+#if defined(IPOD_NANO2G) /* keep legacy Nano2G storage out of Nano3G */
 target/arm/s5l8700/ipodnano2g/ftl-nano2g.c
+#endif
+#if defined(IPOD_NANO2G) /* keep legacy Nano2G storage out of Nano3G */
 target/arm/s5l8700/ipodnano2g/nand-nano2g.c
+#endif
 target/arm/s5l8700/ipodnano2g/pmu-nano2g.c
 #if (CONFIG_RTC == RTC_NANO2G)
 target/arm/s5l8700/ipodnano2g/rtc-nano2g.c
@@ -1622,8 +1633,11 @@ target/arm/s5l8702/ipodnano3g/pmu-nano3g.c
 target/arm/s5l8702/ipodnano3g/adc-nano3g.c
 target/arm/s5l8702/ipodnano3g/powermgmt-nano3g.c
 target/arm/s5l8702/ipodnano3g/power-nano3g.c
+#if defined(IPOD_NANO2G) /* keep legacy Nano2G storage out of Nano3G */
 target/arm/s5l8700/ipodnano2g/ftl-nano2g.c
+#endif
 target/arm/s5l8702/ipodnano3g/nand-nano3g.c
+target/arm/s5l8702/ipodnano3g/ftl-nano3g.c
 #if (CONFIG_RTC == RTC_NANO3G)
 target/arm/s5l8702/ipodnano3g/rtc-nano3g.c              // TODO: -> drivers/rtc/rtc_xxx.c ???
 #endif
@@ -1632,7 +1646,7 @@ target/arm/s5l8702/ipodnano3g/serial-nano3g.c
 #endif
 #ifndef BOOTLOADER
 target/arm/s5l8702/ipodnano3g/audio-nano3g.c
-target/arm/s5l8702/ipodnano3g/cscodec-nano3g.c          // TODO: -> wmcodec-nano3g.c
+target/arm/s5l8702/ipodnano3g/wmcodec-nano3g.c
 #endif
 #endif /* IPOD_NANO3G */
 

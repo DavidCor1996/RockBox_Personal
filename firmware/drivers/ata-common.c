@@ -30,6 +30,17 @@ static bool canflush = true;
 static int spinup_time = 0;
 static struct mutex ata_mutex SHAREDBSS_ATTR;
 
+/* Targets that need admission control around the complete logical-sector
+ * transaction may override these before including this file. */
+#ifndef ATA_MUTEX_LOCK
+#define ATA_MUTEX_LOCK() mutex_lock(&ata_mutex)
+#define ATA_COMMON_DEFAULT_MUTEX_LOCK
+#endif
+#ifndef ATA_MUTEX_UNLOCK
+#define ATA_MUTEX_UNLOCK() mutex_unlock(&ata_mutex)
+#define ATA_COMMON_DEFAULT_MUTEX_UNLOCK
+#endif
+
 #ifdef MAX_PHYS_SECTOR_SIZE
 static uint16_t phys_sector_mult = 1;
 #endif
@@ -141,7 +152,7 @@ int ata_read_sectors(IF_MD(int drive,)
 #ifdef HAVE_MULTIDRIVE
     (void)drive; /* unused for now */
 #endif
-    mutex_lock(&ata_mutex);
+    ATA_MUTEX_LOCK();
 
     offset = start & (phys_sector_mult - 1);
 
@@ -189,7 +200,7 @@ int ata_read_sectors(IF_MD(int drive,)
     }
 
   error:
-    mutex_unlock(&ata_mutex);
+    ATA_MUTEX_UNLOCK();
 
     return rc;
 }
@@ -205,7 +216,7 @@ int ata_write_sectors(IF_MD(int drive,)
 #ifdef HAVE_MULTIDRIVE
     (void)drive; /* unused for now */
 #endif
-    mutex_lock(&ata_mutex);
+    ATA_MUTEX_LOCK();
 
     offset = start & (phys_sector_mult - 1);
 
@@ -265,7 +276,7 @@ int ata_write_sectors(IF_MD(int drive,)
     }
 
   error:
-    mutex_unlock(&ata_mutex);
+    ATA_MUTEX_UNLOCK();
 
     return rc;
 }
@@ -328,3 +339,12 @@ void ata_set_phys_sector_mult(unsigned int mult)
 }
 
 #endif  /* MAX_PHYS_SECTOR_SIZE */
+
+#ifdef ATA_COMMON_DEFAULT_MUTEX_LOCK
+#undef ATA_COMMON_DEFAULT_MUTEX_LOCK
+#undef ATA_MUTEX_LOCK
+#endif
+#ifdef ATA_COMMON_DEFAULT_MUTEX_UNLOCK
+#undef ATA_COMMON_DEFAULT_MUTEX_UNLOCK
+#undef ATA_MUTEX_UNLOCK
+#endif

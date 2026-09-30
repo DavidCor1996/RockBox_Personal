@@ -569,3 +569,48 @@ int pluginlib_getaction(int timeout,
     last_context = 0;
     return rb->get_custom_action(CONTEXT_PLUGIN,timeout,get_context_map);
 }
+
+/* Browsers with their own handheld maps can still share core dock policy.
+ * Core handles TV activation, wake, short/held Menu and accessory isolation;
+ * only the resulting navigation actions are translated here. */
+static bool browser_remote;
+static const struct button_mapping *get_browser_context_map(int context)
+{
+    static const struct button_mapping remote[] = {
+        LAST_ITEM_IN_LIST__NEXTLIST(CONTEXT_MAINMENU)
+    };
+    if (context & CONTEXT_REMOTE)
+    {
+        browser_remote = true;
+        return remote;
+    }
+    return get_context_map(context);
+}
+
+int pluginlib_getaction_remote(int timeout,
+                              const struct button_mapping *plugin_contexts[],
+                              int count)
+{
+    plugin_context_order = (struct button_mapping **)plugin_contexts;
+    plugin_context_count = count;
+    last_context = 0;
+    browser_remote = false;
+    int action = rb->get_custom_action(CONTEXT_PLUGIN, timeout,
+                                      get_browser_context_map);
+    if (!browser_remote)
+        return action;
+    switch (action)
+    {
+        case ACTION_STD_PREV: return PLA_UP;
+        case ACTION_STD_PREVREPEAT: return PLA_UP_REPEAT;
+        case ACTION_STD_NEXT: return PLA_DOWN;
+        case ACTION_STD_NEXTREPEAT: return PLA_DOWN_REPEAT;
+        case ACTION_TREE_PGLEFT: return PLA_LEFT;
+        case ACTION_TREE_PGRIGHT: return PLA_RIGHT;
+        case ACTION_STD_OK: return PLA_SELECT_REL;
+        case ACTION_STD_CONTEXT: return PLA_SELECT_REPEAT;
+        case ACTION_STD_CANCEL: return PLA_CANCEL;
+        /* Home stays distinct: some browsers use PLA_EXIT as quick Play. */
+        default: return action;
+    }
+}

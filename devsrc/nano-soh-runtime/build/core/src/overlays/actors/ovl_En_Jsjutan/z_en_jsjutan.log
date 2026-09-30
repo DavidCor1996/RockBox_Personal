@@ -1,0 +1,133 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c: In function 'EnJsjutan_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c:48:32: warning: passing argument 1 of 'CollisionHeader_GetVirtual' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+   48 |     CollisionHeader_GetVirtual(&sCol, &header);
+      |                                ^~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:673:39: note: expected 'void *' but argument is of type 'const char (*)[36]'
+  673 | void CollisionHeader_GetVirtual(void* colHeader, CollisionHeader** dest);
+      |                                 ~~~~~~^~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:10:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c: In function 'func_80A89860':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c:67:61: warning: passing argument 1 of 'ResourceMgr_LoadVtxByName' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   67 |     oddVtx = ResourceMgr_LoadVtxByName(SEGMENTED_TO_VIRTUAL(gShadowOddVtx));
+      |                                                             ^~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c:9:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:59:38: note: expected 'char *' but argument is of type 'const char *'
+   59 | Vtx* ResourceMgr_LoadVtxByName(char* path);
+      |                                ~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c:68:62: warning: passing argument 1 of 'ResourceMgr_LoadVtxByName' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   68 |     evenVtx = ResourceMgr_LoadVtxByName(SEGMENTED_TO_VIRTUAL(sShadowEvenVtx));
+      |                                                              ^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:59:38: note: expected 'char *' but argument is of type 'const char *'
+   59 | Vtx* ResourceMgr_LoadVtxByName(char* path);
+      |                                ~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c: In function 'func_80A89A6C':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c:123:19: warning: assignment to 'Vtx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  123 |         carpetVtx = SEGMENTED_TO_VIRTUAL(sCarpetOddVtx);
+      |                   ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c:124:19: warning: assignment to 'Vtx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  124 |         shadowVtx = SEGMENTED_TO_VIRTUAL(gShadowOddVtx);
+      |                   ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c:126:19: warning: assignment to 'Vtx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  126 |         carpetVtx = SEGMENTED_TO_VIRTUAL(sCarpetEvenVtx);
+      |                   ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c:127:19: warning: assignment to 'Vtx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  127 |         shadowVtx = SEGMENTED_TO_VIRTUAL(sShadowEvenVtx);
+      |                   ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c:130:43: warning: passing argument 1 of 'ResourceMgr_LoadVtxByName' from incompatible pointer type [-Wincompatible-pointer-types]
+  130 |     carpetVtx = ResourceMgr_LoadVtxByName(carpetVtx);
+      |                                           ^~~~~~~~~
+      |                                           |
+      |                                           Vtx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:59:38: note: expected 'char *' but argument is of type 'Vtx *'
+   59 | Vtx* ResourceMgr_LoadVtxByName(char* path);
+      |                                ~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c:131:43: warning: passing argument 1 of 'ResourceMgr_LoadVtxByName' from incompatible pointer type [-Wincompatible-pointer-types]
+  131 |     shadowVtx = ResourceMgr_LoadVtxByName(shadowVtx);
+      |                                           ^~~~~~~~~
+      |                                           |
+      |                                           Vtx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:59:38: note: expected 'char *' but argument is of type 'Vtx *'
+   59 | Vtx* ResourceMgr_LoadVtxByName(char* path);
+      |                                ~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c: In function 'EnJsjutan_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c:422:46: warning: passing argument 3 of 'gSPSegmentLoadRes' makes integer from pointer without a cast [-Wint-conversion]
+  422 |     gSPSegmentLoadRes(POLY_OPA_DISP++, 0x0C, sShadowTex);
+      |                                              ^~~~~~~~~~
+      |                                              |
+      |                                              u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:23:59: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   23 | void gSPSegmentLoadRes(void* value, int segNum, uintptr_t target);
+      |                                                 ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c:423:37: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  423 |     gSPDisplayList(POLY_OPA_DISP++, sShadowMaterialDL);
+      |                                     ^~~~~~~~~~~~~~~~~
+      |                                     |
+      |                                     const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c:428:50: warning: passing argument 3 of 'gSPSegmentLoadRes' makes integer from pointer without a cast [-Wint-conversion]
+  428 |         gSPSegmentLoadRes(POLY_OPA_DISP++, 0x0C, gShadowOddVtx);
+      |                                                  ^~~~~~~~~~~~~
+      |                                                  |
+      |                                                  const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:23:59: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   23 | void gSPSegmentLoadRes(void* value, int segNum, uintptr_t target);
+      |                                                 ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c:430:50: warning: passing argument 3 of 'gSPSegmentLoadRes' makes integer from pointer without a cast [-Wint-conversion]
+  430 |         gSPSegmentLoadRes(POLY_OPA_DISP++, 0x0C, sShadowEvenVtx);
+      |                                                  ^~~~~~~~~~~~~~
+      |                                                  |
+      |                                                  const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:23:59: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   23 | void gSPSegmentLoadRes(void* value, int segNum, uintptr_t target);
+      |                                                 ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c:432:37: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  432 |     gSPDisplayList(POLY_OPA_DISP++, sModelDL);
+      |                                     ^~~~~~~~
+      |                                     |
+      |                                     const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c:440:37: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  440 |     gSPDisplayList(POLY_OPA_DISP++, sCarpetMaterialDL);
+      |                                     ^~~~~~~~~~~~~~~~~
+      |                                     |
+      |                                     const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c:446:50: warning: passing argument 3 of 'gSPSegmentLoadRes' makes integer from pointer without a cast [-Wint-conversion]
+  446 |         gSPSegmentLoadRes(POLY_OPA_DISP++, 0x0C, sCarpetOddVtx);
+      |                                                  ^~~~~~~~~~~~~
+      |                                                  |
+      |                                                  const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:23:59: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   23 | void gSPSegmentLoadRes(void* value, int segNum, uintptr_t target);
+      |                                                 ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c:448:50: warning: passing argument 3 of 'gSPSegmentLoadRes' makes integer from pointer without a cast [-Wint-conversion]
+  448 |         gSPSegmentLoadRes(POLY_OPA_DISP++, 0x0C, sCarpetEvenVtx);
+      |                                                  ^~~~~~~~~~~~~~
+      |                                                  |
+      |                                                  const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:23:59: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'const char *'
+   23 | void gSPSegmentLoadRes(void* value, int segNum, uintptr_t target);
+      |                                                 ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Jsjutan/z_en_jsjutan.c:450:37: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  450 |     gSPDisplayList(POLY_OPA_DISP++, sModelDL);
+      |                                     ^~~~~~~~
+      |                                     |
+      |                                     const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~

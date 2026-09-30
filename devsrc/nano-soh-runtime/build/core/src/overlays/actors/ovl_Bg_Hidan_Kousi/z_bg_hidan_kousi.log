@@ -1,0 +1,24 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Hidan_Kousi/z_bg_hidan_kousi.c:44:5: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[70]' [-Wincompatible-pointer-types]
+   44 |     &gFireTempleMetalFenceWithSlantCol,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Hidan_Kousi/z_bg_hidan_kousi.c:44:5: note: (near initialization for 'sMetalFencesCollisions[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Hidan_Kousi/z_bg_hidan_kousi.c:45:5: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[61]' [-Wincompatible-pointer-types]
+   45 |     &gFireTempleMetalFenceCol,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Hidan_Kousi/z_bg_hidan_kousi.c:45:5: note: (near initialization for 'sMetalFencesCollisions[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Hidan_Kousi/z_bg_hidan_kousi.c:46:5: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[62]' [-Wincompatible-pointer-types]
+   46 |     &gFireTempleMetalFence2Col,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Hidan_Kousi/z_bg_hidan_kousi.c:46:5: note: (near initialization for 'sMetalFencesCollisions[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Hidan_Kousi/z_bg_hidan_kousi.c:57:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   57 |     gFireTempleMetalFenceWithSlantDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Hidan_Kousi/z_bg_hidan_kousi.c:57:5: note: (near initialization for 'sMetalFencesDLs[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Hidan_Kousi/z_bg_hidan_kousi.c:58:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   58 |     gFireTempleMetalFenceDL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Hidan_Kousi/z_bg_hidan_kousi.c:58:5: note: (near initialization for 'sMetalFencesDLs[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Hidan_Kousi/z_bg_hidan_kousi.c:59:5: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   59 |     gFireTempleMetalFence2DL,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Hidan_Kousi/z_bg_hidan_kousi.c:59:5: note: (near initialization for 'sMetalFencesDLs[2]')

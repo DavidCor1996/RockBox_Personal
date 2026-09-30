@@ -32,7 +32,8 @@ class RedditPanel(QWidget):
         self.media = QCheckBox("Download images and videos"); self.media.setChecked(True); options.addWidget(self.media); options.addStretch(1); layout.addLayout(options)
         self.table = QTableWidget(0, 5); self.table.setHorizontalHeaderLabels(["Community", "Subscribers", "Posts", "Media", "Cached"]); self.table.horizontalHeader().setStretchLastSection(True); layout.addWidget(self.table, 1)
         buttons = QHBoxLayout(); remove = QPushButton("Remove Community"); remove.clicked.connect(self.remove_subreddit); buttons.addWidget(remove); buttons.addStretch(1)
-        self.sync_button = QPushButton("Sync Reddit to iPod"); self.sync_button.clicked.connect(self.sync); buttons.addWidget(self.sync_button); layout.addLayout(buttons)
+        self.sync_mpeg_button = QPushButton("Sync as MPEG"); self.sync_mpeg_button.clicked.connect(lambda: self.sync("quality")); buttons.addWidget(self.sync_mpeg_button)
+        self.sync_h264_button = QPushButton("Sync as H.264"); self.sync_h264_button.clicked.connect(lambda: self.sync("h264_apple_exact")); buttons.addWidget(self.sync_h264_button); layout.addLayout(buttons)
         self.status = QLabel("Ready"); layout.addWidget(self.status); self.refresh()
 
     def refresh(self):
@@ -51,11 +52,15 @@ class RedditPanel(QWidget):
     def import_subreddit(self):
         self._start("Reading Reddit…", self.service.import_subreddit, self.url.text().strip(), self.limit.value(), self.media.isChecked())
 
-    def sync(self):
+    def sync(self, video_profile="quality"):
         device = self.device_provider()
         if device is None or not getattr(device, "mount_path", ""):
             QMessageBox.warning(self, "Reddit", "Connect and mount the iPod first."); return
-        self._start("Preparing Reddit sync…", self.service.sync, device.mount_path)
+        label = "H.264" if video_profile == "h264_apple_exact" else "MPEG"
+        self._start(
+            f"Preparing Reddit {label} sync…", self.service.sync,
+            device.mount_path, video_profile=video_profile,
+        )
 
     def remove_subreddit(self):
         row = self.table.currentRow()

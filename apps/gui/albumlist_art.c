@@ -19,6 +19,7 @@
 #include "settings.h"
 #include "system.h"
 #include "tagtree.h"
+#include "tv_ui.h"
 #include "tree.h"
 #include "viewport.h"
 #include "recorder/bmp.h"
@@ -386,6 +387,26 @@ struct albumlist_slideshow_failure {
 static struct albumlist_slideshow_slot slideshow_slots[3];
 static struct albumlist_slideshow_failure
     slideshow_failures[ALBUMLIST_SLIDESHOW_FAILURE_CACHE];
+#ifdef HAVE_DOCKED_AMBIENT_CLOCK
+static bool ambient_workspace_leased;
+void *albumlist_ambient_workspace(int slot, size_t *bytes)
+{
+    if (slot < 0 || slot >= 2)
+        return NULL;
+    ambient_workspace_leased = true;
+    for (unsigned i = 0; i < ARRAYLEN(slideshow_slots); ++i)
+        slideshow_slots[i].valid = false;
+    *bytes = sizeof(slideshow_slots[slot].data);
+    return slideshow_slots[slot].data;
+}
+
+void albumlist_ambient_release(void)
+{
+    ambient_workspace_leased = false;
+    for (unsigned i = 0; i < ARRAYLEN(slideshow_slots); ++i)
+        slideshow_slots[i].valid = false;
+}
+#endif
 static int slideshow_slot_victim;
 static int slideshow_last_drawn_index = -1;
 static struct slideshow_order slideshow_random_order;
@@ -733,6 +754,10 @@ static bool albumlist_slideshow_frame(int entry_count, long *cycle,
 
 bool albumlist_slideshow_service(void)
 {
+#ifdef HAVE_DOCKED_AMBIENT_CLOCK
+    if (ambient_workspace_leased)
+        return false;
+#endif
     long cycle, phase;
     int wanted, next_wanted;
 
@@ -901,6 +926,81 @@ static int ascii_casecmp(const char *a, const char *b)
     }
     return (unsigned char)*a - (unsigned char)*b;
 }
+
+#ifdef HAVE_COMPOSITE_VIDEO_OUT
+static struct gui_synclist *tv_album_list;
+static void *tv_album_data;
+static int tv_album_selected = -1, tv_album_index = -1;
+static long tv_album_settle;
+static bool tv_album_pending;
+
+const struct bitmap *albumlist_tv_cover_cached(struct gui_synclist *list)
+{
+#ifdef HAVE_DOCKED_AMBIENT_CLOCK
+    if (ambient_workspace_leased) return NULL;
+#endif
+    if (!list || list != tv_album_list || list->data != tv_album_data ||
+        list->selected_item != tv_album_selected || tv_album_index < 0)
+        return NULL;
+    struct albumlist_slideshow_slot *slot =
+        albumlist_find_slideshow_slot(tv_album_index);
+    return slot ? &slot->bm : NULL;
+}
+
+bool albumlist_tv_service(struct gui_synclist *list, bool idle)
+{
+    if (!tv_ui_active() || !list || !list->callback_draw_item)
+    {
+        tv_album_list = NULL;
+        tv_album_index = -1;
+        return false;
+    }
+    if (list != tv_album_list || list->data != tv_album_data ||
+        list->selected_item != tv_album_selected)
+    {
+        tv_album_list = list;
+        tv_album_data = list->data;
+        tv_album_selected = list->selected_item;
+        tv_album_index = -1;
+        tv_album_pending = true;
+        tv_album_settle = current_tick + MAX(1, HZ / 4);
+    }
+    /* One selected cover after 250 ms. Never service a queued Back, Hold,
+     * or a Music database transition. Failed covers wait for a new row. */
+    if (!idle || !tv_album_pending || TIME_BEFORE(current_tick,tv_album_settle) ||
+        !button_queue_empty() || button_hold() || !tagcache_is_usable() ||
+        tagcache_commit_active())
+        return false;
+#ifdef HAVE_DOCKED_AMBIENT_CLOCK
+    if (ambient_workspace_leased) return false;
+#endif
+    tv_album_pending = false;
+    char album[ALBUMLIST_ALBUM_LEN], artist[ALBUMLIST_ARTIST_LEN];
+    if (!albumlist_get_album_row(list->data,list->selected_item,
+                                 album,sizeof(album),artist,sizeof(artist)))
+        return false;
+    int candidate = -1, matches = 0;
+    for (int i = 0; i < manifest_cache_count; i++)
+    {
+        if (ascii_casecmp(manifest_cache[i].album,album)) continue;
+        candidate = i;
+        matches++;
+        if (artist[0] && !ascii_casecmp(manifest_cache[i].artist,artist))
+        { matches = 1; break; }
+    }
+    if (matches != 1) return false;
+    struct albumlist_slideshow_slot *slot =
+        albumlist_get_slideshow_slot(candidate,-1);
+    if (!slot) return false;
+    tv_album_index = candidate;
+    return true;
+}
+#else
+const struct bitmap *albumlist_tv_cover_cached(struct gui_synclist *list)
+{ (void)list; return NULL; }
+bool albumlist_tv_service(struct gui_synclist *list, bool idle)
+{ (void)list; (void)idle; return false; }
+#endif
 
 static void trim_line(char *line)
 {
@@ -1520,6 +1620,11 @@ void albumlist_setup_list(struct gui_synclist *list)
     if (!list)
         return;
 
+#ifdef HAVE_COMPOSITE_VIDEO_OUT
+    /* The tree reuses one list object across hierarchy levels. */
+    tv_album_list = NULL;
+    tv_album_index = -1;
+#endif
     list->show_icons = global_settings.show_icons;
     list->callback_draw_item = NULL;
     pending_count = 0;
@@ -1528,6 +1633,7 @@ void albumlist_setup_list(struct gui_synclist *list)
     if (!albumlist_has_album_rows(list))
         return;
 
+    if (tv_ui_active()) albumlist_load_manifest_cache();
     list->scroll_paginated = false;
 
 #ifdef HAVE_IPODJS_UI

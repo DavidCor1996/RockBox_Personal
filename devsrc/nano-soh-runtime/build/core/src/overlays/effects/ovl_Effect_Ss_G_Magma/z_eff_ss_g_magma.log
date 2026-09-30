@@ -1,0 +1,29 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Magma/z_eff_ss_g_magma.c: In function 'EffectSsGMagma_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Magma/z_eff_ss_g_magma.c:27:15: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   27 |     this->gfx = SEGMENTED_TO_VIRTUAL(gEffMagmaBubbleDL);
+      |               ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Magma/z_eff_ss_g_magma.c: At top level:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Magma/z_eff_ss_g_magma.c:45:5: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   45 |     gEffMagmaBubble1Tex, gEffMagmaBubble2Tex, gEffMagmaBubble3Tex, gEffMagmaBubble4Tex,
+      |     ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Magma/z_eff_ss_g_magma.c:45:26: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   45 |     gEffMagmaBubble1Tex, gEffMagmaBubble2Tex, gEffMagmaBubble3Tex, gEffMagmaBubble4Tex,
+      |                          ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Magma/z_eff_ss_g_magma.c:45:47: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   45 |     gEffMagmaBubble1Tex, gEffMagmaBubble2Tex, gEffMagmaBubble3Tex, gEffMagmaBubble4Tex,
+      |                                               ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Magma/z_eff_ss_g_magma.c:45:68: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   45 |     gEffMagmaBubble1Tex, gEffMagmaBubble2Tex, gEffMagmaBubble3Tex, gEffMagmaBubble4Tex,
+      |                                                                    ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Magma/z_eff_ss_g_magma.c:46:5: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   46 |     gEffMagmaBubble5Tex, gEffMagmaBubble6Tex, gEffMagmaBubble7Tex, gEffMagmaBubble8Tex,
+      |     ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Magma/z_eff_ss_g_magma.c:46:26: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   46 |     gEffMagmaBubble5Tex, gEffMagmaBubble6Tex, gEffMagmaBubble7Tex, gEffMagmaBubble8Tex,
+      |                          ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Magma/z_eff_ss_g_magma.c:46:47: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   46 |     gEffMagmaBubble5Tex, gEffMagmaBubble6Tex, gEffMagmaBubble7Tex, gEffMagmaBubble8Tex,
+      |                                               ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Magma/z_eff_ss_g_magma.c:46:68: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   46 |     gEffMagmaBubble5Tex, gEffMagmaBubble6Tex, gEffMagmaBubble7Tex, gEffMagmaBubble8Tex,
+      |                                                                    ^~~~~~~~~~~~~~~~~~~

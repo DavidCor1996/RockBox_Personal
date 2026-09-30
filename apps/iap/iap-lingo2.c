@@ -26,6 +26,7 @@
 
 #include "iap-core.h"
 #include "iap-lingo.h"
+#include "iap-remote-debug.h"
 #include "kernel.h"
 #include "system.h"
 #include "button.h"
@@ -45,13 +46,21 @@
  */
 #define CHECKLEN(x) do { \
         if (len < (x)) { \
-            cmd_ack(cmd, IAP_ACK_BAD_PARAM); \
+            if (cmd != 0x00) cmd_ack(cmd, IAP_ACK_BAD_PARAM); \
             return; \
         }} while(0)
+
+static unsigned char remote_tid[2];
+static bool poweron_pressed;
+void iap_reset_lingo2(void) { poweron_pressed = false; }
 
 static void cmd_ack(const unsigned char cmd, const unsigned char status)
 {
     IAP_TX_INIT(0x02, 0x01);
+    if (device.auth.idps)
+    {
+        IAP_TX_PUT(remote_tid[0]); IAP_TX_PUT(remote_tid[1]);
+    }
     IAP_TX_PUT(status);
     IAP_TX_PUT(cmd);
 
@@ -83,17 +92,26 @@ static void remote_lineout_adjust_volume(int steps)
 
 void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
 {
-    static bool poweron_pressed = false;
+    if (!buf || len < 2) return;
 #if CONFIG_TUNER
     static bool remote_mute = false;
 #endif
     unsigned int cmd = buf[1];
+    unsigned int doff = device.auth.idps ? 2 : 0;
+    remote_tid[0] = remote_tid[1] = 0;
+    if (doff && len >= 4)
+    { remote_tid[0] = buf[2]; remote_tid[1] = buf[3]; }
 
     /* We expect at least three bytes in the buffer, one for the
      * lingo, one for the command, and one for the first button
      * state bits.
      */
-    CHECKLEN(3);
+    if (len < 3 + doff || (cmd == 0 && len > 6 + doff))
+    {
+        iap_remote_packet(buf, len, 0, 0, 'M');
+        if (cmd != 0) cmd_ack(cmd, IAP_ACK_BAD_PARAM);
+        return;
+    }
 
     /* Lingo 0x02 must have been negotiated, except for
      * ContextButtonStatus (0x00): simple remotes like the Apple A1018
@@ -126,8 +144,10 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
          */
         case 0x00:
         {
-            iap_remotebtn = BUTTON_NONE;
-            iap_timeoutbtn = 0;
+            unsigned long buttons = BUTTON_NONE;
+            uint32_t bitmap = 0;
+            for (unsigned i = 2 + doff; i < len; i++)
+                bitmap |= (uint32_t)buf[i] << (8 * (i-2-doff));
 
             /* Kokkia reports a newly acquired Bluetooth peer as a transient
              * play-state status pulse.  Observe that edge before startup
@@ -135,22 +155,27 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
              * the pulse completely and Home never receives its animation
              * event.  Headset clicks use the command-button bytes instead,
              * so they do not manufacture connection notifications. */
-            if (iap_kokkia_present() && len >= 4 &&
-                (buf[3] & (BIT_N(0) | BIT_N(1))))
+            if (iap_kokkia_present() && len >= 4 + doff &&
+                (buf[3 + doff] & (BIT_N(0) | BIT_N(1))))
                 iap_note_kokkia_peer_connection();
 
             if (iap_remote_input_suppressed())
+            {
+                iap_remotebtn = BUTTON_NONE;
+                iap_repeatbtn = iap_timeoutbtn = 0;
+                iap_remote_packet(buf,len,bitmap,0,'Q');
                 break;
+            }
 
             /* ContextButtonStatus is one little-endian bitmap spread over
              * as many as four bytes.  Inspect every byte present: an
              * accessory may legally report bits from multiple bytes in the
              * same packet. */
-            if(buf[2] != 0)
+            if(buf[2 + doff] != 0)
             {
-                if(buf[2] & 1)
+                if(buf[2 + doff] & 1)
                 {
-                    REMOTE_BUTTON(BUTTON_RC_PLAY);
+                    buttons |= (BUTTON_RC_PLAY);
 #if CONFIG_TUNER
                     if (radio_present == 1) {
                         if (remote_mute == 0) {
@@ -164,28 +189,32 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
                     }
 #endif
                 }
-                if(buf[2] & 2) {
+                if(buf[2 + doff] & 2) {
 #if defined(IPOD_VIDEO) && defined(HAVE_WM8758)
-                    remote_lineout_adjust_volume(1);
+                    if (iap_remote_navigation_active())
+                        buttons |= BUTTON_RC_VOL_UP;
+                    else remote_lineout_adjust_volume(1);
 #else
-                    REMOTE_BUTTON(BUTTON_RC_VOL_UP);
+                    buttons |= (BUTTON_RC_VOL_UP);
 #endif
                 }
-                if(buf[2] & 4) {
+                if(buf[2 + doff] & 4) {
 #if defined(IPOD_VIDEO) && defined(HAVE_WM8758)
-                    remote_lineout_adjust_volume(-1);
+                    if (iap_remote_navigation_active())
+                        buttons |= BUTTON_RC_VOL_DOWN;
+                    else remote_lineout_adjust_volume(-1);
 #else
-                    REMOTE_BUTTON(BUTTON_RC_VOL_DOWN);
+                    buttons |= (BUTTON_RC_VOL_DOWN);
 #endif
                 }
-                if(buf[2] & 8)
-                    REMOTE_BUTTON(BUTTON_RC_RIGHT);
-                if(buf[2] & 16)
-                    REMOTE_BUTTON(BUTTON_RC_LEFT);
+                if(buf[2 + doff] & 8)
+                    buttons |= (BUTTON_RC_RIGHT);
+                if(buf[2 + doff] & 16)
+                    buttons |= (BUTTON_RC_LEFT);
             }
-            if(len >= 4 && buf[3] != 0)
+            if(len >= 4 + doff && buf[3 + doff] != 0)
             {
-                if(buf[3] & 1) /* play */
+                if(buf[3 + doff] & 1) /* play */
                 {
                     /* A Play state sent while playback is fully stopped is
                      * commonly an accessory startup announcement, not a
@@ -196,24 +225,24 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
                     if ((audio_status() & (AUDIO_STATUS_PLAY |
                                            AUDIO_STATUS_PAUSE)) ==
                         (AUDIO_STATUS_PLAY | AUDIO_STATUS_PAUSE))
-                        REMOTE_BUTTON(BUTTON_RC_PLAY);
+                        buttons |= (BUTTON_RC_PLAY);
 #if CONFIG_TUNER
                     if (radio_present == 1) {
                         tuner_set(RADIO_MUTE,0);
                     }
 #endif
                 }
-                if(buf[3] & 2) /* pause */
+                if(buf[3 + doff] & 2) /* pause */
                 {
                     if (audio_status() == AUDIO_STATUS_PLAY)
-                        REMOTE_BUTTON(BUTTON_RC_PLAY);
+                        buttons |= (BUTTON_RC_PLAY);
 #if CONFIG_TUNER
                     if (radio_present == 1) {
                         tuner_set(RADIO_MUTE,1);
                     }
 #endif
                 }
-                if(buf[3] & 128) /* Shuffle */
+                if(buf[3 + doff] & 128) /* Shuffle */
                 {
                     if (!iap_btnshuffle)
                     {
@@ -222,9 +251,9 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
                     }
                 }
             }
-            if(len >= 5 && buf[4] != 0)
+            if(len >= 5 + doff && buf[4 + doff] != 0)
             {
-                if(buf[4] & 1) /* repeat */
+                if(buf[4 + doff] & 1) /* repeat */
                 {
                     if (!iap_btnrepeat)
                     {
@@ -233,7 +262,7 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
                     }
                 }
 
-                if (buf[4] & 2) /* power on */
+                if (buf[4 + doff] & 2) /* power on */
                 {
                     poweron_pressed = true;
                 }
@@ -242,31 +271,31 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
                  * Not quite sure how to react to this, but stopping playback
                  * is a good start.
                  */
-                if (buf[4] & 0x04)
+                if (buf[4 + doff] & 0x04)
                 {
                     if (audio_status() == AUDIO_STATUS_PLAY)
-                        REMOTE_BUTTON(BUTTON_RC_PLAY);
+                        buttons |= (BUTTON_RC_PLAY);
                 }
 
-                if(buf[4] & 16) /* ffwd */
-                    REMOTE_BUTTON(BUTTON_RC_RIGHT);
-                if(buf[4] & 32) /* frwd */
-                    REMOTE_BUTTON(BUTTON_RC_LEFT);
-                if(buf[4] & 64) /* menu */
-                    REMOTE_BUTTON(BUTTON_RC_MENU);
-                if(buf[4] & 128) /* select */
-                    REMOTE_BUTTON(BUTTON_RC_SELECT);
+                if(buf[4 + doff] & 16) /* ffwd */
+                    buttons |= (BUTTON_RC_RIGHT);
+                if(buf[4 + doff] & 32) /* frwd */
+                    buttons |= (BUTTON_RC_LEFT);
+                if(buf[4 + doff] & 64) /* menu */
+                    buttons |= (BUTTON_RC_MENU);
+                if(buf[4 + doff] & 128) /* select */
+                    buttons |= (BUTTON_RC_SELECT);
             }
-            if(len >= 6 && buf[5] != 0)
+            if(len >= 6 + doff && buf[5 + doff] != 0)
             {
-                if(buf[5] & 1) /* up */
-                    REMOTE_BUTTON(BUTTON_RC_UP);
-                if (buf[5] & 2) /* down */
-                    REMOTE_BUTTON(BUTTON_RC_DOWN);
+                if(buf[5 + doff] & 1) /* up */
+                    buttons |= (BUTTON_RC_UP);
+                if (buf[5 + doff] & 2) /* down */
+                    buttons |= (BUTTON_RC_DOWN);
             }
 
             /* power on released */
-            if (poweron_pressed && len >= 5 && !(buf[4] & 2))
+            if (poweron_pressed && !(len >= 5 + doff && (buf[4 + doff] & 2)))
             {
                 poweron_pressed = false;
 #ifdef HAVE_LINE_REC
@@ -285,6 +314,14 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
 #endif
             }
 
+            int level = disable_irq_save();
+            char edge = buttons == iap_remotebtn ? 'H' : buttons ? 'P' : 'R';
+            if (buttons != iap_remotebtn) iap_repeatbtn = 2;
+            iap_remotebtn = buttons;
+            iap_timeoutbtn = bitmap ? 3 : 0;
+            if (!bitmap) { iap_btnshuffle = false; iap_btnrepeat = false; }
+            restore_irq(level);
+            iap_remote_packet(buf,len,bitmap,buttons,edge);
             break;
         }
         /* ACK (0x01)
@@ -376,7 +413,7 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
          */
         case 0x04:
         {
-            unsigned char repeatbuf[6];
+            unsigned char repeatbuf[8] = {0};
 
             if (!DEVICE_AUTHENTICATED) {
                 cmd_ack(cmd, IAP_ACK_NO_AUTHEN);
@@ -389,9 +426,9 @@ void iap_handlepkt_mode2(const unsigned int len, const unsigned char *buf)
              * So just route it through the handler again, with 0x00 as the
              * command
              */
-            memcpy(repeatbuf, buf, 6);
+            memcpy(repeatbuf, buf, MIN(len, sizeof(repeatbuf)));
             repeatbuf[1] = 0x00;
-            iap_handlepkt_mode2((len<6)?len:6, repeatbuf);
+            iap_handlepkt_mode2(MIN(len, sizeof(repeatbuf)), repeatbuf);
 
             cmd_ok(cmd);
             break;

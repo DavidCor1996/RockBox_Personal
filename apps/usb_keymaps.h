@@ -21,7 +21,7 @@
 #ifndef _USB_KEYMAPS_H_
 #define _USB_KEYMAPS_H_
 
-int get_hid_usb_action(void);
+int get_hid_usb_action(int timeout);
 
 int keypad_mode_name_get(unsigned int mode);
 

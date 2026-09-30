@@ -1100,8 +1100,14 @@ namespace gameswf
 		{
 			if (m_def->get_labeled_frame(frame_spec.to_string(), &frame_number) == false)
 			{
-				// Try converting to integer.
-				frame_number = frame_spec.to_int();
+                /* Unknown labels are not frame zero. In particular, an
+                 * authored call to a missing label must not recursively
+                 * execute the caller's first frame. Numeric strings use
+                 * the same one-based numbering as numeric arguments. */
+                double number;
+                if (!string_to_number(&number, frame_spec.to_string()))
+                    return;
+                frame_number = int(number) - 1;
 			}
 		}
 		else

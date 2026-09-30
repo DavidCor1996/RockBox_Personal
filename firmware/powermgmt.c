@@ -39,7 +39,15 @@
 #if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
         IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
 #include "button.h"
+#include "file.h"
 #include "hibernate-6g.h"
+#include "pcm.h"
+#include "pcm_mixer.h"
+#include "plugin.h"
+#include "rbpaths.h"
+#ifdef HAVE_IPODJS_UI
+#include "notification_manager.h"
+#endif
 #endif
 #if CONFIG_TUNER
 #include "fmradio.h"
@@ -116,6 +124,146 @@ static int shutdown_timeout = 0;
 #if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
         IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
 static volatile bool retained_poweroff_request_pending;
+static uint32_t retained_poweroff_sequence;
+static volatile bool retained_plugin_capable;
+static volatile bool retained_plugin_prepare_delivered;
+static volatile bool retained_plugin_quiesced;
+static bool retained_output_service_suspended;
+
+enum ipod6g_hibernate_session_refusal
+{
+    IPOD6G_HIBERNATE_SESSION_READY = 0,
+    IPOD6G_HIBERNATE_SESSION_PLUGIN,
+    IPOD6G_HIBERNATE_SESSION_AUDIO_INITIAL,
+    IPOD6G_HIBERNATE_SESSION_AUDIO_FINAL,
+};
+
+static volatile enum ipod6g_hibernate_session_refusal
+        retained_session_refusal;
+
+/* RetailOS performs its application/device quiesce before entering the small
+ * retained coordinator.  A Rockbox plugin can own PCM, mixer callbacks,
+ * clocks, or storage buffers without a suspend contract, so it must take the
+ * unchanged cold-shutdown path.  RetailOS long-Play does not dispatch its
+ * transport toggle; media opcode 8 suspends only the PCM output service. */
+static bool ipod6g_hibernate_prepare_session(void)
+{
+    int audio_stat = audio_status();
+
+    retained_session_refusal = IPOD6G_HIBERNATE_SESSION_READY;
+    retained_output_service_suspended = false;
+
+    if (plugin_is_loaded() && !retained_plugin_quiesced)
+    {
+        retained_session_refusal = IPOD6G_HIBERNATE_SESSION_PLUGIN;
+        return false;
+    }
+
+    if ((audio_stat & ~(AUDIO_STATUS_PLAY | AUDIO_STATUS_PAUSE)) != 0 ||
+        ((audio_stat & AUDIO_STATUS_PAUSE) != 0 &&
+         (audio_stat & AUDIO_STATUS_PLAY) == 0))
+    {
+        retained_session_refusal =
+                IPOD6G_HIBERNATE_SESSION_AUDIO_INITIAL;
+        return false;
+    }
+
+    /* This call returns only after new physical starts are inhibited and the
+     * current PCM DMA has stopped.  Mixer channels, callbacks, voice output,
+     * playback-thread state and the transport flags are deliberately left
+     * untouched, matching RetailOS's acknowledged opcode-8 transition. */
+    mixer_hibernate_suspend();
+    retained_output_service_suspended = true;
+
+    audio_stat = audio_status();
+    if ((audio_stat & ~(AUDIO_STATUS_PLAY | AUDIO_STATUS_PAUSE)) != 0 ||
+        ((audio_stat & AUDIO_STATUS_PAUSE) != 0 &&
+         (audio_stat & AUDIO_STATUS_PLAY) == 0))
+    {
+        retained_session_refusal = IPOD6G_HIBERNATE_SESSION_AUDIO_FINAL;
+        return false;
+    }
+
+    return true;
+}
+
+#if defined(IPOD6G_HIBERNATE_ROLO_CANDIDATE) && \
+        IPOD6G_HIBERNATE_ROLO_CANDIDATE
+static void ipod6g_hibernate_log_refusal(uint32_t sequence)
+{
+    struct ipod6g_hibernate_status status;
+    bool have_status = ipod6g_hibernate_stage1_get_status(&status);
+    enum ipod6g_hibernate_runtime_refusal target_refusal =
+            ipod6g_hibernate_poweroff_last_refusal();
+    char buffer[512];
+    int fd;
+    int length;
+    const char *plugin = plugin_is_loaded() ?
+            plugin_get_current_filename() : "none";
+#if CONFIG_CHARGING
+    int external_power = power_input_present();
+#else
+    int external_power = 0;
+#endif
+
+    length = snprintf(buffer, sizeof(buffer),
+            "candidate=P16\n"
+            "sequence=%lu\n"
+            "session_refusal=%u\n"
+            "target_refusal=%u\n"
+            "plugin=%s\n"
+            "plugin_capable=%u\n"
+            "plugin_prepare_delivered=%u\n"
+            "plugin_quiesced=%u\n"
+            "output_service_suspended=%u\n"
+            "rolo_capability_republished=%u\n"
+            "status_valid=%u\n"
+            "record_state=%lu\n"
+            "record_capabilities=0x%08lx\n"
+            "record_phase=%lu\n"
+            "record_failure=%lu\n"
+            "audio_status=0x%08x\n"
+            "pcm_playing=%u\n"
+            "usb_status=%d\n"
+            "external_power=%d\n"
+            "battery_safe=%u\n",
+            (unsigned long)sequence,
+            (unsigned)retained_session_refusal,
+            (unsigned)target_refusal,
+            plugin,
+            retained_plugin_capable ? 1u : 0u,
+            retained_plugin_prepare_delivered ? 1u : 0u,
+            retained_plugin_quiesced ? 1u : 0u,
+            retained_output_service_suspended ? 1u : 0u,
+            ipod6g_hibernate_rolo_capability_republished() ? 1u : 0u,
+            have_status ? 1u : 0u,
+            have_status ? (unsigned long)status.state : 0ul,
+            have_status ? (unsigned long)status.capabilities : 0ul,
+            have_status ? (unsigned long)status.last_phase : 0ul,
+            have_status ? (unsigned long)status.failure : 0ul,
+            audio_status(), pcm_is_playing() ? 1u : 0u, usb_detect(),
+            external_power, battery_level_safe() ? 1u : 0u);
+
+    fd = open(ROCKBOX_DIR "/hibernate-p16-last.txt",
+              O_WRONLY | O_CREAT | O_TRUNC, 0666);
+    if (fd >= 0)
+    {
+        if (length > 0)
+        {
+            size_t count = MIN((size_t)length, sizeof(buffer) - 1);
+            write(fd, buffer, count);
+        }
+        fsync(fd);
+        close(fd);
+        storage_flush();
+    }
+
+    splashf(HZ * 6, "P16 RETAINED REFUSED\nS:%u T:%u\nState:%lu Fail:%lu",
+            (unsigned)retained_session_refusal, (unsigned)target_refusal,
+            have_status ? (unsigned long)status.state : 0ul,
+            have_status ? (unsigned long)status.failure : 0ul);
+}
+#endif
 #endif
 
 void handle_auto_poweroff(void);
@@ -1146,13 +1294,23 @@ void sys_poweroff(void)
     /* button_tick() calls this from interrupt context.  Defer retained
      * suspend to the thread consuming the button queue; storage, display and
      * I2C quiesce all require normal scheduler context. */
+#if defined(IPOD6G_HIBERNATE_ROLO_CANDIDATE) && \
+        IPOD6G_HIBERNATE_ROLO_CANDIDATE
+    /* A qualification Rolo must always exercise the retained path.  The
+     * installed production build continues to obey the user's setting. */
+    if (!ipod6g_hibernate_poweroff_should_defer())
+        ipod6g_hibernate_set_poweroff_mode(IPOD6G_POWEROFF_RETAINED);
+#endif
     if (ipod6g_hibernate_poweroff_should_defer())
     {
         if (!retained_poweroff_request_pending)
         {
             retained_poweroff_request_pending = true;
+            retained_poweroff_sequence = (uint32_t)current_tick;
+            retained_plugin_prepare_delivered = false;
+            retained_plugin_quiesced = false;
             button_queue_post(SYS_POWEROFF_REQUEST,
-                              (intptr_t)(uint32_t)current_tick);
+                              (intptr_t)retained_poweroff_sequence);
         }
         return;
     }
@@ -1163,30 +1321,139 @@ void sys_poweroff(void)
 
 #if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
         IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
-void sys_poweroff_handle_request(uint32_t sequence)
+bool sys_poweroff_button_is_reserved(void)
 {
+    /* Called from button_tick() with IRQ context active: this is deliberately
+     * only a retained-policy read and performs no lock, allocation, or I/O. */
+    return ipod6g_hibernate_poweroff_should_defer();
+}
+
+void sys_poweroff_hibernate_event_committed(void)
+{
+    /* button_get_w_tmo() calls this only after the complete event has been
+     * assigned to its local queue result. This is Rockbox's queue-commit
+     * boundary corresponding to RetailOS UI event 17. */
     if (!retained_poweroff_request_pending)
         return;
 
-    if (ipod6g_hibernate_poweroff_try(sequence))
+    ata_hibernate_event_commit(retained_poweroff_sequence);
+    retained_poweroff_request_pending = false;
+}
+
+long sys_poweroff_handle_request(uint32_t sequence)
+{
+    if (!retained_poweroff_request_pending)
+        return BUTTON_NONE;
+
+    /* RetailOS waits for its UI/media workers to acknowledge mode 2 before
+     * entering the retained coordinator.  A Rockbox plugin may opt into the
+     * same transaction by advertising the versioned queue protocol.  Until
+     * it returns READY, do not touch audio, storage, display, or the retained
+     * record.  Plugins without this explicit contract retain the fail-safe
+     * cold-shutdown refusal in ipod6g_hibernate_prepare_session(). */
+    if (plugin_is_loaded() && retained_plugin_capable &&
+        !retained_plugin_quiesced)
     {
+        if (!retained_plugin_prepare_delivered)
+        {
+            retained_plugin_prepare_delivered = true;
+            retained_poweroff_sequence = sequence;
+            return SYS_HIBERNATE_PREPARE;
+        }
+
+        return BUTTON_NONE;
+    }
+
+#ifdef HAVE_IPODJS_UI
+    notification_manager_hibernate_prepare();
+#endif
+
+    if (ipod6g_hibernate_prepare_session() &&
+        ipod6g_hibernate_poweroff_try(sequence))
+    {
+        /* RetailOS opcode 9 performs the paired output-backend start after
+         * the inner power wrapper and device-manager mode 5 have returned.
+         * It does not issue transport Play.  Releasing the mixer service
+         * inhibit here preserves the exact retained channel state and
+         * restarts physical output only for channels that were already live. */
+        mixer_hibernate_resume();
+        retained_output_service_suspended = false;
+        ipod6g_hibernate_runtime_checkpoint(
+                IPOD6G_HIBERNATE_DIAG_MEDIA_SERVICE_RESUMED);
+
         ipod6g_hibernate_runtime_checkpoint(
                 IPOD6G_HIBERNATE_DIAG_REQUEST_RETURNED);
 
-        /* Discard stale press/repeat events while preserving USB/charger
-         * system events published by the resume path. */
-        button_clear_pressed();
-        retained_poweroff_request_pending = false;
+        /* Discard the complete sleep/wake gestures while preserving
+         * USB/charger system events published by the resume path. */
+        button_clear_hibernate_wake();
+        retained_plugin_prepare_delivered = false;
+        retained_plugin_quiesced = false;
+        retained_output_service_suspended = false;
         reset_poweroff_timer();
+#ifdef HAVE_IPODJS_UI
+        notification_manager_hibernate_resume();
+#endif
         ipod6g_hibernate_runtime_checkpoint(
                 IPOD6G_HIBERNATE_DIAG_REQUEST_FINISHED);
-        return;
+        /* RetailOS queues UI event 17 after its post-wake service fanout.
+         * Return a dedicated system transaction here so Rockbox redraws and
+         * rearms UI work without interpreting wake as ordinary input. */
+        return SYS_HIBERNATE_COMPLETE;
     }
 
     /* Refusal is fail-safe: perform the unchanged terminal shutdown.  Keep
      * the request latched so a still-held Play button cannot queue another
      * retained attempt while shutdown is in progress. */
+    if (retained_output_service_suspended)
+    {
+        /* A Rockbox shutdown can be cancelled by pending tagcache work. Undo
+         * the complete opcode-8 service transition so a refusal never leaves
+         * normal playback stopped or its PCM exclusion carried. */
+        mixer_hibernate_resume();
+        retained_output_service_suspended = false;
+    }
+#ifdef HAVE_IPODJS_UI
+    notification_manager_hibernate_abort();
+#endif
+#if defined(IPOD6G_HIBERNATE_ROLO_CANDIDATE) && \
+        IPOD6G_HIBERNATE_ROLO_CANDIDATE
+    ipod6g_hibernate_log_refusal(sequence);
+#endif
     sys_poweroff_broadcast();
+    return BUTTON_NONE;
+}
+
+void sys_poweroff_handle_plugin_capable(intptr_t protocol)
+{
+    if (protocol == (intptr_t)SYS_HIBERNATE_PLUGIN_PROTOCOL &&
+        plugin_is_loaded())
+    {
+        retained_plugin_capable = true;
+    }
+}
+
+long sys_poweroff_handle_plugin_ready(intptr_t protocol)
+{
+    if (protocol != (intptr_t)SYS_HIBERNATE_PLUGIN_PROTOCOL ||
+        !retained_poweroff_request_pending ||
+        !retained_plugin_capable ||
+        !retained_plugin_prepare_delivered ||
+        !plugin_is_loaded())
+    {
+        return BUTTON_NONE;
+    }
+
+    retained_plugin_prepare_delivered = false;
+    retained_plugin_quiesced = true;
+    return sys_poweroff_handle_request(retained_poweroff_sequence);
+}
+
+void sys_poweroff_plugin_reset(void)
+{
+    retained_plugin_capable = false;
+    retained_plugin_prepare_delivered = false;
+    retained_plugin_quiesced = false;
 }
 #endif
 

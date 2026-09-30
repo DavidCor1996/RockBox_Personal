@@ -26,6 +26,10 @@
 #include "playlist.h"
 #include "iap.h"
 
+bool iap_remote_volume_navigation(unsigned char mute, unsigned char volume,
+                                  unsigned char ui);
+void iap_remote_volume_recenter(void);
+
 /* #define LOGF_ENABLE */
 #undef LOGF_ENABLE
 #ifdef LOGF_ENABLE

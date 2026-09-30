@@ -34,6 +34,24 @@ The snapshot is derived from two history sources:
    log, but cannot claim a calendar year because legacy tagcache values carry
    only a monotonically increasing last-played serial.
 
+The host-generated recap always shows **All Time**. Starting a new playback
+log must not silently replace lifetime totals with a smaller annual total.
+RockPod retains per-track metadata, lifetime totals, and deduplicated events
+from every `playback*.log` in
+`/.rockbox/spotify-wrapped/history.sqlite3`. This archive is separate from
+tagcache and survives database rebuilds, removed library tracks, and log
+rotation or deletion after import. Repeated syncs do not count events again.
+New logged listens continue adding to the saved baseline after a database
+reset; live runtime counters provide an additional lower bound. Without logs,
+new plays after a counter reset cannot be distinguished until the runtime
+counter exceeds the saved total.
+
+History updates use a fully synchronous SQLite transaction. An unreadable log
+or damaged archive aborts refresh instead of replacing the recap with partial
+results. Preserve `spotify-wrapped/history.sqlite3` with device backups; this
+cannot recover listening records deleted before their first import or protect
+against loss of the entire device. Existing `data.tsv` snapshots remain valid.
+
 Playback logging defaults to enabled on the custom iPod build. Existing device
 configuration is explicitly migrated to `play log: on` during the physical
 deploy. Runtime data gathering remains enabled, so each finished track updates

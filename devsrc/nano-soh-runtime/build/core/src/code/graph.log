@@ -1,0 +1,31 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/graph.c: In function 'Graph_FaultClient':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/graph.c:49:19: warning: initialization of 'void *' from 'uintptr_t' {aka 'unsigned int'} makes pointer from integer without a cast [-Wint-conversion]
+   49 |     void* newFb = ((uintptr_t)SysCfb_GetFbPtr(0) != (uintptr_t)nextFb) ? SysCfb_GetFbPtr(0) : SysCfb_GetFbPtr(1);
+      |                   ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/graph.c: In function 'Graph_GetNextGameState':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:135:40: warning: passing argument 2 of 'LogUtils_LogThreadId' makes integer from pointer without a cast [-Wint-conversion]
+  135 |         LogUtils_LogThreadId(__FILE__, __FILE__);           \
+      |                                        ^~~~~~~~
+      |                                        |
+      |                                        char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:144:33: note: in expansion of macro 'LOG'
+  144 | #define LOG_ADDRESS(exp, value) LOG(exp, value, "%p")
+      |                                 ^~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/graph.c:147:5: note: in expansion of macro 'LOG_ADDRESS'
+  147 |     LOG_ADDRESS("game_init_func", gameStateInitFunc);
+      |     ^~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/graph.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:94:49: note: expected 's32' {aka 'long int'} but argument is of type 'char *'
+   94 | void LogUtils_LogThreadId(const char* name, s32 line);
+      |                                             ~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/graph.c: In function 'Graph_TaskSet00':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/graph.c:226:22: warning: assignment to 'u64 *' {aka 'long long unsigned int *'} from 'uintptr_t' {aka 'unsigned int'} makes pointer from integer without a cast [-Wint-conversion]
+  226 |     task->ucode_boot = SysUcode_GetUCodeBoot();
+      |                      ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/graph.c:228:17: warning: assignment to 'u64 *' {aka 'long long unsigned int *'} from 'uint32_t' {aka 'long unsigned int'} makes pointer from integer without a cast [-Wint-conversion]
+  228 |     task->ucode = SysUcode_GetUCode();
+      |                 ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/graph.c:229:22: warning: assignment to 'u64 *' {aka 'long long unsigned int *'} from 'uintptr_t' {aka 'unsigned int'} makes pointer from integer without a cast [-Wint-conversion]
+  229 |     task->ucode_data = SysUcode_GetUCodeData();
+      |                      ^

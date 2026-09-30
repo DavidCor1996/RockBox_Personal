@@ -1,0 +1,40 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/gfxprint.c: In function 'GfxPrint_PrintStringWithSize':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/gfxprint.c:289:28: warning: passing argument 3 of 'OTRGfxPrint' from incompatible pointer type [-Wincompatible-pointer-types]
+  289 |     OTRGfxPrint(str, this, GfxPrint_PrintCharImpl);
+      |                            ^~~~~~~~~~~~~~~~~~~~~~
+      |                            |
+      |                            void (*)(GfxPrint *, u8) {aka void (*)(GfxPrint *, unsigned char)}
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/gfxprint.c:4:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/OTRGlobals.h:88:57: note: expected 'void (*)(void *, char)' but argument is of type 'void (*)(GfxPrint *, u8)' {aka 'void (*)(GfxPrint *, unsigned char)'}
+   88 | void OTRGfxPrint(const char* str, void* printer, void (*printImpl)(void*, char));
+      |                                                  ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/gfxprint.c:227:6: note: 'GfxPrint_PrintCharImpl' declared here
+  227 | void GfxPrint_PrintCharImpl(GfxPrint* this, u8 c) {
+      |      ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/gfxprint.c: In function 'GfxPrint_PrintString':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/gfxprint.c:298:28: warning: passing argument 3 of 'OTRGfxPrint' from incompatible pointer type [-Wincompatible-pointer-types]
+  298 |     OTRGfxPrint(str, this, GfxPrint_PrintCharImpl);
+      |                            ^~~~~~~~~~~~~~~~~~~~~~
+      |                            |
+      |                            void (*)(GfxPrint *, u8) {aka void (*)(GfxPrint *, unsigned char)}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/OTRGlobals.h:88:57: note: expected 'void (*)(void *, char)' but argument is of type 'void (*)(GfxPrint *, u8)' {aka 'void (*)(GfxPrint *, unsigned char)'}
+   88 | void OTRGfxPrint(const char* str, void* printer, void (*printImpl)(void*, char));
+      |                                                  ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/gfxprint.c:227:6: note: 'GfxPrint_PrintCharImpl' declared here
+  227 | void GfxPrint_PrintCharImpl(GfxPrint* this, u8 c) {
+      |      ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/gfxprint.c: In function 'GfxPrint_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/gfxprint.c:315:20: warning: assignment to 'PrintCallback' {aka 'void * (*)(void *, const char *, long unsigned int)'} from incompatible pointer type 'void * (*)(void *, const char *, size_t)' {aka 'void * (*)(void *, const char *, unsigned int)'} [-Wincompatible-pointer-types]
+  315 |     this->callback = GfxPrint_Callback;
+      |                    ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/gfxprint.c:304:7: note: 'GfxPrint_Callback' declared here
+  304 | void* GfxPrint_Callback(void* arg, const char* str, size_t size) {
+      |       ^~~~~~~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/libultraship/include/libultraship/libultra.h:19,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64.h:4,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:4,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/gfxprint.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/libultraship/include/libultraship/libultra/printf.h:24:17: note: 'PrintCallback' declared here
+   24 | typedef void* (*PrintCallback)(void*, const char*, u32);
+      |                 ^~~~~~~~~~~~~

@@ -36,6 +36,13 @@
 #define IPOD6G_HIBERNATE_STAGE3 0
 #endif
 
+/* Post-wake tick/scheduler/ADC probes were useful while locating early
+ * resume boundaries, but they are not part of RetailOS normal execution.
+ * Production candidates compile them out completely. */
+#ifndef IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS
+#define IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS 0
+#endif
+
 #if IPOD6G_HIBERNATE_STAGE2 && !IPOD6G_HIBERNATE_STAGE1
 #error iPod 6G hibernate Stage 2 requires Stage 1
 #endif
@@ -78,7 +85,7 @@
 #define IPOD6G_HIBERNATE_RUNTIME_PROBE_ADDR \
         (IPOD6G_HIBERNATE_CONTROL_ADDR + 0x00000400)
 #define IPOD6G_HIBERNATE_RUNTIME_PROBE_MAGIC 0x48365052 /* "H6PR" */
-#define IPOD6G_HIBERNATE_RUNTIME_PROBE_VERSION 1
+#define IPOD6G_HIBERNATE_RUNTIME_PROBE_VERSION 2
 
 /* Stage 2 uses the upper half of the control page as a dedicated stack. */
 #define IPOD6G_HIBERNATE_PAYLOAD_STACK_BOTTOM \
@@ -94,13 +101,12 @@
 #define IPOD6G_HIBERNATE_APP_IRAM_TOP        0x0000c000
 
 /*
- * Keep the ordinary power-off wake mask unchanged.  An explicitly armed
- * retained-context test additionally enables the PMU's dedicated USB and
- * adapter insertion inputs.  The PCF50633 manual identifies these five bits
- * as independent Standby wake enables; EXTON2 is also the iPod's observed
- * USB-VBUS input.
+ * Match the RetailOS PMU policy exactly: ONKEY, EXTON1/2 rising, EXTON3
+ * falling, RTC alarm, USB and adapter insertion may all leave Standby.
+ * An enabled RTC wake source is inert until an alarm has been programmed.
+ * EXTON2 is also the iPod's observed USB-VBUS input.
  */
-#define IPOD6G_HIBERNATE_WAKE_MASK           0x000000c7
+#define IPOD6G_HIBERNATE_WAKE_MASK           0x000000df
 
 /*
  * OOCMODE bits 3:2 select EXTON2 behavior.  The PCF50633 manual defines
@@ -151,6 +157,7 @@
 #define IPOD6G_HIBERNATE_DIAG_STORAGE_IO_READY     0x48335334 /* "H3S4" */
 #define IPOD6G_HIBERNATE_DIAG_REQUEST_RETURNED     0x48335231 /* "H3R1" */
 #define IPOD6G_HIBERNATE_DIAG_REQUEST_FINISHED     0x48335232 /* "H3R2" */
+#define IPOD6G_HIBERNATE_DIAG_MEDIA_SERVICE_RESUMED 0x48334d52 /* "H3MR" */
 #define IPOD6G_HIBERNATE_DIAG_PMU_ADC_ENTER        0x48335031 /* "H3P1" */
 #define IPOD6G_HIBERNATE_DIAG_PMU_ADC_LOCKED       0x48335032 /* "H3P2" */
 #define IPOD6G_HIBERNATE_DIAG_PMU_ADC_STARTED      0x48335033 /* "H3P3" */
@@ -250,6 +257,30 @@ enum ipod6g_poweroff_mode
     IPOD6G_POWEROFF_RETAINED = 1,
 };
 
+/* Qualification-visible refusal boundaries for the normal long-Play path.
+ * These are not retained-record failures: they describe a transition that
+ * returned to the live application before Standby was entered. */
+enum ipod6g_hibernate_runtime_refusal
+{
+    IPOD6G_HIBERNATE_REFUSAL_NONE = 0,
+    IPOD6G_HIBERNATE_REFUSAL_BATTERY,
+    IPOD6G_HIBERNATE_REFUSAL_EXTERNAL_POWER,
+    IPOD6G_HIBERNATE_REFUSAL_AUDIO,
+    IPOD6G_HIBERNATE_REFUSAL_RECORDING,
+    IPOD6G_HIBERNATE_REFUSAL_USB,
+    IPOD6G_HIBERNATE_REFUSAL_PREPARE,
+    IPOD6G_HIBERNATE_REFUSAL_I2C,
+    IPOD6G_HIBERNATE_REFUSAL_STORAGE,
+    IPOD6G_HIBERNATE_REFUSAL_VIDEOOUT_SUSPEND,
+    IPOD6G_HIBERNATE_REFUSAL_ARM,
+    IPOD6G_HIBERNATE_REFUSAL_ENTRY_RETURNED,
+    IPOD6G_HIBERNATE_REFUSAL_DISPLAY,
+    IPOD6G_HIBERNATE_REFUSAL_TICK,
+    IPOD6G_HIBERNATE_REFUSAL_VIDEOOUT_RESUME,
+    IPOD6G_HIBERNATE_REFUSAL_CODEC_SAVE,
+    IPOD6G_HIBERNATE_REFUSAL_CODEC_RESTORE,
+};
+
 enum ipod6g_hibernate_capability
 {
     IPOD6G_HIBERNATE_CAP_RETENTION          = 1u << 0,
@@ -313,6 +344,8 @@ enum ipod6g_hibernate_failure
     IPOD6G_HIBERNATE_FAILURE_HARDWARE_RESUME = 17,
     IPOD6G_HIBERNATE_FAILURE_LCD_POLL = 18,
     IPOD6G_HIBERNATE_FAILURE_TICK_STALLED = 19,
+    IPOD6G_HIBERNATE_FAILURE_VIDEOOUT_RESTORE = 20,
+    IPOD6G_HIBERNATE_FAILURE_CODEC_RESTORE = 21,
 };
 
 struct ipod6g_hibernate_pmu_snapshot
@@ -373,6 +406,23 @@ struct ipod6g_hibernate_status
     uint32_t runtime_switch_next_id;
     uint32_t runtime_switch_tick;
     uint32_t runtime_switch_usec;
+    uint32_t runtime_switch_running;
+    uint32_t runtime_switch_current;
+    uint32_t runtime_switch_next;
+    uint32_t runtime_switch_rtr_head;
+    uint32_t runtime_switch_tmo_head;
+    uint32_t runtime_switch_next_tmo_check;
+    uint32_t runtime_switch_rtr_mask;
+    uint32_t runtime_switch_timeout_id;
+    uint32_t runtime_switch_timeout_tick;
+    uint32_t runtime_switch_timeout_state;
+    uint32_t runtime_switch_next_state;
+    uint32_t runtime_switch_next_priority;
+    uint32_t runtime_switch_next_context_sp;
+    uint32_t runtime_switch_next_context_lr;
+    uint32_t runtime_switch_next_context_start;
+    uint32_t runtime_switch_next_stack;
+    uint32_t runtime_switch_next_stack_size;
 };
 
 enum ipod6g_hibernate_tick_probe_stage
@@ -393,6 +443,32 @@ enum ipod6g_hibernate_switch_probe_stage
     IPOD6G_HIBERNATE_SWITCH_PROBE_TIMEOUT_RETURN = 4,
     IPOD6G_HIBERNATE_SWITCH_PROBE_THREAD_CHOSEN  = 5,
     IPOD6G_HIBERNATE_SWITCH_PROBE_CONTEXT_LOAD   = 6,
+    IPOD6G_HIBERNATE_SWITCH_PROBE_RUNQUEUE_READY = 7,
+    IPOD6G_HIBERNATE_SWITCH_PROBE_CANDIDATE      = 8,
+    IPOD6G_HIBERNATE_SWITCH_PROBE_SELECTED       = 9,
+    IPOD6G_HIBERNATE_SWITCH_PROBE_IDLE_ENTER     = 10,
+    IPOD6G_HIBERNATE_SWITCH_PROBE_IDLE_RETURN    = 11,
+};
+
+struct ipod6g_hibernate_scheduler_snapshot
+{
+    uint32_t running;
+    uint32_t current;
+    uint32_t next;
+    uint32_t rtr_head;
+    uint32_t tmo_head;
+    uint32_t next_tmo_check;
+    uint32_t rtr_mask;
+    uint32_t timeout_id;
+    uint32_t timeout_tick;
+    uint32_t timeout_state;
+    uint32_t next_state;
+    uint32_t next_priority;
+    uint32_t next_context_sp;
+    uint32_t next_context_lr;
+    uint32_t next_context_start;
+    uint32_t next_stack;
+    uint32_t next_stack_size;
 };
 
 struct ipod6g_hibernate_runtime_probe
@@ -412,6 +488,23 @@ struct ipod6g_hibernate_runtime_probe
     uint32_t switch_next_id;
     uint32_t switch_tick;
     uint32_t switch_usec;
+    uint32_t switch_running;
+    uint32_t switch_current;
+    uint32_t switch_next;
+    uint32_t switch_rtr_head;
+    uint32_t switch_tmo_head;
+    uint32_t switch_next_tmo_check;
+    uint32_t switch_rtr_mask;
+    uint32_t switch_timeout_id;
+    uint32_t switch_timeout_tick;
+    uint32_t switch_timeout_state;
+    uint32_t switch_next_state;
+    uint32_t switch_next_priority;
+    uint32_t switch_next_context_sp;
+    uint32_t switch_next_context_lr;
+    uint32_t switch_next_context_start;
+    uint32_t switch_next_stack;
+    uint32_t switch_next_stack_size;
 };
 
 struct ipod6g_hibernate_token
@@ -541,18 +634,33 @@ void ipod6g_hibernate_stage1_enter(void)
         __attribute__((noreturn));
 bool ipod6g_hibernate_stage3_enter(void);
 bool ipod6g_hibernate_stage3_suspend(uint32_t sequence);
+int ata_hibernate_suspend_begin(uint32_t sequence);
+void ata_hibernate_resume(void);
+void ata_hibernate_base_repaired(uint32_t sequence);
+void ata_hibernate_abort(uint32_t sequence);
+void ata_hibernate_event_commit(uint32_t sequence);
 void ipod6g_hibernate_set_poweroff_mode(
         enum ipod6g_poweroff_mode mode);
 bool ipod6g_hibernate_poweroff_should_defer(void);
 bool ipod6g_hibernate_poweroff_try(uint32_t sequence);
-#if IPOD6G_HIBERNATE_STAGE3
+enum ipod6g_hibernate_runtime_refusal
+        ipod6g_hibernate_poweroff_last_refusal(void);
+bool ipod6g_hibernate_rolo_capability_republished(void);
+#if IPOD6G_HIBERNATE_STAGE3 && IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS
 void ipod6g_hibernate_runtime_checkpoint(uint32_t breadcrumb);
 void ipod6g_hibernate_tick_probe_start(uint32_t tick);
 void ipod6g_hibernate_tick_probe_task(uint32_t tick, uint32_t index,
         const void *function, bool entering);
 void ipod6g_hibernate_tick_probe_complete(uint32_t tick, uint32_t count);
+bool ipod6g_hibernate_runtime_probe_active(void);
 void ipod6g_hibernate_switch_probe(uint32_t stage, uint32_t current_id,
-        uint32_t next_id);
+        uint32_t next_id,
+        const struct ipod6g_hibernate_scheduler_snapshot *snapshot);
+#elif IPOD6G_HIBERNATE_STAGE3
+static inline void ipod6g_hibernate_runtime_checkpoint(uint32_t breadcrumb)
+{
+    (void)breadcrumb;
+}
 #endif
 #else
 enum ipod6g_hibernate_boot_action

@@ -97,6 +97,21 @@ class MetadataEditor(QDialog):
             lbl.setTextInteractionFlags(Qt.TextSelectableByMouse)
             info_layout.addRow(f"{label}:", lbl)
 
+        if self._is_video:
+            provider_rating = self._track.get("external_rating") or 0
+            if provider_rating:
+                try:
+                    rating_text = f"{float(provider_rating):.1f}/10"
+                except (TypeError, ValueError):
+                    rating_text = str(provider_rating)
+                votes = self._track.get("external_rating_votes") or 0
+                if votes:
+                    rating_text += f" ({int(votes):,} votes)"
+                info_layout.addRow("Provider Rating:", QLabel(rating_text))
+            content_rating = str(self._track.get("content_rating") or "")
+            if content_rating:
+                info_layout.addRow("Content Rating:", QLabel(content_rating))
+
         # Duration and bitrate
         dur = self._track.get("duration", 0) or 0
         mins = int(dur) // 60

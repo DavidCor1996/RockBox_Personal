@@ -1,0 +1,16 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mizu_Shutter/z_bg_mizu_shutter.c:33:33: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   33 | static Gfx* sDisplayLists[] = { gObjectMizuObjectsShutterDL_007130, gObjectMizuObjectsShutterDL_0072D0 };
+      |                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mizu_Shutter/z_bg_mizu_shutter.c:33:33: note: (near initialization for 'sDisplayLists[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mizu_Shutter/z_bg_mizu_shutter.c:33:69: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   33 | static Gfx* sDisplayLists[] = { gObjectMizuObjectsShutterDL_007130, gObjectMizuObjectsShutterDL_0072D0 };
+      |                                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mizu_Shutter/z_bg_mizu_shutter.c:33:69: note: (near initialization for 'sDisplayLists[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mizu_Shutter/z_bg_mizu_shutter.c:36:5: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[71]' [-Wincompatible-pointer-types]
+   36 |     &gObjectMizuObjectsShutterCol_007250,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mizu_Shutter/z_bg_mizu_shutter.c:36:5: note: (near initialization for 'sCollisionHeaders[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mizu_Shutter/z_bg_mizu_shutter.c:37:5: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[71]' [-Wincompatible-pointer-types]
+   37 |     &gObjectMizuObjectsShutterCol_0073F0,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mizu_Shutter/z_bg_mizu_shutter.c:37:5: note: (near initialization for 'sCollisionHeaders[1]')

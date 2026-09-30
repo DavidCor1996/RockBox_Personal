@@ -1,0 +1,7 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/relocation.c: In function 'Overlay_Relocate':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/relocation.c:40:20: warning: assignment to 'uintptr_t *' {aka 'unsigned int *'} from incompatible pointer type 'u32 *' {aka 'long unsigned int *'} [-Wincompatible-pointer-types]
+   40 |         relocDataP = (u32*)(sections[reloc >> 0x1E] + (reloc & 0xFFFFFF));
+      |                    ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/relocation.c:72:55: warning: assignment to 'u32 *' {aka 'long unsigned int *'} from incompatible pointer type 'uintptr_t *' {aka 'unsigned int *'} [-Wincompatible-pointer-types]
+   72 |                 luiRefs[(*relocDataP >> 0x10) & 0x1F] = relocDataP;
+      |                                                       ^

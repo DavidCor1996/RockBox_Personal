@@ -5,6 +5,7 @@
 
 #include "plugin.h"
 #include "lib/pluginlib_actions.h"
+#include "lib/video_player.h"
 
 #if !defined(HAVE_LCD_COLOR) || LCD_WIDTH < 320 || LCD_HEIGHT < 240
 #error The Reddit application requires a 320x240 colour display
@@ -14,7 +15,6 @@
 #define RD_LIBRARY       RD_ROOT "/library.tsv"
 #define RD_SUBREDDITS    RD_ROOT "/subreddits.tsv"
 #define RD_LOGO          RD_ROOT "/assets/reddit-logo.bmp"
-#define RD_PLAYER        VIEWERS_DIR "/mpegplayer.rock"
 #define RD_PREFIX        "reddit-app:"
 #define RD_MAX_POSTS     96
 #define RD_MAX_SUBS      24
@@ -281,7 +281,7 @@ static void rd_open_post(void)
     if (!rb->strcmp(p->type, "video") && p->media[0]) {
         char parameter[MAX_PATH + sizeof(RD_PREFIX)];
         rb->snprintf(parameter, sizeof(parameter), RD_PREFIX "%s", p->media);
-        rb->plugin_open(RD_PLAYER, parameter);
+        rb->plugin_open(plugin_video_player_for(p->media), parameter);
     } else if (!rb->strcmp(p->type, "photo") && p->display[0]) {
         viewer_loaded = rd_bmp(p->display, &viewer_bm, viewer_pixels, sizeof(viewer_pixels));
         rd_draw_viewer();

@@ -1,0 +1,46 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mjin/z_bg_mjin.c:52:30: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   52 | void* gPedestalEmblems[] = { gLightMedallionPlatformTex, gShadowMedallionPlatformTex, gFireMedallionPlatformTex,
+      |                              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mjin/z_bg_mjin.c:52:58: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   52 | void* gPedestalEmblems[] = { gLightMedallionPlatformTex, gShadowMedallionPlatformTex, gFireMedallionPlatformTex,
+      |                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mjin/z_bg_mjin.c:52:87: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   52 | void* gPedestalEmblems[] = { gLightMedallionPlatformTex, gShadowMedallionPlatformTex, gFireMedallionPlatformTex,
+      |                                                                                       ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mjin/z_bg_mjin.c:53:30: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   53 |                              gWaterMedallionPlatformTex, gSpiritMedallionPlatformTex, gForestMedallionPlatformTex };
+      |                              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mjin/z_bg_mjin.c:53:58: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   53 |                              gWaterMedallionPlatformTex, gSpiritMedallionPlatformTex, gForestMedallionPlatformTex };
+      |                                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mjin/z_bg_mjin.c:53:87: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   53 |                              gWaterMedallionPlatformTex, gSpiritMedallionPlatformTex, gForestMedallionPlatformTex };
+      |                                                                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mjin/z_bg_mjin.c: In function 'func_808A0850':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mjin/z_bg_mjin.c:89:65: warning: pointer type mismatch in conditional expression [-Wincompatible-pointer-types]
+   89 |         collision = this->dyna.actor.params != 0 ? &gWarpPadCol : &gOcarinaWarpPadCol;
+      |                                                                 ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mjin/z_bg_mjin.c:89:52: note: first expression has type 'const char (*)[39]'
+   89 |         collision = this->dyna.actor.params != 0 ? &gWarpPadCol : &gOcarinaWarpPadCol;
+      |                                                    ^~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mjin/z_bg_mjin.c:89:67: note: second expression has type 'const char (*)[50]'
+   89 |         collision = this->dyna.actor.params != 0 ? &gWarpPadCol : &gOcarinaWarpPadCol;
+      |                                                                   ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mjin/z_bg_mjin.c: In function 'BgMjin_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mjin/z_bg_mjin.c:119:59: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  119 |         gSPSegment(POLY_OPA_DISP++, 0x08, gPedestalEmblems[thisx->params - 1]);
+      |                                           ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+      |                                                           |
+      |                                                           void *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mjin/z_bg_mjin.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mjin/z_bg_mjin.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mjin/z_bg_mjin.c:120:15: warning: assignment to 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  120 |         dlist = gWarpPadBaseDL;
+      |               ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Mjin/z_bg_mjin.c:122:15: warning: assignment to 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+  122 |         dlist = gOcarinaWarpPadDL;
+      |               ^

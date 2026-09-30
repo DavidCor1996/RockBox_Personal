@@ -19,6 +19,7 @@
 
 #include "plugin.h"
 #include "lib/pluginlib_actions.h"
+#include "lib/video_player.h"
 
 #if !defined(HAVE_LCD_COLOR) || LCD_WIDTH < 320 || LCD_HEIGHT < 240
 #error The YouTube application requires a 320x240 colour display
@@ -34,8 +35,8 @@
 #define YT_LOGO             YT_ASSET_ROOT "/youtube-logo-2006.bmp"
 #define YT_STARS            YT_ASSET_ROOT "/youtube-stars-5-2007.bmp"
 #define YT_STARS_ACTIVE     YT_ASSET_ROOT "/youtube-stars-active-2007.bmp"
-#define YT_PLAYER           VIEWERS_DIR "/mpegplayer.rock"
 #define YT_PLAYER_PREFIX    "youtube-app:"
+#define YT_LIVE_PLAYER_PREFIX "youtube-live:"
 
 #define YT_MAX_VIDEOS       96
 #define YT_LINE_SIZE        1024
@@ -88,6 +89,7 @@ enum yt_page
 {
     YT_PAGE_HOME = 0,
     YT_PAGE_VIDEOS,
+    YT_PAGE_LIVE,
     YT_PAGE_SUBSCRIPTIONS,
     YT_PAGE_PROFILE,
     YT_PAGE_COUNT,
@@ -127,10 +129,12 @@ struct yt_video
     int home_order;
     int my_rating;
     unsigned long resume_seconds;
+    unsigned long live_start_epoch;
     bool show_home;
     bool show_profile;
     bool subscription;
     bool favorite;
+    bool is_live;
 };
 
 struct yt_profile
@@ -167,11 +171,13 @@ static struct yt_profile profile;
 static int home_indices[YT_MAX_VIDEOS];
 static int profile_indices[YT_MAX_VIDEOS];
 static int video_indices[YT_MAX_VIDEOS];
+static int live_indices[YT_MAX_VIDEOS];
 static int subscription_indices[YT_MAX_VIDEOS];
 static int video_count;
 static int home_count;
 static int profile_count;
 static int filtered_video_count;
+static int live_count;
 static int subscription_count;
 static enum yt_video_filter video_filter;
 static enum yt_video_filter saved_video_filter;
@@ -326,11 +332,14 @@ static void yt_build_indices(void)
     home_count = 0;
     profile_count = 0;
     filtered_video_count = 0;
+    live_count = 0;
     subscription_count = 0;
     for (i = 0; i < video_count; i++)
     {
         if (videos[i].show_home)
             home_indices[home_count++] = i;
+        if (videos[i].is_live)
+            live_indices[live_count++] = i;
         if (videos[i].show_profile && !videos[i].subscription)
             profile_indices[profile_count++] = i;
         if (videos[i].subscription)
@@ -366,6 +375,7 @@ static void yt_build_indices(void)
                 video_indices[filtered_video_count++] = i;
     }
     yt_sort_video_indices(video_indices, filtered_video_count);
+    yt_sort_video_indices(live_indices, live_count);
 }
 
 static bool yt_load_library(void)
@@ -379,7 +389,7 @@ static bool yt_load_library(void)
     while (video_count < YT_MAX_VIDEOS &&
            rb->read_line(fd, line, sizeof(line)) > 0)
     {
-        char *fields[19];
+        char *fields[23];
         struct yt_video *video;
         int count;
 
@@ -414,6 +424,9 @@ static bool yt_load_library(void)
         video->my_rating = rb->atoi(fields[17]);
         video->subscription = count > 18 &&
                               !rb->strcmp(fields[18], "youtube-channel");
+        video->is_live = count > 20 && fields[20][0] == '1';
+        video->live_start_epoch = count > 21 ?
+            rb->strtoul(fields[21], NULL, 10) : 0;
         video_count++;
     }
     rb->close(fd);
@@ -550,6 +563,8 @@ static void yt_load_resume_positions(void)
 
         for (i = 0; i < video_count; i++)
         {
+            if (videos[i].is_live)
+                continue;
             if (!rb->strcmp(videos[i].video_path, name))
             {
                 long ticks = rb->strtol(value, NULL, 10);
@@ -713,11 +728,11 @@ static void yt_draw_stars(int x, int y, int rating_x100)
 static void yt_draw_header(void)
 {
     static const char * const tabs[] = {
-        "Home", "Videos", "Subscriptions", "Profile"
+        "Home", "Videos", "Live", "Subs", "Profile"
     };
     int i;
-    int tab_x[] = { 110, 141, 190, 273 };
-    int tab_w[] = { 30, 36, 78, 42 };
+    int tab_x[] = { 108, 140, 184, 216, 271 };
+    int tab_w[] = { 30, 36, 24, 30, 42 };
 
     /* The native iPodJS menu and other plugins may leave a masked draw mode
      * active.  This application owns the whole LCD while it is running, so
@@ -745,6 +760,8 @@ static int yt_page_count(enum yt_page page)
         return home_count;
     if (page == YT_PAGE_SUBSCRIPTIONS)
         return subscription_count;
+    if (page == YT_PAGE_LIVE)
+        return live_count;
     if (page == YT_PAGE_PROFILE)
         return profile.show_videos ? profile_count : 0;
     return filtered_video_count;
@@ -758,6 +775,9 @@ static int yt_page_video(enum yt_page page, int selected)
     if (page == YT_PAGE_SUBSCRIPTIONS)
         return selected >= 0 && selected < subscription_count ?
                subscription_indices[selected] : -1;
+    if (page == YT_PAGE_LIVE)
+        return selected >= 0 && selected < live_count ?
+               live_indices[selected] : -1;
     if (page == YT_PAGE_PROFILE)
         return profile.show_videos && selected >= 0 &&
                selected < profile_count ?
@@ -783,16 +803,6 @@ static void yt_cycle_filter(void)
     video_filter = (video_filter + 1) % YT_FILTER_RELATED;
     yt_build_indices();
     selection[YT_PAGE_VIDEOS] = 0;
-}
-
-static int yt_video_position(int video_index)
-{
-    int i;
-
-    for (i = 0; i < filtered_video_count; i++)
-        if (video_indices[i] == video_index)
-            return i;
-    return 0;
 }
 
 static void yt_draw_empty(const char *title, const char *line1,
@@ -865,6 +875,15 @@ static void yt_draw_video_row(int video_index, int row, bool selected)
         rb->lcd_drawrect(8, y + 3, YT_THUMB_W, YT_THUMB_H);
         rb->lcd_putsxy(24, y + 32, "No image");
     }
+    if (video->is_live)
+    {
+        rb->lcd_set_background(YT_RED);
+        rb->lcd_set_foreground(YT_RED);
+        rb->lcd_fillrect(12, y + 55, 34, 15);
+        rb->lcd_set_foreground(LCD_WHITE);
+        rb->lcd_putsxy(15, y + 58, "LIVE");
+        rb->lcd_set_background(background);
+    }
     rb->lcd_set_foreground(link_color);
     yt_puts_fit(110, y + 5, 199, video->title);
     rb->lcd_set_foreground(text_color);
@@ -873,7 +892,9 @@ static void yt_draw_video_row(int video_index, int row, bool selected)
     yt_draw_stars(110, y + 37, video->rating_x100);
     rb->lcd_set_foreground(YT_DARK_GRAY);
     yt_puts_fit(184, y + 39, 125, video->views);
-    if (video->resume_seconds > 0)
+    if (video->is_live)
+        rb->snprintf(line, sizeof(line), "LIVE NOW  %s", video->uploader);
+    else if (video->resume_seconds > 0)
         rb->snprintf(line, sizeof(line), "Resume %lu:%02lu  %s",
                      video->resume_seconds / 60,
                      video->resume_seconds % 60, video->duration);
@@ -1124,6 +1145,10 @@ static void yt_draw_browser(void)
             yt_draw_empty("No Favorites Yet",
                           "Open a video and choose Favorite.",
                           "Hold SELECT to change the view.");
+        else if (current_page == YT_PAGE_LIVE)
+            yt_draw_empty("Nothing Live Now",
+                          "Add a live video in RockPod",
+                          "then sync it to this iPod.");
         else
             yt_draw_empty(current_page == YT_PAGE_HOME ?
                           "No Videos Synced" :
@@ -1137,7 +1162,9 @@ static void yt_draw_browser(void)
     yt_draw_video_list(current_page == YT_PAGE_HOME ?
                        "Featured Videos" :
                        current_page == YT_PAGE_SUBSCRIPTIONS ?
-                       "Subscription Uploads" : "Videos",
+                       "Subscription Uploads" :
+                       current_page == YT_PAGE_LIVE ?
+                       "Live Now" : "Videos",
                        selection[current_page], count);
     rb->lcd_update();
 }
@@ -1193,18 +1220,31 @@ static void yt_draw_detail(void)
     rb->lcd_set_foreground(YT_DARK_GRAY);
     yt_puts_fit(184, 106, 128, line);
     yt_puts_fit(111, 123, 200, video->views);
+    if (video->is_live)
+    {
+        rb->lcd_set_background(YT_RED);
+        rb->lcd_set_foreground(YT_RED);
+        rb->lcd_fillrect(111, 123, 38, 15);
+        rb->lcd_set_foreground(LCD_WHITE);
+        rb->lcd_putsxy(115, 126, "LIVE");
+        rb->lcd_set_background(LCD_WHITE);
+    }
 
     rb->lcd_set_foreground(YT_LIGHT_BLUE);
     rb->lcd_fillrect(6, 145, LCD_WIDTH - 12, 48);
     rb->lcd_set_foreground(YT_BLUE_BORDER);
     rb->lcd_drawrect(6, 145, LCD_WIDTH - 12, 48);
     rb->lcd_set_foreground(LCD_BLACK);
-    rb->snprintf(line, sizeof(line), "Added: %s  %s", video->upload_date,
-                 video->category);
+    if (video->is_live)
+        rb->snprintf(line, sizeof(line), "LIVE NOW  from %s", video->uploader);
+    else
+        rb->snprintf(line, sizeof(line), "Added: %s  %s", video->upload_date,
+                     video->category);
     yt_puts_fit(11, 151, LCD_WIDTH - 22, line);
     yt_puts_fit(11, 169, LCD_WIDTH - 22, video->description);
 
     yt_draw_button(4, 200, 76,
+                   video->is_live ? "Watch Live" :
                    video->resume_seconds > 0 ? "Resume" : "Watch",
                    detail_action == 0);
     yt_draw_button(83, 200, 76,
@@ -1290,19 +1330,56 @@ static int yt_find_by_path(const char *path)
     return -1;
 }
 
+static bool yt_resolve_video_path(const char *path, char *resolved,
+                                 size_t resolved_size)
+{
+    char base[MAX_PATH];
+    char *dot;
+    static const char *exts[] = {".mpg", ".m4v", ".m4a", ".mp4", ".mov", NULL};
+    size_t i;
+
+    rb->strlcpy(base, path, sizeof(base));
+    rb->strlcpy(resolved, path, resolved_size);
+
+    if (rb->file_exists(resolved))
+        return true;
+
+    dot = rb->strrchr(base, '.');
+    if (dot == NULL)
+        return false;
+
+    for (i = 0; exts[i] != NULL; i++)
+    {
+        if (!rb->strcasecmp(dot, exts[i]))
+            continue;
+        rb->strcpy(dot, exts[i]);
+        rb->strlcpy(resolved, base, resolved_size);
+        if (rb->file_exists(resolved))
+            return true;
+    }
+
+    return false;
+}
+
 static enum plugin_status yt_play_video(void)
 {
     static char launch[MAX_PATH + 24];
+    char path[MAX_PATH];
     struct yt_video *video = &videos[detail_video];
 
-    if (!rb->file_exists(video->video_path))
+    if (!yt_resolve_video_path(video->video_path, path, sizeof(path)))
     {
         rb->splash(HZ * 2, "Video Not Found");
         return PLUGIN_OK;
     }
-    rb->snprintf(launch, sizeof(launch), "%s%s", YT_PLAYER_PREFIX,
-                 video->video_path);
-    return rb->plugin_open(YT_PLAYER, launch);
+    if (video->is_live)
+        rb->snprintf(launch, sizeof(launch), "%s%lu:%s",
+                     YT_LIVE_PLAYER_PREFIX, video->live_start_epoch,
+                     path);
+    else
+        rb->snprintf(launch, sizeof(launch), "%s%s", YT_PLAYER_PREFIX,
+                     path);
+    return rb->plugin_open(plugin_video_player_for(path), launch);
 }
 
 static enum plugin_status yt_activate(void)
@@ -1399,6 +1476,7 @@ enum plugin_status plugin_start(const void *parameter)
     current_screen = YT_SCREEN_BROWSER;
     selection[YT_PAGE_HOME] = 0;
     selection[YT_PAGE_VIDEOS] = 0;
+    selection[YT_PAGE_LIVE] = 0;
     selection[YT_PAGE_SUBSCRIPTIONS] = 0;
     selection[YT_PAGE_PROFILE] = 0;
     profile_focus = 0;
@@ -1412,22 +1490,21 @@ enum plugin_status plugin_start(const void *parameter)
         if (detail_video >= 0)
         {
             current_screen = YT_SCREEN_DETAIL;
-            current_page = videos[detail_video].subscription ?
+            current_page = videos[detail_video].is_live ? YT_PAGE_LIVE :
+                           videos[detail_video].subscription ?
                            YT_PAGE_SUBSCRIPTIONS : YT_PAGE_VIDEOS;
-            if (current_page == YT_PAGE_SUBSCRIPTIONS)
             {
                 int i;
+                int count = yt_page_count(current_page);
 
                 selection[current_page] = 0;
-                for (i = 0; i < subscription_count; i++)
-                    if (subscription_indices[i] == detail_video)
+                for (i = 0; i < count; i++)
+                    if (yt_page_video(current_page, i) == detail_video)
                     {
                         selection[current_page] = i;
                         break;
                     }
             }
-            else
-                selection[current_page] = yt_video_position(detail_video);
             returned = true;
         }
     }
@@ -1444,7 +1521,7 @@ enum plugin_status plugin_start(const void *parameter)
             yt_draw();
             redraw = false;
         }
-        action = pluginlib_getaction(HZ / 5, plugin_contexts,
+        action = pluginlib_getaction_remote(HZ / 5, plugin_contexts,
                                      ARRAYLEN(plugin_contexts));
         switch (action)
         {
@@ -1565,6 +1642,9 @@ enum plugin_status plugin_start(const void *parameter)
             redraw = true;
             break;
         }
+        case ACTION_STD_MENU:
+            running = false;
+            break;
         case PLA_CANCEL:
             if (current_screen == YT_SCREEN_DETAIL)
             {

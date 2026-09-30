@@ -661,31 +661,31 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0xaf5a
+.debug_info     0x0000000000000000     0xaf40
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x20b1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/wavpack_enc.o
- .debug_info    0x00000000000020b1      0xed9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
- .debug_info    0x0000000000002f8a     0x1398 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
- .debug_info    0x0000000000004322      0x44a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(bits.o)
- .debug_info    0x000000000000476c     0x16dc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
- .debug_info    0x0000000000005e48     0x16c4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(pack.o)
- .debug_info    0x000000000000750c     0x1450 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(words.o)
- .debug_info    0x000000000000895c      0x599 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(float.o)
- .debug_info    0x0000000000008ef5      0xa24 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
- .debug_info    0x0000000000009919     0x1641 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_info    0x0000000000000000     0x20a4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/wavpack_enc.o
+ .debug_info    0x00000000000020a4      0xed9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_info    0x0000000000002f7d     0x1398 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+ .debug_info    0x0000000000004315      0x44a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(bits.o)
+ .debug_info    0x000000000000475f     0x16dc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+ .debug_info    0x0000000000005e3b     0x16c4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(pack.o)
+ .debug_info    0x00000000000074ff     0x1450 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(words.o)
+ .debug_info    0x000000000000894f      0x599 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(float.o)
+ .debug_info    0x0000000000008ee8      0xa24 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+ .debug_info    0x000000000000990c     0x1634 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
-.debug_abbrev   0x0000000000000000     0x20f7
+.debug_abbrev   0x0000000000000000     0x20d9
  *(.debug_abbrev)
- .debug_abbrev  0x0000000000000000      0x559 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/wavpack_enc.o
- .debug_abbrev  0x0000000000000559      0x287 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
- .debug_abbrev  0x00000000000007e0      0x405 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
- .debug_abbrev  0x0000000000000be5      0x203 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(bits.o)
- .debug_abbrev  0x0000000000000de8      0x414 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
- .debug_abbrev  0x00000000000011fc      0x44e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(pack.o)
- .debug_abbrev  0x000000000000164a      0x3d9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(words.o)
- .debug_abbrev  0x0000000000001a23      0x165 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(float.o)
- .debug_abbrev  0x0000000000001b88      0x214 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
- .debug_abbrev  0x0000000000001d9c      0x35b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_abbrev  0x0000000000000000      0x54a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/wavpack_enc.o
+ .debug_abbrev  0x000000000000054a      0x287 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_abbrev  0x00000000000007d1      0x405 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+ .debug_abbrev  0x0000000000000bd6      0x203 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(bits.o)
+ .debug_abbrev  0x0000000000000dd9      0x414 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+ .debug_abbrev  0x00000000000011ed      0x44e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(pack.o)
+ .debug_abbrev  0x000000000000163b      0x3d9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(words.o)
+ .debug_abbrev  0x0000000000001a14      0x165 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(float.o)
+ .debug_abbrev  0x0000000000001b79      0x214 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+ .debug_abbrev  0x0000000000001d8d      0x34c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
 .debug_line     0x0000000000000000     0x4d6d
  *(.debug_line .debug_line.* .debug_line_end)
@@ -706,7 +706,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_str      0x0000000000000000     0x1caa
  *(.debug_str)
  .debug_str     0x0000000000000000     0x1caa /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/wavpack_enc.o
-                                       0x14a3 (size before relaxing)
+                                       0x1498 (size before relaxing)
  .debug_str     0x0000000000001caa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
                                         0xcbf (size before relaxing)
  .debug_str     0x0000000000001caa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
@@ -724,7 +724,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  .debug_str     0x0000000000001caa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
                                         0x658 (size before relaxing)
  .debug_str     0x0000000000001caa        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
-                                        0xedb (size before relaxing)
+                                        0xed0 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)
@@ -754,37 +754,37 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000      0x628
+                0x0000000000000000      0x631
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000      0x628 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/wavpack_enc.o
+                0x0000000000000000      0x631 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/wavpack_enc.o
                                         0x32c (size before relaxing)
  .debug_line_str
-                0x0000000000000628        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
+                0x0000000000000631        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
                                         0x260 (size before relaxing)
  .debug_line_str
-                0x0000000000000628        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
+                0x0000000000000631        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(wputils.o)
                                         0x223 (size before relaxing)
  .debug_line_str
-                0x0000000000000628        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(bits.o)
+                0x0000000000000631        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(bits.o)
                                         0x182 (size before relaxing)
  .debug_line_str
-                0x0000000000000628        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
+                0x0000000000000631        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(unpack.o)
                                         0x191 (size before relaxing)
  .debug_line_str
-                0x0000000000000628        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(pack.o)
+                0x0000000000000631        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(pack.o)
                                         0x21a (size before relaxing)
  .debug_line_str
-                0x0000000000000628        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(words.o)
+                0x0000000000000631        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(words.o)
                                         0x21d (size before relaxing)
  .debug_line_str
-                0x0000000000000628        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(float.o)
+                0x0000000000000631        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(float.o)
                                         0x16f (size before relaxing)
  .debug_line_str
-                0x0000000000000628        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
+                0x0000000000000631        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libwavpack.a(metadata.o)
                                         0x18e (size before relaxing)
  .debug_line_str
-                0x0000000000000628        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000000000631        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
                                         0x328 (size before relaxing)
 
 .debug_loclists

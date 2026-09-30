@@ -76,6 +76,50 @@ Current engine state:
   `USE`/`GIVE` item-on-object command dispatch, applies `.DOG` post-dialog
   inventory/cutaway triggers, follows bounded cutaway/dialog handoff chains,
   and hands cutaway `.DOG` talk files back to the dialog path.
+- `agds`/`nibiru`: recognizes a NiBiRu descriptor and performs bounded,
+  allocation-free validation of `data.adb` plus the archives listed by
+  `agds.cfg`, including encrypted AGDS group indexes. It inventories picture,
+  audio, and video members without extracting or bundling game assets. The
+  native bootstrap validates AGDS 2.509 objects and opcode base 2217, follows
+  retail `main.1008` string paths through encrypted ADB text to both authentic
+  startup logos and then resolves the authentic main-menu background. It
+  scales directly from NiBiRu's 1024x768 mode to the full 320x240 framebuffer
+  without a source-sized surface, and maps the retail menu hit regions through
+  the exact 5:16 transform. Retail selector overlays are composed at their
+  script coordinates, and New Game composes room 1864's 1024x640 backdrop and
+  keyed desk foreground at their retail canvas positions. Selector hover and
+  activation now come from the retail polygon mouse areas and embedded `OnUse`
+  block, not a coordinate switch. That handler runs `1009.1067` and `107a`,
+  then the VM consumes the original `SetNextScreen("1864")` request while
+  preserving globals. A bounded 2.509 scheduler executes that room's real
+  object/process tree. The Martin process
+  drives a direct-owned sparse RGB565 stream rendered at an exact 24 fps from
+  its original mesh, skeleton, chair/handset tracks, textures, and cameras; it
+  is not a screen capture. Version 3 intro streams advance one authored
+  phase per 24 Hz update, rather than treating the exporter's 150-unit key
+  spacing as milliseconds. Speaking clips are selected and restarted by
+  InsertAnimation, with independent full keyframes at each clip boundary.
+  `tools/nibiru_retime_owned_scene.py` converts an existing owned v2 raster
+  stream, preserving its RGB565 poses; the current shared model renderer's
+  fresh intro output still fails the seated-projection gate and must not
+  silently replace those validated poses. Voiced dialogue waits for its final
+  queued PCM block; unvoiced/missing samples retain the subtitle timer and
+  clicking still skips speech. Run `tools/nibiru_sim_gate.py --game-dir PATH
+  --expect-phone-timing --headless` to check all 15 natural phone lines using
+  the simulator's clocked PCM sink. Physical iPod timing still needs validation.
+  The personal builder follows the retail executable's
+  direct four-influence bone-index layout, clamps animation load to its first
+  authored pose, and rejects torn skin, changed seated projection bounds,
+  missing chair travel, or pixels outside room 1864's y=696 scissor. Original AGDS
+  sample events feed a bounded PCM mixer, including private PCM sidecars for
+  compressed owned samples. The retail inventory bootstrap now retains all six
+  authored atlas descriptors, executes item objects outside the room object
+  list, and draws the exact y=696 strip, glossy arrows, wallet and cellphone at
+  the 5:16 output scale. Item object IDs, look/use handlers and keyed
+  `OnUseObject` routes survive the bounded save/load round-trip. General
+  pointer/click dispatch and a tested retail progression through room 10e6 are
+  active; broader room actions and the complete item-use matrix remain, so the
+  engine is not advertised in Desktop Mode as playable.
 
 The shell owns the screen/input loop and provides the boundary where the full
 trimmed engine loop is being connected. Sky still needs native AdLib/GM/MT-32

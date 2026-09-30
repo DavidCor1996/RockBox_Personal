@@ -29,9 +29,17 @@ bool root_menu_videos_browser_active(void);
 bool root_menu_ipodjs_native_screen_active(void);
 bool root_menu_ipodjs_handle_lockscreen(void);
 #ifdef HAVE_IPODJS_UI
+void root_menu_ipodjs_prepare_wps_fonts(void);
 void root_menu_ipodjs_enter_wps_frame(void);
 void root_menu_ipodjs_leave_wps_frame(void);
 void root_menu_ipodjs_draw_wps_frame(void);
+void root_menu_ipodjs_wps_select(void);
+bool root_menu_ipodjs_wps_scrubbing(void);
+bool root_menu_ipodjs_wps_adjust_page(int delta);
+#ifdef IPOD_6G
+void root_menu_ipodjs_wps_input_trace(int action, int raw);
+#endif
+bool root_menu_ipodjs_wps_adjust_rating(int delta);
 #ifdef HAVE_TAGCACHE
 bool root_menu_ipodjs_search_available(void);
 int root_menu_ipodjs_search(void);

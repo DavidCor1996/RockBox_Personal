@@ -34,6 +34,12 @@
 #include "panic.h"
 #include "lcd.h"
 #include "usb.h"
+#ifdef HAVE_USB_HOST_ROLE_PROBE
+#include "usb_host_probe.h"
+#include "file.h"
+#include "rbpaths.h"
+#include <stdio.h>
+#endif
 #include "button.h"
 #include "string.h"
 #ifdef HAVE_USBSTACK
@@ -104,6 +110,90 @@ static int usb_audio = 0;
 #endif
 #ifdef USB_ENABLE_IPHETH_HOST
 static bool iphone_host_active = false;
+#endif
+#ifdef HAVE_USB_HOST_ROLE_PROBE
+static struct mutex host_probe_lock;
+static struct usb_probe_report host_probe_report;
+static volatile bool host_probe_cancelled;
+static bool host_probe_restore_failed;
+
+bool usb_host_probe_request(void)
+{
+    bool accepted;
+    mutex_lock(&host_probe_lock);
+    accepted = host_probe_report.result != USB_PROBE_RUNNING;
+    if (accepted)
+    {
+        memset(&host_probe_report, 0, sizeof(host_probe_report));
+        host_probe_report.result = USB_PROBE_RUNNING;
+        host_probe_cancelled = false;
+        queue_post(&usb_queue, USB_HOST_PROBE_REQUEST, 0);
+    }
+    mutex_unlock(&host_probe_lock);
+    return accepted;
+}
+void usb_host_probe_cancel(void)
+{
+    host_probe_cancelled = true;
+}
+void usb_host_probe_snapshot(struct usb_probe_report *report)
+{
+    mutex_lock(&host_probe_lock);
+    *report = host_probe_report;
+    mutex_unlock(&host_probe_lock);
+}
+static void usb_host_probe_worker(void)
+{
+    struct usb_probe_report report = {
+        .result = USB_PROBE_REFUSED, .operation_result = USB_PROBE_REFUSED
+    };
+    /* This runs on the USB event owner. Never take over an active DEVICE
+     * session, outstanding storage handoff, or the existing host experiment. */
+    if (host_probe_cancelled)
+        report.result = report.operation_result = USB_PROBE_CANCELLED;
+    else if (usb_state == USB_EXTRACTED && usb_detect() == USB_EXTRACTED &&
+        !exclusive_storage_enabled && !exclusive_storage_requested &&
+        !host_probe_restore_failed
+#ifdef USB_ENABLE_IPHETH_HOST
+        && usb_iphone_tether_state() == USB_IPHONE_OFF
+#endif
+       )
+    {
+        usb_host_probe_target_run(&report, &host_probe_cancelled);
+        host_probe_restore_failed = !report.restored;
+    }
+    /* Refused requests can arrive after USB storage ownership changes.
+     * Never write a diagnostic log while the computer owns the filesystem. */
+    report.log_skipped = usb_state != USB_EXTRACTED ||
+                         exclusive_storage_enabled || exclusive_storage_requested;
+    int fd = -1;
+    if (!report.log_skipped)
+        fd = open(ROCKBOX_DIR "/usb-role-probe.log",
+                  O_WRONLY | O_CREAT | O_APPEND, 0666);
+    if (fd >= 0)
+    {
+        char line[320];
+        int length = snprintf(line, sizeof(line),
+                 "phase=2A tick=%ld result=%d operation=%d "
+                 "id=%08lx hw=%08lx before=%08lx host=%08lx after=%08lx "
+                 "port=%08lx host_seen=%d connected=%d restored=%d ms=%lu\n",
+                 current_tick, report.result, report.operation_result,
+                 (unsigned long)report.core_id, (unsigned long)report.hardware,
+                 (unsigned long)report.before, (unsigned long)report.host,
+                 (unsigned long)report.after, (unsigned long)report.port,
+                 report.host_seen, report.connected_seen, report.restored,
+                 (unsigned long)report.elapsed_ms);
+        report.log_saved = length > 0 && (size_t)length < sizeof(line) &&
+                           write(fd, line, length) == length;
+        if (fsync(fd) < 0)
+            report.log_saved = false;
+        if (close(fd) < 0)
+            report.log_saved = false;
+    }
+    mutex_lock(&host_probe_lock);
+    host_probe_report = report;
+    mutex_unlock(&host_probe_lock);
+}
 #endif
 static bool usb_host_present = false;
 static int usb_num_acks_to_expect = 0;
@@ -469,6 +559,11 @@ static void NORETURN_ATTR usb_thread(void)
         switch(ev.id)
         {
         /*** Main USB thread duties ***/
+#ifdef HAVE_USB_HOST_ROLE_PROBE
+        case USB_HOST_PROBE_REQUEST:
+            usb_host_probe_worker();
+            break;
+#endif
 
 #ifdef HAVE_USBSTACK
         case USB_NOTIFY_SET_ADDR:
@@ -494,6 +589,12 @@ static void NORETURN_ATTR usb_thread(void)
 #endif /* HAVE_USBSTACK */
 
         case USB_INSERTED:
+#ifdef HAVE_USB_HOST_ROLE_PROBE
+            if (host_probe_restore_failed)
+                break; /* Reboot required after unverified role restoration. */
+            if (usb_detect() != USB_INSERTED)
+                break; /* A cable edge queued during the probe is stale. */
+#endif
             if(usb_state != USB_EXTRACTED)
                 break;
 
@@ -772,6 +873,9 @@ void usb_init(void)
     usb_enable(false);
 
     queue_init(&usb_queue, true);
+#ifdef HAVE_USB_HOST_ROLE_PROBE
+    mutex_init(&host_probe_lock);
+#endif
 
     usb_thread_entry = create_thread(usb_thread, usb_stack,
                        sizeof(usb_stack), 0, usb_thread_name

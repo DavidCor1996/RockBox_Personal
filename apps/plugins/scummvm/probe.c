@@ -16,6 +16,7 @@
  ****************************************************************************/
 
 #include "probe.h"
+#include "agds_loader.h"
 #include "rbfile.h"
 
 struct sky_version {
@@ -217,6 +218,25 @@ static void probe_queen(const struct scummvm_target *target,
                "Queen data file found, version not matched");
 }
 
+static void probe_nibiru(const struct scummvm_target *target,
+                         struct scummvm_probe_result *result)
+{
+    struct scummvm_agds_info info;
+    char detail[96];
+
+    result->supported = true;
+    result->engine_data_found = true;
+    rb->strlcpy(result->engine_data_detail,
+                "Uses data from the owned AGDS installation",
+                sizeof(result->engine_data_detail));
+    if (!scummvm_agds_probe(target, &info, detail, sizeof(detail))) {
+        set_result(result, false, "agds", "NiBiRu", detail);
+        return;
+    }
+    set_result(result, true, "agds", "NiBiRu AGDS 2.5",
+               "NiBiRu AGDS archives validated");
+}
+
 void scummvm_probe_game(const struct scummvm_target *target,
                        struct scummvm_probe_result *result)
 {
@@ -226,6 +246,9 @@ void scummvm_probe_game(const struct scummvm_target *target,
         probe_sky(target, result);
     } else if (!rb->strcasecmp(target->engine, "queen")) {
         probe_queen(target, result);
+    } else if (!rb->strcasecmp(target->engine, "agds") ||
+               !rb->strcasecmp(target->engine, "nibiru")) {
+        probe_nibiru(target, result);
     } else {
         rb->strlcpy(result->engine_name, target->engine,
                     sizeof(result->engine_name));

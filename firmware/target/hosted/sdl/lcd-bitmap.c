@@ -25,6 +25,9 @@
 #include "button-sdl.h"
 #include "lcd-sdl.h"
 #include "screendump.h"
+#if defined(SIMULATOR) && defined(HAVE_IPODJS_UI)
+#include "ipodjs_trace.h"
+#endif
 
 SDL_Surface* lcd_surface;
 
@@ -127,6 +130,12 @@ void lcd_update(void)
 
 void lcd_update_rect(int x_start, int y_start, int width, int height)
 {
+    if (lcd_boot_frame_held())
+        return;
+
+#if defined(SIMULATOR) && defined(HAVE_IPODJS_UI)
+    ipodjs_trace_surface(x_start, y_start, width, height);
+#endif
     sdl_update_rect(lcd_surface, x_start, y_start, width, height,
                     LCD_WIDTH, LCD_HEIGHT, get_lcd_pixel);
     sdl_gui_update(lcd_surface, x_start, y_start, width,
@@ -204,7 +213,10 @@ void sim_lcd_ex_init(unsigned long (*getpixel)(int, int))
 void sim_lcd_ex_update_rect(int x_start, int y_start, int width, int height)
 {
     if (lcd_ex_getpixel) {
-        sdl_update_rect(lcd_surface, x_start, y_start, width, height,
+    #if defined(SIMULATOR) && defined(HAVE_IPODJS_UI)
+    ipodjs_trace_surface(x_start, y_start, width, height);
+#endif
+    sdl_update_rect(lcd_surface, x_start, y_start, width, height,
                         LCD_WIDTH, LCD_HEIGHT, lcd_ex_getpixel);
         sdl_gui_update(lcd_surface, x_start, y_start, width,
                        height + LCD_SPLIT_LINES, SIM_LCD_WIDTH, SIM_LCD_HEIGHT,

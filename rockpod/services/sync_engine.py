@@ -53,6 +53,7 @@ VIDEO_LIST_PREVIEW_DEVICE_DIR = os.path.join(VIDEO_LIST_DEVICE_DIR, "previews")
 VIDEO_LIST_NETFLIX_POSTER_DEVICE_DIR = os.path.join(VIDEO_LIST_DEVICE_DIR, "netflix")
 VIDEO_LIST_NETFLIX_LANDING_DEVICE_DIR = os.path.join(VIDEO_LIST_DEVICE_DIR, "netflix-landing")
 VIDEO_LIST_NETFLIX_DETAIL_DEVICE_DIR = os.path.join(VIDEO_LIST_DEVICE_DIR, "netflix-detail")
+VIDEO_LIST_NETFLIX_BANNER_DEVICE_DIR = os.path.join(VIDEO_LIST_DEVICE_DIR, "netflix-banner")
 SYNC_TEMP_SUFFIX = ".rockpod_tmp"
 MAX_AUTO_DUPLICATE_DELETE_COUNT = 50
 AUDIO_TRANSCODE_CACHE_EXTENSIONS = {".mp3", ".m4a"}
@@ -83,6 +84,8 @@ def _sanitize_filename(name, max_len=200):
     # Trim length
     if len(name) > max_len:
         name = name[:max_len].rstrip()
+    # FAT strips trailing dots/spaces, so store the path the device uses.
+    name = name.rstrip(" .")
     return name or "Unknown"
 
 
@@ -439,6 +442,17 @@ def _recompute_row_metadata_hash(row):
 
 
 def build_device_path(track_row, dir_template, file_template):
+    if dict(track_row).get('sync_reuse_device_path'):
+        return dict(track_row)['sync_reuse_device_path']
+    path = _build_device_path_base(track_row, dir_template, file_template)
+    rendition = dict(track_row).get('sync_video_rendition')
+    if rendition:
+        base, ext = os.path.splitext(path)
+        path = base + '-' + rendition[:12] + ext
+    return path
+
+
+def _build_device_path_base(track_row, dir_template, file_template):
     """Build the target path on the device for a track.
 
     Returns a relative path like 'Music/Artist/Album/01 - Title.mp3'
@@ -590,6 +604,27 @@ def _normalize_video_kind_value(value):
     return text
 
 
+_KNOWN_MOVIE_TITLES = {
+    "spiritedaway",
+    "kikisdeliveryservice",
+    "kikisdevliveryservice",
+}
+
+
+def _video_signature(value):
+    text = str(value or "").strip().casefold().replace("’", "'")
+    text = re.sub(r"[^a-z0-9]+", "", text)
+    text = re.sub(r"(19|20)\d{2}$", "", text)
+    return text
+
+
+def _looks_like_known_movie_title(*values):
+    for value in values:
+        if _video_signature(value) in _KNOWN_MOVIE_TITLES:
+            return True
+    return False
+
+
 def _pick_first_field(row, keys):
     for key in keys:
         value = row.get(key)
@@ -705,6 +740,20 @@ def _normalize_video_show_fields(row):
             source_parts = [part.casefold() for part in Path(str(normalized.get("file_path") or "")).parts]
             if not any(part in {"special", "specials"} for part in source_parts):
                 normalized["season_number"] = 1
+    if (
+        final_kind == "home_video"
+        and not normalized.get("show_title")
+        and not normalized.get("season_number")
+        and not normalized.get("episode_number")
+        and _looks_like_known_movie_title(
+            normalized.get("title"),
+            Path(str(normalized.get("file_path") or "")).stem,
+            normalized.get("album"),
+            normalized.get("artist"),
+            normalized.get("album_artist"),
+        )
+    ):
+        normalized["video_kind"] = "movie"
 
     return normalized
 
@@ -900,6 +949,15 @@ def _is_video_bundle_row(row):
     )
 
 
+def _is_converted_video_row(row):
+    item = dict(row) if hasattr(row, "keys") else dict(row or {})
+    return (
+        str(item.get("media_type") or "audio").lower() == "video"
+        and bool(item.get("sync_transcoded"))
+        and bool(str(item.get("sync_output_ext") or "").strip())
+    )
+
+
 def _is_device_only_video_row(row):
     """True when a local video source is gone but its iPod link remains."""
     item = dict(row) if hasattr(row, "keys") else dict(row or {})
@@ -934,13 +992,22 @@ def _remove_media_with_sidecars(path):
                 os.remove(target)
                 removed.append(target)
         return removed
+    if ext.lower() in ('.mpg', '.mpeg', '.m4v', '.mp4'):
+        removed = []
+        for target in (path, base + '.media', base + '.srt', base + '.nfs', base + '.chapters'):
+            if os.path.isfile(target):
+                os.remove(target)
+                removed.append(target)
+        return removed
     return _remove_audio_with_sidecars(path)
 
 
 def _current_video_bundle_dest_paths(row, dest):
     item = dict(row) if hasattr(row, "keys") else dict(row or {})
-    base, _ext = os.path.splitext(dest)
+    base, ext = os.path.splitext(dest)
     paths = {dest}
+    if ext.lower() != ".rvp":
+        return paths
     segments = list(item.get("sync_video_segments") or [])
     if segments:
         for index, _segment in enumerate(segments, start=1):
@@ -953,19 +1020,19 @@ def _current_video_bundle_dest_paths(row, dest):
 
 
 def _remove_stale_converted_video_outputs(row, dest):
-    """Remove old source-format files and obsolete RVP sidecars after conversion."""
-    if not _is_video_bundle_row(row):
+    """Keep exactly the installed conversion format after a successful copy."""
+    if not _is_converted_video_row(row):
         return []
 
-    base, ext = os.path.splitext(dest)
-    if ext.lower() != ".rvp":
-        return []
-
+    base, _ext = os.path.splitext(dest)
     removed = []
     targets = []
     source_ext = Path(str(dict(row).get("file_path") or "")).suffix.lower()
     legacy_exts = [source_ext] if source_ext in VIDEO_EXTENSIONS else []
-    for candidate_ext in (".mpg", ".mpeg", ".mpe", ".mp4", ".m4v", ".mov", ".mkv", ".avi", ".webm"):
+    for candidate_ext in (
+        ".mpg", ".mpeg", ".mpe", ".mp4", ".m4v", ".mov", ".mkv",
+        ".avi", ".webm", ".rvp",
+    ):
         if candidate_ext not in legacy_exts:
             legacy_exts.append(candidate_ext)
     targets.extend(base + candidate_ext for candidate_ext in legacy_exts)
@@ -1447,6 +1514,7 @@ class SyncWorker(QObject):
         self._device_mount = device_mount
         self._db_path = db_path
         self._cancelled = False
+        self._progress_index = 1
 
     def cancel(self):
         self._cancelled = True
@@ -1459,6 +1527,8 @@ class SyncWorker(QObject):
         db = None
         created_dirs = set()
         synced_updates = []
+        video_retire = []
+        video_transactions = []
         stage_times = {
             "track_copy_seconds": 0.0,
             "artwork_copy_seconds": 0.0,
@@ -1487,6 +1557,7 @@ class SyncWorker(QObject):
                 dest = os.path.join(self._device_mount, rel_path)
                 desc = f"Copying tracks: {os.path.basename(row.get('file_path', '') or src)}"
                 self.progress.emit(i + 1, total, desc)
+                self._progress_index = i + 1
 
                 copy_started = time.perf_counter()
                 ok, copy_stats = self._copy_track_media(row, src, dest, created_dirs)
@@ -1500,10 +1571,13 @@ class SyncWorker(QObject):
                 if ok:
                     copied += 1
                     self.file_copied.emit(src, dest)
-                    if not _is_video_bundle_row(row):
-                        self._sync_lyrics_sidecar(row, dest, created_dirs)
-                    else:
+                    if row.get('sync_video_rendition'):
+                        from services.video_sync_transaction import VideoSyncTransaction
+                        video_transactions.append(VideoSyncTransaction(self._device_mount, row['sync_video_rendition']))
+                    elif _is_converted_video_row(row):
                         self._remove_stale_converted_video_outputs(row, dest)
+                    else:
+                        self._sync_lyrics_sidecar(row, dest, created_dirs)
                     tid = row.get("id")
                     if tid:
                         mh = row.get("metadata_hash", "")
@@ -1523,8 +1597,10 @@ class SyncWorker(QObject):
                 src = row.get("sync_source_path") or row.get("file_path", "")
                 desc = f"Copying tracks: {os.path.basename(row.get('file_path', '') or src)}"
                 self.progress.emit(offset + i + 1, total, desc)
+                self._progress_index = offset + i + 1
 
                 dest = os.path.join(self._device_mount, new_rel_path)
+                row['sync_previous_device_path'] = old_dev_path
                 copy_started = time.perf_counter()
                 ok, copy_stats = self._copy_track_media(row, src, dest, created_dirs)
                 stage_times["track_copy_seconds"] += time.perf_counter() - copy_started
@@ -1537,11 +1613,16 @@ class SyncWorker(QObject):
                 if ok:
                     copied += 1
                     self.file_copied.emit(src, dest)
-                    if not _is_video_bundle_row(row):
-                        self._sync_lyrics_sidecar(row, dest, created_dirs)
-                    else:
+                    if row.get('sync_video_rendition'):
+                        from services.video_sync_transaction import VideoSyncTransaction
+                        video_transactions.append(VideoSyncTransaction(self._device_mount, row['sync_video_rendition']))
+                    elif _is_converted_video_row(row):
                         self._remove_stale_converted_video_outputs(row, dest)
-                    if old_dev_path and old_dev_path != new_rel_path:
+                    else:
+                        self._sync_lyrics_sidecar(row, dest, created_dirs)
+                    if row.get('sync_video_rendition') and old_dev_path and old_dev_path != new_rel_path:
+                        video_retire.append(os.path.join(self._device_mount, old_dev_path))
+                    elif old_dev_path and old_dev_path != new_rel_path:
                         old_full = os.path.join(self._device_mount, old_dev_path)
                         try:
                             removed = _remove_media_with_sidecars(old_full)
@@ -1593,6 +1674,9 @@ class SyncWorker(QObject):
                 if self._cancelled:
                     self.cancelled.emit()
                     return
+                if failed:
+                    skipped += 1
+                    continue  # Never publish a manifest referring to failed media.
                 desc = f"Syncing {label}: {os.path.basename(rel_path)}"
                 self.progress.emit(generated_offset + i + 1, total, desc)
                 dest = os.path.join(self._device_mount, rel_path)
@@ -1624,6 +1708,9 @@ class SyncWorker(QObject):
                 desc = f"Removing duplicate: {os.path.basename(rel_path)}"
                 self.progress.emit(delete_offset + i + 1, total, desc)
                 dest = os.path.join(self._device_mount, rel_path)
+                if str(rel_path).startswith('Videos/'):
+                    video_retire.append(dest)
+                    continue
                 try:
                     removed = _remove_media_with_sidecars(dest)
                     if removed:
@@ -1647,6 +1734,11 @@ class SyncWorker(QObject):
             if synced_updates:
                 with db.transaction():
                     db.mark_synced_many(synced_updates)
+            # The main-thread device inventory has a separate DB commit.
+            # Retain every old movie until that commit succeeds as well.
+            if not failed:
+                self._plan.video_publications = video_transactions
+                self._plan.video_retire = video_retire
             stage_times["db_finalize_seconds"] += time.perf_counter() - finalize_started
             self._plan.execution_profile = {
                 **stage_times,
@@ -1770,6 +1862,19 @@ class SyncWorker(QObject):
             return False, stats
 
     def _copy_track_media(self, row, src, dest, created_dirs=None):
+        if row.get('sync_video_rendition'):
+            from services.video_sync_transaction import VideoSyncTransaction
+            try:
+                VideoSyncTransaction(self._device_mount, row['sync_video_rendition']).publish(
+                    row, dest, lambda: self._cancelled,
+                    lambda phase: self.progress.emit(self._progress_index,
+                        self._plan.total_operations, phase + ': ' + os.path.basename(dest)))
+                return True, self._empty_copy_stats()
+            except InterruptedError:
+                raise _SyncCancelled()
+            except Exception as exc:
+                self.file_error.emit(src, str(exc))
+                return False, self._empty_copy_stats()
         if not _is_video_bundle_row(row):
             return self._copy_file(src, dest, created_dirs)
 
@@ -2275,7 +2380,7 @@ class SyncEngine(QObject):
         stage_start = time.perf_counter()
         emit_status("Preparing tracks for device sync...")
         local_tracks, transcode_errors, transcode_count = self._prepare_tracks_for_sync(
-            local_tracks, video_profile=video_profile
+            local_tracks, video_profile=video_profile, status_callback=emit_status
         )
         # Device-only videos remain in the database so Netflix metadata and
         # artwork can be rebuilt, but they must never enter the copy matcher:
@@ -2712,6 +2817,9 @@ class SyncEngine(QObject):
         device_row = self._db.upsert_device(device_record_from_info(device))
         self._db.commit()
         self._current_device_key = device_row["stable_device_key"]
+        from services.video_state import import_video_state
+        import_video_state(self._db, device.mount_path, self._current_device_key)
+        self._db.commit()
         self.load_cached_device_inventory()
         return self._current_device_key
 
@@ -2906,6 +3014,12 @@ class SyncEngine(QObject):
             VIDEO_SYNC_CACHE_EXTENSIONS,
             dry_run=dry_run,
         )
+        device = self._device_detector.current_device
+        if device:
+            from services.video_sync_transaction import cleanup_published_cache
+            video_removed += cleanup_published_cache(
+                os.path.join(cache_root, 'device_video_rvp'),
+                device.mount_path, dry_run=dry_run)
 
         for path, bytes_freed in audio_removed + video_removed:
             result["removed"].append(path)
@@ -3152,7 +3266,8 @@ class SyncEngine(QObject):
         )
         return row
 
-    def _prepare_tracks_for_sync(self, rows, video_profile=None):
+    def _prepare_tracks_for_sync(self, rows, video_profile=None, status_callback=None):
+        self._video_transcoder._progress = status_callback
         settings = self._audio_conversion_settings()
         selected_video_profile = (
             video_profile
@@ -3183,11 +3298,16 @@ class SyncEngine(QObject):
                     prepared.append(reused)
                     continue
                 try:
+                    current_device = self._device_detector.current_device
                     sync_row, info = self._video_transcoder.prepare_track_for_sync(
                         item,
                         self._current_device_key or "device",
+                        device_target=str(
+                            getattr(current_device, "rockbox_target", "") or ""
+                        ),
+                        device_mount=str(getattr(current_device, "mount_path", "") or ""),
                     )
-                except RuntimeError as exc:
+                except (RuntimeError, ValueError) as exc:
                     title = item.get("title") or os.path.basename(str(item.get("file_path") or "video"))
                     message = f"{title}: {exc}"
                     errors.append(message)
@@ -3702,7 +3822,39 @@ class SyncEngine(QObject):
                         existing_hashes,
                     )
 
+            banner_art_id = ""
+            if not bool(row.get("video_locked")):
+                banner_src, banner_hash, banner_name, banner_id = (
+                    self._video_thumbnails.export_video_list_banner(row)
+                )
+                if banner_src and banner_hash and banner_name:
+                    banner_rel = os.path.join(
+                        VIDEO_LIST_NETFLIX_BANNER_DEVICE_DIR, banner_name
+                    )
+                    banner_art_id = banner_id
+                    if banner_rel not in seen:
+                        seen.add(banner_rel)
+                        self._append_artwork_copy_if_changed(
+                            plan,
+                            banner_src,
+                            banner_rel,
+                            key,
+                            banner_hash,
+                            device_mount,
+                            existing_hashes,
+                        )
+
             title = str(row.get("title") or Path(str(row.get("file_path") or "")).stem or "Untitled Video")
+            external_rating = (
+                row.get("external_rating") or
+                catalog_metadata.get("external_rating") or
+                ""
+            )
+            external_rating_votes = (
+                row.get("external_rating_votes") or
+                catalog_metadata.get("external_rating_votes") or
+                ""
+            )
             manifest_entries.append(
                 {
                     "video_id": video_id,
@@ -3740,6 +3892,11 @@ class SyncEngine(QObject):
                     "intro_end": playback_markers["intro_end"],
                     "credits_start": playback_markers["credits_start"],
                     "credits_duration": playback_markers["credits_duration"],
+                    "external_rating_tenths": self._video_thumbnails.manifest_external_rating_tenths(
+                        external_rating
+                    ),
+                    "external_rating_votes": external_rating_votes,
+                    "banner_art_id": banner_art_id,
                 }
             )
 
@@ -3870,6 +4027,15 @@ class SyncEngine(QObject):
                     (device_key, rel_path),
                 )
             self._db.mark_device_synced(device_key)
+        for publication in getattr(plan, 'video_publications', []):
+            publication.indexed()
+        for old_video in getattr(plan, 'video_retire', []):
+            _remove_media_with_sidecars(old_video)
+        device = self._device_detector.current_device
+        if device:
+            from services.video_state import import_video_state
+            import_video_state(self._db, device.mount_path, device_key)
+            self._db.commit()
         if plan.to_delete:
             self._link_device_to_local()
         self.load_cached_device_inventory(device_key)

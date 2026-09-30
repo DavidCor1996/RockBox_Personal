@@ -1,5 +1,17 @@
 # iPod Classic 6G/7G Hibernate and Instant Resume Specification
 
+## Playback qualification update — 22 September 2026
+
+P15 was deployed with user authorization. The user reports repeated retained
+screen/music-position restoration, but playback is silent and stationary;
+Play/Pause twice does not recover it. P16 now saves and restores the CS42L55
+register bank lost with its Standby supply, verifies clock/output settings, and
+blocks output on restore failure. The clean build, ten host tests and final
+ABI-12 linked-image gate pass. P16 is not yet deployed or hardware qualified.
+See [the P16 qualification record](ipod6g-hibernate-p16-validation.md).
+Earlier P15/P14 status statements below are historical. The mounted Nano 3G
+is not the test Classic; ask the user before deploying any new candidate.
+
 ## Status
 
 This is a research and implementation specification, not a claim that full
@@ -12,6 +24,107 @@ R6 returned to the bootloader, which then ran `bss_init()` and the ordinary
 cold-start path. The bootloader BSS range overlaps the retained Rockbox
 application BSS, so cold startup destroyed the kernel state that had just been
 validated.
+
+The Stage 3B-R12 application/ABI-12 bootloader pair has since passed a real
+retained restore and a separate physical-button wake on the personal iPod.
+Those passes qualify the retained core and its normal deferred power-off path
+for the production integration below. A later P6 production test restored the
+retained main-menu framebuffer but froze immediately after wake. The test was
+performed on the main menu, so PictureFlow was not in the failing path.
+
+The earlier claim that P6's synchronous `audio_resume()` was the localized
+cause did not survive hardware testing. P7 removed that call yet reproduced a
+frozen retained framebuffer, so the only supported conclusion was that P6's
+transport action differed from Apple, not that it caused the freeze. RetailOS
+TPodMediaPlayer vmethod `0x0816f9fc` posts opcode 9; its worker performs an
+output-service transition, while transport opcodes 0 and 1 dispatch
+separately. Later linked candidates therefore preserve transport and pair
+physical-output suspend/resume around the retained coordinator.
+
+P9 added the exact audited sleep-time VIC/EIC topology and Apple wheel-before-
+GPIO restore order. On hardware it completed one retained production cycle,
+then returned the retained display frozen on the second consecutive cycle.
+That makes P9 a one-cycle pass and a repeat failure. Its retained failure
+boundary has not yet been recovered, so notification, scheduler, IRQ, input,
+PCM, I2C, and storage causes remain unproven.
+
+P10 isolated a concrete P9 service gap without changing the Apple-matched
+media contract. Rockbox's custom notification manager is called after every
+normal action return and can poll music state, synthesize Paused/Resumed/Now
+Playing records, write notification state, redraw the overlay, and start the
+BEEP mixer channel. P10 flushes and blocks that service before output suspend,
+clears transient presentation state, stops the beep channel, and invalidates
+the music-notification baseline without querying playback. It stays invalid
+through output resume, so the first later poll silently learns the retained
+state without posting a notification.
+The complete notification pass made by the returning `get_action()` is
+discarded, and periodic polling resumes only on a later normal UI turn. This
+proves isolation, not causation. P10 was then tested on hardware, but it did
+not enter Standby. Its preserved log records an accepted outer session,
+physical PCM already stopped, logical `audio_status=1` (ordinary Play), and
+target refusal 3 (AUDIO). Record state 5 is the previous PASSED terminal state,
+not refusal reason 5.
+
+P11 corrected that exact pre-entry contradiction and then entered the retained
+path on hardware, but returned the retained display frozen. Direct comparison
+of the linked P11 wheel routines with RetailOS exposed a concrete remaining
+mismatch. P11 stopped and clock-gated the controller on entry, made its normal
+wake repair conditional on Hold, used Rockbox's generic click-wheel init, and
+drained one generic response. Apple's mode 2 instead drives E4 low, waits 1 ms,
+and drives E2 low. Its mode 3 is unconditional: wait 25 ms, run the complete
+E2-E5/controller initializer, then execute the `0x8000063a` state query and
+optional `0x8000062a` acknowledgement under the exact `WHEEL10` lifetime and
+five-zero-response retry policy.
+
+P12 implements that audited wheel transaction and the wheel/GPIO/platform
+service order. It also compiles the P11 tick probes, scheduler-switch snapshots,
+runtime checkpoint writer, and PMU ADC monitor out of the production image;
+RetailOS schedules no equivalent diagnostic work after wake. P12 retains the
+P10 notification barrier, P11 audio-state correction, and the verified ABI-12
+retained core. It passes the clean build, pinned RetailOS audit, strengthened
+linked-image gate, notification gate, and artifact checksum verification. It
+then passed one complete hardware cycle with responsive wheel input. Its second
+consecutive cycle returned the retained frame frozen and later displayed
+`Playback Stopped`. The notification manager only observes `audio_status()`;
+it cannot initiate that Play-to-Stopped transition.
+
+P13 follows the concrete cause exposed by reopening the RetailOS PCM backend.
+Opcode-8 routine `0x081e9904` locks the output object at offset `+0x3c` through
+wrapper `0x080cc22c`, drains/stops output, and returns without unlocking at
+`0x081e99b8`. Opcode-9 routine `0x081e99bc` rebuilds output and calls the paired
+unlock wrapper `0x080cc234` for the same object at `0x081e9a68`. P12 had
+balanced separate PCM critical sections on each side of Standby. P13 instead
+carries one PCM lock across the complete retained boundary, reapplies its
+interrupt exclusion to the DMA channel rebuilt on wake, restarts only an
+already-active retained mixer channel, and performs the sole paired unlock.
+Two clean P13 builds produced byte-identical application images and ELFs, and
+the strengthened stock and linked-image gates pass. Its first hardware cycle
+restored correctly without stopping music, but its second cycle froze. The
+second-cycle freeze was then reproduced with no music playing, proving that
+playback, the notification service, and the earlier `Playback Stopped` banner
+are not necessary triggers.
+
+P14 follows the repeat-specific state transition instead of changing media
+again. After every retained wake, Rockbox intentionally sets
+`hibernate_storage_reinit_pending`, marks ATA unpowered, and leaves the reset
+controller to be fully initialized by the first real storage access. On the
+next sleep, `storage_flush()` already skips its cache command while unpowered,
+but P13's `storage_sleepnow()` then entered `ata_sleepnow()`, which called
+`ata_flush_cache()` unconditionally. The first PATA status read in that path
+uses an unbounded raw `ATA_PIO_READY` poll, so an invalid post-Standby
+controller can stop the suspending UI thread exactly on cycle two.
+
+The RetailOS disk path establishes the required behavior from primary machine
+code. `DiskMgrTask` tracks aggregate power clients and the PCF worker serializes
+wake/sleep messages through disk-manager vmethods `+0x18`/`+0x1c`. ATA FLUSH
+CACHE routine `0x08360efc` (command `0xe7`) and STANDBY IMMEDIATE routine
+`0x08361ecc` (command `0xe0`) both submit through request routine `0x08360fb4`.
+That routine checks object state and the live-device pointer at `+0x44`, and
+returns error 7 on invalid state before touching command registers. P14 adds
+the equivalent Rockbox guard before its sole `ata_flush_cache()` call: when
+the retained controller is invalid it unlocks and returns, does not force a
+disk wake, and leaves reinitialization pending for the first ordinary sector
+transfer. Ordinary non-hibernate SSD idle behavior remains unchanged.
 
 Stage 3B-R7 used resume ABI 8 and followed the recovered RetailOS model instead:
 the bootloader restores IRAM, MMU context, banked stacks, and the saved system
@@ -160,6 +273,19 @@ gate independently verifies both boundaries. This costs 704 KiB of plugin or
 audio-buffer capacity, but bootloader startup can no longer overwrite any
 retained Rockbox queue, timeout, driver state, or thread-owned memory.
 
+Stage 3B-R11S added scheduler-state capture to preserve the next useful
+failure boundary, but no real-hardware verdict for R11 or R11S was preserved.
+The current Stage 3B-R12 candidate keeps resume ABI 12 and record 12, because
+it does not change the retained handoff layout. It closes a separate mismatch
+found by independently auditing the RetailOS 2.0.4 instruction stream:
+RetailOS routine `0x0835eb10` snapshots all 16 S5L8702 GPIO groups before it
+suspends the click wheel, normalizes each live output to direct-state encoding
+E/F, and stores eight bytes per group. Its wake routine `0x0835ead0` restores
+both pull bytes before restoring each configuration word. Earlier Rockbox
+reapplied only the retained microphone-detection choice after the resume
+bootloader's cold GPIO table. R12 now preserves and restores the complete
+128-byte runtime pin state in the same order as RetailOS.
+
 RetailOS also performs an explicit USB transition: recovered code stops the
 OTG PHY clock through `PCGCCTL`, changes PHY power/reset state, and its
 resume-side device manager restarts the clock and performs complete PHY and
@@ -244,7 +370,8 @@ Its setjmp boundary saves r4-r11, system SP/LR, a local continuation PC, CPSR,
 CP15 control/TTB/domain, and the IRQ/FIQ/SVC/ABT/UND stack pointers. The
 bootloader validates the complete retained image, restores IRAM and MMU state,
 then branches directly to the continuation before bootloader `bss_init()`.
-The resumed thread rebuilds clocks, GPIO, VIC/EIC, DMA, timer, click wheel,
+The resumed thread rebuilds clocks, restores the retained 16-group GPIO
+snapshot, VIC/EIC, DMA, timer, click wheel,
 UART, PMU masks/inputs, power GPIOs, stopped PCM, and the LCD controller without
 recreating threads, queues, semaphores, or mutexes. The suspend coordinator
 owns I2C bus 0 across the context boundary and masks IRQ/FIQ after acquiring it,
@@ -1186,24 +1313,38 @@ RetailOS share higher-level scheduler or driver objects.
 
 ### Stage 3B: Kernel resume with hardware stopped
 
-Stage 3B-R11 / resume ABI 12 is the current true instant-resume implementation:
+Stage 3B-R12 / resume ABI 12 remains the retained-core substrate for the P14
+production candidate:
 
-1. Veto active core or direct PCM audio, USB, and composite output.
+1. Veto recording, unsupported direct/live PCM, unsafe plugins, and active USB
+   mass storage. Ordinary core playback follows the Stage 4 paired physical-
+   output service transaction without changing transport state; composite
+   state is quiesced and restored through its driver.
 2. For normal power-off, queue one private request from `sys_poweroff()` and
    consume it from the normal button/UI thread. Attempt retained suspend there
    before broadcasting the terminal `SYS_POWEROFF` event. A veto or preparation
    failure falls through to the unchanged legacy shutdown path.
-3. Flush and sleep storage; quiesce UART, LCD DMA, panel, and backlight.
+3. Flush and sleep storage when the ATA device is live. If retained wake has
+   left the controller invalid and no ordinary I/O has reinitialized it, treat
+   it as already quiescent: issue neither FLUSH CACHE nor STANDBY IMMEDIATE,
+   retain the lazy-reinit flag, and continue. Then quiesce target PCM, UART,
+   LCD DMA, panel, and backlight.
 4. Arm the exact PMU wake configuration.
-5. Acquire I2C bus 0 in the suspending thread, then mask IRQ/FIQ so no new
-   background transaction can cross the context boundary.
+5. Acquire I2C bus 0 in the suspending thread, mask IRQ/FIQ, save all 16 GPIO
+   groups in RetailOS format, suspend the click wheel, then save both VIC enables
+   and all seven EIC enable/level/type triples. Install the exact stock sleep
+   topology: EIC3 bit 3, EIC6 bit 28, EIC3 low-level/type, VIC0 mask
+   `0x00080009`, and cleared pending EIC groups 3 and 6.
 6. Save r4-r11, system SP/LR, continuation PC, CPSR, CP15 state, and every
    banked exception stack; re-shadow all used IRAM0 and enter Standby.
 7. In the early bootloader validator, verify token, resume contract, record,
    TTB, payload, probe, and IRAM CRCs; restore IRAM and branch directly to the
    saved continuation before `bss_init()`.
-8. Rebuild clocks, GPIO, VIC/EIC, DMA, timer, click wheel, UART, PMU, power,
-   stopped PCM, LCD-controller registers, and the USB PHY/controller's
+8. Rebuild Timer E, clocks, VIC/DMAC hardware, and storage. Clear pending EIC
+   groups 3/6, restore the saved VIC state, then all seven EIC triples. Run the
+   unconditional 25 ms click-wheel initializer and command-state recovery,
+   restore GPIO pulls and pin modes, and only then restore UART, PMU, and power;
+   rebuild stopped PCM, LCD-controller registers, and the USB PHY/controller's
    hardware-only cold-off state without recreating retained software objects.
 9. Return with all VIC sources masked, release retained I2C ownership, and
    commit phase 14 while CPU IRQ/FIQ remain masked.
@@ -1225,40 +1366,102 @@ The linked-binary gate must prove both images were built with all three Stage
 defines. Incremental objects compiled without those defines are invalid even
 if a stale assembly object still contains the trampoline.
 
-For the first hardware attempt, launch the matching R11 image with Rolo, verify
-`Stage 3B-R11 / ABI 12 / /.rbtv`, open `Debug > Test retained context`, and press
-Select once while undocked and on battery. After the screen goes black, insert
-USB once. Success means the same Rolo screen becomes visible without any boot
-logo or disk image load and reports:
-
-- `State:PASSED`, `mode:3`, `attempts:1`, `phase:28`, `failure:0`;
-- `Trail:resume complete` (`48334143`);
-- matching nonzero TTB/IRAM/probe evidence; and
-- a responsive click wheel and display.
-
-If it remains black, wait ten seconds, force-reset once, Rolo the exact same
-R10 image, and record the full diagnostic screen without rearming. The final
-breadcrumb, Timer E interval, DMA raw status, and VIC masks identify whether
-progress stopped in the panel sequence, frame DMA, full-mask release, or a
-deferred event. `app
-continue` still isolates a hardware-only resume hook and `boot direct` isolates
-the non-returning handoff itself.
+The production P14 artifact has no manual diagnostic workflow. Diagnostic-only
+tick, scheduler-switch, application-checkpoint, and PMU-monitor facilities are
+compile-time disabled and rejected by the linked gate. Hardware qualification
+is a separate authorization boundary; it does not alter the implementation
+contract above.
 
 ### Stage 4: User-session resume
 
-- add audio logical-state save/restart;
-- add codec/PCM resume hooks;
-- add dock and composite restoration;
-- add USB/cable wake handling;
-- add opted-in plugin checkpoint hooks.
+The P14 production-capable outer transaction is implemented:
+
+- normal core playback is not sent Pause or Play. The mixer service takes one
+  PCM lock, synchronously stops only physical output, and carries that lock
+  across the retained boundary. Its channels, callbacks, playlist, codec,
+  logical position, and transport bits stay in retained RAM. The target
+  reapplies the inherited exclusion to the rebuilt DMA channel; the paired
+  wake service recreates output for an already-active channel and unlocks once;
+- the CS42L55 enters idle power-down while MCLK is still available, then the
+  I2S clock path is gated; wake reattaches the normal DMA channels and applies
+  PCM settings without restarting sound behind the user's back;
+- recording, live/direct PCM, unsupported audio modes, and every loaded plugin
+  fail closed to the unchanged legacy shutdown path because they lack a
+  complete suspend contract;
+- composite output records whether it was active, shuts down through its
+  normal driver path, and reapplies the retained dock/output policy only after
+  the base LCD, recurring timer, scheduler, and deferred LCD event are live;
+- USB/cable wake retains software objects but rebuilds the PHY/controller in a
+  hardware-only cold-off state before publishing the cable edge;
+- retained resume is the iPod 6G default; an explicit Legacy setting remains
+  available as the recovery/fallback policy.
+- both application and target preflights accept exactly stopped, playing, or
+  playing+paused core audio. The target uses one coherent status snapshot;
+  pause-only, recording, and unknown ownership bits fail closed;
+- before the physical-output service is suspended, the custom notification
+  manager flushes committed history, closes its post/service barrier, removes
+  transient banners, stops `PCM_MIXER_CHAN_BEEP`, and invalidates the music
+  baseline without querying playback. It stays invalid through physical-
+  output resume, discards the notification pass made by the returning
+  `get_action()`, delays its periodic poll for 200 ms, and reopens the service
+  for the next normal UI turn. That later poll silently learns the current
+  track without synthesizing Paused, Resumed, or Now Playing.
+
+The retained request handler must not call `audio_pause()` or `audio_resume()`.
+Apple RetailOS 2.0.4 distinguishes its output-service opcodes 8/9 from its
+transport opcodes 0/1. The first physical button press is consumed by wake and
+returns the retained main-menu state with the pre-sleep transport state intact;
+the paired output service continues an already-playing track. A later
+Play/Pause press is one ordinary transport command. P14 completes button
+cleanup, resets the notification baseline, and returns to the UI after the
+paired physical-output service has returned. It does not arm the P11 runtime
+checkpoint, per-tick, context-switch, or PMU-monitor instrumentation. The
+linked-image gate rejects future pause/play, fade, talk-shutdown, or mixer-pause
+regressions in this handler, requires the notification barrier to bracket the
+media transaction, and rejects those diagnostic symbols from a production ELF.
+It requires suspend to lock then stop without unlocking, resume to restart then
+unlock exactly once without taking a new lock, and the target DMA rebuild to
+reattach the inherited interrupt lock before applying settings. It also
+requires the target suspend function to call `audio_status()` exactly once
+before a call-free policy guard implementing the 0/1/3 state set.
+
+P14 also reproduces the exact consumed portion of Apple's interrupt transaction.
+The stock audit pins instructions `0x080d85f0..0x080d8620` and the literal
+`0x00080009`; the linked Rockbox audit verifies the same sleep EIC/VIC values,
+the group-3/group-6 pending clears, VIC-before-EIC restoration, and
+click-wheel-before-GPIO wake ordering in the final ARM image. Apple's 64 VIC
+vector-address slots are inapplicable because Rockbox's linked IRQ dispatcher
+does not consume them.
+
+P14 retains P12's exact Apple click-wheel mode-2/mode-3 transaction. The
+stock audit pins the E4/E2 GPIO calls, 25 ms delay, full initializer, query and
+acknowledgement words, five-zero-response retry behavior, and outer `WHEEL10`
+save/clear/restore. The linked gate requires the corresponding constants,
+individual register-write edges, and wheel-before-GPIO-before-platform order,
+while rejecting P11's stop/clock-gate, Hold branch, generic initializer, and
+generic interrupt-drain paths. The only added prerequisite is enabling the
+click-wheel clock before the stock initializer because the Rockbox resume
+bootloader intentionally leaves that clock disabled.
+
+Arbitrary plugin checkpoint hooks are deliberately not part of the production
+contract. Apple controls every RetailOS service participating in deep sleep;
+Rockbox cannot make the same guarantee for dynamically loaded plugin code,
+callbacks, shared audio buffers, or private hardware ownership. Cold shutdown
+is the behaviorally safe equivalent for those sessions.
 
 ### Stage 5: RTC alarm and policy
 
-After manual wake is reliable:
+The Standby wake byte now matches RetailOS `0xdf`, enabling ONKEY, EXTON1/2/3,
+RTC alarm, USB, and adapter insertion. The RTC source is inert unless an alarm
+is programmed. Rockbox's iPod 6G target still lacks a supported alarm-programming
+UI/driver, so alarm-clock behavior remains a separate feature rather than a
+prerequisite for ordinary RetailOS-style sleep/restore.
 
-- enable and test the existing RTC alarm registers;
+After the hardware wake matrix is reliable:
+
+- implement and test the PCF50633 RTC alarm programming interface;
 - add `Sleep`, `Hibernate`, and optional `Sleep then Hibernate` policy;
-- keep hibernate default-off until the full validation matrix passes.
+- retain Legacy as an explicit recovery override throughout qualification.
 
 ## Failure Handling and Invariants
 
@@ -1342,7 +1545,7 @@ Likely implementation points:
 
 ## Recommendation
 
-Run exactly one isolated Stage 3B-R11 / ABI-12 USB-wake attempt with a clean
+Run exactly one isolated Stage 3B-R12 / ABI-12 USB-wake attempt with a clean
 Rolo application and an experimental dual-boot bootloader carrying the same
 explicit resume contract.
 The binary gate must verify that neither image contains disabled Stage-3 stubs,
@@ -1380,7 +1583,8 @@ loads Timer B in RetailOS order and requires three recurring interrupts before
 phase 28. R10D then located the recurring freeze at the first scheduler
 handoff, and linked-image analysis proved the resume bootloader CRT was
 clearing retained application RAM before validation. R11 gives the bootloader
-a separately reserved BSS workspace. Only a visible, responsive phase-28 R11
-result authorizes repetition testing. Repeat, duration, wake-source, storage, and
-injected-failure testing remain mandatory before this can become a normal user
-setting.
+a separately reserved BSS workspace. R12 additionally matches RetailOS's full
+GPIO snapshot and restore rather than overwriting dynamic pin state with the
+cold-boot table. Only a visible, responsive phase-28 R12 result authorizes
+repetition testing. Repeat, duration, wake-source, storage, and injected-failure
+testing remain mandatory before this can become a normal user setting.

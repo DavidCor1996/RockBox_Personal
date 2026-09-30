@@ -43,6 +43,18 @@ REDDIT_ICON_PATH = (
     / "icons"
     / "reddit-official.png"
 )
+TWITTER_ICON_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "assets" / "icons" / "twitter-official.png"
+)
+TWITCH_ICON_PATH = (
+    Path(__file__).resolve().parents[2]
+    / "assets"
+    / "ipodjs"
+    / "sources"
+    / "twitch"
+    / "Twitch_icon_2012.svg"
+)
 
 
 def _asset_icon(path):
@@ -146,10 +158,14 @@ class Sidebar(QWidget):
     ROCKBOX_SITEKICK = "rockbox_sitekick"
     ROCKBOX_CALM = "rockbox_calm"
     ROCKBOX_YOUTUBE = "rockbox_youtube"
+    ROCKBOX_TWITCH = "rockbox_twitch"
     ROCKBOX_TIKTOK = "rockbox_tiktok"
     ROCKBOX_ONLYFANS = "rockbox_onlyfans"
     ROCKBOX_INSTAGRAM = "rockbox_instagram"
     ROCKBOX_REDDIT = "rockbox_reddit"
+    ROCKBOX_TWITTER = "rockbox_twitter"
+    ROCKBOX_MSN = "rockbox_msn"
+    ROCKBOX_APPLICATIONS = "rockbox_applications"
     ROCKBOX_LIVETV = "rockbox_livetv"
     ROCKBOX_GAMES = "rockbox_games"
     ROCKBOX_PHOTOS = "rockbox_photos"
@@ -340,9 +356,17 @@ class Sidebar(QWidget):
 
         # ── APPLICATIONS section ──
         self._applications_header = self._add_section("APPLICATIONS")
+        self._application_layout_item = self._add_item(
+            self._applications_header, "Applications", self.ROCKBOX_APPLICATIONS,
+            _make_icon("#5986bb", "album"),
+        )
         self._youtube_item = self._add_item(
             self._applications_header, "YouTube", self.ROCKBOX_YOUTUBE,
             _make_icon("#cc0000", "device")
+        )
+        self._twitch_item = self._add_item(
+            self._applications_header, "Twitch", self.ROCKBOX_TWITCH,
+            _asset_icon(TWITCH_ICON_PATH),
         )
         self._tiktok_item = self._add_item(
             self._applications_header, "TikTok", self.ROCKBOX_TIKTOK,
@@ -359,6 +383,14 @@ class Sidebar(QWidget):
         self._reddit_item = self._add_item(
             self._applications_header, "Reddit", self.ROCKBOX_REDDIT,
             _asset_icon(REDDIT_ICON_PATH),
+        )
+        self._twitter_item = self._add_item(
+            self._applications_header, "Twitter", self.ROCKBOX_TWITTER,
+            _asset_icon(TWITTER_ICON_PATH),
+        )
+        self._msn_item = self._add_item(
+            self._applications_header, "MSN Messenger", self.ROCKBOX_MSN,
+            _asset_icon(Path(__file__).resolve().parents[1] / "assets/icons/msn-official.png"),
         )
         self._applications_header.setExpanded(True)
         self._onlyfans_item.setHidden(True)

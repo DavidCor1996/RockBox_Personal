@@ -18,7 +18,7 @@ DEFAULT_SOURCE = (
     / "netflix-logo-2001.150x70x24.bmp"
 )
 DEFAULT_OUTPUT = ROOT / "assets/ipodjs/rockbox/netflix/desktop"
-SIZES = (64, 66, 70)
+SIZES = (32, 34, 38, 64, 66, 70)
 
 
 def write_rga(path: Path, image: Image.Image) -> None:
@@ -73,7 +73,7 @@ def main() -> int:
     for size in SIZES:
         name = (
             f"icon.{size}x{size}.rga"
-            if size == 64
+            if size in (32, 64)
             else f"icon-dock-{size}.{size}x{size}.rga"
         )
         path = args.output / name

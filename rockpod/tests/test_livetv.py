@@ -1343,12 +1343,10 @@ def test_the_encode_trims_to_the_kept_ranges_only():
     assert graph.endswith("[vout]")
 
 
-def test_a_split_recording_is_never_deleted_from_staging():
-    """Removing the source after the first part would strand the rest."""
+def test_live_tv_staging_sources_are_retained_for_other_ipods():
     source = (REPO / "rockpod" / "services" / "livetv.py").read_text(
         encoding="utf-8")
-    assert "not item.is_segment and" in source
-    assert "item.path.startswith(staging + os.sep)" in source
+    assert "os.remove(item.path)" not in source
 
 
 def test_videos_are_encoded_to_fill_the_ipod_screen():
@@ -1657,6 +1655,42 @@ def test_sync_never_writes_a_guide_row_for_a_slot_that_failed_to_copy(
     assert summary["channels"] == 1
 
 
+def test_selected_live_tv_channels_accumulate_per_ipod(tmp_path, monkeypatch):
+    root = tmp_path / "live"
+    library = _StubLibraryForSync(tmp_path / "cache", [root])
+    sync = livetv.LiveTvSync(library)
+    monkeypatch.setattr(sync, "install_logos", lambda *a, **k: None)
+    first = _media(str(root / "first.mp4"), "show", 1000, "First", "First")
+    second = _media(str(root / "second.mp4"), "show", 1000, "Second", "Second")
+    lineup = _Lineup([
+        LiveTvChannel(number=100, callsign="ONE", name="One",
+                      shows=[first.path], ads=[]),
+        LiveTvChannel(number=101, callsign="TWO", name="Two",
+                      shows=[second.path], ads=[]),
+    ])
+
+    def fake_ensure_mpeg(item):
+        target = Path(sync.cached_mpeg_path(item))
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(b"mpeg")
+        return str(target)
+
+    monkeypatch.setattr(sync, "ensure_mpeg", fake_ensure_mpeg)
+    a = tmp_path / "ipod-a"
+    b = tmp_path / "ipod-b"
+    sync.sync(str(a), lineup, [first, second], [], channel_numbers={100})
+    sync.sync(str(b), lineup, [first, second], [], channel_numbers={101})
+    sync.sync(str(a), lineup, [first, second], [], channel_numbers={101})
+
+    def channels(mount):
+        path = Path(sync.device_root(str(mount))) / "channels.tsv"
+        return {int(line.split("\t", 1)[0]) for line in path.read_text().splitlines()
+                if line and not line.startswith("#")}
+
+    assert channels(a) == {100, 101}
+    assert channels(b) == {101}
+
+
 def _sync_with_manifest(tmp_path, monkeypatch):
     """A one-channel sync whose only encode is counted, not really run."""
     root = tmp_path / "live"
@@ -1882,6 +1916,150 @@ def test_sync_stops_at_the_next_clip_when_cancelled(tmp_path, monkeypatch):
 
     assert calls == [], "a cancelled sync still ran ffmpeg"
     assert summary["converted"] == 0
+
+
+def test_marathon_parts_keep_one_contiguous_programme_block():
+    show = _media("/live/marathon.mp4", "show", 29391, "Marathon", "Marathon")
+    ad = _media("/live/ad.mp4", "ad", 30, "Ad", "Ads")
+    lineup = _Lineup([LiveTvChannel(number=118, callsign="CC", name="Comedy",
+                                    shows=[show.key])])
+    slots = LiveTvScheduler(lineup, [show], [ad]).build()
+    first = [s for s in slots if s.day == 0 and s.block_start == 0]
+    programmes = [s for s in first if s.kind == "S"]
+    assert [s.duration for s in programmes] == [7200, 7200, 7200, 7200, 591]
+    assert len({s.path for s in programmes}) == 5
+    assert all(a.end == b.start for a, b in zip(first, first[1:]))
+    assert first[len(programmes)].start == show.duration
+    assert len({s.block_duration for s in first}) == 1
+
+
+def test_failed_show_does_not_publish_its_commercials(tmp_path, monkeypatch):
+    sync, lineup, show, calls, _ = _sync_with_manifest(tmp_path, monkeypatch)
+    ad = _media(str(tmp_path / "ad.mp4"), "ad", 30, "Ad", "Ads")
+
+    def encode(item):
+        if item.kind == "show":
+            raise RuntimeError("file too large")
+        target = Path(sync.cached_mpeg_path(item))
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(b"mpeg")
+        return str(target)
+
+    monkeypatch.setattr(sync, "ensure_mpeg", encode)
+    mount = str(tmp_path / "ipod")
+    result = sync.sync(mount, lineup, [show], [ad])
+    assert result["channels"] == 0
+    assert result["slots"] == 0
+    assert len(Path(sync.device_root(mount), "guide.tsv").read_text().splitlines()) == 1
+
+
+def test_cancel_keeps_existing_device_guide(tmp_path, monkeypatch):
+    sync, lineup, show, _, _ = _sync_with_manifest(tmp_path, monkeypatch)
+    mount = str(tmp_path / "ipod")
+    root = Path(sync.device_root(mount))
+    root.mkdir(parents=True)
+    (root / "guide.tsv").write_text("old guide")
+    (root / "channels.tsv").write_text("old channels")
+    result = sync.sync(mount, lineup, [show], [], cancel=lambda: True)
+    assert result["cancelled"]
+    assert (root / "guide.tsv").read_text() == "old guide"
+    assert (root / "channels.tsv").read_text() == "old channels"
+
+
+def test_failed_copy_preserves_previous_clip_and_removes_partial(tmp_path, monkeypatch):
+    source, target = tmp_path / "source", tmp_path / "target"
+    source.write_bytes(b"new complete MPEG")
+    target.write_bytes(b"previous MPEG")
+
+    def incomplete_copy(source, staging):
+        Path(staging).write_bytes(b"partial")
+        raise OSError("File too large")
+
+    monkeypatch.setattr(livetv.shutil, "copy2", incomplete_copy)
+    with pytest.raises(OSError, match="File too large"):
+        livetv.LiveTvSync._copy_device_mpeg(source, target)
+    assert target.read_bytes() == b"previous MPEG"
+    assert not list(tmp_path.glob("*.tmp"))
+
+
+def test_sync_uses_segment_identity_instead_of_whole_source(tmp_path, monkeypatch):
+    sync, lineup, show, _, _ = _sync_with_manifest(tmp_path, monkeypatch)
+    show.segment = "episode"
+    show.start, show.end = 100, 1100
+    lineup.channels[0].shows = [show.key]
+    result = sync.sync(str(tmp_path / "ipod"), lineup, [show], [])
+    assert result["channels"] == 1
+    assert result["copied"] == 1
+
+
+def test_marathon_sync_copies_and_reuses_every_part(tmp_path, monkeypatch):
+    sync, lineup, show, calls, _ = _sync_with_manifest(tmp_path, monkeypatch)
+    show.duration = 29391
+    mount = str(tmp_path / "ipod")
+    result = sync.sync(mount, lineup, [show], [])
+    assert result["copied"] == 5
+    assert result["channels"] == 1
+    rows = [line.split("\t") for line in
+            Path(sync.device_root(mount), "guide.tsv").read_text().splitlines()
+            if not line.startswith("#")]
+    for day in range(7):
+        cursor = 0
+        for row in [r for r in rows if int(r[1]) == day]:
+            assert int(row[2]) == cursor
+            assert int(row[3]) <= livetv.LIVETV_PART_SECONDS
+            assert Path(sync.device_root(mount), row[8]).is_file()
+            cursor += int(row[3])
+        assert cursor == 86400
+    calls.clear()
+    result = sync.sync(mount, lineup, [show], [])
+    assert result["reused"] == 5
+    assert not calls
+
+
+def test_cached_marathon_remux_seeks_after_demux(tmp_path):
+    library = _StubLibraryForSync(tmp_path / "cache", [tmp_path])
+    library.ffmpeg_bin = lambda: "ffmpeg"
+    sync = livetv.LiveTvSync(library)
+    show = _media(str(tmp_path / "long.mp4"), "show", 15000)
+    cached = Path(sync.cached_mpeg_path(show))
+    cached.parent.mkdir(parents=True)
+    cached.write_bytes(b"complete MPEG")
+    part = show.playback_parts()[1]
+    command = sync._mpeg_command(part.path, "out.mpg", part)
+    assert command[command.index("-i") + 1] == str(cached)
+    assert command.index("-ss") > command.index("-i")
+    assert command[command.index("-ss") + 1] == "7200"
+    assert command[command.index("-c") + 1] == "copy"
+
+
+def test_marathon_survives_deleted_source_and_encode_cache(tmp_path, monkeypatch):
+    sync, lineup, show, calls, source = _sync_with_manifest(tmp_path, monkeypatch)
+    show.duration = 29391
+    show.series = series_name(str(source), str(source.parent))
+    mount = str(tmp_path / "ipod")
+    sync.sync(mount, lineup, [show], [])
+    source.unlink()
+    shutil.rmtree(sync._library.cache_dir())
+    calls.clear()
+    result = sync.sync(mount, lineup, [], [])
+    assert result["channels"] == 1
+    assert result["reused"] == 5
+    assert not result["errors"]
+    assert not calls
+
+
+def test_oversized_guide_keeps_previous_publication(tmp_path, monkeypatch):
+    sync, lineup, show, _, _ = _sync_with_manifest(tmp_path, monkeypatch)
+    mount = str(tmp_path / "ipod")
+    root = Path(sync.device_root(mount))
+    root.mkdir(parents=True)
+    (root / "guide.tsv").write_text("old guide")
+    (root / "channels.tsv").write_text("old channels")
+    monkeypatch.setattr(livetv, "LIVETV_DEVICE_MAX_SLOTS", 10)
+    with pytest.raises(RuntimeError, match="listing limit"):
+        sync.sync(mount, lineup, [show], [])
+    assert (root / "guide.tsv").read_text() == "old guide"
+    assert (root / "channels.tsv").read_text() == "old channels"
 
 
 def test_reused_clips_are_not_also_counted_as_skipped_copies(tmp_path,

@@ -23,6 +23,7 @@
 
 #include <sys/types.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <fcntl.h>
 #ifdef WIN32
 /* this has SEEK_SET et al */
@@ -104,5 +105,14 @@ int fdprintf(int fildes, const char *fmt, ...) ATTRIBUTE_PRINTF(2, 3);
 #define readlink        FS_PREFIX(readlink)
 #endif
 #endif /* FILEFUNCTIONS_DEFINED */
+
+/* Read-only large-file access for core media services. Plugin and codec
+ * filesystem ABIs retain their existing off_t signatures. */
+#if !defined(PLUGIN) && !defined(CODEC)
+#if (CONFIG_PLATFORM & PLATFORM_NATIVE) && !defined(SIMULATOR)
+ssize_t file_read_at(int fildes, void *buf, size_t nbyte, uint32_t offset);
+int64_t file_size64(int fildes);
+#endif
+#endif
 
 #endif /* _FILE_H_ */

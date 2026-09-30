@@ -67,6 +67,16 @@ def _text(row, field):
     return str((row or {}).get(field) or "").strip()
 
 
+def _missing_value(row, field):
+    value = (row or {}).get(field)
+    if field in {"external_rating", "external_rating_votes"}:
+        try:
+            return float(value or 0) <= 0
+        except (TypeError, ValueError):
+            return True
+    return not _text(row, field)
+
+
 class ShowGroup:
     """Every library row that belongs to one series."""
 
@@ -121,13 +131,14 @@ class VideoMetadataBackfill:
         provider=None,
         download_image=None,
         dry_run=False,
+        catalog_data=None,
     ):
         self.dry_run = bool(dry_run)
         self.catalog_dir = Path(catalog_dir or DEFAULT_CATALOG_DIR)
         self.catalog_path = self.catalog_dir / "catalog.json"
         self._provider = provider or TVmazeVideoMetadataProvider()
         self._download_image = download_image or self._default_download_image
-        self._catalog = self._load_catalog()
+        self._catalog = catalog_data if isinstance(catalog_data, dict) else self._load_catalog()
 
     # ---------------------------------------------------------------- catalog
 
@@ -167,6 +178,41 @@ class VideoMetadataBackfill:
             json.dump(self._catalog, handle, indent=2, ensure_ascii=False)
             handle.write("\n")
         os.replace(tmp, self.catalog_path)
+
+    @staticmethod
+    def _merge_record_metadata(entry, record):
+        """Keep rich provider facts in the durable title catalog."""
+        for field in (
+            "tmdb_id",
+            "year",
+            "genre",
+            "content_rating",
+            "show_plot",
+            "external_rating",
+            "external_rating_votes",
+        ):
+            value = record.get(field)
+            if value not in (None, "", 0, 0.0) and not entry.get(field):
+                entry[field] = value
+
+        details = dict(entry.get("details") or {})
+        for field in (
+            "release_date",
+            "runtime_seconds",
+            "status",
+            "original_language",
+            "original_title",
+            "country",
+            "network",
+            "cast",
+            "crew",
+            "keywords",
+        ):
+            value = record.get(field)
+            if value not in (None, "", [], {}):
+                details[field] = value
+        if details:
+            entry["details"] = details
 
     # ---------------------------------------------------------------- network
 
@@ -265,7 +311,7 @@ class VideoMetadataBackfill:
 
     # -------------------------------------------------------------------- plan
 
-    def plan_show(self, group, fetch_artwork=True):
+    def plan_show(self, group, fetch_artwork=True, repair_identity=False):
         """Return the catalog entry and per-row updates for one series."""
         record = self.resolve_show(group)
         if not record:
@@ -284,6 +330,7 @@ class VideoMetadataBackfill:
                 "aliases": aliases,
             }
         )
+        self._merge_record_metadata(entry, record)
         for field, value in (
             ("year", record.get("year")),
             ("genre", record.get("genre")),
@@ -307,7 +354,7 @@ class VideoMetadataBackfill:
         updates = [
             update
             for update in (
-                self._row_update(row, record, entry, episodes, canonical)
+                self._row_update(row, record, entry, episodes, canonical, repair_identity)
                 for row in group.rows
             )
             if update
@@ -321,6 +368,11 @@ class VideoMetadataBackfill:
         )
         if stored:
             entry["show_art"] = stored
+        banner = self._store_poster(
+            record.get("banner_url"), f"{slug}-banner.jpg"
+        )
+        if banner:
+            entry["banner_art"] = banner
         wanted = set(group.seasons)
         if not wanted:
             # Nothing in the library is filed under a season, so a season
@@ -359,19 +411,27 @@ class VideoMetadataBackfill:
         path = self.catalog_dir / filename
         return os.fspath(path) if path.is_file() else ""
 
-    def _row_update(self, row, record, entry, episodes, canonical):
+    def _row_update(
+        self, row, record, entry, episodes, canonical, repair_identity=False
+    ):
         if row.get("metadata_locked"):
             return None
         updates = {}
 
         def fill(field, value):
-            if value and not _text(row, field):
+            if value not in (None, "", 0, 0.0) and _missing_value(row, field):
                 updates[field] = value
 
         fill("imdb_id", record.get("imdb_id"))
+        fill("tmdb_id", record.get("tmdb_id"))
         fill("genre", record.get("genre") or entry.get("genre"))
         fill("content_rating", record.get("content_rating") or entry.get("content_rating"))
         fill("show_plot", record.get("plot_short") or entry.get("show_plot"))
+        fill("external_rating", record.get("external_rating") or entry.get("external_rating"))
+        fill(
+            "external_rating_votes",
+            record.get("external_rating_votes") or entry.get("external_rating_votes"),
+        )
         if not _as_int(row.get("year")) and record.get("year"):
             updates["year"] = int(record["year"])
         if canonical and _text(row, "show_title") != canonical:
@@ -385,7 +445,11 @@ class VideoMetadataBackfill:
         if detail:
             title = str(detail.get("title") or "").strip()
             current = _text(row, "title")
-            if title and (not current or _PLACEHOLDER_TITLE_RE.match(current)):
+            if title and (
+                not current
+                or _PLACEHOLDER_TITLE_RE.match(current)
+                or (repair_identity and current != title)
+            ):
                 updates["title"] = title
             fill("plot_short", detail.get("plot_short"))
             fill("plot_long", detail.get("plot_long"))
@@ -434,17 +498,29 @@ class MovieMetadataBackfill(VideoMetadataBackfill):
     than no poster.
     """
 
-    def __init__(self, service, catalog_dir=None, download_image=None, dry_run=False):
+    def __init__(
+        self,
+        service,
+        catalog_dir=None,
+        download_image=None,
+        dry_run=False,
+        catalog_data=None,
+    ):
         super().__init__(
             catalog_dir=catalog_dir,
             provider=None,
             download_image=download_image,
             dry_run=dry_run,
+            catalog_data=catalog_data,
         )
         self._service = service
 
     def resolve_movie(self, row):
-        title = _text(row, "title") or _text(row, "album")
+        title = (
+            _text(row, "_metadata_search_title")
+            or _text(row, "title")
+            or _text(row, "album")
+        )
         if not title:
             return None
         year = _as_int(row.get("year")) or None
@@ -465,7 +541,7 @@ class MovieMetadataBackfill(VideoMetadataBackfill):
             return result
         return None
 
-    def plan_movie(self, row, fetch_artwork=True):
+    def plan_movie(self, row, fetch_artwork=True, repair_identity=False):
         if row.get("metadata_locked"):
             return None
         record = self.resolve_movie(row)
@@ -476,6 +552,7 @@ class MovieMetadataBackfill(VideoMetadataBackfill):
         entry.update({"title": canonical, "kind": "movie"})
         if record.get("imdb_id"):
             entry["imdb_id"] = str(record["imdb_id"])
+        self._merge_record_metadata(entry, record)
         original = _text(row, "title")
         aliases = list(entry.get("aliases") or [])
         if original and original != canonical and original not in aliases:
@@ -496,18 +573,29 @@ class MovieMetadataBackfill(VideoMetadataBackfill):
             )
             if stored:
                 entry["show_art"] = stored
+            banner = self._store_poster(
+                record.get("banner_url"),
+                f"{_slug(canonical)}-{_as_int(record.get('year')) or 'movie'}-banner.jpg",
+            )
+            if banner:
+                entry["banner_art"] = banner
 
         updates = {}
 
         def fill(field, value):
-            if value and not _text(row, field):
+            if value not in (None, "", 0, 0.0) and _missing_value(row, field):
                 updates[field] = value
 
         fill("imdb_id", record.get("imdb_id"))
+        fill("tmdb_id", record.get("tmdb_id"))
         fill("genre", record.get("genre"))
         fill("content_rating", record.get("content_rating"))
+        fill("external_rating", record.get("external_rating"))
+        fill("external_rating_votes", record.get("external_rating_votes"))
         fill("plot_short", record.get("plot_short"))
         fill("plot_long", record.get("plot_long") or record.get("plot_short"))
+        if repair_identity and canonical and _text(row, "title") != canonical:
+            updates["title"] = canonical
         if not _as_int(row.get("year")) and record.get("year"):
             updates["year"] = int(record["year"])
         if not updates:

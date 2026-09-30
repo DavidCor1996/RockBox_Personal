@@ -1,0 +1,80 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_item.c: In function 'KaleidoScope_DrawAmmoCount':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_item.c:78:13: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+   78 |             &pauseCtx->itemVtx[((CVarGetInteger(CVAR_ENHANCEMENT("BetterAmmoRendering"), 0) ? sAllAmmoVtxOffset[slot]
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |             |
+      |             Vtx *
+   79 |                                                                                             : sAmmoVtxOffset[slot]) +
+      |                                                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~
+   80 |                                 31) *
+      |                                 ~~~~~
+   81 |                                4],
+      |                                ~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_scope.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_item.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_item.c:92:15: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+   92 |               &pauseCtx->itemVtx[((CVarGetInteger(CVAR_ENHANCEMENT("BetterAmmoRendering"), 0) ? sAllAmmoVtxOffset[slot]
+      |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |               |
+      |               Vtx *
+   93 |                                                                                               : sAmmoVtxOffset[slot]) +
+      |                                                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~
+   94 |                                   32) *
+      |                                   ~~~~~
+   95 |                                  4],
+      |                                  ~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_item.c: In function 'KaleidoScope_DrawItemCycleExtras':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_item.c:216:40: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+  216 |             gSPVertex(POLY_OPA_DISP++, sCycleAButtonVtx, 4, 0);
+      |                                        ^~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        Vtx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_item.c:225:40: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+  225 |             gSPVertex(POLY_OPA_DISP++, sCycleCircleVtx, 8, 0);
+      |                                        ^~~~~~~~~~~~~~~
+      |                                        |
+      |                                        Vtx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_item.c:241:36: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+  241 |         gSPVertex(POLY_OPA_DISP++, sCycleExtraItemVtx, 8, 0);
+      |                                    ^~~~~~~~~~~~~~~~~~
+      |                                    |
+      |                                    Vtx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_item.c: In function 'KaleidoScope_DrawItemSelect':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_item.c:723:40: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+  723 |             gSPVertex(POLY_OPA_DISP++, &pauseCtx->itemVtx[j], 4, 0);
+      |                                        ^~~~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        Vtx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_item.c:724:72: warning: passing argument 2 of 'KaleidoScope_QuadTextureIA8' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  724 |             POLY_OPA_DISP = KaleidoScope_QuadTextureIA8(POLY_OPA_DISP, gEquippedItemOutlineTex, 32, 32, 0);
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_scope.h:55:50: note: expected 'void *' but argument is of type 'const char *'
+   55 | Gfx* KaleidoScope_QuadTextureIA8(Gfx* gfx, void* texture, s16 width, s16 height, u16 point);
+      |                                            ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_item.c:769:40: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+  769 |             gSPVertex(POLY_OPA_DISP++, &pauseCtx->itemVtx[j + 0], 4, 0);
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        Vtx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^

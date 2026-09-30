@@ -1,3 +1,4 @@
+extern "C" bool flashplayer_is_skullkid();
 // gameswf_text.cpp	-- Thatcher Ulrich <tu@tulrich.com> 2003
 
 // This source code has been donated to the Public Domain.  Do
@@ -416,7 +417,13 @@ namespace gameswf
 	void	text_character_def::display(character* inst)
 	// Draw the string.
 	{
-		flashplayer_trace_text(30, m_text_glyph_records.size(), 0, 0);
+		if (flashplayer_is_skullkid()) {
+            if (inst->get_id() == 381 || inst->get_id() == 384) return;
+            // Retain movement/hint copy; omit PC quality/audio controls.
+            if (inst->get_id() == 390 && m_text_glyph_records.size() > 7)
+                m_text_glyph_records.resize(7);
+        }
+        flashplayer_trace_text(30, m_text_glyph_records.size(), 0, 0);
 
 		// try glyph provider
 		if (m_is_glyphs_drawn == false)

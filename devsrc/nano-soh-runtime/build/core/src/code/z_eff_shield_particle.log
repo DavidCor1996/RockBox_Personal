@@ -1,0 +1,11 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_eff_shield_particle.c: In function 'EffectShieldParticle_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_eff_shield_particle.c:215:40: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+  215 |             gSPVertex(POLY_XLU_DISP++, sVertices, 4, 0);
+      |                                        ^~~~~~~~~
+      |                                        |
+      |                                        Vtx *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_eff_shield_particle.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^

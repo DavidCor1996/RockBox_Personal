@@ -76,6 +76,7 @@ extern const char rbversion[];
 #include "plugin.h"
 #ifdef SIMULATOR
 #include "open_plugin.h"
+#include "notification_manager.h"
 #endif
 #include "misc.h"
 #include "dircache.h"
@@ -250,6 +251,7 @@ int main(void)
 
 #ifdef AUTOROCK
     {
+        lcd_boot_frame_hold(false);
         char filename[MAX_PATH];
         const char *file =
 #ifdef APPLICATION
@@ -280,6 +282,14 @@ int main(void)
             char next_plugin_buf[MAX_PATH];
             char next_param_buf[MAX_PATH];
 
+            if (getenv("ROCKPOD_SIM_NOTIFICATION_TEST")) {
+                notification_manager_set_desktop_mode(
+                    !strcmp(getenv("ROCKPOD_SIM_NOTIFICATION_TEST"),
+                            "desktop"));
+                notification_manager_test_banner();
+            }
+
+            lcd_boot_frame_hold(false);
             fprintf(stderr, "ROCKBOX_SIM_PLUGIN: %s param=%s\n",
                     next_plugin, next_param ? next_param : "(null)");
             do {
@@ -311,10 +321,11 @@ int main(void)
 #endif
 
     global_status.last_volume_change = 0;
-#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3)
-    /* Make an experimental Rolo core impossible to confuse with RockPod. */
-    splashf(HZ * 3, "HIBERNATE TEST BUILD\nStage 3B-R11 / ABI 12\nRuntime: %s",
-            ROCKBOX_DIR);
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_ROLO_CANDIDATE) && \
+        IPOD6G_HIBERNATE_ROLO_CANDIDATE && !defined(SIMULATOR)
+    /* Qualification-only identity.  Production builds omit the macro and
+     * therefore retain Apple's no-interstitial normal startup behavior. */
+    splash(HZ * 2, "DARK HIBERNATE P16\nCODEC RESTORE\nWAKE EVENT 17");
 #endif
     /* no calls INIT_ATTR functions after this point anymore!
      * see definition of INIT_ATTR in config.h */
@@ -356,7 +367,9 @@ int show_logo_boot( void )
 #endif
 #endif
     lcd_setfont(FONT_UI);
+    lcd_boot_frame_hold(false);
     lcd_update();
+    lcd_boot_frame_hold(true);
 #ifdef HAVE_REMOTE_LCD
     lcd_remote_clear_display();
     lcd_remote_bmp(&bm_remote_rockboxlogo, 0, 10);
@@ -408,8 +421,6 @@ static int INIT_ATTR init_dircache(bool preinit)
         {
             if (result > 0)
             {
-                /* Print "Scanning disk..." to the display. */
-                splash(0, str(LANG_SCANNING_DISK));
                 dircache_wait();
                 backlight_on();
                 RP_INIT_MARK("show_logo_boot");
@@ -526,6 +537,9 @@ static void init(void)
     audio_init();
     talk_announce_voice_invalid(); /* notify user w/ voice prompt if voice file invalid */
     settings_apply_skins();
+#ifdef HAVE_IPODJS_UI
+    root_menu_ipodjs_prepare_wps_fonts();
+#endif
 
 /* do USB last so prompt (if enabled) can work correctly if USB was inserted with device off,
  * also doesn't hurt that it will display the nice pretty backdrop this way too. */
@@ -1156,6 +1170,7 @@ static void init(void)
     CHART("<storage_init");
     if(rc)
     {
+        lcd_boot_frame_hold(false);
         lcd_clear_display();
         lcd_putsf(0, 1, "ATA error: %d", rc);
         lcd_puts(0, 3, "Press button to debug");
@@ -1221,6 +1236,7 @@ static void init(void)
         if (rc<=0)
         {
             int line=0;
+            lcd_boot_frame_hold(false);
             lcd_clear_display();
             lcd_putsf(0, line++, "No partition found (%d).", rc);
 #ifndef USB_NONE
@@ -1379,6 +1395,9 @@ static void init(void)
 #endif
     CHART("<settings_apply_skins");
     settings_apply_skins();
+#ifdef HAVE_IPODJS_UI
+    root_menu_ipodjs_prepare_wps_fonts();
+#endif
     CHART(">settings_apply_skins");
 #if defined(IPOD_NANO3G) && NANO3G_NATIVE_SAFE_BOOT
     nano3g_boottrace_log("full init ok");

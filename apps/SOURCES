@@ -85,6 +85,7 @@ iap/iap-lingo0.c
 iap/iap-lingo1.c
 #endif
 iap/iap-lingo2.c
+iap/iap-remote-debug.c
 iap/iap-lingo3.c
 iap/iap-lingo4.c
 #if CONFIG_TUNER
@@ -95,7 +96,15 @@ screen_access.c
 gui/icon.c
 #ifdef HAVE_IPODJS_UI
 gui/ipodjs_ui.c
+#ifdef HAVE_DOCKED_AMBIENT_CLOCK
+gui/ambient_clock.c
+#endif
+gui/ipodjs_retailos.c
+gui/ipodjs_wps_text.c
+gui/ipodjs_utilities.c
+gui/ipodjs_settings.c
 notification_manager.c
+msn_notifications.c
 usb_internet.c
 #if defined(USB_ENABLE_IPHETH_HOST) && !defined(SIMULATOR)
 usb_iphone_preflight.c
@@ -123,6 +132,7 @@ gui/mask_select.c
 #endif
 
 gui/wps.c
+gui/videoout_art.c
 gui/scrollbar.c
 gui/splash.c
 gui/statusbar.c
@@ -336,4 +346,9 @@ keymaps/keymap-rgnano.c
 keymaps/keymap-ctru.c
 #elif CONFIG_KEYPAD == HIBY_R3PROII_PAD
 keymaps/keymap-hibyr3proii.c
+#endif
+
+#ifdef HAVE_COMPOSITE_VIDEO_OUT
+gui/tv_ui.c
+gui/tv_sound.c
 #endif

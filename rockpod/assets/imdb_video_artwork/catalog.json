@@ -333,7 +333,16 @@
       "source_page": "https://www.imdb.com/title/tt0417299/",
       "metadata_source": "https://v3-cinemeta.strem.io/meta/series/tt0417299.json",
       "source_image": "https://images.metahub.space/poster/medium/tt0417299/img",
-      "source_image_sha256": "eb03d372a89441ef4e2c2e9a7cc6ac04030656c6b49b09ad7bbcd6a94b80f4ca"
+      "source_image_sha256": "eb03d372a89441ef4e2c2e9a7cc6ac04030656c6b49b09ad7bbcd6a94b80f4ca",
+      "details": {
+        "release_date": "2005-02-21",
+        "runtime_seconds": 1440,
+        "status": "Ended",
+        "original_language": "en"
+      },
+      "external_rating": 8.779,
+      "external_rating_votes": 5071,
+      "banner_art": "avatar-the-last-airbender-banner.jpg"
     },
     {
       "imdb_id": "tt0125459",
@@ -345,25 +354,77 @@
       "year": 1997,
       "show_art": "pitch-1997.jpg",
       "source_page": "https://www.imdb.com/title/tt0125459/",
-      "source_image": "https://m.media-amazon.com/images/M/MV5BMTYxNjQ2NjY3NV5BMl5BanBnXkFtZTcwNTEyNzUyMQ@@._V1_.jpg"
+      "source_image": "https://m.media-amazon.com/images/M/MV5BMTYxNjQ2NjY3NV5BMl5BanBnXkFtZTcwNTEyNzUyMQ@@._V1_.jpg",
+      "tmdb_id": "52862",
+      "genre": "Comedy, Documentary",
+      "external_rating": 6.455,
+      "external_rating_votes": 22,
+      "details": {
+        "release_date": "1997-09-04",
+        "runtime_seconds": 4860,
+        "status": "Released",
+        "original_language": "en"
+      },
+      "show_plot": "A Canadian documentary featuring two young filmmakers attending the Toronto Film Festival to pitch a film concept to various celebrities. Their film idea, titled \"The Dawn\", concerns a Mafia don who goes for a hernia operation but gets a sex change instead. During the 1996 Toronto Fest, they approach Roger Ebert, Norman Jewison (at a packed press conference), Eric Stoltz (leaving a limo), Al Pacino, and others without much success. On a roll, they leave Toronto for Hollywood, getting advice from Arthur Hiller and Neil Simon and finding an agent who expresses interest in their pitch.",
+      "banner_art": "pitch-1997.jpg",
+      "banner_note": "Poster fallback: no published TMDb backdrop available."
+    },
+    {
+      "imdb_id": "tt8368368",
+      "tmdb_id": "1182047",
+      "title": "The Apprentice",
+      "aliases": [],
+      "kind": "movie",
+      "year": 2024,
+      "genre": "Drama, History",
+      "content_rating": "R",
+      "show_plot": "A young Donald Trump, eager to make his name in 1970s New York, comes under the spell of the cutthroat attorney Roy Cohn.",
+      "show_art": "the-apprentice-2024.jpg",
+      "source_page": "https://www.themoviedb.org/movie/1182047-the-apprentice",
+      "source_image": "https://media.themoviedb.org/t/p/w500/zxA7bL9qOnU49NXIqpnyJlRvkqs.jpg",
+      "external_rating": 6.847,
+      "external_rating_votes": 1025,
+      "details": {
+        "release_date": "2024-10-09",
+        "runtime_seconds": 7320,
+        "status": "Released",
+        "original_language": "en"
+      },
+      "banner_art": "the-apprentice-2024-banner.jpg"
     },
     {
       "imdb_id": "tt0115200",
       "title": "Hey Arnold!",
       "aliases": [
         "Hey Arnold",
-        "Hey, Arnold!"
+        "Hey, Arnold!",
+        "Hey Arnold Episode 1",
+        "Hey Arnold! Episode 1"
       ],
       "kind": "show",
       "year": 1996,
       "show_art": "hey-arnold-show.jpg",
       "seasons": {
-        "1": "hey-arnold-show.jpg"
+        "1": "hey-arnold-season-1.jpg"
+      },
+      "season_sources": {
+        "1": "https://www.themoviedb.org/tv/537/season/1"
       },
       "source_page": "https://www.imdb.com/title/tt0115200/",
       "source_image": "https://m.media-amazon.com/images/M/MV5BYzhiYTYwM2QtNTlmNy00MGM1LTllM2UtOGJmZTUxMmJmZjdiXkEyXkFqcGc@._V1_.jpg",
       "genre": "Children",
-      "show_plot": "The adventures of a daydreaming, jazz-loving, football-headed 9-year-old, who lives in a boarding house with his grandparents and some eccentric boarders, encounters life in the city with his best friend Gerald, a loofah-haired kid, who is the keeper of the urban tales and coolest kid in class; and Helga, who torments him, but loves him secretly."
+      "show_plot": "The adventures of a daydreaming, jazz-loving, football-headed 9-year-old, who lives in a boarding house with his grandparents and some eccentric boarders, encounters life in the city with his best friend Gerald, a loofah-haired kid, who is the keeper of the urban tales and coolest kid in class; and Helga, who torments him, but loves him secretly.",
+      "details": {
+        "release_date": "1996-10-07",
+        "runtime_seconds": 720,
+        "status": "Ended",
+        "original_language": "en"
+      },
+      "tmdb_id": "537",
+      "content_rating": "TV-Y7",
+      "external_rating": 8.018,
+      "external_rating_votes": 993,
+      "banner_art": "hey-arnold-banner.jpg"
     },
     {
       "imdb_id": "tt0384746",
@@ -378,19 +439,29 @@
       "seasons": {
         "1": "kenny-vs-spenny-season-1.jpg",
         "2": "kenny-vs-spenny-season-2.jpg",
-        "3": "kenny-vs-spenny-show.jpg",
-        "5": "kenny-vs-spenny-show.jpg"
+        "3": "kenny-vs-spenny-season-3.jpg",
+        "5": "kenny-vs-spenny-season-5.jpg"
       },
       "season_sources": {
         "1": "https://www.imdb.com/title/tt0384746/mediaviewer/rm2217975040/",
         "2": "https://www.imdb.com/title/tt0384746/mediaviewer/rm2505478656/",
-        "3": "https://www.imdb.com/title/tt0384746/",
-        "5": "https://www.imdb.com/title/tt0384746/"
+        "3": "https://www.themoviedb.org/tv/3540/season/3",
+        "5": "https://www.themoviedb.org/tv/3540/season/5"
       },
       "source_page": "https://www.imdb.com/title/tt0384746/",
       "source_image": "https://m.media-amazon.com/images/M/MV5BNjQ5MThmNmQtODViNy00YTdhLWI1MTctODAwYWRiOTMwZmExXkEyXkFqcGc@._V1_.jpg",
       "genre": "Comedy",
-      "show_plot": "This show is about Canadian friends Kenny Hotz and Spenny Rice who compete against each other. Glory for the Winner, Humiliation for the Loser! The main characters of the show are: - Kenneth Joel Hotz (Kenny) and Spencer Nolan Rice (Spenny) who have been best friends since a very young age; Spenny is a stressed out, neurotic, short-fused adult-type who believes in preparation and hard work. He's responsible, often angry, introspective, paranoid and ethical, and Kenny is all the opposite to his friend, the best way to describe Kenny that he`s a witty wise-cracker, brilliant schemer, a goofball looking for a shortcut, he loves to humiliate Spenny and will do anything to win."
+      "show_plot": "This show is about Canadian friends Kenny Hotz and Spenny Rice who compete against each other. Glory for the Winner, Humiliation for the Loser! The main characters of the show are: - Kenneth Joel Hotz (Kenny) and Spencer Nolan Rice (Spenny) who have been best friends since a very young age; Spenny is a stressed out, neurotic, short-fused adult-type who believes in preparation and hard work. He's responsible, often angry, introspective, paranoid and ethical, and Kenny is all the opposite to his friend, the best way to describe Kenny that he`s a witty wise-cracker, brilliant schemer, a goofball looking for a shortcut, he loves to humiliate Spenny and will do anything to win.",
+      "tmdb_id": "3540",
+      "external_rating": 7.344,
+      "external_rating_votes": 64,
+      "details": {
+        "release_date": "2003-11-11",
+        "runtime_seconds": 1320,
+        "status": "Ended",
+        "original_language": "en"
+      },
+      "banner_art": "kenny-vs-spenny-banner.jpg"
     },
     {
       "imdb_id": "tt1970923",
@@ -402,12 +473,22 @@
       "year": 2011,
       "show_art": "kenny-hotz-s-triumph-of-the-will-show.jpg",
       "seasons": {
-        "1": "kenny-triumph-show.jpg"
+        "1": "kenny-hotz-s-triumph-of-the-will-season-1.jpg"
       },
       "source_page": "https://www.imdb.com/title/tt1970923/",
       "source_image": "https://m.media-amazon.com/images/M/MV5BNTIwOTE5Nzg0M15BMl5BanBnXkFtZTcwNDgzNTYxOA@@._V1_.jpg",
       "genre": "Comedy",
-      "show_plot": "Triumph of the Will is a show staring Kenny Hotz from Testees & Kenny vs. Spenny, is finished with trivial tête-à-tête competitions and is ready to take on the world. Each episode finds Kenny stopping at nothing to fulfill a Herculean task and change society, as we know it. This Mission Impossible meets Dateline series will see Kenny attempting the insane and challenging socially acceptable boundaries in such missions as trying to build a mosque for Islam with Jewish money and trying to find a husband for his widowed mother. Although he is fueled by a personal and higher moral purpose, because this is Kenny Hotz, his tactics will always be unconventional and unpredictable."
+      "show_plot": "Triumph of the Will is a show staring Kenny Hotz from Testees & Kenny vs. Spenny, is finished with trivial tête-à-tête competitions and is ready to take on the world. Each episode finds Kenny stopping at nothing to fulfill a Herculean task and change society, as we know it. This Mission Impossible meets Dateline series will see Kenny attempting the insane and challenging socially acceptable boundaries in such missions as trying to build a mosque for Islam with Jewish money and trying to find a husband for his widowed mother. Although he is fueled by a personal and higher moral purpose, because this is Kenny Hotz, his tactics will always be unconventional and unpredictable.",
+      "details": {
+        "release_date": "2011-07-22",
+        "runtime_seconds": 1800,
+        "status": "Ended",
+        "original_language": "en"
+      },
+      "tmdb_id": "39741",
+      "external_rating": 5.1,
+      "external_rating_votes": 9,
+      "banner_art": "kenny-hotz-s-triumph-of-the-will-banner.jpg"
     },
     {
       "imdb_id": "tt0126170",
@@ -419,20 +500,41 @@
       "year": 1997,
       "show_art": "recess-show.jpg",
       "seasons": {
-        "3": "recess-show.jpg",
-        "4": "recess-show.jpg"
+        "1": "recess-season-1.jpg",
+        "2": "recess-season-2.jpg",
+        "3": "recess-season-3.jpg",
+        "4": "recess-season-4.jpg",
+        "5": "recess-season-5.jpg",
+        "6": "recess-season-6.jpg"
+      },
+      "season_sources": {
+        "3": "https://www.themoviedb.org/tv/1546/season/3",
+        "4": "https://www.themoviedb.org/tv/1546/season/4"
       },
       "source_page": "https://www.imdb.com/title/tt0126170/",
       "source_image": "https://m.media-amazon.com/images/M/MV5BY2I4OTZhNGEtOTBmMi00ZDVjLWEzOTctOWFiOWRkMmViYTExXkEyXkFqcGc@._V1_.jpg",
       "genre": "Children",
-      "show_plot": "Comic tales of a group of good friends, 4 boys and 2 girls, during breaks in primary school, as they grow up, relate to each other, and have brushes with authority."
+      "show_plot": "Comic tales of a group of good friends, 4 boys and 2 girls, during breaks in primary school, as they grow up, relate to each other, and have brushes with authority.",
+      "tmdb_id": "1546",
+      "content_rating": "TV-Y7",
+      "external_rating": 7.744,
+      "external_rating_votes": 532,
+      "details": {
+        "release_date": "1997-09-13",
+        "runtime_seconds": 0,
+        "status": "Ended",
+        "original_language": "en"
+      },
+      "banner_art": "recess-banner.jpg"
     },
     {
       "imdb_id": "tt0439341",
-      "title": "6Teen",
+      "title": "6teen",
       "aliases": [
         "6teen",
-        "Sixteen"
+        "Sixteen",
+        "6Teen Episode 52",
+        "6Teen"
       ],
       "kind": "show",
       "year": 2004,
@@ -450,13 +552,26 @@
       "source_page": "https://www.imdb.com/title/tt0439341/",
       "source_image": "https://m.media-amazon.com/images/M/MV5BYTFiOWY0NzItMDk3NS00M2U3LWI4MDItNTBlZmUxMDcyMGFlXkEyXkFqcGc@._V1_.jpg",
       "genre": "Comedy",
-      "show_plot": "6Teen is an animated situation comedy for tweens set entirely in a gigantic shopping mall! It's minimum wages and maximum laughs as we follow our ensemble cast of six sixteen-year-old friends trying to make it through their first part-time jobs and life as a teen. 6Teen is about the important stuff firsts. First crushes, first jobs, first bank accounts and most importantly, that first taste of freedom¦ of course, not all firsts are positive. Nikki finds herself stuck (in what she considers a sick twist of fate) working at The Khaki Barn, a store that she wouldn't be caught dead shopping in. Jen's scored her dream job at a sports shop, but her meathead ex-gym coach boss, Coach Halder, keeps throwing her in the penalty box for messing up. Jonesy manages to get his butt fired from a new store in every single episode, Wyatt's hopelessly in love with his older co-worker, and Cait..."
+      "show_plot": "6Teen is an animated situation comedy for tweens set entirely in a gigantic shopping mall! It's minimum wages and maximum laughs as we follow our ensemble cast of six sixteen-year-old friends trying to make it through their first part-time jobs and life as a teen. 6Teen is about the important stuff firsts. First crushes, first jobs, first bank accounts and most importantly, that first taste of freedom¦ of course, not all firsts are positive. Nikki finds herself stuck (in what she considers a sick twist of fate) working at The Khaki Barn, a store that she wouldn't be caught dead shopping in. Jen's scored her dream job at a sports shop, but her meathead ex-gym coach boss, Coach Halder, keeps throwing her in the penalty box for messing up. Jonesy manages to get his butt fired from a new store in every single episode, Wyatt's hopelessly in love with his older co-worker, and Cait...",
+      "details": {
+        "release_date": "2004-11-07",
+        "runtime_seconds": 1800,
+        "status": "Ended",
+        "original_language": "en"
+      },
+      "tmdb_id": "4355",
+      "content_rating": "TV-PG",
+      "external_rating": 7.5,
+      "external_rating_votes": 40,
+      "banner_art": "6teen-banner.jpg"
     },
     {
       "imdb_id": "tt0090390",
       "title": "ALF",
       "kind": "show",
-      "aliases": [],
+      "aliases": [
+        "ALF S01E01 A.L.F."
+      ],
       "year": 1986,
       "genre": "Comedy, Family, Science-Fiction",
       "show_plot": "One starry night in 1986, the Tanner family get an unexpected houseguest - a furry, four-foot-high Alien Life Form they call ALF , who quickly becomes part of the family.",
@@ -466,7 +581,18 @@
         "2": "alf-season-2.jpg",
         "3": "alf-season-3.jpg",
         "4": "alf-season-4.jpg"
-      }
+      },
+      "details": {
+        "release_date": "1986-09-22",
+        "runtime_seconds": 1380,
+        "status": "Ended",
+        "original_language": "en"
+      },
+      "tmdb_id": "4658",
+      "content_rating": "TV-G",
+      "external_rating": 7.654,
+      "external_rating_votes": 1259,
+      "banner_art": "alf-banner.jpg"
     },
     {
       "imdb_id": "tt0460091",
@@ -478,8 +604,28 @@
       "show_plot": "Karma is a funny thing. Just ask Earl who's learning the hard way that when you do something bad, it has a way of coming back and biting you in the ass! Hoping to turn his life around, Earl's got a lengthy list of detestable deeds to make up for.",
       "show_art": "my-name-is-earl-show.jpg",
       "seasons": {
-        "1": "my-name-is-earl-show.jpg"
-      }
+        "1": "my-name-is-earl-season-1.jpg",
+        "2": "my-name-is-earl-season-2.jpg",
+        "3": "my-name-is-earl-season-3.jpg",
+        "4": "my-name-is-earl-season-4.jpg"
+      },
+      "season_sources": {
+        "1": "https://www.themoviedb.org/tv/2317/season/1",
+        "2": "https://www.themoviedb.org/tv/2317/season/2",
+        "3": "https://www.themoviedb.org/tv/2317/season/3",
+        "4": "https://www.themoviedb.org/tv/2317/season/4"
+      },
+      "tmdb_id": "2317",
+      "content_rating": "TV-14",
+      "external_rating": 7.652,
+      "external_rating_votes": 1163,
+      "details": {
+        "release_date": "2005-09-20",
+        "runtime_seconds": 0,
+        "status": "Canceled",
+        "original_language": "en"
+      },
+      "banner_art": "my-name-is-earl-banner.jpg"
     },
     {
       "imdb_id": "tt0168366",
@@ -492,7 +638,18 @@
       "show_art": "pokemon-show.jpg",
       "seasons": {
         "1": "pokemon-season-1.jpg"
-      }
+      },
+      "tmdb_id": "60572",
+      "content_rating": "TV-Y7",
+      "external_rating": 7.989,
+      "external_rating_votes": 2247,
+      "details": {
+        "release_date": "1997-04-01",
+        "runtime_seconds": 0,
+        "status": "Ended",
+        "original_language": "ja"
+      },
+      "banner_art": "pokemon-banner.jpg"
     },
     {
       "imdb_id": "tt0386676",
@@ -513,20 +670,276 @@
       "imdb_id": "tt0290988",
       "title": "Trailer Park Boys",
       "kind": "show",
-      "aliases": [],
+      "aliases": [
+        "Trailer Park Boys Christmas Special Dear Santa Claus Go Fuck Yourself"
+      ],
       "year": 2001,
       "genre": "Comedy, Crime",
       "show_plot": "Follow the booze-fueled misadventures of three longtime pals and petty serial criminals who run scams from their Nova Scotia trailer park.",
       "show_art": "trailer-park-boys-show.jpg",
       "seasons": {
-        "1": "trailer-park-boys-show.jpg",
-        "2": "trailer-park-boys-show.jpg",
-        "3": "trailer-park-boys-show.jpg",
-        "4": "trailer-park-boys-show.jpg",
-        "5": "trailer-park-boys-show.jpg",
-        "6": "trailer-park-boys-show.jpg",
-        "7": "trailer-park-boys-show.jpg"
+        "1": "trailer-park-boys-season-1.jpg",
+        "2": "trailer-park-boys-season-2.jpg",
+        "3": "trailer-park-boys-season-3.jpg",
+        "4": "trailer-park-boys-season-4.jpg",
+        "5": "trailer-park-boys-season-5.jpg",
+        "6": "trailer-park-boys-season-6.jpg",
+        "7": "trailer-park-boys-season-7.jpg"
+      },
+      "season_sources": {
+        "1": "https://www.themoviedb.org/tv/3796/season/1",
+        "2": "https://www.themoviedb.org/tv/3796/season/2",
+        "3": "https://www.themoviedb.org/tv/3796/season/3",
+        "4": "https://www.themoviedb.org/tv/3796/season/4",
+        "5": "https://www.themoviedb.org/tv/3796/season/5",
+        "6": "https://www.themoviedb.org/tv/3796/season/6",
+        "7": "https://www.themoviedb.org/tv/3796/season/7"
+      },
+      "tmdb_id": "3796",
+      "content_rating": "TV-MA",
+      "external_rating": 7.7,
+      "external_rating_votes": 328,
+      "details": {
+        "release_date": "2001-04-22",
+        "runtime_seconds": 1320,
+        "status": "Ended",
+        "original_language": "en"
+      },
+      "banner_art": "trailer-park-boys-banner.jpg"
+    },
+    {
+      "imdb_id": "tt7520794",
+      "title": "Russian Doll",
+      "kind": "show",
+      "aliases": [],
+      "year": 2019,
+      "genre": "Drama, Comedy",
+      "show_plot": "Nadia keeps dying and reliving her 36th birthday party. She's trapped in a surreal time loop -- and staring down the barrel of her own mortality.",
+      "show_art": "russian-doll-show.jpg",
+      "seasons": {
+        "1": "russian-doll-season-1.jpg"
+      },
+      "tmdb_id": "84977",
+      "content_rating": "TV-MA",
+      "external_rating": 7.4,
+      "external_rating_votes": 1049,
+      "details": {
+        "release_date": "2019-02-01",
+        "runtime_seconds": 0,
+        "status": "Ended",
+        "original_language": "en"
+      },
+      "banner_art": "russian-doll-banner.jpg"
+    },
+    {
+      "imdb_id": "tt0877057",
+      "title": "Death Note",
+      "kind": "show",
+      "aliases": [
+        "death note"
+      ],
+      "tmdb_id": "13916",
+      "year": 2006,
+      "genre": "Animation, Mystery, Sci-Fi & Fantasy",
+      "content_rating": "TV-14",
+      "external_rating": 8.619,
+      "external_rating_votes": 5127,
+      "details": {
+        "release_date": "2006-10-04",
+        "runtime_seconds": 1320,
+        "status": "Ended",
+        "original_language": "ja"
+      },
+      "show_plot": "Light Yagami is an ace student with great prospects—and he’s bored out of his mind. But all that changes when he finds the Death Note, a notebook dropped by a rogue Shinigami death god. Any human whose name is written in the notebook dies, and Light has vowed to use the power of the Death Note to rid the world of evil. But will Light succeed in his noble goal, or will the Death Note turn him into the very thing he fights against?",
+      "show_art": "death-note-show.jpg",
+      "banner_art": "death-note-banner.jpg",
+      "seasons": {
+        "1": "death-note-season-1.jpg"
       }
+    },
+    {
+      "imdb_id": "tt22202452",
+      "title": "Pluribus",
+      "kind": "show",
+      "aliases": [],
+      "tmdb_id": "225171",
+      "year": 2025,
+      "genre": "Drama, Sci-Fi & Fantasy",
+      "content_rating": "TV-MA",
+      "external_rating": 7.935,
+      "external_rating_votes": 1080,
+      "details": {
+        "release_date": "2025-11-06",
+        "runtime_seconds": 0,
+        "status": "Returning Series",
+        "original_language": "en"
+      },
+      "show_plot": "The most miserable person on Earth must save the world from happiness.",
+      "show_art": "pluribus-show.jpg",
+      "banner_art": "pluribus-banner.jpg",
+      "seasons": {
+        "1": "pluribus-season-1.jpg"
+      }
+    },
+    {
+      "imdb_id": "tt3066242",
+      "title": "RWBY",
+      "kind": "show",
+      "aliases": [],
+      "tmdb_id": "50137",
+      "year": 2013,
+      "genre": "Animation, Action & Adventure, Sci-Fi & Fantasy",
+      "content_rating": "TV-14",
+      "external_rating": 7.764,
+      "external_rating_votes": 218,
+      "details": {
+        "release_date": "2013-07-18",
+        "runtime_seconds": 1380,
+        "status": "Returning Series",
+        "original_language": "en"
+      },
+      "show_plot": "The future-fantasy world of Remnant is filled with ravenous monsters, treacherous terrain, and more villains than you can shake a sniper-scythe at. Fortunately, Beacon Academy is training Huntsmen and Huntresses to battle the evils of the world, and Ruby, Weiss, Blake, and Yang are ready for their first day of class.",
+      "show_art": "rwby-show.jpg",
+      "banner_art": "rwby-banner.jpg",
+      "seasons": {
+        "1": "rwby-season-1.jpg",
+        "2": "rwby-season-2.jpg",
+        "3": "rwby-season-3.jpg",
+        "4": "rwby-season-4.jpg",
+        "5": "rwby-season-5.jpg",
+        "6": "rwby-season-6.jpg",
+        "7": "rwby-season-7.jpg",
+        "8": "rwby-season-8.jpg",
+        "9": "rwby-season-9.jpg"
+      }
+    },
+    {
+      "imdb_id": "tt0425601",
+      "title": "Trailer Park Boys: The Movie",
+      "kind": "movie",
+      "tmdb_id": "9958",
+      "year": 2006,
+      "genre": "Comedy, Crime",
+      "content_rating": "R",
+      "external_rating": 6.534,
+      "external_rating_votes": 161,
+      "details": {
+        "release_date": "2006-10-06",
+        "runtime_seconds": 5700,
+        "status": "Released",
+        "original_language": "en"
+      },
+      "aliases": [
+        "Trailer Park Boys - The Movie - The Big Dirty"
+      ],
+      "show_plot": "The boys get arrested for robbing an ATM machine and spend 18 months in jail, upon release they decide to pull off \"The Big Dirty\", a plan to steal a large amount of coins because they are untraceable and quit their life of crime forever.",
+      "show_art": "trailer-park-boys-the-movie-2006.jpg",
+      "banner_art": "trailer-park-boys-the-movie-2006-banner.jpg"
+    },
+    {
+      "imdb_id": "tt0383678",
+      "title": "Trailer Park Boys",
+      "kind": "movie",
+      "tmdb_id": "38674",
+      "year": 1999,
+      "genre": "Comedy",
+      "external_rating": 7.129,
+      "external_rating_votes": 62,
+      "details": {
+        "release_date": "1999-07-15",
+        "runtime_seconds": 4020,
+        "status": "Released",
+        "original_language": "en"
+      },
+      "aliases": [
+        "Trailer Park Boys - The Movie"
+      ],
+      "show_plot": "After a psychic predicts his death, a small-time hoodlum named Julian hires a cheap documentary film crew to document the last few days of his mis-spent life. This is the film that pioneered the show of the same name.",
+      "show_art": "trailer-park-boys-1999.jpg",
+      "banner_art": "trailer-park-boys-1999-banner.jpg"
+    },
+    {
+      "imdb_id": "tt0113855",
+      "title": "Mortal Kombat",
+      "kind": "movie",
+      "tmdb_id": "9312",
+      "year": 1995,
+      "genre": "Action, Fantasy",
+      "content_rating": "PG-13",
+      "external_rating": 5.914,
+      "external_rating_votes": 2648,
+      "details": {
+        "release_date": "1995-08-18",
+        "runtime_seconds": 6060,
+        "status": "Released",
+        "original_language": "en"
+      },
+      "show_plot": "For nine generations an evil sorcerer has been victorious in hand-to-hand battle against his mortal enemies. If he wins a tenth Mortal Kombat tournament, desolation and evil will reign over the multiverse forever. To save Earth, three warriors must overcome seemingly insurmountable odds, their own inner demons, and superhuman foes.",
+      "show_art": "mortal-kombat-1995.jpg",
+      "banner_art": "mortal-kombat-1995-banner.jpg"
+    },
+    {
+      "imdb_id": "tt0758742",
+      "title": "Death Note",
+      "kind": "movie",
+      "tmdb_id": "16007",
+      "year": 2006,
+      "genre": "Fantasy, Mystery, Thriller",
+      "content_rating": "R",
+      "external_rating": 7.052,
+      "external_rating_votes": 822,
+      "details": {
+        "release_date": "2006-06-17",
+        "runtime_seconds": 7560,
+        "status": "Released",
+        "original_language": "ja"
+      },
+      "aliases": [
+        "Death Note I"
+      ],
+      "show_plot": "Light Yagami finds the \"Death Note,\" a notebook with the power to kill, and decides to create a Utopia by killing the world's criminals, and soon the world's greatest detective, \"L,\" is hired to find the mysterious murderer. An all out battle between the two greatest minds on earth begins and the winner will control the world.",
+      "show_art": "death-note-2006.jpg",
+      "banner_art": "death-note-2006-banner.jpg"
+    },
+    {
+      "imdb_id": "tt0097814",
+      "title": "Kiki's Delivery Service",
+      "kind": "movie",
+      "tmdb_id": "16859",
+      "year": 1989,
+      "genre": "Animation, Family, Fantasy",
+      "content_rating": "G",
+      "external_rating": 7.838,
+      "external_rating_votes": 4715,
+      "details": {
+        "release_date": "1989-07-29",
+        "runtime_seconds": 6180,
+        "status": "Released",
+        "original_language": "ja"
+      },
+      "show_plot": "A young witch, on her mandatory year of independent life, finds fitting into a new community difficult while she supports herself by running an air courier service.",
+      "show_art": "kiki-s-delivery-service-1989.jpg",
+      "banner_art": "kiki-s-delivery-service-1989-banner.jpg"
+    },
+    {
+      "imdb_id": "tt0245429",
+      "title": "Spirited Away",
+      "kind": "movie",
+      "tmdb_id": "129",
+      "year": 2001,
+      "genre": "Animation, Family, Fantasy",
+      "content_rating": "PG",
+      "external_rating": 8.535,
+      "external_rating_votes": 18848,
+      "details": {
+        "release_date": "2001-07-20",
+        "runtime_seconds": 7500,
+        "status": "Released",
+        "original_language": "ja"
+      },
+      "show_plot": "A young girl, Chihiro, becomes trapped in a strange new world of spirits. When her parents undergo a mysterious transformation, she must call upon the courage she never knew she had to free her family.",
+      "show_art": "spirited-away-2001.jpg",
+      "banner_art": "spirited-away-2001-banner.jpg"
     }
   ]
 }

@@ -1,0 +1,44 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Ganon/z_en_horse_ganon.c:40:5: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[54]' [-Wincompatible-pointer-types]
+   40 |     &gHorseGanonIdleAnim,     &gHorseGanonWhinnyAnim,    &gHorseGanonWalkingAnim,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Ganon/z_en_horse_ganon.c:40:5: note: (near initialization for 'sAnimations[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Ganon/z_en_horse_ganon.c:40:31: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[56]' [-Wincompatible-pointer-types]
+   40 |     &gHorseGanonIdleAnim,     &gHorseGanonWhinnyAnim,    &gHorseGanonWalkingAnim,
+      |                               ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Ganon/z_en_horse_ganon.c:40:31: note: (near initialization for 'sAnimations[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Ganon/z_en_horse_ganon.c:40:58: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[57]' [-Wincompatible-pointer-types]
+   40 |     &gHorseGanonIdleAnim,     &gHorseGanonWhinnyAnim,    &gHorseGanonWalkingAnim,
+      |                                                          ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Ganon/z_en_horse_ganon.c:40:58: note: (near initialization for 'sAnimations[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Ganon/z_en_horse_ganon.c:41:5: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[58]' [-Wincompatible-pointer-types]
+   41 |     &gHorseGanonTrottingAnim, &gHorseGanonGallopingAnim, &gHorseGanonRearingAnim,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Ganon/z_en_horse_ganon.c:41:5: note: (near initialization for 'sAnimations[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Ganon/z_en_horse_ganon.c:41:31: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[59]' [-Wincompatible-pointer-types]
+   41 |     &gHorseGanonTrottingAnim, &gHorseGanonGallopingAnim, &gHorseGanonRearingAnim,
+      |                               ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Ganon/z_en_horse_ganon.c:41:31: note: (near initialization for 'sAnimations[4]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Ganon/z_en_horse_ganon.c:41:58: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[57]' [-Wincompatible-pointer-types]
+   41 |     &gHorseGanonTrottingAnim, &gHorseGanonGallopingAnim, &gHorseGanonRearingAnim,
+      |                                                          ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Ganon/z_en_horse_ganon.c:41:58: note: (near initialization for 'sAnimations[5]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Ganon/z_en_horse_ganon.c: In function 'EnHorseGanon_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Ganon/z_en_horse_ganon.c:181:34: warning: passing argument 3 of 'Skin_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  181 |     Skin_Init(play, &this->skin, &gHorseGanonSkel, &gHorseGanonIdleAnim);
+      |                                  ^~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[50]
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Ganon/z_en_horse_ganon.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Ganon/z_en_horse_ganon.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1361:61: note: expected 'SkeletonHeader *' but argument is of type 'const char (*)[50]'
+ 1361 | void Skin_Init(PlayState* play, Skin* skin, SkeletonHeader* skeletonHeader, AnimationHeader* animationHeader);
+      |                                             ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Ganon/z_en_horse_ganon.c:181:52: warning: passing argument 4 of 'Skin_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  181 |     Skin_Init(play, &this->skin, &gHorseGanonSkel, &gHorseGanonIdleAnim);
+      |                                                    ^~~~~~~~~~~~~~~~~~~~
+      |                                                    |
+      |                                                    const char (*)[54]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1361:94: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[54]'
+ 1361 | void Skin_Init(PlayState* play, Skin* skin, SkeletonHeader* skeletonHeader, AnimationHeader* animationHeader);
+      |                                                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~

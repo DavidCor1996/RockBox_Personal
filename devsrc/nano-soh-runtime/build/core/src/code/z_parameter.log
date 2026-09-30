@@ -1,0 +1,232 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c: In function 'Interface_LoadItemIcon1':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:1724:86: warning: passing argument 2 of 'DmaMgr_SendRequest2' makes integer from pointer without a cast [-Wint-conversion]
+ 1724 |     DmaMgr_SendRequest2(&interfaceCtx->dmaRequest_160, interfaceCtx->iconItemSegment + button * 0x1000,
+      |                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+      |                                                                                      |
+      |                                                                                      u8 * {aka unsigned char *}
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:50:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   50 | s32 DmaMgr_SendRequest2(DmaRequest* req, uintptr_t ram, uintptr_t vrom, size_t size, u32 unk5, OSMesgQueue* queue, OSMesg msg,
+      |                                          ~~~~~~~~~~^~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c: In function 'Interface_LoadItemIcon2':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:1735:86: warning: passing argument 2 of 'DmaMgr_SendRequest2' makes integer from pointer without a cast [-Wint-conversion]
+ 1735 |     DmaMgr_SendRequest2(&interfaceCtx->dmaRequest_180, interfaceCtx->iconItemSegment + button * 0x1000,
+      |                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+      |                                                                                      |
+      |                                                                                      u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:50:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   50 | s32 DmaMgr_SendRequest2(DmaRequest* req, uintptr_t ram, uintptr_t vrom, size_t size, u32 unk5, OSMesgQueue* queue, OSMesg msg,
+      |                                          ~~~~~~~~~~^~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c: In function 'Return_Item':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:1829:113: warning: initialization of 'short unsigned int' from 'void *' makes integer from pointer without a cast [-Wint-conversion]
+ 1829 |         GetItemEntry gie = { ITEM_SOLD_OUT, 0, 0, 0, 0, 0, 0, 0, 0, false, ITEM_FROM_NPC, ITEM_CATEGORY_LESSER, NULL };
+      |                                                                                                                 ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:1829:113: note: (near initialization for 'gie.drawItemId')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c: In function 'Interface_LoadActionLabel':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:2778:42: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 2778 |     static void* sDoActionTextures[] = { gAttackDoActionENGTex, gCheckDoActionENGTex };
+      |                                          ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:2778:65: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 2778 |     static void* sDoActionTextures[] = { gAttackDoActionENGTex, gCheckDoActionENGTex };
+      |                                                                 ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:2783:22: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 2783 |     char* doAction = actionsTbl[action];
+      |                      ^~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:2806:47: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 2806 |     interfaceCtx->doActionSegment[loadOffset] = action != DO_ACTION_NONE ? doAction : gEmptyTexture;
+      |                                               ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:2807:18: warning: assignment to 'uintptr_t' {aka 'unsigned int'} from 'char *' makes integer from pointer without a cast [-Wint-conversion]
+ 2807 |     gSegments[7] = interfaceCtx->doActionSegment[loadOffset];
+      |                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c: In function 'Interface_LoadActionLabelB':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:2853:22: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 2853 |     char* doAction = actionsTbl[action];
+      |                      ^~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:2878:38: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 2878 |     interfaceCtx->doActionSegment[1] = action != DO_ACTION_NONE ? doAction : gEmptyTexture;
+      |                                      ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c: In function 'Interface_DrawLineupTick':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:3442:38: warning: passing argument 2 of 'Gfx_TextureIA8' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 3442 |         Gfx_TextureIA8(OVERLAY_DISP, gEmptyCDownArrowTex, width, height, x, y, width, height, 2 << 10, 2 << 10);
+      |                                      ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:1391:49: note: expected 'void *' but argument is of type 'const char *'
+ 1391 | Gfx* Gfx_TextureIA8(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft, s16 rectTop,
+      |                                           ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c: In function 'Interface_DrawMagicBar':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:3561:42: warning: passing argument 2 of 'Gfx_TextureIA8' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 3561 |             Gfx_TextureIA8(OVERLAY_DISP, gMagicMeterEndTex, 8, 16, PosX_Start, magicBarY, 8, 16, 1 << 10, 1 << 10);
+      |                                          ^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:1391:49: note: expected 'void *' but argument is of type 'const char *'
+ 1391 | Gfx* Gfx_TextureIA8(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft, s16 rectTop,
+      |                                           ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:3563:53: warning: passing argument 2 of 'Gfx_TextureIA8' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 3563 |         OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, gMagicMeterMidTex, 24, 16, PosX_MidEnd, magicBarY,
+      |                                                     ^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:1391:49: note: expected 'void *' but argument is of type 'const char *'
+ 1391 | Gfx* Gfx_TextureIA8(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft, s16 rectTop,
+      |                                           ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c: In function 'Interface_DrawEnemyHealthBar':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:3732:39: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+ 3732 |             gSPVertex(OVERLAY_DISP++, sEnemyHealthVtx, 16, 0);
+      |                                       ^~~~~~~~~~~~~~~
+      |                                       |
+      |                                       Vtx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:3769:39: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+ 3769 |             gSPVertex(OVERLAY_DISP++, &sEnemyHealthVtx[12], 4, 0);
+      |                                       ^~~~~~~~~~~~~~~~~~~~
+      |                                       |
+      |                                       Vtx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c: In function 'Interface_DrawItemButtons':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:3829:41: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 3829 |     static void* cUpLabelTextures[] = { gNaviCUpENGTex, gNaviCUpENGTex, gNaviCUpENGTex, gNaviCUpJPTex };
+      |                                         ^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:3829:57: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 3829 |     static void* cUpLabelTextures[] = { gNaviCUpENGTex, gNaviCUpENGTex, gNaviCUpENGTex, gNaviCUpJPTex };
+      |                                                         ^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:3829:73: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 3829 |     static void* cUpLabelTextures[] = { gNaviCUpENGTex, gNaviCUpENGTex, gNaviCUpENGTex, gNaviCUpJPTex };
+      |                                                                         ^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:3829:89: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 3829 |     static void* cUpLabelTextures[] = { gNaviCUpENGTex, gNaviCUpENGTex, gNaviCUpENGTex, gNaviCUpJPTex };
+      |                                                                                         ^~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:4166:49: warning: passing argument 2 of 'Gfx_TextureIA8' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 4166 |     OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, gButtonBackgroundTex, BBtn_Size, BBtn_Size, PosX_BtnB, PosY_BtnB,
+      |                                                 ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:1391:49: note: expected 'void *' but argument is of type 'const char *'
+ 1391 | Gfx* Gfx_TextureIA8(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft, s16 rectTop,
+      |                                           ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:4226:39: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+ 4226 |             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[4], 4, 0);
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                       |
+      |                                       Vtx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:4416:69: warning: passing argument 2 of 'Gfx_TextureIA8' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 4416 |             OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, cButtonIcons[(temp + 1)], 32, 32, ItemIconPos[temp - 1][0],
+      |                                                         ~~~~~~~~~~~~^~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:1391:49: note: expected 'void *' but argument is of type 'const char *'
+ 1391 | Gfx* Gfx_TextureIA8(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft, s16 rectTop,
+      |                                           ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c: In function 'Interface_DrawActionButton':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:4972:31: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+ 4972 |     gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[0], 4, 0);
+      |                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                               |
+      |                               Vtx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c: In function 'Interface_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:5174:50: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 5174 |     gSPSegment(OVERLAY_DISP++, 0x02, interfaceCtx->parameterSegment);
+      |                                      ~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~
+      |                                                  |
+      |                                                  u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:5175:50: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 5175 |     gSPSegment(OVERLAY_DISP++, 0x07, interfaceCtx->doActionSegment);
+      |                                      ~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+      |                                                  |
+      |                                                  char **
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'char **'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:5176:50: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 5176 |     gSPSegment(OVERLAY_DISP++, 0x08, interfaceCtx->iconItemSegment);
+      |                                      ~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+      |                                                  |
+      |                                                  u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:5177:50: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 5177 |     gSPSegment(OVERLAY_DISP++, 0x0B, interfaceCtx->mapSegment);
+      |                                      ~~~~~~~~~~~~^~~~~~~~~~~~
+      |                                                  |
+      |                                                  char **
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'char **'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:5229:88: warning: passing argument 2 of 'CVarGetInteger' makes integer from pointer without a cast [-Wint-conversion]
+ 5229 |                     if (CVarGetInteger(CVAR_COSMETIC("Consumable.GreenRupee.Changed"), rupeeWalletColors)) {
+      |                                                                                        ^~~~~~~~~~~~~~~~~
+      |                                                                                        |
+      |                                                                                        Color_RGB8 *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/Enhancements/gameconsole.h:4,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:15:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/libultraship/include/libultraship/bridge/consolevariablebridge.h:25:61: note: expected 'int32_t' {aka 'long int'} but argument is of type 'Color_RGB8 *'
+   25 | API_EXPORT int32_t CVarGetInteger(const char* name, int32_t defaultValue);
+      |                                                     ~~~~~~~~^~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:5274:61: warning: passing argument 2 of 'Gfx_TextureIA8' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 5274 |                 OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, gRupeeCounterIconTex, 16, 16, PosX_RC, PosY_RC, 16, 16,
+      |                                                             ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:1391:49: note: expected 'void *' but argument is of type 'const char *'
+ 1391 | Gfx* Gfx_TextureIA8(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft, s16 rectTop,
+      |                                           ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:5340:73: warning: passing argument 2 of 'Gfx_TextureIA8' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 5340 |                             OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, gSmallKeyCounterIconTex, 16, 16, PosX_SKC,
+      |                                                                         ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:1391:49: note: expected 'void *' but argument is of type 'const char *'
+ 1391 | Gfx* Gfx_TextureIA8(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft, s16 rectTop,
+      |                                           ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:5750:35: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+ 5750 |         gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[4], 4, 0);
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                   |
+      |                                   Vtx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:5765:54: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 5765 |             gSPSegment(OVERLAY_DISP++, 0x08, pauseCtx->iconItemSegment);
+      |                                              ~~~~~~~~^~~~~~~~~~~~~~~~~
+      |                                                      |
+      |                                                      u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:5780:43: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+ 5780 |                 gSPVertex(OVERLAY_DISP++, &pauseCtx->cursorVtx[16], 4, 0);
+      |                                           ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                           |
+      |                                           Vtx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:5803:43: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+ 5803 |                 gSPVertex(OVERLAY_DISP++, &pauseCtx->cursorVtx[16], 4, 0);
+      |                                           ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                           |
+      |                                           Vtx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:5915:70: warning: passing argument 2 of 'Gfx_TextureI8' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 5915 |                             Gfx_TextureI8(OVERLAY_DISP, digitTextures[sHBAScoreDigits[svar1]], 8, 16, ArcheryPos_X,
+      |                                                         ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:1403:48: note: expected 'void *' but argument is of type 'const char *'
+ 1403 | Gfx* Gfx_TextureI8(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft, s16 rectTop,
+      |                                          ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:6354:50: warning: passing argument 2 of 'Gfx_TextureIA8' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 6354 |                     Gfx_TextureIA8(OVERLAY_DISP, gClockIconTex, 16, 16, svar5, svar2 + 2, 16, 16, 1 << 10, 1 << 10);
+      |                                                  ^~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:1391:49: note: expected 'void *' but argument is of type 'const char *'
+ 1391 | Gfx* Gfx_TextureIA8(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft, s16 rectTop,
+      |                                           ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:6379:77: warning: passing argument 2 of 'Gfx_TextureI8' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 6379 |                     OVERLAY_DISP = Gfx_TextureI8(OVERLAY_DISP, digitTextures[timerDigits[svar1]], 8, 16,
+      |                                                                ~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_parameter.c:1403:48: note: expected 'void *' but argument is of type 'const char *'
+ 1403 | Gfx* Gfx_TextureI8(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft, s16 rectTop,
+      |                                          ~~~~~~^~~~~~~

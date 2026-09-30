@@ -1,7 +1,7 @@
 # Desktop Mode Snow Leopard size report
 
-Generated from the pack-format-2 contract and focused 6G/5G/simulator builds
-on 2026-07-26. This report contains no Apple assets.
+Generated from the pack-format-2 contract and focused 6G/simulator builds
+on 2026-08-31. This report contains no Apple assets.
 
 Pack format 2 replaced the downscaled whole-window screenshots with chrome cut
 at Apple's 1:1 scale, Lucida Grande coverage atlases, and RGB565-plus-coverage
@@ -13,33 +13,35 @@ scales straight into the frame it is already assembling.
 
 | Measurement | Value |
 | --- | ---: |
-| Required logical assets | 62 |
-| Packed asset bytes on disk | 880,677 bytes (860.0 KiB) |
-| Resident shell asset bytes | 658,425 bytes (642.9 KiB) |
+| Required logical assets | 123 |
+| Packed asset bytes on disk | 14,442,255 bytes (13.8 MiB) |
+| Resident shell asset bytes | 968,491 bytes (945.8 KiB) |
 | Compose buffer | 153,600 bytes (150.0 KiB) |
-| Shell runtime bytes | 928,153 bytes (906.4 KiB) |
+| Shell runtime bytes | 1,122,091 bytes (1.07 MiB) |
 | Transient authentic boot bytes | 167,424 bytes (163.5 KiB) |
-| Peak visual runtime bytes | 928,153 bytes (906.4 KiB) |
-| Decoded ceiling | 1,048,576 bytes (1 MiB) |
-| Headroom before loader bookkeeping | 120,423 bytes (117.6 KiB) |
+| Peak visual runtime bytes | 1,122,091 bytes (1.07 MiB) |
+| Decoded ceiling | 1,179,648 bytes (1.125 MiB) |
+| Headroom before loader bookkeeping | 57,557 bytes (56.2 KiB) |
 
 Resident bytes by group:
 
 | Group | Assets | Resident bytes |
 | --- | ---: | ---: |
 | desktop (wallpaper, menu bar, Dock shelf) | 5 | 183,276 |
-| chrome (windows, panels, selections, scroller) | 11 | 345,864 |
-| icons (application, Dock magnification, file) | 26 | 87,165 |
-| fonts (Lucida Grande 11, bold 11, 9) | 3 | 40,725 |
+| Dashboard widgets | 5 | 124,308 |
+| chrome (windows, panels, selections, scroller) | 14 | 476,584 |
+| icons (application, Dock magnification, file) | 31 | 105,528 |
+| fonts (Lucida Grande 11, bold 11, 9) | 3 | 44,475 |
 | cursors | 2 | 1,704 |
+| external Dock icons | 9 | 32,616 |
 | boot (transient, released before the shell loads) | 13 | 167,424 |
 
 Opaque chrome is a 16-bit RGB565 `BI_BITFIELDS` BMP. Anything with a soft edge
 - icons, cursors, the Dock running indicator - is an `RGA1` file: RGB565 plus
 Apple's own 8-bit coverage, so the compositor blends the edge Apple drew
 instead of hard-keying it. Fonts are raw 8-bit coverage atlases plus a
-103-byte `DMF1` metrics sidecar carrying cell size, ascent and per-glyph
-advances.
+105-byte `DMF2` metrics sidecar carrying cell size, ascent, signed atlas
+origin, and per-glyph advances.
 
 The importer validates dimensions, bit depth, compression, coverage payload
 length, provenance and SHA-256 before install. The authentic boot background
@@ -57,11 +59,12 @@ single `lcd_bitmap()` plus one `lcd_update()`.
 This is one buffer, not a source/destination pair: there is no second
 full-screen plane, and the 105,792-byte minimize/restore scratch bitmap that
 format 1 required no longer exists. `PLUGIN_BUFFER_SIZE` is 3 MiB on both
-targets, so the 906.4 KiB shell leaves the buffer two-thirds free and never
+targets, so the 1.07 MiB shell leaves the buffer comfortably free and never
 touches core or playback memory.
 
-The ceiling was raised from 900 KiB to 1 MiB when iTunes gained its own real
-iTunes 9 window.  It is a budget against `PLUGIN_BUFFER_SIZE`, which is
+The ceiling was raised from 900 KiB to 1.125 MiB when Dashboard widgets and
+iTunes gained their real Snow Leopard chrome.  It is a budget against
+`PLUGIN_BUFFER_SIZE`, which is
 dedicated to the running plugin and is never playback or core memory, so the
 limit exists to keep the shell honest rather than because the space is
 contended.

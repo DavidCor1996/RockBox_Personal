@@ -2732,9 +2732,12 @@ namespace gameswf
 				case 0x9E:	// call frame
 				{
 					// Note: no extra data in this instruction!
-					assert(env->get_target() != NULL);
-					env->get_target()->call_frame_actions(env->top(0));
-					env->drop(1);
+                    /* Pop before execution: the called actions can resize
+                     * the stack and invalidate a reference to its top. */
+                    as_value frame_spec = env->top(0);
+                    env->drop(1);
+                    if (env->get_target())
+                        env->get_target()->call_frame_actions(frame_spec);
 
 					break;
 				}

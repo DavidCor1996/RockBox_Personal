@@ -43,6 +43,33 @@ struct scroll_screen_info LCDFN(scroll_info) =
     .step         = 6,
 };
 
+#define IPODJS_SCROLL_FRAME_TICKS MAX(1, HZ / 30)
+
+static bool LCDFN(scroll_smooth_enabled)(void)
+{
+#if defined(IPODJS_MAIN_LCD_SCROLL) && defined(HAVE_IPODJS_UI)
+    return global_settings.ui_engine == UI_ENGINE_IPODJS &&
+           get_current_activity() == ACTIVITY_WPS;
+#else
+    return false;
+#endif
+}
+
+static long LCDFN(scroll_tick_interval)(void)
+{
+    struct scroll_screen_info *si = &LCDFN(scroll_info);
+
+    if (!LCDFN(scroll_smooth_enabled)() || si->lines == 0)
+        return si->ticks;
+
+    /* Split a configured multi-pixel step over small WPS-only frames while
+     * preserving its average pixels-per-tick speed.  The worker accumulator
+     * handles intervals that do not divide the configured step exactly. */
+    return MIN(si->ticks,
+               MAX(IPODJS_SCROLL_FRAME_TICKS,
+                   si->ticks / MAX(1, si->step)));
+}
+
 
 void LCDFN(scroll_stop)(void)
 {
@@ -189,6 +216,7 @@ static void LCDFN(scroll_worker)(void)
     int index;
     struct scroll_screen_info *si = &LCDFN(scroll_info);
     struct viewport *oldvp;
+    bool smooth = LCDFN(scroll_smooth_enabled)();
 
     if (global_settings.disable_mainmenu_scrolling
         && get_current_activity() == ACTIVITY_MAINMENU) {
@@ -200,18 +228,42 @@ static void LCDFN(scroll_worker)(void)
     for ( index = 0; index < si->lines; index++ )
     {
         struct scrollinfo *s = &si->scroll[index];
+        int step = si->step;
 
         /* check pause */
         if (TIME_BEFORE(current_tick, s->start_tick)) {
             continue;
         }
 
+#ifdef HAVE_IPODJS_UI
+        if (smooth)
+        {
+            long elapsed = current_tick - s->smooth_tick;
+            long scaled;
+
+            if (elapsed <= 0)
+                continue;
+
+            /* Do not race through a title after an LCD sleep or a stalled
+             * frame.  One old-style step is enough to resume cleanly. */
+            elapsed = MIN(elapsed, MAX(1, si->ticks));
+            scaled = s->smooth_remainder + elapsed * si->step;
+            step = scaled / MAX(1, si->ticks);
+            s->smooth_remainder = scaled % MAX(1, si->ticks);
+            s->smooth_tick = current_tick;
+            if (step <= 0)
+                continue;
+        }
+#else
+        (void)smooth;
+#endif
+
         s->start_tick = current_tick;
 
         if (s->backward)
-            s->offset -= si->step;
+            s->offset -= step;
         else
-            s->offset += si->step;
+            s->offset += step;
 
         /* this runs out of the ui thread, thus we need to
          * save and restore the current viewport since the
@@ -227,6 +279,13 @@ static void LCDFN(scroll_worker)(void)
             s->line_stringsize = font_getstringsize(s->linebuffer, NULL, NULL, s->vp->font);
 #endif
             s->start_tick += si->delay + si->ticks;
+#ifdef HAVE_IPODJS_UI
+            if (smooth)
+            {
+                s->smooth_tick = s->start_tick;
+                s->smooth_remainder = 0;
+            }
+#endif
         }
 
 #ifdef SIMULATOR /* Bugfix sim won't update screen unless called from active thread */

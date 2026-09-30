@@ -12,8 +12,10 @@
  ****************************************************************************/
 
 #include "plugin.h"
+#include "lib/ipodjs_retailos_controls.h"
 #include <stdarg.h>
 #include "lib/pluginlib_actions.h"
+#include "lib/photo_library.h"
 
 #define PHOTOS_DEFAULT_ROOT      "/Photos"
 #define PHOTOS_THUMB_DIR_SUFFIX  ".photo_thumbs"
@@ -25,12 +27,6 @@
 #define PHOTOS_SHARED_PIN ROCKBOX_DIR "/videolist/locked.pin"
 #define PHOTOS_APPLE_DIR ROCKBOX_DIR "/ipodjs/apple"
 
-#define PHOTOS_PIN_PANEL_W 95
-#define PHOTOS_PIN_PANEL_H 82
-#define PHOTOS_PIN_SURFACE_W 97
-#define PHOTOS_PIN_SURFACE_H 32
-#define PHOTOS_PIN_PANEL_ALPHA_BYTES \
-    (((PHOTOS_PIN_PANEL_W + 1) / 2) * PHOTOS_PIN_PANEL_H)
 
 #define MAX_VISIBLE_THUMBS 6
 #define MIN_ENTRY_CAPACITY 32
@@ -64,11 +60,6 @@ struct photo_lock {
 
 struct photo_move_dir {
     char path[MAX_PATH];
-};
-
-struct photo_root_scan_dir {
-    char path[MAX_PATH];
-    int depth;
 };
 
 struct thumb_slot {
@@ -130,24 +121,14 @@ static void photos_log(const char *fmt, ...)
     rb->close(fd);
 }
 
-struct photos_pin_surfaces {
-    struct bitmap panel;
-    unsigned char panel_data[
-        BM_SIZE(PHOTOS_PIN_PANEL_W, PHOTOS_PIN_PANEL_H,
-                FORMAT_NATIVE, false) + PHOTOS_PIN_PANEL_ALPHA_BYTES];
-    struct bitmap field;
-    unsigned char field_data[
-        BM_SIZE(PHOTOS_PIN_SURFACE_W, PHOTOS_PIN_SURFACE_H,
-                FORMAT_NATIVE, false)];
-    struct bitmap selected;
-    unsigned char selected_data[
-        BM_SIZE(PHOTOS_PIN_SURFACE_W, PHOTOS_PIN_SURFACE_H,
-                FORMAT_NATIVE, false)];
-    bool tried;
-    bool valid;
+static unsigned char photos_pin_panel[IPODJS_RETAILOS_PIN_PANEL_BYTES];
+static unsigned char photos_pin_field[IPODJS_RETAILOS_PIN_FIELD_BYTES];
+static unsigned char photos_pin_selected[IPODJS_RETAILOS_PIN_SELECTED_BYTES];
+static struct ipodjs_retailos_pin_cache photos_pin_surfaces = {
+    .panel_data = photos_pin_panel,
+    .field_data = photos_pin_field,
+    .selected_data = photos_pin_selected,
 };
-
-static struct photos_pin_surfaces photos_pin_surfaces;
 
 static int photos_tsr_exit(bool reenter)
 {
@@ -217,189 +198,11 @@ static bool photos_is_hidden(const char *name)
     return name[0] == '.';
 }
 
-static bool photos_has_supported_ext(const char *name)
-{
-    static const char *const exts[] = {
-        ".bmp", ".gif", ".jpg", ".jpe", ".jpeg", ".png",
-#ifdef HAVE_LCD_COLOR
-        ".ppm",
-#endif
-    };
-    const char *ext = rb->strrchr(name, '.');
-    size_t i;
-
-    if (!ext)
-        return false;
-
-    for (i = 0; i < ARRAYLEN(exts); i++)
-    {
-        if (!rb->strcasecmp(ext, exts[i]))
-            return true;
-    }
-
-    return false;
-}
-
-static bool photos_root_has_sidecars(const char *root)
-{
-    char thumb_root[MAX_PATH];
-    char preview_root[MAX_PATH];
-
-    rb->snprintf(thumb_root, sizeof(thumb_root), "%s/%s",
-                 root, PHOTOS_THUMB_DIR_SUFFIX);
-    rb->snprintf(preview_root, sizeof(preview_root), "%s/%s",
-                 root, PHOTOS_PREVIEW_DIR_SUFFIX);
-
-    return rb->dir_exists(thumb_root) || rb->dir_exists(preview_root);
-}
-
-static int photos_count_preview_files(const char *path, int depth)
-{
-    DIR *dir;
-    struct dirent *entry;
-    struct dirinfo info;
-    int count = 0;
-    char child[MAX_PATH];
-    const char *ext;
-
-    if (!path || !path[0] || depth > 6)
-        return 0;
-
-    dir = rb->opendir(path);
-    if (!dir)
-        return 0;
-
-    while ((entry = rb->readdir(dir)) != NULL)
-    {
-        if (!rb->strcmp(entry->d_name, ".") || !rb->strcmp(entry->d_name, ".."))
-            continue;
-
-        rb->snprintf(child, sizeof(child), "%s/%s", path, entry->d_name);
-        info = rb->dir_get_info(dir, entry);
-        if (info.attribute & ATTR_DIRECTORY)
-        {
-            count += photos_count_preview_files(child, depth + 1);
-            continue;
-        }
-
-        ext = rb->strrchr(entry->d_name, '.');
-        if (ext && !rb->strcasecmp(ext, ".bmp"))
-            count++;
-    }
-
-    rb->closedir(dir);
-    return count;
-}
-
-static void photos_scan_better_root(bool *found_root, char *best_root,
-                                    size_t best_root_size, int *best_count)
-{
-    struct photo_root_scan_dir *scan_dirs;
-    size_t buffer_size;
-    int scan_capacity;
-    int scan_head = 0;
-    int scan_count = 1;
-    DIR *dir;
-    struct dirent *entry;
-    struct dirinfo info;
-    char candidate[MAX_PATH];
-    char preview_root[MAX_PATH];
-    int count;
-
-    scan_dirs = rb->plugin_get_buffer(&buffer_size);
-    if (!scan_dirs)
-        return;
-
-    scan_capacity = (int)(buffer_size / sizeof(*scan_dirs));
-    if (scan_capacity > PHOTOS_ROOT_SCAN_MAX_DIRS)
-        scan_capacity = PHOTOS_ROOT_SCAN_MAX_DIRS;
-    if (scan_capacity < 1)
-        return;
-
-    rb->strlcpy(scan_dirs[0].path, "/", sizeof(scan_dirs[0].path));
-    scan_dirs[0].depth = 0;
-
-    while (scan_head < scan_count)
-    {
-        const char *base = scan_dirs[scan_head].path;
-        int depth = scan_dirs[scan_head].depth;
-        bool is_root = (base[0] == '/' && base[1] == '\0');
-
-        dir = rb->opendir(base);
-        if (!dir)
-        {
-            scan_head++;
-            continue;
-        }
-
-        while ((entry = rb->readdir(dir)) != NULL)
-        {
-            if (entry->d_name[0] == '.')
-                continue;
-
-            if (is_root)
-                rb->snprintf(candidate, sizeof(candidate), "/%s",
-                             entry->d_name);
-            else
-                rb->snprintf(candidate, sizeof(candidate), "%s/%s", base,
-                             entry->d_name);
-
-            info = rb->dir_get_info(dir, entry);
-            if (!(info.attribute & ATTR_DIRECTORY))
-                continue;
-
-            if (photos_root_has_sidecars(candidate))
-            {
-                rb->snprintf(preview_root, sizeof(preview_root), "%s/%s",
-                             candidate, PHOTOS_PREVIEW_DIR_SUFFIX);
-                count = photos_count_preview_files(preview_root, 0);
-                if (!*found_root || count > *best_count)
-                {
-                    rb->strlcpy(best_root, candidate, best_root_size);
-                    *best_count = count;
-                    *found_root = true;
-                }
-            }
-
-            if (depth + 1 < PHOTOS_ROOT_SCAN_MAX_DEPTH &&
-                scan_count < scan_capacity)
-            {
-                rb->strlcpy(scan_dirs[scan_count].path, candidate,
-                            sizeof(scan_dirs[scan_count].path));
-                scan_dirs[scan_count].depth = depth + 1;
-                scan_count++;
-            }
-        }
-
-        rb->closedir(dir);
-        scan_head++;
-    }
-}
-
 static bool photos_resolve_root(void)
 {
-    bool found_best_root = false;
-    int best_count = 0;
-    char best_root[MAX_PATH];
-
-    /* The normal RockPod layout is authoritative.  Avoid surveying the
-     * volume at every launch when /Photos is already present. */
-    if (rb->dir_exists(PHOTOS_DEFAULT_ROOT))
-    {
-        rb->strlcpy(photos_root, PHOTOS_DEFAULT_ROOT, sizeof(photos_root));
-        return true;
-    }
-
-    photos_scan_better_root(&found_best_root, best_root, sizeof(best_root),
-                            &best_count);
-
-    if (found_best_root)
-    {
-        rb->strlcpy(photos_root, best_root, sizeof(photos_root));
-        return true;
-    }
-
-    return false;
+    size_t size;
+    void *scratch = rb->plugin_get_buffer(&size);
+    return photo_library_root(photos_root, sizeof(photos_root), scratch, size);
 }
 
 static void photos_thumb_root(char *out, size_t out_size)
@@ -598,109 +401,21 @@ static void photos_update_lock_paths(const char *old_path, const char *new_path)
     }
 }
 
-static bool photos_load_pin_bitmap(const char *path, struct bitmap *bitmap,
-                                   unsigned char *data, size_t data_size,
-                                   int width, int height)
-{
-    int rc;
-
-    if (!rb->file_exists(path))
-        return false;
-    rb->memset(bitmap, 0, sizeof(*bitmap));
-    bitmap->width = width;
-    bitmap->height = height;
-    bitmap->format = FORMAT_NATIVE;
-    bitmap->data = data;
-    rc = rb->read_bmp_file(path, bitmap, (int)data_size,
-                           FORMAT_NATIVE | FORMAT_DITHER |
-                           FORMAT_TRANSPARENT, NULL);
-    return rc >= 0 && bitmap->width == width && bitmap->height == height;
-}
-
 static bool photos_load_pin_surfaces(void)
 {
-    if (photos_pin_surfaces.tried)
-        return photos_pin_surfaces.valid;
-
-    photos_pin_surfaces.tried = true;
-    photos_pin_surfaces.valid =
-        photos_load_pin_bitmap(
-            PHOTOS_APPLE_DIR "/fast-scroll-blank.apple.95x82x32.bmp",
-            &photos_pin_surfaces.panel, photos_pin_surfaces.panel_data,
-            sizeof(photos_pin_surfaces.panel_data),
-            PHOTOS_PIN_PANEL_W, PHOTOS_PIN_PANEL_H) &&
-        photos_load_pin_bitmap(
-            PHOTOS_APPLE_DIR "/search-field.apple.97x32x24.bmp",
-            &photos_pin_surfaces.field, photos_pin_surfaces.field_data,
-            sizeof(photos_pin_surfaces.field_data),
-            PHOTOS_PIN_SURFACE_W, PHOTOS_PIN_SURFACE_H) &&
-        photos_load_pin_bitmap(
-            PHOTOS_APPLE_DIR "/search-selected.apple.97x32x24.bmp",
-            &photos_pin_surfaces.selected,
-            photos_pin_surfaces.selected_data,
-            sizeof(photos_pin_surfaces.selected_data),
-            PHOTOS_PIN_SURFACE_W, PHOTOS_PIN_SURFACE_H);
-    return photos_pin_surfaces.valid;
+    return ipodjs_retailos_prepare_pin(&photos_pin_surfaces);
 }
 
-static void photos_draw_tiled_pin_part(struct bitmap *bitmap,
-                                       int src_x, int src_y,
-                                       int src_w, int src_h,
-                                       int x, int y, int width, int height)
+static void photos_draw_pin_surface(
+    const struct ipodjs_retailos_image *image, int border,
+    int x, int y, int width, int height)
 {
-    int drawn_y = 0;
-
-    while (drawn_y < height)
-    {
-        int part_h = MIN(src_h, height - drawn_y);
-        int part_src_y = src_y + (src_h - part_h) / 2;
-        int drawn_x = 0;
-
-        while (drawn_x < width)
-        {
-            int part_w = MIN(src_w, width - drawn_x);
-            int part_src_x = src_x + (src_w - part_w) / 2;
-
-            rb->lcd_bmp_part(bitmap, part_src_x, part_src_y,
-                             x + drawn_x, y + drawn_y, part_w, part_h);
-            drawn_x += part_w;
-        }
-        drawn_y += part_h;
-    }
-}
-
-static void photos_draw_pin_surface(struct bitmap *bitmap, int border,
-                                    int x, int y, int width, int height)
-{
-    int center_w = width - border * 2;
-    int center_h = height - border * 2;
-
-    rb->lcd_set_drawmode(DRMODE_FG);
-    rb->lcd_bmp_part(bitmap, 0, 0, x, y, border, border);
-    rb->lcd_bmp_part(bitmap, bitmap->width - border, 0,
-                     x + width - border, y, border, border);
-    rb->lcd_bmp_part(bitmap, 0, bitmap->height - border,
-                     x, y + height - border, border, border);
-    rb->lcd_bmp_part(bitmap, bitmap->width - border,
-                     bitmap->height - border,
-                     x + width - border, y + height - border,
-                     border, border);
-    photos_draw_tiled_pin_part(bitmap, border, 0,
-        bitmap->width - border * 2, border,
-        x + border, y, center_w, border);
-    photos_draw_tiled_pin_part(bitmap, border, bitmap->height - border,
-        bitmap->width - border * 2, border,
-        x + border, y + height - border, center_w, border);
-    photos_draw_tiled_pin_part(bitmap, 0, border, border,
-        bitmap->height - border * 2,
-        x, y + border, border, center_h);
-    photos_draw_tiled_pin_part(bitmap, bitmap->width - border, border,
-        border, bitmap->height - border * 2,
-        x + width - border, y + border, border, center_h);
-    photos_draw_tiled_pin_part(bitmap, border, border,
-        bitmap->width - border * 2, bitmap->height - border * 2,
-        x + border, y + border, center_w, center_h);
-    rb->lcd_set_drawmode(DRMODE_SOLID);
+    if (image == &photos_pin_surfaces.panel)
+        ipodjs_retailos_draw_nine_slice(rb->screens[SCREEN_MAIN],
+            image, x, y, width, height, border);
+    else
+        ipodjs_retailos_draw_parts(rb->screens[SCREEN_MAIN],
+            image, x, y, width, height);
 }
 
 static void photos_draw_pin_prompt(const char *title, const char *pin,
@@ -734,7 +449,7 @@ static void photos_draw_pin_prompt(const char *title, const char *pin,
 
     photos_draw_pin_surface(&photos_pin_surfaces.panel, 16,
                             panel_x, panel_y, panel_w, panel_h);
-    photos_draw_pin_surface(&photos_pin_surfaces.field, 6,
+    photos_draw_pin_surface(photos_pin_surfaces.field, 6,
                             field_x, field_y, field_w, field_h);
 
     for (i = 0; i < length && i < PIN_LEN; i++)
@@ -762,7 +477,7 @@ static void photos_draw_pin_prompt(const char *title, const char *pin,
             int selected_w = MAX(glyph_w + 6, 16);
             int selected_x = x - (selected_w - glyph_w) / 2;
 
-            photos_draw_pin_surface(&photos_pin_surfaces.selected, 6,
+            photos_draw_pin_surface(photos_pin_surfaces.selected, 6,
                                     selected_x, panel_y + 10,
                                     selected_w, text_h + 3);
             rb->lcd_set_foreground(LCD_WHITE);
@@ -1394,7 +1109,7 @@ static void photos_rescan_current_dir(void)
         {
             photos_add_entry(path, true);
         }
-        else if (photos_has_supported_ext(entry->d_name))
+        else if (photo_library_supported(entry->d_name))
         {
             photos_add_entry(path, false);
         }

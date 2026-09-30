@@ -1,0 +1,8 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/TwoHeadArena.c: In function 'THA_AllocStart':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/TwoHeadArena.c:115:15: warning: assignment to 'void *' from 'unsigned int' makes pointer from integer without a cast [-Wint-conversion]
+  115 |     tha->head = (uintptr_t)tha->head + size;
+      |               ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/TwoHeadArena.c: In function 'THA_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/TwoHeadArena.c:174:15: warning: assignment to 'void *' from 'long unsigned int' makes pointer from integer without a cast [-Wint-conversion]
+  174 |     tha->tail = (uintptr_t)tha->bufp + tha->size;
+      |               ^

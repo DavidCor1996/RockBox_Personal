@@ -49,7 +49,9 @@ static const char scroll_tick_table[18] = {
 };
 #endif
 
+#define IPODJS_MAIN_LCD_SCROLL
 #include "drivers/lcd-scroll.c"
+#undef IPODJS_MAIN_LCD_SCROLL
 
 #ifdef HAVE_REMOTE_LCD
 /* copied from lcd-remote-1bit.c */
@@ -130,7 +132,8 @@ static void scroll_thread(void)
         int scroll;
         long tick_lcd, tick_remote;
 
-        tick_lcd = lcd_scroll_info.last_scroll + lcd_scroll_info.ticks;
+        tick_lcd = lcd_scroll_info.last_scroll +
+                   lcd_scroll_tick_interval();
         delay = current_tick;
 
         if (
@@ -138,7 +141,7 @@ static void scroll_thread(void)
             !remote_initialized ||
 #endif
             (tick_remote = lcd_remote_scroll_info.last_scroll +
-                           lcd_remote_scroll_info.ticks,
+                           lcd_remote_scroll_tick_interval(),
              TIME_BEFORE(tick_lcd, tick_remote)))
         {
             scroll = SCROLL_LCD;
@@ -183,7 +186,7 @@ static void scroll_thread(void)
 {
     while (1)
     {
-        sleep(lcd_scroll_info.ticks);
+        sleep(lcd_scroll_tick_interval());
 #if defined(HAVE_LCD_ENABLE) || defined(HAVE_LCD_SLEEP)
         if (lcd_active())
 #endif

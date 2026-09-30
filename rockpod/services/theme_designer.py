@@ -686,7 +686,7 @@ class ThemeDesignerService:
                 shutil.rmtree(staged_sbs_wps_dir)
             shutil.copytree(staged_wps_dir, staged_sbs_wps_dir)
         self._write_iconset(stage_root, variant, base_bundle)
-        self._write_cfg(stage_root, variant, base_bundle)
+        self._write_cfg(stage_root, profile, variant, base_bundle)
         self._copy_template(
             base_bundle,
             "wps",
@@ -830,7 +830,7 @@ class ThemeDesignerService:
             if os.path.isfile(path):
                 self._tint_luminance_bitmap(path, variant["colors"]["background"], variant["colors"]["selector_end"])
 
-    def _write_cfg(self, stage_root, variant, base_bundle):
+    def _write_cfg(self, stage_root, profile, variant, base_bundle):
         cfg_asset = next((item for item in base_bundle["assets"] if item["kind"] == "cfg"), None)
         if not cfg_asset:
             raise ValueError("Base theme cfg missing")
@@ -862,10 +862,18 @@ class ThemeDesignerService:
             "statusbar": "off",
             "ui viewport": "-",
         }
-        # iPone designer variants are skins for the native iPodJS interface,
-        # not a request to fall back to Rockbox's stock menu engine.
+        # The iPod Video 5G uses Rockbox's menu/skin engine.  Its firmware
+        # supplies the same Extras -> Applications/Files hierarchy as iPodJS,
+        # without transferring UI or playback-memory ownership to iPodJS.
         if str(variant.get("base_theme_id") or "").startswith("iPone"):
-            overrides["ui engine"] = "ipodjs"
+            model = str(profile.get("target_device_model") or "").lower()
+            if "ipod video 5" in model or model in {
+                "ipodvideo",
+                "ipodvideo64mb",
+            }:
+                overrides["ui engine"] = "rockbox"
+            else:
+                overrides["ui engine"] = "ipodjs"
         right_pane_mode = self._normalize_right_pane_mode(
             variant.get("right_pane_mode"),
             base_default=variant.get("base_right_pane_mode", DEFAULT_RIGHT_PANE_MODE),

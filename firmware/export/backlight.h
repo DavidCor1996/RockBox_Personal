@@ -36,6 +36,12 @@ void backlight_on(void);
 void backlight_off(void);
 void backlight_set_timeout(int value);
 
+#ifdef HAVE_VIDEOOUT_BACKLIGHT_OFF
+/* Both changes are serialized by the backlight thread. */
+void backlight_set_videoout_active(bool active);
+void backlight_set_videoout_off(bool enabled);
+#endif
+
 #ifdef HAVE_BACKLIGHT
 void backlight_init(void) INIT_ATTR;
 void backlight_close(void);

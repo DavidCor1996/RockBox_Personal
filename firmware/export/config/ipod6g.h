@@ -139,13 +139,21 @@
 
 /* Define this for LCD backlight available */
 #define HAVE_BACKLIGHT
+/* Composite output can suppress the local backlight independently. */
+#define HAVE_DOCKED_AMBIENT_CLOCK
+#define HAVE_COMPOSITE_VIDEO_OUT
+#ifdef VIDEOOUT_ENHANCED_TEST
+#define HAVE_VIDEOOUT_NATIVE_YUV
+#endif
+#define HAVE_VIDEOOUT_BACKLIGHT_OFF
 #define HAVE_BACKLIGHT_BRIGHTNESS
 
 /* Define this if you have a software controlled poweroff */
 #define HAVE_SW_POWEROFF
 
-/* Buffer for plugins and codecs. */
-#define PLUGIN_BUFFER_SIZE  0x300000 /* 3 MiB */
+/* Preserve the established plugin load address. Stage 3 reserves the upper
+ * 768 KiB for the resume bootloader workspace and retained control data. */
+#define PLUGIN_BUFFER_SIZE  0x2f0000
 #define CODEC_SIZE          0x100000 /* 1 MiB */
 
 /* 6g has a standard battery of 550mAh, except for the thick 6g (2007 160gb)
@@ -197,9 +205,9 @@
 /* define this if the hardware can be powered off while charging */
 #define HAVE_POWEROFF_WHILE_CHARGING
 
-/* The personal iPod 6G/7G build includes the tested retained-context path.
- * Runtime use remains opt-in through the system setting; legacy shutdown is
- * still the default. */
+/* The personal iPod 6G/7G build includes the hardware-qualified retained-
+ * context path.  It is the default power-off behavior, matching RetailOS;
+ * the system setting retains an explicit legacy cold-shutdown override. */
 #define IPOD6G_HIBERNATE_STAGE1 1
 #define IPOD6G_HIBERNATE_STAGE2 1
 #define IPOD6G_HIBERNATE_STAGE3 1
@@ -295,3 +303,14 @@
 
 /* Define this if a programmable hotkey is mapped */
 #define HAVE_HOTKEY
+
+/* Explicit diagnostic build only; absent from normal/bootloader/sim builds. */
+#if defined(USB_CAPABILITY_SNAPSHOT_BUILD) && !defined(SIMULATOR) && \
+    !defined(BOOTLOADER)
+#define HAVE_USB_DW_CAPABILITY_SNAPSHOT
+#endif
+
+#if defined(USB_HOST_ROLE_PROBE_BUILD) && !defined(SIMULATOR) && \
+    !defined(BOOTLOADER)
+#define HAVE_USB_HOST_ROLE_PROBE
+#endif

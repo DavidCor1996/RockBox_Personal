@@ -1,0 +1,152 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c: In function 'Message_FindMessageJPN':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:316:29: warning: assignment to 'uintptr_t' {aka 'unsigned int'} from 'const char *' makes integer from pointer without a cast [-Wint-conversion]
+  316 |             font->msgOffset = messageTableEntry->segment;
+      |                             ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c: In function 'Message_FindMessage':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:367:29: warning: assignment to 'uintptr_t' {aka 'unsigned int'} from 'const char *' makes integer from pointer without a cast [-Wint-conversion]
+  367 |             font->msgOffset = messageTableEntry->segment;
+      |                             ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c: In function 'Message_FindCreditsMessage':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:407:29: warning: assignment to 'uintptr_t' {aka 'unsigned int'} from 'const char *' makes integer from pointer without a cast [-Wint-conversion]
+  407 |             font->msgOffset = messageTableEntry->segment;
+      |                             ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c: In function 'Message_DrawTextboxIcon':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:612:34: warning: passing argument 2 of 'gSPInvalidateTexCache' makes integer from pointer without a cast [-Wint-conversion]
+  612 |     gSPInvalidateTexCache(gfx++, iconTexture);
+      |                                  ^~~~~~~~~~~
+      |                                  |
+      |                                  u8 * {aka unsigned char *}
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:30:48: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   30 | void gSPInvalidateTexCache(Gfx* pkt, uintptr_t texAddr);
+      |                                      ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c: In function 'Message_LoadItemIcon':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:1623:50: warning: passing argument 1 of 'memcpy' makes pointer from integer without a cast [-Wint-conversion]
+ 1623 |         memcpy((uintptr_t)msgCtx->textboxSegment + MESSAGE_STATIC_TEX_SIZE, gItemIcons[itemId],
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:5:
+/usr/arm-none-eabi/include/string.h:31:18: note: expected 'void * restrict' but argument is of type 'unsigned int'
+   31 | void *   memcpy (void *__restrict, const void *__restrict, size_t);
+      |                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:1631:50: warning: passing argument 1 of 'memcpy' makes pointer from integer without a cast [-Wint-conversion]
+ 1631 |         memcpy((uintptr_t)msgCtx->textboxSegment + MESSAGE_STATIC_TEX_SIZE, gItemIcons[itemId],
+/usr/arm-none-eabi/include/string.h:31:18: note: expected 'void * restrict' but argument is of type 'unsigned int'
+   31 | void *   memcpy (void *__restrict, const void *__restrict, size_t);
+      |                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c: In function 'Message_DecodeJPN':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:2203:54: warning: passing argument 1 of 'memcpy' makes pointer from integer without a cast [-Wint-conversion]
+ 2203 |             memcpy((uintptr_t)msgCtx->textboxSegment + MESSAGE_STATIC_TEX_SIZE, gRedMessageXLeftTex,
+/usr/arm-none-eabi/include/string.h:31:18: note: expected 'void * restrict' but argument is of type 'unsigned int'
+   31 | void *   memcpy (void *__restrict, const void *__restrict, size_t);
+      |                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:2205:80: warning: passing argument 1 of 'memcpy' makes pointer from integer without a cast [-Wint-conversion]
+ 2205 |             memcpy((uintptr_t)msgCtx->textboxSegment + MESSAGE_STATIC_TEX_SIZE + 0x900, gRedMessageXRightTex,
+      |                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~
+      |                                                                                |
+      |                                                                                unsigned int
+/usr/arm-none-eabi/include/string.h:31:18: note: expected 'void * restrict' but argument is of type 'unsigned int'
+   31 | void *   memcpy (void *__restrict, const void *__restrict, size_t);
+      |                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c: In function 'Message_Decode':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:2261:64: warning: passing argument 2 of 'gSPInvalidateTexCache' makes integer from pointer without a cast [-Wint-conversion]
+ 2261 |         gSPInvalidateTexCache(play->state.gfxCtx->polyOpa.p++, NULL);
+      |                                                                ^~~~
+      |                                                                |
+      |                                                                void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:30:48: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   30 | void gSPInvalidateTexCache(Gfx* pkt, uintptr_t texAddr);
+      |                                      ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:2265:72: warning: passing argument 2 of 'gSPInvalidateTexCache' makes integer from pointer without a cast [-Wint-conversion]
+ 2265 |                 gSPInvalidateTexCache(play->state.gfxCtx->polyOpa.p++, &font->charTexBuf[i]);
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~
+      |                                                                        |
+      |                                                                        u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:30:48: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   30 | void gSPInvalidateTexCache(Gfx* pkt, uintptr_t texAddr);
+      |                                      ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:2637:54: warning: passing argument 1 of 'memcpy' makes pointer from integer without a cast [-Wint-conversion]
+ 2637 |             memcpy((uintptr_t)msgCtx->textboxSegment + MESSAGE_STATIC_TEX_SIZE, gRedMessageXLeftTex,
+/usr/arm-none-eabi/include/string.h:31:18: note: expected 'void * restrict' but argument is of type 'unsigned int'
+   31 | void *   memcpy (void *__restrict, const void *__restrict, size_t);
+      |                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:2639:80: warning: passing argument 1 of 'memcpy' makes pointer from integer without a cast [-Wint-conversion]
+ 2639 |             memcpy((uintptr_t)msgCtx->textboxSegment + MESSAGE_STATIC_TEX_SIZE + 0x900, gRedMessageXRightTex,
+      |                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~
+      |                                                                                |
+      |                                                                                unsigned int
+/usr/arm-none-eabi/include/string.h:31:18: note: expected 'void * restrict' but argument is of type 'unsigned int'
+   31 | void *   memcpy (void *__restrict, const void *__restrict, size_t);
+      |                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c: In function 'Message_OpenText':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:2706:64: warning: passing argument 2 of 'gSPInvalidateTexCache' makes integer from pointer without a cast [-Wint-conversion]
+ 2706 |         gSPInvalidateTexCache(play->state.gfxCtx->polyOpa.p++, NULL);
+      |                                                                ^~~~
+      |                                                                |
+      |                                                                void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:30:48: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   30 | void gSPInvalidateTexCache(Gfx* pkt, uintptr_t texAddr);
+      |                                      ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:2710:72: warning: passing argument 2 of 'gSPInvalidateTexCache' makes integer from pointer without a cast [-Wint-conversion]
+ 2710 |                 gSPInvalidateTexCache(play->state.gfxCtx->polyOpa.p++, &font->charTexBuf[i]);
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~
+      |                                                                        |
+      |                                                                        u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:30:48: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   30 | void gSPInvalidateTexCache(Gfx* pkt, uintptr_t texAddr);
+      |                                      ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:2777:21: warning: initialization of 'char *' from 'unsigned int' makes pointer from integer without a cast [-Wint-conversion]
+ 2777 |         char* src = (uintptr_t)font->msgOffset;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:2803:84: warning: passing argument 2 of 'GetEquipNowMessage' makes pointer from integer without a cast [-Wint-conversion]
+ 2803 |         msgCtx->msgLength = font->msgLength = GetEquipNowMessage(font->msgBuf, font->msgOffset, sizeof(font->msgBuf));
+      |                                                                                ~~~~^~~~~~~~~~~
+      |                                                                                    |
+      |                                                                                    uintptr_t {aka unsigned int}
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:14:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/OTRGlobals.h:109:47: note: expected 'char *' but argument is of type 'uintptr_t' {aka 'unsigned int'}
+  109 | size_t GetEquipNowMessage(char* buffer, char* src, const size_t maxBufferSize);
+      |                                         ~~~~~~^~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:2811:21: warning: initialization of 'char *' from 'unsigned int' makes pointer from integer without a cast [-Wint-conversion]
+ 2811 |         char* src = (uintptr_t)font->msgOffset;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c: In function 'Message_DrawTextBox':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:3082:40: warning: passing argument 2 of 'gSPInvalidateTexCache' makes integer from pointer without a cast [-Wint-conversion]
+ 3082 |     gSPInvalidateTexCache(gfx++, msgCtx->textboxSegment);
+      |                                  ~~~~~~^~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:30:48: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   30 | void gSPInvalidateTexCache(Gfx* pkt, uintptr_t texAddr);
+      |                                      ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c: In function 'Message_DrawMain':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:3155:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 3155 |         gOcarinaBtnIconATex,     gOcarinaBtnIconCDownTex, gOcarinaBtnIconCRightTex,
+      |         ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:3155:34: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 3155 |         gOcarinaBtnIconATex,     gOcarinaBtnIconCDownTex, gOcarinaBtnIconCRightTex,
+      |                                  ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:3155:59: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 3155 |         gOcarinaBtnIconATex,     gOcarinaBtnIconCDownTex, gOcarinaBtnIconCRightTex,
+      |                                                           ^~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:3156:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 3156 |         gOcarinaBtnIconCLeftTex, gOcarinaBtnIconCUpTex,
+      |         ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:3156:34: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 3156 |         gOcarinaBtnIconCLeftTex, gOcarinaBtnIconCUpTex,
+      |                                  ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:3287:47: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 3287 |     gSPSegment(gfx++, 0x02, play->interfaceCtx.parameterSegment);
+      |                             ~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+      |                                               |
+      |                                               u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_message_PAL.c:3288:35: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 3288 |     gSPSegment(gfx++, 0x07, msgCtx->textboxSegment);
+      |                             ~~~~~~^~~~~~~~~~~~~~~~
+      |                                   |
+      |                                   void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~

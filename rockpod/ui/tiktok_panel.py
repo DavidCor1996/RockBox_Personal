@@ -10,6 +10,7 @@ from PySide6.QtCore import QObject, QRunnable, QRect, QThreadPool, Qt, Signal, S
 from PySide6.QtGui import QColor, QPainter, QPixmap
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QComboBox,
     QDialog,
     QDialogButtonBox,
     QFileDialog,
@@ -82,7 +83,8 @@ class TikTokSyncSignals(QObject):
 class TikTokSyncJob(QRunnable):
     """Run downloads, conversion, and iPod writes without blocking RockPod."""
 
-    def __init__(self, db_path, config, repo_root, mount_path):
+    def __init__(self, db_path, config, repo_root, mount_path,
+                 video_ids=None, video_quality="tv"):
         super().__init__()
         self.db_path = db_path
         self.config = dict(
@@ -90,6 +92,8 @@ class TikTokSyncJob(QRunnable):
         )
         self.repo_root = str(repo_root)
         self.mount_path = str(mount_path)
+        self.video_ids = None if video_ids is None else tuple(video_ids)
+        self.video_quality = video_quality
         self.signals = TikTokSyncSignals()
 
     @Slot()
@@ -105,6 +109,8 @@ class TikTokSyncJob(QRunnable):
                 self.mount_path,
                 device=SimpleNamespace(mount_path=self.mount_path),
                 progress_callback=self.signals.progress.emit,
+                video_ids=self.video_ids,
+                video_quality=self.video_quality,
             )
             self.signals.finished.emit(report)
         except Exception as exc:
@@ -326,13 +332,22 @@ class TikTokPanel(QWidget):
         layout.addWidget(self.tabs, 1)
         footer = QHBoxLayout()
         self.status = QLabel()
-        self.sync_button = QPushButton("Sync TikTok to iPod")
-        self.sync_button.setStyleSheet(
+        self.status.setWordWrap(True)
+        self.sync_quality = QComboBox()
+        self.sync_quality.addItem("Standard MPEG", "tv")
+        self.sync_quality.addItem("Space saver MPEG", "space")
+        self.sync_selected_button = QPushButton("Sync Selected")
+        self.sync_selected_button.clicked.connect(lambda: self.sync(selected=True))
+        self.sync_mpeg_button = QPushButton("Sync All")
+        self.sync_mpeg_button.setStyleSheet(
             "background:#fe2c55; color:white; font-weight:600;"
         )
-        self.sync_button.clicked.connect(self.sync)
-        footer.addWidget(self.status, 1)
-        footer.addWidget(self.sync_button)
+        self.sync_mpeg_button.clicked.connect(lambda: self.sync())
+        layout.addWidget(self.status)
+        footer.addStretch(1)
+        footer.addWidget(self.sync_quality)
+        footer.addWidget(self.sync_selected_button)
+        footer.addWidget(self.sync_mpeg_button)
         layout.addLayout(footer)
         self.refresh()
 
@@ -855,8 +870,12 @@ class TikTokPanel(QWidget):
             f"{report.get('errors', 0)} unavailable skipped"
         )
 
-    def sync(self):
+    def sync(self, selected=False):
         if self._sync_job is not None:
+            return
+        video_ids = self._selected_ids() if selected else None
+        if selected and not video_ids:
+            QMessageBox.warning(self, "TikTok Sync", "Select one or more TikToks first.")
             return
         device = self.device_provider()
         if device is None or not getattr(device, "mount_path", ""):
@@ -871,14 +890,18 @@ class TikTokPanel(QWidget):
         self._sync_progress.setAutoClose(False)
         self._sync_progress.setAutoReset(False)
         self._sync_progress.show()
-        self.sync_button.setEnabled(False)
-        self.status.setText("TikTok sync starting…")
+        self.sync_mpeg_button.setEnabled(False)
+        self.sync_selected_button.setEnabled(False)
+        self.sync_quality.setEnabled(False)
+        self.status.setText("TikTok MPEG sync starting…")
         try:
             self._sync_job = TikTokSyncJob(
                 self.service.db._path,
                 self.service.config,
                 self.service.repo_root,
                 device.mount_path,
+                video_ids=video_ids,
+                video_quality=self.sync_quality.currentData(),
             )
             self._sync_job.signals.progress.connect(self._sync_status)
             self._sync_job.signals.finished.connect(self._sync_finished)
@@ -905,7 +928,9 @@ class TikTokPanel(QWidget):
             self._sync_progress.deleteLater()
         self._sync_progress = None
         self._sync_job = None
-        self.sync_button.setEnabled(True)
+        self.sync_mpeg_button.setEnabled(True)
+        self.sync_selected_button.setEnabled(True)
+        self.sync_quality.setEnabled(True)
 
     def _sync_finished(self, report):
         self._finish_sync_ui()

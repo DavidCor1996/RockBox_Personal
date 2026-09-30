@@ -40,6 +40,7 @@ extern void iap_setup(int ratenum);
 extern void iap_malloc(void);
 extern void iap_bitrate_set(int ratenum);
 extern void iap_periodic(void);
+void iap_remote_filter(unsigned button, bool filtered, bool wake);
 extern void iap_handlepkt(void);
 extern void iap_send_pkt(const unsigned char * data, int len);
 const unsigned char *iap_get_serbuf(void);
@@ -107,6 +108,8 @@ extern bool iap_remote_input_suppressed(void);
  * such as the one-shot AirPods animation and headset button translation. */
 extern bool iap_ready_for_serial(void);
 extern bool iap_kokkia_present(void);
+bool iap_remote_navigation_active(void);
+bool iap_remote_tv_active(void);
 extern bool iap_kokkia_connected(void);
 extern void iap_note_kokkia_ready(void);
 extern bool iap_take_kokkia_connection_event(void);

@@ -1,0 +1,36 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Sst_Floor/z_bg_sst_floor.c: In function 'BgSstFloor_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Sst_Floor/z_bg_sst_floor.c:44:32: warning: passing argument 1 of 'CollisionHeader_GetVirtual' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+   44 |     CollisionHeader_GetVirtual(&gBongoDrumCol, &colHeader);
+      |                                ^~~~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Sst_Floor/z_bg_sst_floor.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Sst_Floor/z_bg_sst_floor.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:673:39: note: expected 'void *' but argument is of type 'const char (*)[40]'
+  673 | void CollisionHeader_GetVirtual(void* colHeader, CollisionHeader** dest);
+      |                                 ~~~~~~^~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:10:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Sst_Floor/z_bg_sst_floor.c: In function 'BgSstFloor_Update':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Sst_Floor/z_bg_sst_floor.c:59:55: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[40]' [-Wincompatible-pointer-types]
+   59 |     CollisionHeader* colHeader = SEGMENTED_TO_VIRTUAL(&gBongoDrumCol);
+      |                                                       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Sst_Floor/z_bg_sst_floor.c:61:43: warning: passing argument 1 of 'ResourceMgr_LoadColByName' from incompatible pointer type [-Wincompatible-pointer-types]
+   61 |     colHeader = ResourceMgr_LoadColByName(colHeader);
+      |                                           ^~~~~~~~~
+      |                                           |
+      |                                           CollisionHeader *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Sst_Floor/z_bg_sst_floor.c:9:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:64:56: note: expected 'const char *' but argument is of type 'CollisionHeader *'
+   64 | CollisionHeader* ResourceMgr_LoadColByName(const char* path);
+      |                                            ~~~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Sst_Floor/z_bg_sst_floor.c: In function 'BgSstFloor_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Sst_Floor/z_bg_sst_floor.c:134:37: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  134 |     gSPDisplayList(POLY_OPA_DISP++, gBongoDrumDL);
+      |                                     ^~~~~~~~~~~~
+      |                                     |
+      |                                     const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~

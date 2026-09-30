@@ -687,7 +687,7 @@ static void keyremap_import_user_keys(void)
     char buf[MAX_PATH];
     struct browse_context browse = {
         .dirfilter = SHOW_ALL,
-        .flags = BROWSE_SELECTONLY,
+        .flags = BROWSE_SELECTONLY | BROWSE_DIRFILTER,
         .title = "Select Keymap",
         .icon = Icon_Plugin,
         .buf = buf,
@@ -1045,6 +1045,8 @@ next_line:
                         {
                             pact = pfirst + 1;
                             pfirst = NULL;
+                            while (pbuf > pact && *(pbuf - 1) == ' ')
+                                pbuf--;
                             *pbuf = '\0';
                             pbuf = "";
                             continue;

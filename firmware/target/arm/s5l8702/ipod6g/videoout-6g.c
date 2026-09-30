@@ -13,8 +13,11 @@
 #include "kernel.h"
 #include "s5l87xx.h"
 #include "clocking-s5l8702.h"
+#include "events.h"
+#include "backlight.h"
 #include "lcd-s5l8702.h"
 #include "videoout-6g.h"
+#include "videoout.h"
 #include <string.h>
 
 #include <stdint.h>
@@ -116,8 +119,22 @@
  * repeatedly rejected the otherwise equivalent 640x240 software-expanded
  * layout at logical source row 120 regardless of image/source height values.
  * One Cb and one Cr sample cover a 2x2 block of native luma samples. */
-#define SVID_PLANAR_Y_WIDTH      LCD_WIDTH
-#define SVID_PLANAR_Y_HEIGHT     LCD_HEIGHT
+#ifdef VIDEOOUT_ENHANCED_TEST
+#define SVID_PLANAR_SCALE        2
+#else
+#define SVID_PLANAR_SCALE        1
+#endif
+/* Replicated guards keep horizontal filter reads within the same row.
+ * RetailOS source X is in sixteenths of a pixel, independently of span. */
+#if defined(VIDEOOUT_EDGE_GUARD_TEST) && defined(VIDEOOUT_ENHANCED_TEST)
+#define SVID_PLANAR_GUARD        32
+#else
+#define SVID_PLANAR_GUARD        0
+#endif
+#define SVID_PLANAR_SOURCE_WIDTH (LCD_WIDTH * SVID_PLANAR_SCALE)
+#define SVID_PLANAR_Y_WIDTH      (SVID_PLANAR_SOURCE_WIDTH + \
+                                  2 * SVID_PLANAR_GUARD)
+#define SVID_PLANAR_Y_HEIGHT     (LCD_HEIGHT * SVID_PLANAR_SCALE)
 #define SVID_PLANAR_SOURCE_HEIGHT SVID_PLANAR_Y_HEIGHT
 #define SVID_PLANAR_Y_SIZE       (SVID_PLANAR_Y_WIDTH * \
                                   SVID_PLANAR_Y_HEIGHT)
@@ -127,6 +144,8 @@
                                   SVID_PLANAR_C_HEIGHT)
 #define SVID_PLANAR_FRAME_SIZE   (SVID_PLANAR_Y_SIZE + \
                                   2 * SVID_PLANAR_C_SIZE)
+#define SVID_PLANAR_BUFFER_COUNT 2u
+#define SVID_FIELD_EDGE_POLL_MAX 2500u
 
 #define SVID_CLOCK_SOURCE    3
 #define SVID_CLOCK_DIVIDER   4
@@ -157,8 +176,18 @@ enum svid_planar_content
     SVID_PLANAR_GRID,
 };
 
+static int svid_tv_screen, svid_tv_overscan;
+static bool svid_tv_canvas;
+static struct videoout_tv_frame svid_frame;
+static bool svid_frame_pending, svid_frame_owned;
+/* Bounded presentation scratch, serialized by the LCD mutex. Calculate each
+ * column once, never perform a software divide for every decoded pixel. */
+static bool svid_ui_batch, svid_ui_owner;
+static uint16_t svid_sample_x[SVID_PLANAR_SOURCE_WIDTH];
+static struct videoout_rect svid_destination;
 static bool svid_active;
 static bool svid_layer_active;
+static bool svid_published_active;
 static bool svid_layer_xrgb;
 static bool svid_layer_planar;
 static bool svid_mirror_enabled;
@@ -170,7 +199,15 @@ static uint8_t svid_rgb6_to_8[64];
 static bool svid_rgb_expansion_ready;
 static uint32_t svid_output_framebuffer[SVID_NTSC_ACTIVE_HEIGHT]
                                        [SVID_NTSC_ACTIVE_WIDTH]
+#if SVID_PLANAR_GUARD > 0
+                                       __attribute__((aligned(1024)));
+#else
                                        CACHEALIGN_ATTR;
+#endif
+static uint8_t *svid_planar_write_buffer;
+static unsigned svid_planar_front_buffer;
+enum svid_surface_state { SVID_FREE, SVID_WRITING, SVID_READY, SVID_SCANNING };
+static enum svid_surface_state svid_surface[2] = { SVID_SCANNING, SVID_FREE };
 static const uint16_t *svid_framebuffer;
 static int svid_framebuffer_width;
 static int svid_framebuffer_height;
@@ -181,12 +218,25 @@ static enum ipod6g_videoout_mode svid_mode = IPOD6G_VIDEOOUT_OFF;
 static volatile enum ipod6g_videoout_accessory svid_accessory =
     IPOD6G_VIDEOOUT_ACCESSORY_NONE;
 static volatile bool svid_policy_pending;
+static bool svid_hibernate_restore_pending;
 static bool svid_platform_saved;
 static uint16_t svid_saved_clock;
 static uint32_t svid_saved_power_gates;
 static uint32_t svid_saved_gpio_e4;
 
 static void svid_apply_policy(void);
+
+static void svid_publish_active(void)
+{
+    bool active = svid_active && svid_layer_active;
+
+    if (active == svid_published_active)
+        return;
+
+    svid_published_active = active;
+    backlight_set_videoout_active(active);
+    send_event(SYS_EVENT_VIDEOOUT_CHANGED, active ? (void *)1 : NULL);
+}
 
 static void svid_set_bus_boost(bool enable)
 {
@@ -360,7 +410,7 @@ static bool svid_platform_enable(void)
     return true;
 }
 
-static void svid_init_blocks(void)
+static void svid_begin_reset(void)
 {
     SVID_REG(SVID_COMPOSITOR_BASE, 0) &= 2;
     svid_write_table(SVID_COMPOSITOR_BASE, compositor_init,
@@ -369,7 +419,10 @@ static void svid_init_blocks(void)
     /* RetailOS initializes compositor, encoder, then output mixer. */
     SVID_REG(SVID_ENCODER_BASE, SVID_SDO_CLOCK) =
         SVID_SDO_SOFTWARE_RESET;
-    udelay(10000);
+}
+
+static void svid_finish_reset(void)
+{
     SVID_REG(SVID_ENCODER_BASE, SVID_SDO_CLOCK) = 0;
     SVID_REG(SVID_ENCODER_BASE, 0x180) &= ~0x1fu;
     SVID_REG(SVID_ENCODER_BASE, 0x180) |= 0x10;
@@ -423,6 +476,98 @@ static void svid_start_pipeline(void)
 static void svid_mixer_commit(void)
 {
     SVID_REG(SVID_ROUTER_BASE, SVID_MXR_COMMIT) = 1;
+}
+
+static uint8_t *svid_planar_buffer(unsigned index)
+{
+    return (uint8_t *)svid_output_framebuffer +
+           (index % SVID_PLANAR_BUFFER_COUNT) * SVID_PLANAR_FRAME_SIZE;
+}
+
+static bool svid_wait_for_field_edge(void)
+{
+    uint32_t field = SVID_REG(SVID_ENCODER_BASE, SVID_SDO_FIELD_INFO);
+
+    for (unsigned i = 0; i < SVID_FIELD_EDGE_POLL_MAX; i++)
+    {
+        if (SVID_REG(SVID_ENCODER_BASE, SVID_SDO_FIELD_INFO) != field)
+            return true;
+        /* The bounded field wait is interruptible, preserving PCM service. */
+        udelay(10);
+    }
+    return false;
+}
+
+static bool svid_begin_planar_write(bool preserve)
+{
+    unsigned back;
+    uint8_t *front;
+
+    back = svid_planar_front_buffer ^ 1u;
+    if (svid_surface[back] != SVID_FREE)
+        return false;
+    svid_surface[back] = SVID_WRITING;
+    front = svid_planar_buffer(svid_planar_front_buffer);
+    svid_planar_write_buffer = svid_planar_buffer(back);
+    if (preserve) memcpy(svid_planar_write_buffer, front, SVID_PLANAR_FRAME_SIZE);
+    return true;
+}
+
+static bool svid_begin_planar_update(void)
+{
+    return svid_begin_planar_write(true);
+}
+
+static void svid_extend_planar_edges(void)
+{
+#if SVID_PLANAR_GUARD > 0
+    uint8_t *plane = svid_planar_write_buffer;
+    for (int channel = 0; channel < 3; channel++)
+    {
+        int divisor = channel == 0 ? 1 : 2;
+        int stride = SVID_PLANAR_Y_WIDTH / divisor;
+        int height = SVID_PLANAR_Y_HEIGHT / divisor;
+        int guard = SVID_PLANAR_GUARD / divisor;
+        int width = SVID_PLANAR_SOURCE_WIDTH / divisor;
+        for (int y = 0; y < height; y++)
+        {
+            uint8_t *row = plane + y * stride;
+            memset(row, row[guard], guard);
+            memset(row + guard + width, row[guard + width - 1], guard);
+        }
+        plane += stride * height;
+    }
+#endif
+}
+
+static bool svid_present_planar_update(void)
+{
+    uintptr_t luma = (uintptr_t)svid_planar_write_buffer;
+    uintptr_t cb = luma + SVID_PLANAR_Y_SIZE;
+    uintptr_t cr = cb + SVID_PLANAR_C_SIZE;
+
+    /* Never expose a partially converted frame. RetailOS does not issue the
+     * later-Samsung VP shadow-update command for private format 8, so switch
+     * its three plane descriptors together immediately after an SDO field
+     * edge instead of writing into the buffer currently being scanned. */
+    svid_extend_planar_edges();
+    commit_dcache_range(svid_planar_write_buffer, SVID_PLANAR_FRAME_SIZE);
+    unsigned back = svid_planar_front_buffer ^ 1u;
+    svid_surface[back] = SVID_READY;
+    if (!svid_wait_for_field_edge())
+    {
+        svid_surface[back] = SVID_FREE;
+        return false;
+    }
+    int oldlevel = disable_irq_save();
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_PLANE0_PTR) = luma;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_PLANE2_PTR) = cb;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_PLANE1_PTR) = cr;
+    restore_irq(oldlevel);
+    svid_surface[svid_planar_front_buffer] = SVID_FREE;
+    svid_surface[back] = SVID_SCANNING;
+    svid_planar_front_buffer ^= 1u;
+    return true;
 }
 
 static uint32_t svid_rgb565_to_xrgb8888(uint16_t pixel)
@@ -479,6 +624,9 @@ static void svid_copy_framebuffer_xrgb(const uint16_t *source,
     unsigned x0 = (SVID_NTSC_ACTIVE_WIDTH - output_width) / 2;
     unsigned y0 = (SVID_NTSC_ACTIVE_HEIGHT - output_height) / 2;
 
+#ifdef VIDEOOUT_ENHANCED_TEST
+    ipod6g_videoout_art_clear();
+#endif
     memset(svid_output_framebuffer, 0, sizeof(svid_output_framebuffer));
     for (int y = 0; y < height; y++)
     {
@@ -535,10 +683,137 @@ static uint32_t svid_rgb565_to_ycbcr(uint16_t pixel)
     return (uint32_t)y | ((uint32_t)cb << 8) | ((uint32_t)cr << 16);
 }
 
+#ifdef VIDEOOUT_ENHANCED_TEST
+#include "videoout-scale2x.h"
+#include "videoout-native.h"
+
+/* With 32-pixel guards, two 506880-byte frames plus 202368 bytes of
+ * artwork/expected pixels fit inside the existing 1228800-byte allocation. */
+#define SVID_ART_DATA ((uint8_t *)svid_output_framebuffer + \
+                      SVID_PLANAR_FRAME_SIZE * SVID_PLANAR_BUFFER_COUNT)
+#define SVID_ART_EXPECTED ((uint16_t *)(SVID_ART_DATA + VIDEOOUT_ART_SIZE))
+_Static_assert(SVID_PLANAR_FRAME_SIZE * SVID_PLANAR_BUFFER_COUNT +
+               VIDEOOUT_ART_SIZE + VIDEOOUT_ART_WIDTH *
+               VIDEOOUT_ART_HEIGHT * 2 <= sizeof(svid_output_framebuffer),
+               "composite artwork exceeds reserved workspace");
+static bool svid_art_ready;
+static bool svid_art_bound;
+static unsigned svid_art_received;
+static int svid_art_x, svid_art_y;
+
+/* Called under the LCD mutex, with no filesystem work in target context. */
+bool ipod6g_videoout_art_write(unsigned offset, const void *data, unsigned size)
+{
+    if (offset == 0)
+    {
+        svid_art_ready = svid_art_bound = false;
+        svid_art_received = 0;
+    }
+    if (!svid_active || !svid_layer_planar || !svid_mirror_enabled ||
+        offset != svid_art_received || offset > VIDEOOUT_ART_SIZE ||
+        size > VIDEOOUT_ART_SIZE - offset)
+        return false;
+    memcpy(SVID_ART_DATA + offset, data, size);
+    svid_art_received += size;
+    return true;
+}
+
+void ipod6g_videoout_art_clear(void)
+{
+    svid_art_ready = svid_art_bound = false;
+    svid_art_received = 0;
+}
+
+bool ipod6g_videoout_art_finish(void)
+{
+    svid_art_ready = svid_active && svid_layer_planar &&
+                     svid_mirror_enabled &&
+                     svid_art_received == VIDEOOUT_ART_SIZE;
+    return svid_art_ready;
+}
+
+bool ipod6g_videoout_art_bind(const uint16_t *source, int stride, int x, int y)
+{
+    if (!svid_art_ready || x < 0 || y < 0 ||
+        x + VIDEOOUT_ART_WIDTH > LCD_WIDTH ||
+        y + VIDEOOUT_ART_HEIGHT > LCD_HEIGHT || stride < VIDEOOUT_ART_WIDTH)
+        return false;
+    for (int row = 0; row < VIDEOOUT_ART_HEIGHT; row++)
+        memcpy(SVID_ART_EXPECTED + row * VIDEOOUT_ART_WIDTH,
+               source + row * stride, VIDEOOUT_ART_WIDTH * 2);
+    svid_art_x = x;
+    svid_art_y = y;
+    svid_art_bound = true;
+    return true;
+}
+
+static void svid_art_composite(const uint16_t *source, int x, int y,
+                               int width, int height, int stride)
+{
+    if (!svid_art_ready || !svid_art_bound)
+        return;
+    int left = MAX(x, svid_art_x), top = MAX(y, svid_art_y);
+    int right = MIN(x + width, svid_art_x + VIDEOOUT_ART_WIDTH);
+    int bottom = MIN(y + height, svid_art_y + VIDEOOUT_ART_HEIGHT);
+    if (right <= left || bottom <= top)
+        return;
+    /* A modal, text page, Hold screen, or changed track must win. Compare
+     * the entire overlap before touching any TV pixels. */
+    for (int row = top; row < bottom; row++)
+        if (memcmp(source + (row-y)*stride + left-x,
+                   SVID_ART_EXPECTED + (row-svid_art_y)*VIDEOOUT_ART_WIDTH +
+                   left-svid_art_x, (right-left)*2))
+            return;
+    const uint8_t *src = SVID_ART_DATA;
+    uint8_t *dst = svid_planar_write_buffer;
+    for (int plane = 0; plane < 3; plane++)
+    {
+        int scale = plane == 0 ? 2 : 1;
+        int ds = plane == 0 ? SVID_PLANAR_Y_WIDTH : SVID_PLANAR_C_WIDTH;
+        int ss = VIDEOOUT_ART_WIDTH * scale;
+        for (int row = top*scale; row < bottom*scale; row++)
+            memcpy(dst + row*ds + left*scale +
+                   SVID_PLANAR_GUARD * scale / 2,
+                   src + (row-svid_art_y*scale)*ss +
+                   (left-svid_art_x)*scale, (right-left)*scale);
+        src += VIDEOOUT_ART_WIDTH * VIDEOOUT_ART_HEIGHT * scale * scale;
+        dst += plane == 0 ? SVID_PLANAR_Y_SIZE : SVID_PLANAR_C_SIZE;
+    }
+}
+
+static void svid_rgb565_expand(const uint16_t *source, int x, int y,
+                               int width, int height, int stride)
+{
+    uint8_t *luma = svid_planar_write_buffer;
+    uint8_t *cb = luma + SVID_PLANAR_Y_SIZE;
+    uint8_t *cr = cb + SVID_PLANAR_C_SIZE;
+    for (int row = 0; row < height; row++)
+        for (int col = 0; col < width; col++)
+        {
+            uint32_t pixel = svid_rgb565_to_ycbcr(source[row*stride + col]);
+            unsigned at = (y+row)*2*SVID_PLANAR_Y_WIDTH + (x+col)*2 +
+                          SVID_PLANAR_GUARD;
+            luma[at] = luma[at+1] = pixel;
+            luma[at+SVID_PLANAR_Y_WIDTH] =
+                luma[at+SVID_PLANAR_Y_WIDTH+1] = pixel;
+            at = (y+row)*SVID_PLANAR_C_WIDTH + x+col +
+                 SVID_PLANAR_GUARD/2;
+            cb[at] = pixel >> 8;
+            cr[at] = pixel >> 16;
+        }
+    svid_art_composite(source, x, y, width, height, stride);
+}
+#endif
+
 static void svid_copy_framebuffer_planar(const uint16_t *source,
                                          int width, int height)
 {
-    uint8_t *luma = (uint8_t *)svid_output_framebuffer;
+#ifdef VIDEOOUT_ENHANCED_TEST
+    svid_rgb565_expand(source, 0, 0, width, height, width);
+    commit_dcache_range(svid_planar_write_buffer, SVID_PLANAR_FRAME_SIZE);
+    return;
+#endif
+    uint8_t *luma = svid_planar_write_buffer;
     uint8_t *cb = luma + SVID_PLANAR_Y_SIZE;
     uint8_t *cr = cb + SVID_PLANAR_C_SIZE;
 
@@ -590,7 +865,7 @@ static void svid_make_planar_bars(void)
         {128, 16, 166, 54, 202, 90, 240, 128};
     static const uint8_t bar_cr[8] =
         {128, 146, 16, 34, 222, 240, 110, 128};
-    uint8_t *luma = (uint8_t *)svid_output_framebuffer;
+    uint8_t *luma = svid_planar_write_buffer;
     uint8_t *cb = luma + SVID_PLANAR_Y_SIZE;
     uint8_t *cr = cb + SVID_PLANAR_C_SIZE;
 
@@ -634,37 +909,43 @@ static uint16_t svid_grid_pixel(unsigned x, unsigned y)
                     (x / (LCD_WIDTH / 8))) & 7u];
 }
 
+static unsigned svid_grid_source_x(unsigned x)
+{
+    return MIN(MAX((int)x - SVID_PLANAR_GUARD, 0),
+               SVID_PLANAR_SOURCE_WIDTH - 1) / SVID_PLANAR_SCALE;
+}
+
 static void svid_make_planar_grid(void)
 {
-    uint8_t *luma = (uint8_t *)svid_output_framebuffer;
+    uint8_t *luma = svid_planar_write_buffer;
     uint8_t *cb = luma + SVID_PLANAR_Y_SIZE;
     uint8_t *cr = cb + SVID_PLANAR_C_SIZE;
 
     /* Eight logical rows and columns map the 320x240 LCD exactly.  A white
      * outer border and black cell separators make clipping, repeated final
      * rows, and unequal vertical scale visible without relying on text. */
-    for (unsigned y = 0; y < LCD_HEIGHT; y++)
+    for (unsigned y = 0; y < SVID_PLANAR_Y_HEIGHT; y++)
     {
-        for (unsigned x = 0; x < LCD_WIDTH; x++)
+        for (unsigned x = 0; x < SVID_PLANAR_Y_WIDTH; x++)
         {
-            uint16_t pixel = svid_grid_pixel(x, y);
+            uint16_t pixel = svid_grid_pixel(svid_grid_source_x(x), y / SVID_PLANAR_SCALE);
             uint32_t pixel_ycbcr = svid_rgb565_to_ycbcr(pixel);
 
             luma[y * SVID_PLANAR_Y_WIDTH + x] = pixel_ycbcr;
         }
     }
 
-    for (unsigned y = 0; y < LCD_HEIGHT; y += 2)
+    for (unsigned y = 0; y < SVID_PLANAR_Y_HEIGHT; y += 2)
     {
-        for (unsigned x = 0; x < LCD_WIDTH; x += 2)
+        for (unsigned x = 0; x < SVID_PLANAR_Y_WIDTH; x += 2)
         {
-            uint32_t pixel00 = svid_rgb565_to_ycbcr(svid_grid_pixel(x, y));
+            uint32_t pixel00 = svid_rgb565_to_ycbcr(svid_grid_pixel(svid_grid_source_x(x), y / SVID_PLANAR_SCALE));
             uint32_t pixel01 = svid_rgb565_to_ycbcr(
-                svid_grid_pixel(x + 1, y));
+                svid_grid_pixel(svid_grid_source_x(x + 1), y / SVID_PLANAR_SCALE));
             uint32_t pixel10 = svid_rgb565_to_ycbcr(
-                svid_grid_pixel(x, y + 1));
+                svid_grid_pixel(svid_grid_source_x(x), (y + 1) / SVID_PLANAR_SCALE));
             uint32_t pixel11 = svid_rgb565_to_ycbcr(
-                svid_grid_pixel(x + 1, y + 1));
+                svid_grid_pixel(svid_grid_source_x(x + 1), (y + 1) / SVID_PLANAR_SCALE));
 
             cb[(y / 2) * SVID_PLANAR_C_WIDTH + x / 2] =
                 (((pixel00 >> 8) & 0xff) + ((pixel01 >> 8) & 0xff) +
@@ -685,13 +966,27 @@ bool ipod6g_videoout_enable_sync(void)
     if (svid_active)
         return true;
 
+    /* Keep every SVID register write atomic, but leave the reset-settle delay
+     * interruptible.  Its 10 ms duration is almost the complete PCM DMA
+     * emergency buffer at 44.1 kHz; masking DMA interrupts across it can
+     * desynchronize the software task queue from the hardware channel. */
     int oldlevel = disable_irq_save();
     if (!svid_platform_enable())
     {
         restore_irq(oldlevel);
         return false;
     }
-    svid_init_blocks();
+    svid_begin_reset();
+
+    /* Only the hardware settling time is interruptible.  Do not expose the
+     * compositor, encoder, or router table writes to interleaving. */
+    restore_irq(oldlevel);
+    udelay(10000);
+
+    /* Complete initialization and publish the pipeline as one short critical
+     * section after the slow reset has finished. */
+    oldlevel = disable_irq_save();
+    svid_finish_reset();
     svid_select_composite();
     svid_start_pipeline();
     restore_irq(oldlevel);
@@ -728,6 +1023,7 @@ bool ipod6g_videoout_show_background(uint32_t ycbcr)
     svid_layer_planar = false;
     svid_mirror_enabled = false;
     svid_set_bus_boost(false);
+    svid_publish_active();
     return true;
 }
 
@@ -776,16 +1072,28 @@ static bool svid_show_planar(const void *framebuffer, int width, int height,
     svid_mixer_commit();
     restore_irq(oldlevel);
 
+#ifdef VIDEOOUT_ENHANCED_TEST
+    ipod6g_videoout_art_clear();
+#endif
+    svid_planar_front_buffer = 0;
+    svid_surface[0] = SVID_SCANNING;
+    svid_surface[1] = SVID_FREE;
+    svid_planar_write_buffer = svid_planar_buffer(0);
     if (content == SVID_PLANAR_BARS)
         svid_make_planar_bars();
     else if (content == SVID_PLANAR_GRID)
         svid_make_planar_grid();
     else
         svid_copy_framebuffer_planar(framebuffer, width, height);
+    svid_extend_planar_edges();
+    commit_dcache_range(svid_planar_buffer(0), SVID_PLANAR_FRAME_SIZE);
+    memcpy(svid_planar_buffer(1), svid_planar_buffer(0),
+           SVID_PLANAR_FRAME_SIZE);
+    commit_dcache_range(svid_planar_buffer(1), SVID_PLANAR_FRAME_SIZE);
 
     oldlevel = disable_irq_save();
 
-    uintptr_t luma = (uintptr_t)svid_output_framebuffer;
+    uintptr_t luma = (uintptr_t)svid_planar_buffer(0);
     uintptr_t cb = luma + SVID_PLANAR_Y_SIZE;
     uintptr_t cr = cb + SVID_PLANAR_C_SIZE;
 
@@ -803,10 +1111,11 @@ static bool svid_show_planar(const void *framebuffer, int width, int height,
         SVID_PLANAR_Y_WIDTH;
     SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_IMG_HEIGHT) =
         SVID_PLANAR_Y_HEIGHT;
-    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_SRC_H_POS) = 0;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_SRC_H_POS) =
+        SVID_PLANAR_GUARD << 4;
     SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_SRC_V_POS) = 0;
     SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_SRC_WIDTH) =
-        SVID_PLANAR_Y_WIDTH;
+        SVID_PLANAR_SOURCE_WIDTH;
     SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_SRC_HEIGHT) =
         source_register_height;
     SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_DST_H_POS) = destination_x;
@@ -820,7 +1129,7 @@ static bool svid_show_planar(const void *framebuffer, int width, int height,
     SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_DST_HEIGHT) =
         destination_height;
     SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_H_RATIO) =
-        ((SVID_PLANAR_Y_WIDTH << 12) / destination_width) >> 3;
+        ((SVID_PLANAR_SOURCE_WIDTH << 12) / destination_width) >> 3;
     /* Destination geometry remains in RetailOS full-frame coordinates. */
     SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_V_RATIO) = vertical_ratio;
     SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_PLANE_MODE) =
@@ -853,6 +1162,7 @@ static bool svid_show_planar(const void *framebuffer, int width, int height,
     svid_layer_planar = true;
     svid_mirror_enabled = !pattern && mirror_updates;
     svid_layer_active = true;
+    svid_publish_active();
     return true;
 }
 
@@ -872,8 +1182,100 @@ bool ipod6g_videoout_test_p420_geometry_pattern(
     return svid_show_planar(NULL, 0, 0, SVID_PLANAR_GRID,
                           destination_x, destination_y,
                           destination_width, destination_height,
-                          source_height, vertical_ratio, false);
+                          source_height * SVID_PLANAR_SCALE,
+                          vertical_ratio * SVID_PLANAR_SCALE, false);
 }
+
+#ifdef IPOD6G_VIDEOOUT_HIRES_TEST
+#include "videoout-hires-pattern.h"
+
+bool ipod6g_videoout_test_hires_pattern(void)
+{
+    uint8_t *luma = (uint8_t *)svid_output_framebuffer;
+    uint8_t *cb = luma + SVID_TEST_Y_SIZE;
+    uint8_t *cr = cb + SVID_TEST_C_SIZE;
+    int oldlevel;
+
+    /* Diagnostic only: preserve the normal native path and its geometry.
+     * The verified stock image/descriptor setters accept 640x480 and spans
+     * 640/320. See docs/specs/composite-album-art-qualification.md. */
+    _Static_assert(SVID_TEST_FRAME_SIZE <= sizeof(svid_output_framebuffer),
+                   "qualification frame exceeds target-owned storage");
+    if (!ipod6g_videoout_disable() || !ipod6g_videoout_enable_sync())
+        return false;
+    svid_set_bus_boost(true);
+    svid_mirror_enabled = false;
+    svid_framebuffer = NULL;
+
+    /* The layer is disabled while filling; no live DMA buffer is modified.
+     * Yield between strips without ever borrowing playback memory. */
+    for (unsigned y = 0; y < SVID_TEST_HEIGHT; y += 2)
+    {
+        for (unsigned x = 0; x < SVID_TEST_WIDTH; x += 2)
+        {
+            uint32_t p00 = svid_rgb565_to_ycbcr(svid_hires_test_pixel(x, y));
+            uint32_t p01 = svid_rgb565_to_ycbcr(svid_hires_test_pixel(x + 1, y));
+            uint32_t p10 = svid_rgb565_to_ycbcr(svid_hires_test_pixel(x, y + 1));
+            uint32_t p11 = svid_rgb565_to_ycbcr(
+                svid_hires_test_pixel(x + 1, y + 1));
+            unsigned offset = y * SVID_TEST_WIDTH + x;
+            unsigned chroma = (y / 2) * (SVID_TEST_WIDTH / 2) + x / 2;
+
+            luma[offset] = p00;
+            luma[offset + 1] = p01;
+            luma[offset + SVID_TEST_WIDTH] = p10;
+            luma[offset + SVID_TEST_WIDTH + 1] = p11;
+            cb[chroma] = (((p00 >> 8) & 255) + ((p01 >> 8) & 255) +
+                          ((p10 >> 8) & 255) + ((p11 >> 8) & 255) + 2) >> 2;
+            cr[chroma] = (((p00 >> 16) & 255) + ((p01 >> 16) & 255) +
+                          ((p10 >> 16) & 255) + ((p11 >> 16) & 255) + 2) >> 2;
+        }
+        if ((y & 15u) == 0)
+            yield();
+    }
+    commit_dcache_range(luma, SVID_TEST_FRAME_SIZE);
+    oldlevel = disable_irq_save();
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_MODE) = SVID_VP_MODE_RETAIL_FMT8;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_PLANE0_PTR) = (uintptr_t)luma;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_PLANE2_PTR) = (uintptr_t)cb;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_PLANE1_PTR) = (uintptr_t)cr;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_UNUSED_PTR) = 0;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_IMG_WIDTH) = SVID_TEST_WIDTH;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_IMG_HEIGHT) = SVID_TEST_HEIGHT;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_SRC_H_POS) = 0;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_SRC_V_POS) = 0;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_SRC_WIDTH) = SVID_TEST_WIDTH;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_SRC_HEIGHT) = SVID_TEST_HEIGHT;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_DST_H_POS) = SVID_UI_DESTINATION_X;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_DST_V_POS) = SVID_UI_DESTINATION_Y;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_DST_WIDTH) = SVID_UI_DESTINATION_WIDTH;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_DST_HEIGHT) = SVID_UI_DESTINATION_HEIGHT;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_H_RATIO) =
+        ((SVID_TEST_WIDTH << 12) / SVID_UI_DESTINATION_WIDTH) >> 3;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_V_RATIO) =
+        ((SVID_TEST_HEIGHT << 12) / SVID_UI_DESTINATION_HEIGHT) >> 4;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_PLANE_MODE) = SVID_VP_PLANE_PLANAR;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_LUMA_SPAN) = SVID_TEST_WIDTH;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_CHROMA_SPAN) = SVID_TEST_WIDTH / 2;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_ENDIAN_MODE) = SVID_VP_ENDIAN_LITTLE;
+    SVID_REG(SVID_ROUTER_BASE, SVID_MXR_VIDEO_CONFIG) = 0;
+    SVID_REG(SVID_ROUTER_BASE, SVID_MXR_BG_COLOR0) = 0x00108080u;
+    SVID_REG(SVID_ROUTER_BASE, SVID_MXR_BG_COLOR1) = 0x00108080u;
+    SVID_REG(SVID_ROUTER_BASE, SVID_MXR_BG_COLOR2) = 0x00108080u;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_ENABLE) |= SVID_VP_ENABLE_ON;
+    SVID_REG(SVID_ROUTER_BASE, SVID_MXR_CONFIG) =
+        (SVID_REG(SVID_ROUTER_BASE, SVID_MXR_CONFIG) & ~SVID_MXR_ENABLE_MASK) |
+        SVID_MXR_VIDEO_ENABLE;
+    SVID_REG(SVID_ROUTER_BASE, SVID_MXR_STATUS) =
+        SVID_MXR_STATUS_IDLE | SVID_MXR_STATUS_SYNC | SVID_MXR_STATUS_RUN;
+    svid_mixer_commit();
+    restore_irq(oldlevel);
+    svid_layer_planar = true;
+    svid_layer_active = true;
+    svid_publish_active();
+    return true;
+}
+#endif
 
 bool ipod6g_videoout_test_p420_framebuffer(const void *framebuffer,
                                            int width, int height)
@@ -986,19 +1388,111 @@ static bool svid_show_framebuffer(const void *framebuffer,
     svid_layer_planar = false;
     svid_mirror_enabled = true;
     svid_layer_active = true;
+    svid_publish_active();
     return true;
 }
 
 bool ipod6g_videoout_show_framebuffer(const void *framebuffer,
                                       int width, int height)
 {
+    struct videoout_geometry g;
+    videoout_calc_geometry(width, height, 4, 3, 720, 480,
+        (struct videoout_rect){0, 0, 720, 480}, svid_tv_screen,
+        false, svid_tv_overscan, true, &g);
+    svid_destination = g.destination;
+    svid_tv_canvas = false;
     return svid_show_planar(framebuffer, width, height,
-                            SVID_PLANAR_FRAMEBUFFER,
-                          SVID_UI_DESTINATION_X,
-                          SVID_UI_DESTINATION_Y,
-                          SVID_UI_DESTINATION_WIDTH,
-                          SVID_UI_DESTINATION_HEIGHT,
-                          SVID_PLANAR_SOURCE_HEIGHT, 0, true);
+        SVID_PLANAR_FRAMEBUFFER, g.destination.x, g.destination.y,
+        g.destination.w, g.destination.h, SVID_PLANAR_SOURCE_HEIGHT, 0, true);
+}
+
+static void svid_presentation(bool tv_canvas)
+{
+    struct videoout_geometry g;
+    int n = tv_canvas && svid_tv_screen ? 16 : 4;
+    int d = tv_canvas && svid_tv_screen ? 9 : 3;
+    videoout_calc_geometry(LCD_WIDTH, LCD_HEIGHT, n, d, 720, 480,
+        (struct videoout_rect){0, 0, 720, 480}, svid_tv_screen,
+        false, svid_tv_overscan, !tv_canvas, &g);
+    svid_tv_canvas = tv_canvas;
+    if (!svid_active || !svid_layer_planar ||
+        !memcmp(&svid_destination, &g.destination, sizeof(g.destination)))
+        return;
+    int oldlevel = disable_irq_save();
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_DST_H_POS) = g.destination.x;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_DST_V_POS) = g.destination.y;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_DST_WIDTH) = g.destination.w;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_DST_HEIGHT) = g.destination.h;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_H_RATIO) =
+        ((SVID_PLANAR_SOURCE_WIDTH << 12) / g.destination.w) >> 3;
+    SVID_REG(SVID_COMPOSITOR_BASE, SVID_VP_V_RATIO) =
+        ((SVID_PLANAR_Y_HEIGHT << 12) / g.destination.h) >> 4;
+    svid_mixer_commit();
+    restore_irq(oldlevel);
+    svid_destination = g.destination;
+}
+
+void ipod6g_videoout_ui_owner(bool enabled)
+{
+    svid_ui_owner = enabled;
+}
+
+void ipod6g_videoout_ui_batch(bool enabled)
+{
+    svid_ui_batch = enabled;
+}
+
+void ipod6g_videoout_set_preferences(int screen, int overscan)
+{
+    svid_tv_screen = screen == 1;
+    svid_tv_overscan = overscan >= 0 && overscan < 4 ? overscan : 0;
+    svid_presentation(svid_tv_canvas);
+}
+
+void ipod6g_videoout_set_video(bool tv_canvas)
+{
+    svid_presentation(tv_canvas);
+}
+
+/* Reflowed UI has square logical pixels (320x240 or 426x240). Resample into
+ * the existing scanout workspace. No core/audio allocation or LCD mutation. */
+void ipod6g_videoout_present_ui(const uint16_t *pixels, int w, int h)
+{
+    if (!pixels || w < 2 || w > 854 || h < 2 || h > 480 ||
+        !ipod6g_videoout_active() || !svid_layer_planar ||
+        !svid_begin_planar_update())
+        return;
+    svid_presentation(true);
+    svid_init_rgb_expansion();
+    uint8_t *yplane = svid_planar_write_buffer;
+    uint8_t *cb = yplane + SVID_PLANAR_Y_SIZE;
+    uint8_t *cr = cb + SVID_PLANAR_C_SIZE;
+    for (int x = 0; x < SVID_PLANAR_SOURCE_WIDTH; x++)
+        svid_sample_x[x] = x * w / SVID_PLANAR_SOURCE_WIDTH;
+    for (int y = 0; y < SVID_PLANAR_Y_HEIGHT; y += 2)
+    {
+        int sy0 = y * h / SVID_PLANAR_Y_HEIGHT;
+        int sy1 = (y + 1) * h / SVID_PLANAR_Y_HEIGHT;
+        for (int x = 0; x < SVID_PLANAR_SOURCE_WIDTH; x += 2)
+        {
+            unsigned u = 0, v = 0;
+            for (int dy = 0; dy < 2; dy++)
+                for (int dx = 0; dx < 2; dx++)
+                {
+                    int sx = svid_sample_x[x + dx];
+                    int sy = dy ? sy1 : sy0;
+                    uint32_t c = svid_rgb565_to_ycbcr(pixels[sy*w + sx]);
+                    yplane[(y+dy)*SVID_PLANAR_Y_WIDTH + x+dx +
+                           SVID_PLANAR_GUARD] = c;
+                    u += (c >> 8) & 255;
+                    v += (c >> 16) & 255;
+                }
+            int at = (y/2)*SVID_PLANAR_C_WIDTH + x/2 + SVID_PLANAR_GUARD/2;
+            cb[at] = (u + 2) / 4;
+            cr[at] = (v + 2) / 4;
+        }
+    }
+    (void)svid_present_planar_update();
 }
 
 bool ipod6g_videoout_test_config(const void *framebuffer,
@@ -1024,9 +1518,16 @@ void ipod6g_videoout_refresh(const void *framebuffer)
     if (!svid_active || !svid_layer_active || framebuffer == NULL)
         return;
 
+    svid_presentation(false);
     if (svid_layer_planar)
-        svid_copy_framebuffer_planar(framebuffer, svid_framebuffer_width,
-                                     svid_framebuffer_height);
+    {
+        if (svid_begin_planar_update())
+        {
+            svid_copy_framebuffer_planar(framebuffer, svid_framebuffer_width,
+                                         svid_framebuffer_height);
+            (void)svid_present_planar_update();
+        }
+    }
     else if (svid_layer_xrgb)
         svid_copy_framebuffer_xrgb(framebuffer, svid_framebuffer_width,
                                    svid_framebuffer_height);
@@ -1130,9 +1631,28 @@ bool ipod6g_videoout_lcd_clock_required(void)
     return svid_platform_saved;
 }
 
+bool ipod6g_videoout_hibernate_suspend(void)
+{
+    bool active = ipod6g_videoout_active();
+
+    svid_hibernate_restore_pending = active;
+    return !active || ipod6g_videoout_disable();
+}
+
+bool ipod6g_videoout_hibernate_resume(void)
+{
+    if (!svid_hibernate_restore_pending)
+        return true;
+
+    svid_hibernate_restore_pending = false;
+    svid_policy_pending = true;
+    svid_apply_policy();
+    return ipod6g_videoout_active();
+}
+
 static void svid_commit_planar_rect(int x, int y, int width, int height)
 {
-    uint8_t *luma = (uint8_t *)svid_output_framebuffer;
+    uint8_t *luma = svid_planar_write_buffer;
     uint8_t *cb = luma + SVID_PLANAR_Y_SIZE;
     uint8_t *cr = cb + SVID_PLANAR_C_SIZE;
     int first_chroma_column = x / 2;
@@ -1155,6 +1675,7 @@ static void svid_commit_planar_rect(int x, int y, int width, int height)
                         first_chroma_column, chroma_span);
 }
 
+#ifndef VIDEOOUT_ENHANCED_TEST
 static void svid_copy_yuv_plane(uint8_t *destination,
                                 unsigned destination_stride,
                                 const uint8_t *source,
@@ -1175,6 +1696,163 @@ static void svid_copy_yuv_plane(uint8_t *destination,
     }
 }
 
+#endif
+
+#ifdef HAVE_VIDEOOUT_NATIVE_YUV
+bool ipod6g_videoout_native_yuv(const struct videoout_frame *f,
+                              unsigned char * const lcd[3])
+{
+    if (svid_frame_owned || !ipod6g_videoout_active() || !svid_mirror_enabled ||
+        !svid_layer_planar || f == NULL || lcd == NULL ||
+        f->planes[0] == NULL || f->planes[1] == NULL ||
+        f->planes[2] == NULL || lcd[0] == NULL || lcd[1] == NULL ||
+        lcd[2] == NULL || f->width <= 0 || f->height <= 0 ||
+        f->width > 640 || f->height > 480 || f->stride < f->width ||
+        f->stride > 4096 || f->x < 0 || f->y < 0 ||
+        f->display_width <= 0 || f->display_height <= 0 ||
+        f->display_width > LCD_WIDTH || f->display_height > LCD_HEIGHT ||
+        f->x > LCD_WIDTH - f->display_width ||
+        f->y > LCD_HEIGHT - f->display_height ||
+        ((f->width | f->height | f->stride | f->x | f->y |
+          f->display_width | f->display_height) & 1) ||
+        (f->width <= f->display_width && f->height <= f->display_height))
+        return false;
+
+    /* A full canvas replaces the inactive frame, so no front-buffer copy
+     * is needed. The decoder's planes never become DMA descriptors. */
+    svid_planar_write_buffer =
+        svid_planar_buffer(svid_planar_front_buffer ^ 1u);
+    uint8_t *dst[3] = {
+        svid_planar_write_buffer + SVID_PLANAR_GUARD,
+        svid_planar_write_buffer + SVID_PLANAR_Y_SIZE + SVID_PLANAR_GUARD/2,
+        svid_planar_write_buffer + SVID_PLANAR_Y_SIZE +
+            SVID_PLANAR_C_SIZE + SVID_PLANAR_GUARD/2
+    };
+    const int strides[3] = {
+        SVID_PLANAR_Y_WIDTH, SVID_PLANAR_C_WIDTH, SVID_PLANAR_C_WIDTH
+    };
+    videoout_native_compose(dst, strides, f, lcd);
+    /* On timeout keep the last complete TV frame. Report the request as
+     * handled so the LCD path does not attempt another field wait with a
+     * lower-resolution copy of the same frame. */
+    (void)svid_present_planar_update();
+    return true;
+}
+#endif
+static bool svid_present_frame(void);
+
+void ipod6g_videoout_prepare_frame(const struct videoout_tv_frame *frame)
+{
+    svid_frame_owned = svid_frame_pending = frame && videoout_active();
+    if (svid_frame_pending)
+    {
+        svid_frame = *frame;
+        /* Copy native planes now, while the caller owns the decoder picture.
+         * LCD scaling, refresh and backlight no longer trigger TV submission. */
+        (void)svid_present_frame();
+        memset(&svid_frame, 0, sizeof(svid_frame));
+    }
+}
+
+/* Present the existing decoded source. Only sampling/cropping and the SVID
+ * destination change; no decoder/VPP commands, buffers, or clocks are touched.
+ * Borrowed plane pointers are consumed completely before prepare returns. */
+static bool svid_present_frame(void)
+{
+    const struct videoout_tv_frame *f = &svid_frame;
+    struct videoout_geometry g;
+    struct videoout_rect visible = f->visible;
+    int coded_width = f->coded_width ? f->coded_width : f->width;
+    int coded_height = f->coded_height ? f->coded_height : f->height;
+    if (!visible.w && !visible.h)
+        visible = (struct videoout_rect){0,0,f->width,f->height};
+    svid_frame_pending = false;
+    if (!f->planes[0] || !f->planes[1] || !f->planes[2] ||
+        coded_width <= 0 || coded_height <= 0 ||
+        visible.x < 0 || visible.y < 0 || visible.w <= 0 || visible.h <= 0 ||
+        visible.w > coded_width || visible.x > coded_width-visible.w ||
+        visible.h > coded_height || visible.y > coded_height-visible.h ||
+        ((visible.x | visible.y | visible.w | visible.h) & 1) ||
+        f->stride < coded_width || (f->stride & 1) ||
+        f->format != VIDEOOUT_YUV420P || f->color != VIDEOOUT_SD_LIMITED ||
+        (f->width & 1) || (f->height & 1) ||
+        (f->strides[0] && f->strides[0] < coded_width) ||
+        (f->strides[1] && f->strides[1] < coded_width/2) ||
+        (f->strides[2] && f->strides[2] < coded_width/2) ||
+        !videoout_calc_geometry(visible.w,visible.h,f->dar_n,f->dar_d,
+            SVID_PLANAR_SOURCE_WIDTH,SVID_PLANAR_Y_HEIGHT,
+            (struct videoout_rect){0,0,SVID_PLANAR_SOURCE_WIDTH,
+                                   SVID_PLANAR_Y_HEIGHT},
+            svid_tv_screen,f->fill,svid_tv_overscan,false,&g))
+        return false;
+    svid_presentation(true);
+    if (!svid_begin_planar_write(false)) return false;
+    uint8_t *dst = svid_planar_write_buffer;
+    for (int plane=0;plane<3;plane++)
+    {
+        int div=plane?2:1;
+        int stride=SVID_PLANAR_Y_WIDTH/div;
+        int height=SVID_PLANAR_Y_HEIGHT/div;
+        int width=SVID_PLANAR_SOURCE_WIDTH/div;
+        int guard=SVID_PLANAR_GUARD/div;
+        memset(dst,plane?128:16,stride*height);
+        int dx=g.destination.x/div,dy=g.destination.y/div;
+        int dw=g.destination.w/div,dh=g.destination.h/div;
+        int sx=(visible.x+g.crop.x)/div,sy=(visible.y+g.crop.y)/div;
+        int sw=g.crop.w/div,sh=g.crop.h/div;
+        for (int x=0;x<dw;x++) svid_sample_x[x]=x*sw/dw;
+        for (int y=0;y<dh;y++)
+        {
+            int source_stride = f->strides[plane] ? f->strides[plane] : f->stride/div;
+            const uint8_t *row=f->planes[plane]+(sy+y*sh/dh)*source_stride+sx;
+            uint8_t *out=dst+(dy+y)*stride+guard+dx;
+            for (int x=0;x<dw;x++) out[x]=row[svid_sample_x[x]];
+        }
+        if (f->caption)
+        {
+            static const uint8_t luma[4] = {0,16,140,235};
+            int canvas_width = MAX(320,f->caption_canvas_width);
+            int safe = 100-2*videoout_inset(svid_tv_overscan);
+            int cw = MIN(width*288/canvas_width, width*safe/100);
+            int left = (width-cw)/2;
+            int top = f->caption_y*height/240;
+            int ch = 44*height/240 * cw / (width*288/canvas_width);
+            for (int cy=0;cy<ch && top+cy<height;cy++)
+                for (int cx=0;cx<cw;cx++)
+                {
+                    int px=cx*288/cw, py=cy*44/ch;
+                    int shade=(f->caption[py*72+px/4]>>(2*(px%4)))&3;
+                    if (shade && top+cy>=0)
+                        dst[(top+cy)*stride+guard+left+cx]=plane?128:luma[shade];
+                }
+        }
+        if (f->overlay && f->overlay_width>0 && f->overlay_height>0)
+        {
+            int oy=f->overlay_y*height/240;
+            int oh=f->overlay_height*height/240;
+            for(int x=0;x<width;x++)
+                svid_sample_x[x]=x*f->overlay_width/width;
+            for(int y=0;y<oh && oy+y<height;y++)
+            {
+                int src_y=y*f->overlay_height/oh;
+                for(int x=0;x<width;x++)
+                {
+                    unsigned pixel=f->overlay[src_y*f->overlay_width+
+                                              svid_sample_x[x]];
+                    /* 0 is transparent, status background is nonzero. */
+                    if(pixel)
+                    {
+                        uint32_t c=svid_rgb565_to_ycbcr(pixel);
+                        dst[(oy+y)*stride+guard+x]=c>>(8*plane);
+                    }
+                }
+            }
+        }
+        dst+=stride*height;
+    }
+    return svid_present_planar_update();
+}
+
 bool ipod6g_videoout_mirror_yuv420(const unsigned char *source_luma,
                                    const unsigned char *source_cb,
                                    const unsigned char *source_cr,
@@ -1182,9 +1860,15 @@ bool ipod6g_videoout_mirror_yuv420(const unsigned char *source_luma,
                                    int source_stride,
                                    int x, int y, int width, int height)
 {
-    uint8_t *luma = (uint8_t *)svid_output_framebuffer;
-    uint8_t *cb = luma + SVID_PLANAR_Y_SIZE;
-    uint8_t *cr = cb + SVID_PLANAR_C_SIZE;
+    uint8_t *luma;
+    uint8_t *cb;
+    uint8_t *cr;
+
+    /* Semantic TV screens draw their own picture at TV coordinates. Consume
+     * the handheld thumbnail update without letting it overwrite that canvas
+     * or falling back to the LCD RGB mirror. The LCD still receives its frame. */
+    if (svid_ui_owner || svid_ui_batch)
+        return true;
 
     if (!ipod6g_videoout_active() || !svid_mirror_enabled ||
         !svid_layer_planar || source_luma == NULL || source_cb == NULL ||
@@ -1195,10 +1879,36 @@ bool ipod6g_videoout_mirror_yuv420(const unsigned char *source_luma,
         ((source_x | source_y | source_stride | x | y | width | height) & 1))
         return false;
 
+    if (svid_frame_pending)
+        return svid_present_frame();
+    if (svid_frame_owned)
+        return true; /* Later LCD overlay bands belong to the same frame. */
+    if (!svid_begin_planar_update())
+        return false;
+    luma = svid_planar_write_buffer;
+    cb = luma + SVID_PLANAR_Y_SIZE;
+    cr = cb + SVID_PLANAR_C_SIZE;
+
     source_luma += source_y * source_stride + source_x;
     source_cb += (source_y / 2) * (source_stride / 2) + source_x / 2;
     source_cr += (source_y / 2) * (source_stride / 2) + source_x / 2;
 
+#ifdef VIDEOOUT_ENHANCED_TEST
+    videoout_scale2x(luma + y*2*SVID_PLANAR_Y_WIDTH + x*2 +
+                    SVID_PLANAR_GUARD,
+                    SVID_PLANAR_Y_WIDTH, source_luma, source_stride,
+                    width, height);
+    videoout_scale2x(cb + y*SVID_PLANAR_C_WIDTH + x +
+                    SVID_PLANAR_GUARD/2,
+                    SVID_PLANAR_C_WIDTH, source_cb, source_stride/2,
+                    width/2, height/2);
+    videoout_scale2x(cr + y*SVID_PLANAR_C_WIDTH + x +
+                    SVID_PLANAR_GUARD/2,
+                    SVID_PLANAR_C_WIDTH, source_cr, source_stride/2,
+                    width/2, height/2);
+    svid_commit_planar_rect(x*2 + SVID_PLANAR_GUARD, y*2,
+                            width*2, height*2);
+#else
     svid_copy_yuv_plane(luma + y * SVID_PLANAR_Y_WIDTH + x,
                         SVID_PLANAR_Y_WIDTH, source_luma, source_stride,
                         width, height);
@@ -1209,14 +1919,16 @@ bool ipod6g_videoout_mirror_yuv420(const unsigned char *source_luma,
                         SVID_PLANAR_C_WIDTH, source_cr, source_stride / 2,
                         width / 2, height / 2);
     svid_commit_planar_rect(x, y, width, height);
-    return true;
+#endif
+    return svid_present_planar_update();
 }
 
+#ifndef VIDEOOUT_ENHANCED_TEST
 static void svid_mirror_rgb565_planar_even(const uint16_t *source,
                                            int x, int y, int width,
                                            int height, int stride)
 {
-    uint8_t *luma = (uint8_t *)svid_output_framebuffer;
+    uint8_t *luma = svid_planar_write_buffer;
     uint8_t *cb = luma + SVID_PLANAR_Y_SIZE;
     uint8_t *cr = cb + SVID_PLANAR_C_SIZE;
 
@@ -1255,7 +1967,7 @@ static void svid_mirror_rgb565_planar_even(const uint16_t *source,
 static void svid_mirror_rgb565_planar(const uint16_t *source, int x, int y,
                                       int width, int height, int stride)
 {
-    uint8_t *luma = (uint8_t *)svid_output_framebuffer;
+    uint8_t *luma = svid_planar_write_buffer;
     uint8_t *cb = luma + SVID_PLANAR_Y_SIZE;
     uint8_t *cr = cb + SVID_PLANAR_C_SIZE;
 
@@ -1266,6 +1978,7 @@ static void svid_mirror_rgb565_planar(const uint16_t *source, int x, int y,
     {
         svid_mirror_rgb565_planar_even(source, x, y, width, height, stride);
         svid_commit_planar_rect(x, y, width, height);
+        (void)svid_present_planar_update();
         return;
     }
 
@@ -1324,7 +2037,10 @@ static void svid_mirror_rgb565_planar(const uint16_t *source, int x, int y,
     }
 
     svid_commit_planar_rect(x, y, width, height);
+    (void)svid_present_planar_update();
 }
+
+#endif
 
 void ipod6g_videoout_mirror_rgb565(const void *source, int x, int y,
                                    int width, int height, int stride)
@@ -1332,14 +2048,25 @@ void ipod6g_videoout_mirror_rgb565(const void *source, int x, int y,
     const uint16_t *src = source;
     unsigned x0;
 
-    if (!ipod6g_videoout_active() || !svid_mirror_enabled || source == NULL ||
+    if (svid_ui_owner || svid_ui_batch || svid_frame_owned || !ipod6g_videoout_active() ||
+        !svid_mirror_enabled || source == NULL ||
         x < 0 || y < 0 || width <= 0 || height <= 0 || stride < width ||
         x + width > LCD_WIDTH || y + height > LCD_HEIGHT)
         return;
 
+    svid_presentation(false);
     if (svid_layer_planar)
     {
+        if (!svid_begin_planar_update())
+            return;
+#ifdef VIDEOOUT_ENHANCED_TEST
+        svid_rgb565_expand(src, x, y, width, height, stride);
+        svid_commit_planar_rect(x*2 + SVID_PLANAR_GUARD, y*2,
+                            width*2, height*2);
+        (void)svid_present_planar_update();
+#else
         svid_mirror_rgb565_planar(src, x, y, width, height, stride);
+#endif
         return;
     }
 
@@ -1392,6 +2119,10 @@ void ipod6g_videoout_mirror_rgb565(const void *source, int x, int y,
 
 bool ipod6g_videoout_disable(void)
 {
+    svid_frame_owned = svid_frame_pending = svid_ui_batch = svid_ui_owner = false;
+#ifdef VIDEOOUT_ENHANCED_TEST
+    ipod6g_videoout_art_clear();
+#endif
     if (!svid_active)
     {
         svid_set_bus_boost(false);
@@ -1417,8 +2148,16 @@ bool ipod6g_videoout_disable(void)
     svid_layer_xrgb = false;
     svid_layer_planar = false;
     svid_mirror_enabled = false;
+    svid_planar_write_buffer = NULL;
+#ifdef VIDEOOUT_ENHANCED_TEST
+    ipod6g_videoout_art_clear();
+#endif
+    svid_planar_front_buffer = 0;
+    svid_surface[0] = SVID_SCANNING;
+    svid_surface[1] = SVID_FREE;
     lcd_videoout_clock_release();
     svid_set_bus_boost(false);
+    svid_publish_active();
     return clean;
 }
 
@@ -1474,4 +2213,10 @@ void ipod6g_videoout_accessory_state(
         svid_accessory = accessory;
         svid_policy_pending = true;
     }
+}
+
+/* App policy uses the target-neutral composite availability contract. */
+bool videoout_active(void)
+{
+    return ipod6g_videoout_active();
 }

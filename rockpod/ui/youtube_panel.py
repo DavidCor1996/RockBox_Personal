@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-import subprocess
+from datetime import datetime
 from types import SimpleNamespace
 
 from PySide6.QtCore import QObject, QRunnable, QThreadPool, Qt, Signal, Slot
@@ -39,6 +39,7 @@ from PySide6.QtWidgets import (
 YT_BLUE = "#0033cc"
 YT_LIGHT_BLUE = "#e6f1fa"
 YT_RED = "#cc0000"
+FIRST_LIVE_URL = "https://www.youtube.com/watch?v=U2zCCFNT6Vo"
 
 
 class YoutubeSyncSignals(QObject):
@@ -47,10 +48,52 @@ class YoutubeSyncSignals(QObject):
     error = Signal(str)
 
 
+class YoutubeImportSignals(QObject):
+    finished = Signal(object)
+    error = Signal(str)
+
+
+class YoutubeImportJob(QRunnable):
+    """Download and register a URL without blocking RockPod's UI thread."""
+
+    def __init__(self, db_path, config, repo_root, url, destination, is_live):
+        super().__init__()
+        self.db_path = db_path
+        self.config = dict(
+            config if isinstance(config, dict) else getattr(config, "_data", {})
+        )
+        self.repo_root = str(repo_root)
+        self.url = str(url)
+        self.destination = str(destination)
+        self.is_live = bool(is_live)
+        self.signals = YoutubeImportSignals()
+
+    @Slot()
+    def run(self):
+        database = None
+        try:
+            from app.database import Database
+            from services.youtube_app import YoutubeAppService
+
+            database = Database(self.db_path)
+            service = YoutubeAppService(database, self.config, self.repo_root)
+            row = (
+                service.import_live_url(self.url)
+                if self.is_live
+                else service.import_url(self.url, self.destination)
+            )
+            self.signals.finished.emit(row)
+        except Exception as exc:
+            self.signals.error.emit(str(exc))
+        finally:
+            if database is not None:
+                database.close()
+
+
 class YoutubeSyncJob(QRunnable):
     """Run downloads, conversions and device writes without blocking Qt."""
 
-    def __init__(self, db_path, config, repo_root, mount_path):
+    def __init__(self, db_path, config, repo_root, mount_path, live_only=False):
         super().__init__()
         self.db_path = db_path
         self.config = dict(
@@ -58,6 +101,7 @@ class YoutubeSyncJob(QRunnable):
         )
         self.repo_root = str(repo_root)
         self.mount_path = str(mount_path)
+        self.live_only = bool(live_only)
         self.signals = YoutubeSyncSignals()
 
     @Slot()
@@ -72,7 +116,9 @@ class YoutubeSyncJob(QRunnable):
             report = service.sync(
                 self.mount_path,
                 device=SimpleNamespace(mount_path=self.mount_path),
+                refresh_channels=not self.live_only,
                 progress_callback=self.signals.progress.emit,
+                live_only=self.live_only,
             )
             self.signals.finished.emit(report)
         except Exception as exc:
@@ -373,6 +419,34 @@ class YoutubeChannelSyncDialog(QDialog):
         return self.url.text().strip()
 
 
+class YoutubeLiveImportDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Add YouTube Live Video")
+        self.setMinimumWidth(560)
+        form = QFormLayout(self)
+        self.url = QLineEdit(FIRST_LIVE_URL)
+        self.url.setPlaceholderText("https://www.youtube.com/watch?v=…")
+        note = QLabel(
+            "RockPod downloads an offline broadcast and starts it live now. "
+            "Opening it on the iPod joins the wall-clock position; pause, "
+            "rewind and fast-forward are disabled. A newer live item from "
+            "the same creator replaces the previous one."
+        )
+        note.setWordWrap(True)
+        note.setStyleSheet("color:#5d6875;")
+        form.addRow("YouTube URL:", self.url)
+        form.addRow(note)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.button(QDialogButtonBox.Ok).setText("Download and Go Live")
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        form.addRow(buttons)
+
+    def value(self):
+        return self.url.text().strip()
+
+
 class YoutubePanel(QWidget):
     def __init__(self, service, device_provider, parent=None):
         super().__init__(parent)
@@ -381,6 +455,8 @@ class YoutubePanel(QWidget):
         self.rows = []
         self._sync_job = None
         self._sync_progress = None
+        self._import_job = None
+        self._import_progress = None
         outer = QVBoxLayout(self)
         outer.setContentsMargins(18, 14, 18, 14)
         hero = QFrame()
@@ -407,6 +483,7 @@ class YoutubePanel(QWidget):
         outer.addWidget(hero)
         self.tabs = QTabWidget()
         self.tabs.addTab(self._build_library_tab(), "Library")
+        self.tabs.addTab(self._build_live_tab(), "Live")
         self.tabs.addTab(self._build_channel_sync_tab(), "Channel Sync")
         self.tabs.addTab(self._build_profile_tab(), "Profile")
         self.tabs.addTab(self._build_appearance_tab(), "Appearance")
@@ -414,14 +491,23 @@ class YoutubePanel(QWidget):
         footer = QHBoxLayout()
         self.status = QLabel("")
         self.status.setStyleSheet("color:#5d6875;")
-        self.sync_button = QPushButton("Sync YouTube to iPod")
-        self.sync_button.setStyleSheet(
+        self.sync_mpeg_button = QPushButton("Sync as MPEG")
+        self.sync_mpeg_button.setStyleSheet(
             f"background:{YT_BLUE}; color:white; padding:7px 16px; "
             "font-weight:600; border-radius:4px;"
         )
-        self.sync_button.clicked.connect(self.sync)
+        self.sync_mpeg_button.clicked.connect(lambda: self.sync("quality"))
+        self.sync_h264_button = QPushButton("Sync as H.264")
+        self.sync_h264_button.setStyleSheet(
+            "background:#202124; color:white; padding:7px 16px; "
+            "font-weight:600; border-radius:4px;"
+        )
+        self.sync_h264_button.clicked.connect(
+            lambda: self.sync("h264_apple_exact")
+        )
         footer.addWidget(self.status, 1)
-        footer.addWidget(self.sync_button)
+        footer.addWidget(self.sync_mpeg_button)
+        footer.addWidget(self.sync_h264_button)
         outer.addLayout(footer)
         self.refresh()
 
@@ -447,9 +533,12 @@ class YoutubePanel(QWidget):
             controls.addWidget(button)
         controls.addStretch(1)
         layout.addLayout(controls)
-        self.table = QTableWidget(0, 8)
+        self.table = QTableWidget(0, 9)
         self.table.setHorizontalHeaderLabels(
-            ["Title", "Uploader", "Length", "Rating", "Views", "Home", "Profile", "Sync"]
+            [
+                "Title", "Uploader", "Length", "Rating", "Views", "Home",
+                "Profile", "Live", "Sync",
+            ]
         )
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.setSelectionMode(QAbstractItemView.ExtendedSelection)
@@ -458,12 +547,49 @@ class YoutubePanel(QWidget):
         layout.addWidget(self.table, 1)
         return page
 
+    def _build_live_tab(self):
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        copy = QLabel(
+            "Live is linear, wall-clock playback. Each creator can have one "
+            "current broadcast; viewers join what is on now and cannot seek."
+        )
+        copy.setWordWrap(True)
+        copy.setStyleSheet("color:#5d6875;")
+        layout.addWidget(copy)
+        controls = QHBoxLayout()
+        add = QPushButton("Add Live URL…")
+        from_library = QPushButton("Go Live from Library")
+        end = QPushButton("End Live")
+        self.live_sync_button = QPushButton("Sync Live to iPod")
+        add.clicked.connect(self.import_live_url)
+        from_library.clicked.connect(self.go_live_from_library)
+        end.clicked.connect(self.end_selected_live)
+        self.live_sync_button.clicked.connect(
+            lambda: self.sync(live_only=True)
+        )
+        controls.addWidget(add)
+        controls.addWidget(from_library)
+        controls.addWidget(end)
+        controls.addWidget(self.live_sync_button)
+        controls.addStretch(1)
+        layout.addLayout(controls)
+        self.live_table = QTableWidget(0, 4)
+        self.live_table.setHorizontalHeaderLabels(
+            ["Creator", "Live video", "Length", "Started"]
+        )
+        self.live_table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.live_table.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.live_table.setAlternatingRowColors(True)
+        layout.addWidget(self.live_table, 1)
+        return page
+
     def _build_channel_sync_tab(self):
         page = QWidget()
         layout = QVBoxLayout(page)
         copy = QLabel(
             "Keep the newest three uploads from selected channels on your iPod. "
-            "They refresh whenever you choose Sync YouTube to iPod."
+            "They refresh whenever you choose either video sync format."
         )
         copy.setWordWrap(True)
         copy.setStyleSheet("color:#5d6875;")
@@ -596,6 +722,7 @@ class YoutubePanel(QWidget):
                 f"{int(row['view_count'] or 0):,}",
                 "✓" if row["show_home"] else "",
                 "✓" if row["show_profile"] else "",
+                "LIVE" if row.get("is_live") else "",
                 "Ready" if os.path.isfile(row["source_path"]) else "Missing",
             ]
             for column, value in enumerate(values):
@@ -603,6 +730,20 @@ class YoutubePanel(QWidget):
                 item.setData(Qt.UserRole, row["id"])
                 self.table.setItem(index, column, item)
         self.table.resizeColumnsToContents()
+        live_rows = self.service.list_live_videos()
+        self.live_table.setRowCount(len(live_rows))
+        for index, row in enumerate(live_rows):
+            values = [
+                row.get("uploader") or "YouTube creator",
+                row.get("title") or "Live video",
+                self._duration(row.get("duration_ms")),
+                self._live_started(row.get("live_start_epoch")),
+            ]
+            for column, value in enumerate(values):
+                item = QTableWidgetItem(str(value))
+                item.setData(Qt.UserRole, row["id"])
+                self.live_table.setItem(index, column, item)
+        self.live_table.resizeColumnsToContents()
         channels = self.service.list_channel_syncs()
         self.channel_table.setRowCount(len(channels))
         for index, channel in enumerate(channels):
@@ -620,13 +761,21 @@ class YoutubePanel(QWidget):
         self._load_profile(profile)
         self.preview.update_data(profile, self.rows[0] if self.rows else None)
         self.status.setText(
-            f"{len(self.rows)} video{'s' if len(self.rows) != 1 else ''} in the offline library"
+            f"{len(self.rows)} video{'s' if len(self.rows) != 1 else ''} in the offline library · "
+            f"{len(live_rows)} live"
         )
 
     @staticmethod
     def _duration(milliseconds):
         seconds = max(0, int(milliseconds or 0) // 1000)
         return f"{seconds // 60}:{seconds % 60:02d}"
+
+    @staticmethod
+    def _live_started(epoch):
+        try:
+            return datetime.fromtimestamp(int(epoch)).strftime("%b %d, %H:%M")
+        except (OSError, OverflowError, TypeError, ValueError):
+            return "Now"
 
     def _selected_ids(self):
         return sorted(
@@ -663,18 +812,99 @@ class YoutubePanel(QWidget):
         if dialog.exec() != QDialog.Accepted:
             return
         url, destination = dialog.values()
-        self.status.setText("Downloading YouTube video and metadata…")
-        self.repaint()
-        try:
-            row = self.service.import_url(url, destination)
-        except (OSError, ValueError, subprocess.SubprocessError) as exc:
-            QMessageBox.warning(self, "Import YouTube URL", str(exc))
-            self.status.setText("YouTube import failed")
+        self._start_import(url, destination, False)
+
+    def import_live_url(self):
+        dialog = YoutubeLiveImportDialog(self)
+        if dialog.exec() != QDialog.Accepted:
             return
-        self.refresh()
-        self.status.setText(
-            f"Imported {row['title']} · click Sync YouTube to iPod when ready"
+        self._start_import(dialog.value(), "library", True)
+
+    def _start_import(self, url, destination, is_live):
+        if self._import_job is not None:
+            return
+        self._import_progress = QProgressDialog(
+            "Downloading the YouTube live source…" if is_live else
+            "Downloading YouTube video and metadata…",
+            None,
+            0,
+            0,
+            self,
         )
+        self._import_progress.setWindowTitle(
+            "Add YouTube Live Video" if is_live else "Import YouTube URL"
+        )
+        self._import_progress.setWindowModality(Qt.WindowModal)
+        self._import_progress.setMinimumDuration(0)
+        self._import_progress.setAutoClose(False)
+        self._import_progress.show()
+        self.status.setText(self._import_progress.labelText())
+        self.sync_mpeg_button.setEnabled(False)
+        self.sync_h264_button.setEnabled(False)
+        self._import_job = YoutubeImportJob(
+            self.service.db._path,
+            self.service.config,
+            self.service.repo_root,
+            url,
+            destination,
+            is_live,
+        )
+        self._import_job.signals.finished.connect(
+            lambda row: self._import_finished(row, is_live)
+        )
+        self._import_job.signals.error.connect(
+            lambda message: self._import_failed(message, is_live)
+        )
+        QThreadPool.globalInstance().start(self._import_job)
+
+    def _finish_import_ui(self):
+        if self._import_progress is not None:
+            self._import_progress.close()
+            self._import_progress.deleteLater()
+        self._import_progress = None
+        self._import_job = None
+        self.sync_mpeg_button.setEnabled(True)
+        self.sync_h264_button.setEnabled(True)
+
+    def _import_finished(self, row, is_live):
+        self._finish_import_ui()
+        self.refresh()
+        if is_live:
+            self.status.setText(
+                f"{row['uploader']} is live with {row['title']} · sync when ready"
+            )
+        else:
+            self.status.setText(
+                f"Imported {row['title']} · click Sync YouTube to iPod when ready"
+            )
+
+    def _import_failed(self, message, is_live):
+        self._finish_import_ui()
+        title = "Add YouTube Live Video" if is_live else "Import YouTube URL"
+        QMessageBox.warning(self, title, str(message))
+        self.status.setText(
+            "YouTube live import failed" if is_live else "YouTube import failed"
+        )
+
+    def go_live_from_library(self):
+        ids = self._selected_ids()
+        if len(ids) != 1:
+            QMessageBox.information(
+                self, "Go Live", "Select one library video first."
+            )
+            return
+        row = self.service.set_live_video(ids[0], True)
+        self.refresh()
+        self.status.setText(f"{row['uploader']} is now live")
+
+    def end_selected_live(self):
+        selected = self.live_table.selectionModel().selectedRows()
+        if not selected:
+            return
+        video_id = self.live_table.item(selected[0].row(), 0).data(Qt.UserRole)
+        self.service.set_live_video(video_id, False)
+        self.refresh()
+        self.status.setText("Live broadcast ended")
 
     def add_channel_sync(self):
         dialog = YoutubeChannelSyncDialog(self)
@@ -847,7 +1077,7 @@ class YoutubePanel(QWidget):
         self.preview.update_data(profile, self.rows[0] if self.rows else None)
         self.status.setText("YouTube profile saved")
 
-    def sync(self):
+    def sync(self, video_profile="quality", live_only=False):
         if self._sync_job is not None:
             return
         self.save_profile()
@@ -855,23 +1085,35 @@ class YoutubePanel(QWidget):
         if device is None or not getattr(device, "mount_path", ""):
             QMessageBox.warning(self, "YouTube Sync", "Connect or mount an iPod first.")
             return
+        label = "YouTube Live sync" if live_only else "YouTube sync"
         self._sync_progress = QProgressDialog(
-            "Starting YouTube sync…", None, 0, 0, self
+            f"Starting {label}…", None, 0, 0, self
         )
-        self._sync_progress.setWindowTitle("Sync YouTube to iPod")
+        self._sync_progress.setWindowTitle(f"{label} to iPod")
         self._sync_progress.setWindowModality(Qt.WindowModal)
         self._sync_progress.setMinimumDuration(0)
         self._sync_progress.setAutoClose(False)
         self._sync_progress.setAutoReset(False)
         self._sync_progress.show()
-        self.sync_button.setEnabled(False)
-        self.status.setText("YouTube sync starting…")
+        self.sync_mpeg_button.setEnabled(False)
+        self.sync_h264_button.setEnabled(False)
+        self.live_sync_button.setEnabled(False)
+        self.status.setText(f"{label} starting…")
         try:
+            job_config = dict(
+                self.service.config
+                if isinstance(self.service.config, dict)
+                else getattr(self.service.config, "_data", {})
+            )
+            job_config["video_sync_profile"] = video_profile
+            if live_only:
+                job_config["video_sync_profile"] = "h264_apple_exact"
             self._sync_job = YoutubeSyncJob(
                 self.service.db._path,
-                self.service.config,
+                job_config,
                 self.service.repo_root,
                 device.mount_path,
+                live_only=live_only,
             )
             self._sync_job.signals.progress.connect(self._sync_status)
             self._sync_job.signals.finished.connect(self._sync_finished)
@@ -898,13 +1140,16 @@ class YoutubePanel(QWidget):
             self._sync_progress.deleteLater()
         self._sync_progress = None
         self._sync_job = None
-        self.sync_button.setEnabled(True)
+        self.sync_mpeg_button.setEnabled(True)
+        self.sync_h264_button.setEnabled(True)
+        self.live_sync_button.setEnabled(True)
 
     def _sync_finished(self, report):
         self._finish_sync_ui()
         self.refresh()
         self.status.setText(
             f"YouTube synced: {report['videos']} videos · "
+            f"{report.get('live_videos', 0)} live · "
             f"{report['media_updated']} media updates · "
             f"{report['local_state_merged']} iPod changes imported"
         )
@@ -912,6 +1157,7 @@ class YoutubePanel(QWidget):
             self,
             "YouTube Sync Complete",
             f"Videos: {report['videos']}\n"
+            f"Live broadcasts: {report.get('live_videos', 0)}\n"
             f"New/updated media: {report['media_updated']}\n"
             f"Unchanged media: {report['media_unchanged']}\n"
             f"Channels refreshed: {report['channels_refreshed']}\n"

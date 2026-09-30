@@ -373,7 +373,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .plt.sec
  *(.plt.sec)
 
-.text           0x0000000000001050    0x1242b
+.text           0x0000000000001050    0x12466
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
  *(.text.startup .text.startup.*)
@@ -381,151 +381,151 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(SORT_BY_NAME(.text.sorted.*))
  *(.text .stub .text.* .gnu.linkonce.t.*)
  .text          0x0000000000001050       0xc9 /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o
- .text          0x0000000000001119      0x4e7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/aac.o
+ .text          0x0000000000001119      0x4ef /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/aac.o
                 0x0000000000001119                codec_run
-                0x00000000000015cd                codec_main
- .text          0x0000000000001600        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
-                0x0000000000001600                _start
-                0x0000000000001603                codec_start
- .text          0x0000000000001608      0x749 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(decoder.o)
-                0x0000000000001608                NeAACDecGetErrorMessage
-                0x0000000000001620                NeAACDecOpen
-                0x00000000000016db                NeAACDecGetCurrentConfiguration
-                0x00000000000016ea                NeAACDecSetConfiguration
-                0x000000000000174c                NeAACDecInit
-                0x00000000000019b6                NeAACDecInit2
-                0x0000000000001b3d                NeAACDecPostSeekReset
-                0x0000000000001b4f                NeAACDecDecode
- .text          0x0000000000001d51      0x152 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(drc.o)
-                0x0000000000001d51                drc_init
-                0x0000000000001d9e                drc_decode
- .text          0x0000000000001ea3      0x336 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(mp4.o)
-                0x0000000000001f38                AudioSpecificConfig2
- .text          0x00000000000021d9     0x1622 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(syntax.o)
-                0x00000000000031bb                GASpecificConfig
-                0x0000000000003262                raw_data_block
-                0x00000000000035f3                get_adif_header
-                0x00000000000036d9                adts_frame
- .text          0x00000000000037fb      0x138 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(bits.o)
-                0x0000000000003800                faad_initbits
-                0x000000000000389e                faad_endbits
-                0x000000000000389f                faad_get_processed_bits
-                0x00000000000038b2                faad_byte_align
- .text          0x0000000000003933      0x2cb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(common.o)
-                0x0000000000003933                get_sr_index
-                0x00000000000039a4                get_sample_rate
-                0x00000000000039bb                max_pred_sfb
-                0x00000000000039d2                max_tns_sfb
-                0x00000000000039f7                can_decode_ot
-                0x0000000000003a01                random_int
-                0x0000000000003a42                pow2_fix
-                0x0000000000003aa2                pow2_int
-                0x0000000000003af8                log2_int
-                0x0000000000003b7b                log2_fix
- .text          0x0000000000003bfe      0x56b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(huffman.o)
-                0x0000000000003fcc                huffman_scale_factor
-                0x0000000000004008                huffman_spectral_data
- .text          0x0000000000004169       0x6b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(pulse.o)
-                0x0000000000004169                pulse_decode
- .text          0x00000000000041d4      0x985 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_dec.o)
-                0x00000000000045d8                sbrDecodeInit
-                0x000000000000476e                sbrDecodeCoupleFrame
-                0x00000000000048b2                sbrDecodeSingleFrame
-                0x0000000000004989                sbrDecodeSingleFramePS
- .text          0x0000000000004b59      0xf44 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_hfadj.o)
-                0x0000000000004cd7                hf_adjustment
- .text          0x0000000000005a9d      0xb91 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_hfgen.o)
-                0x0000000000005a9d                hf_generation
- .text          0x000000000000662e      0xb6b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_qmf.o)
-                0x000000000000662e                sbr_qmf_analysis_32
-                0x0000000000006a3b                sbr_qmf_synthesis_32
-                0x0000000000006ecd                sbr_qmf_synthesis_64
- .text          0x0000000000007199      0xf19 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_syntax.o)
-                0x00000000000078c8                sbr_extension_data
- .text          0x00000000000080b2      0x347 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_tf_grid.o)
-                0x00000000000080b2                envelope_time_border_vector
-                0x0000000000008327                noise_floor_time_border_vector
- .text          0x00000000000083f9      0xa73 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(specrec.o)
-                0x000000000000875b                window_grouping_info
-                0x00000000000088fa                reconstruct_single_channel
-                0x0000000000008b4d                reconstruct_channel_pair
- .text          0x0000000000008e6c      0x365 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(tns.o)
-                0x0000000000008e6c                tns_decode_frame
- .text          0x00000000000091d1      0xc9d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(filtbank.o)
-                0x0000000000009233                ifilter_bank
- .text          0x0000000000009e6e      0x19a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(is.o)
-                0x0000000000009e6e                is_decode
- .text          0x000000000000a008      0x126 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(ms.o)
-                0x000000000000a008                ms_decode
- .text          0x000000000000a12e      0x50e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(pns.o)
-                0x000000000000a41e                pns_decode
- .text          0x000000000000a63c     0x302d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(ps_dec.o)
-                0x000000000000ac09                ps_init
-                0x000000000000ad37                ps_decode
- .text          0x000000000000d669      0x46b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(ps_syntax.o)
-                0x000000000000d7ac                ps_data
- .text          0x000000000000dad4     0x285d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_dct.o)
-                0x000000000000dad4                DCT4_32
-                0x000000000000efab                dct4_kernel
-                0x000000000000f1ae                DST4_32
- .text          0x0000000000010331      0x9e7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_fbt.o)
-                0x00000000000103ad                qmf_start_channel
-                0x0000000000010410                qmf_stop_channel
-                0x00000000000104ab                master_frequency_table_fs0
-                0x00000000000105ad                master_frequency_table
-                0x0000000000010950                derived_frequency_table
-                0x0000000000010ac1                limiter_frequency_table
- .text          0x0000000000010d18      0x4ae /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_huff.o)
-                0x0000000000010dec                sbr_envelope
-                0x000000000001104a                sbr_noise
- .text          0x00000000000111c6      0x2cb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_e_nf.o)
-                0x00000000000111c6                extract_envelope_data
-                0x00000000000113d6                extract_noise_floor_data
- .text          0x0000000000011491      0x42c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(m4a.o)
-                0x0000000000011491                stream_read
-                0x00000000000114b3                stream_read_int32
-                0x00000000000114f4                stream_tell
-                0x00000000000114fb                stream_read_uint32
-                0x000000000001153c                stream_read_uint16
-                0x000000000001157e                stream_read_uint8
-                0x00000000000115bd                stream_skip
-                0x00000000000115c9                stream_seek
-                0x00000000000115d5                stream_eof
-                0x00000000000115d9                stream_create
-                0x00000000000115e2                m4a_check_sample_offset
-                0x0000000000011622                m4a_seek
-                0x000000000001181c                m4a_seek_raw
- .text          0x00000000000118bd      0xa7b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(demux.o)
-                0x00000000000118ed                qtmovie_read
- .text          0x0000000000012338      0x1dc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
-                0x0000000000012338                codec_init
-                0x0000000000012361                codec_set_replaygain
-                0x00000000000123d4                codec_malloc
-                0x000000000001240a                codec_calloc
-                0x000000000001243c                codec_free
-                0x000000000001243d                codec_realloc
-                0x0000000000012474                codec_strlen
-                0x0000000000012484                strcpy
-                0x0000000000012494                strcat
-                0x00000000000124a4                strcmp
-                0x00000000000124b4                memcpy
-                0x00000000000124c4                memset
-                0x00000000000124d4                memcmp
-                0x00000000000124e4                memchr
-                0x00000000000124f4                memmove
-                0x0000000000012504                qsort
- .text          0x0000000000012514      0x7c3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
-                0x0000000000012cc1                ff_fft_calc_c
- .text          0x0000000000012cd7      0x7a4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(mdct.o)
-                0x0000000000012cd7                ff_imdct_half
-                0x0000000000013346                ff_imdct_calc
+                0x00000000000015d5                codec_main
+ .text          0x0000000000001608        0x8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
+                0x0000000000001608                _start
+                0x000000000000160b                codec_start
+ .text          0x0000000000001610      0x749 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(decoder.o)
+                0x0000000000001610                NeAACDecGetErrorMessage
+                0x0000000000001628                NeAACDecOpen
+                0x00000000000016e3                NeAACDecGetCurrentConfiguration
+                0x00000000000016f2                NeAACDecSetConfiguration
+                0x0000000000001754                NeAACDecInit
+                0x00000000000019be                NeAACDecInit2
+                0x0000000000001b45                NeAACDecPostSeekReset
+                0x0000000000001b57                NeAACDecDecode
+ .text          0x0000000000001d59      0x152 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(drc.o)
+                0x0000000000001d59                drc_init
+                0x0000000000001da6                drc_decode
+ .text          0x0000000000001eab      0x336 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(mp4.o)
+                0x0000000000001f40                AudioSpecificConfig2
+ .text          0x00000000000021e1     0x1622 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(syntax.o)
+                0x00000000000031c3                GASpecificConfig
+                0x000000000000326a                raw_data_block
+                0x00000000000035fb                get_adif_header
+                0x00000000000036e1                adts_frame
+ .text          0x0000000000003803      0x138 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(bits.o)
+                0x0000000000003808                faad_initbits
+                0x00000000000038a6                faad_endbits
+                0x00000000000038a7                faad_get_processed_bits
+                0x00000000000038ba                faad_byte_align
+ .text          0x000000000000393b      0x2cb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(common.o)
+                0x000000000000393b                get_sr_index
+                0x00000000000039ac                get_sample_rate
+                0x00000000000039c3                max_pred_sfb
+                0x00000000000039da                max_tns_sfb
+                0x00000000000039ff                can_decode_ot
+                0x0000000000003a09                random_int
+                0x0000000000003a4a                pow2_fix
+                0x0000000000003aaa                pow2_int
+                0x0000000000003b00                log2_int
+                0x0000000000003b83                log2_fix
+ .text          0x0000000000003c06      0x56b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(huffman.o)
+                0x0000000000003fd4                huffman_scale_factor
+                0x0000000000004010                huffman_spectral_data
+ .text          0x0000000000004171       0x6b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(pulse.o)
+                0x0000000000004171                pulse_decode
+ .text          0x00000000000041dc      0x985 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_dec.o)
+                0x00000000000045e0                sbrDecodeInit
+                0x0000000000004776                sbrDecodeCoupleFrame
+                0x00000000000048ba                sbrDecodeSingleFrame
+                0x0000000000004991                sbrDecodeSingleFramePS
+ .text          0x0000000000004b61      0xf44 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_hfadj.o)
+                0x0000000000004cdf                hf_adjustment
+ .text          0x0000000000005aa5      0xb91 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_hfgen.o)
+                0x0000000000005aa5                hf_generation
+ .text          0x0000000000006636      0xb6b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_qmf.o)
+                0x0000000000006636                sbr_qmf_analysis_32
+                0x0000000000006a43                sbr_qmf_synthesis_32
+                0x0000000000006ed5                sbr_qmf_synthesis_64
+ .text          0x00000000000071a1      0xf19 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_syntax.o)
+                0x00000000000078d0                sbr_extension_data
+ .text          0x00000000000080ba      0x347 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_tf_grid.o)
+                0x00000000000080ba                envelope_time_border_vector
+                0x000000000000832f                noise_floor_time_border_vector
+ .text          0x0000000000008401      0xa73 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(specrec.o)
+                0x0000000000008763                window_grouping_info
+                0x0000000000008902                reconstruct_single_channel
+                0x0000000000008b55                reconstruct_channel_pair
+ .text          0x0000000000008e74      0x365 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(tns.o)
+                0x0000000000008e74                tns_decode_frame
+ .text          0x00000000000091d9      0xc9d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(filtbank.o)
+                0x000000000000923b                ifilter_bank
+ .text          0x0000000000009e76      0x19a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(is.o)
+                0x0000000000009e76                is_decode
+ .text          0x000000000000a010      0x126 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(ms.o)
+                0x000000000000a010                ms_decode
+ .text          0x000000000000a136      0x50e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(pns.o)
+                0x000000000000a426                pns_decode
+ .text          0x000000000000a644     0x302d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(ps_dec.o)
+                0x000000000000ac11                ps_init
+                0x000000000000ad3f                ps_decode
+ .text          0x000000000000d671      0x46b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(ps_syntax.o)
+                0x000000000000d7b4                ps_data
+ .text          0x000000000000dadc     0x285d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_dct.o)
+                0x000000000000dadc                DCT4_32
+                0x000000000000efb3                dct4_kernel
+                0x000000000000f1b6                DST4_32
+ .text          0x0000000000010339      0x9e7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_fbt.o)
+                0x00000000000103b5                qmf_start_channel
+                0x0000000000010418                qmf_stop_channel
+                0x00000000000104b3                master_frequency_table_fs0
+                0x00000000000105b5                master_frequency_table
+                0x0000000000010958                derived_frequency_table
+                0x0000000000010ac9                limiter_frequency_table
+ .text          0x0000000000010d20      0x4ae /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_huff.o)
+                0x0000000000010df4                sbr_envelope
+                0x0000000000011052                sbr_noise
+ .text          0x00000000000111ce      0x2cb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_e_nf.o)
+                0x00000000000111ce                extract_envelope_data
+                0x00000000000113de                extract_noise_floor_data
+ .text          0x0000000000011499      0x42e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(m4a.o)
+                0x0000000000011499                stream_read
+                0x00000000000114bb                stream_read_int32
+                0x00000000000114fc                stream_tell
+                0x0000000000011503                stream_read_uint32
+                0x0000000000011544                stream_read_uint16
+                0x0000000000011586                stream_read_uint8
+                0x00000000000115c5                stream_skip
+                0x00000000000115d1                stream_seek
+                0x00000000000115dd                stream_eof
+                0x00000000000115e1                stream_create
+                0x00000000000115ea                m4a_check_sample_offset
+                0x000000000001162c                m4a_seek
+                0x0000000000011826                m4a_seek_raw
+ .text          0x00000000000118c7      0xaac /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(demux.o)
+                0x00000000000118f7                qtmovie_read
+ .text          0x0000000000012373      0x1dc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000000012373                codec_init
+                0x000000000001239c                codec_set_replaygain
+                0x000000000001240f                codec_malloc
+                0x0000000000012445                codec_calloc
+                0x0000000000012477                codec_free
+                0x0000000000012478                codec_realloc
+                0x00000000000124af                codec_strlen
+                0x00000000000124bf                strcpy
+                0x00000000000124cf                strcat
+                0x00000000000124df                strcmp
+                0x00000000000124ef                memcpy
+                0x00000000000124ff                memset
+                0x000000000001250f                memcmp
+                0x000000000001251f                memchr
+                0x000000000001252f                memmove
+                0x000000000001253f                qsort
+ .text          0x000000000001254f      0x7c3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
+                0x0000000000012cfc                ff_fft_calc_c
+ .text          0x0000000000012d12      0x7a4 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(mdct.o)
+                0x0000000000012d12                ff_imdct_half
+                0x0000000000013381                ff_imdct_calc
  *(.gnu.warning)
 
-.fini           0x000000000001347c        0xd
+.fini           0x00000000000134b8        0xd
  *(SORT_NONE(.fini))
- .fini          0x000000000001347c        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
-                0x000000000001347c                _fini
- .fini          0x0000000000013484        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
+ .fini          0x00000000000134b8        0x8 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crti.o
+                0x00000000000134b8                _fini
+ .fini          0x00000000000134c0        0x5 /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
                 [!provide]                        PROVIDE (__etext = .)
                 [!provide]                        PROVIDE (_etext = .)
                 [!provide]                        PROVIDE (etext = .)
@@ -1121,45 +1121,45 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000    0x3333a
+.debug_info     0x0000000000000000    0x33331
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x2c1f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/aac.o
- .debug_info    0x0000000000002c1f      0xed9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
- .debug_info    0x0000000000003af8     0x2489 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(decoder.o)
- .debug_info    0x0000000000005f81      0x434 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(drc.o)
- .debug_info    0x00000000000063b5      0x33d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(error.o)
- .debug_info    0x00000000000066f2      0xeab /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(mp4.o)
- .debug_info    0x000000000000759d     0x4a2a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(syntax.o)
- .debug_info    0x000000000000bfc7      0x5b0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(bits.o)
- .debug_info    0x000000000000c577      0x883 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(common.o)
- .debug_info    0x000000000000cdfa     0x1788 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(huffman.o)
- .debug_info    0x000000000000e582      0x50f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(pulse.o)
- .debug_info    0x000000000000ea91     0x1b50 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_dec.o)
- .debug_info    0x00000000000105e1     0x2166 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_hfadj.o)
- .debug_info    0x0000000000012747     0x1809 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_hfgen.o)
- .debug_info    0x0000000000013f50     0x14f8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_qmf.o)
- .debug_info    0x0000000000015448     0x2ded /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_syntax.o)
- .debug_info    0x0000000000018235     0x1192 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_tf_grid.o)
- .debug_info    0x00000000000193c7     0x28fc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(specrec.o)
- .debug_info    0x000000000001bcc3      0x970 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(tns.o)
- .debug_info    0x000000000001c633      0x924 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(filtbank.o)
- .debug_info    0x000000000001cf57      0x709 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(is.o)
- .debug_info    0x000000000001d660      0x699 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(ms.o)
- .debug_info    0x000000000001dcf9      0x891 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(pns.o)
- .debug_info    0x000000000001e58a     0x2ae7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(ps_dec.o)
- .debug_info    0x0000000000021071     0x15e5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(ps_syntax.o)
- .debug_info    0x0000000000022656     0x38f1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_dct.o)
- .debug_info    0x0000000000025f47     0x1bb5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_fbt.o)
- .debug_info    0x0000000000027afc     0x19a2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_huff.o)
- .debug_info    0x000000000002949e     0x10bb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_e_nf.o)
- .debug_info    0x000000000002a559     0x1465 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(m4a.o)
- .debug_info    0x000000000002b9be     0x2561 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(demux.o)
- .debug_info    0x000000000002df1f     0x1641 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
- .debug_info    0x000000000002f560     0x1ed7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
- .debug_info    0x0000000000031437     0x1b52 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(mdct.o)
- .debug_info    0x0000000000032f89      0x3b1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(mdct_lookup.o)
+ .debug_info    0x0000000000000000     0x2c24 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/aac.o
+ .debug_info    0x0000000000002c24      0xed9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_info    0x0000000000003afd     0x2489 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(decoder.o)
+ .debug_info    0x0000000000005f86      0x434 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(drc.o)
+ .debug_info    0x00000000000063ba      0x33d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(error.o)
+ .debug_info    0x00000000000066f7      0xeab /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(mp4.o)
+ .debug_info    0x00000000000075a2     0x4a2a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(syntax.o)
+ .debug_info    0x000000000000bfcc      0x5b0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(bits.o)
+ .debug_info    0x000000000000c57c      0x883 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(common.o)
+ .debug_info    0x000000000000cdff     0x1788 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(huffman.o)
+ .debug_info    0x000000000000e587      0x50f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(pulse.o)
+ .debug_info    0x000000000000ea96     0x1b50 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_dec.o)
+ .debug_info    0x00000000000105e6     0x2166 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_hfadj.o)
+ .debug_info    0x000000000001274c     0x1809 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_hfgen.o)
+ .debug_info    0x0000000000013f55     0x14f8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_qmf.o)
+ .debug_info    0x000000000001544d     0x2ded /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_syntax.o)
+ .debug_info    0x000000000001823a     0x1192 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_tf_grid.o)
+ .debug_info    0x00000000000193cc     0x28fc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(specrec.o)
+ .debug_info    0x000000000001bcc8      0x970 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(tns.o)
+ .debug_info    0x000000000001c638      0x924 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(filtbank.o)
+ .debug_info    0x000000000001cf5c      0x709 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(is.o)
+ .debug_info    0x000000000001d665      0x699 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(ms.o)
+ .debug_info    0x000000000001dcfe      0x891 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(pns.o)
+ .debug_info    0x000000000001e58f     0x2ae7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(ps_dec.o)
+ .debug_info    0x0000000000021076     0x15e5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(ps_syntax.o)
+ .debug_info    0x000000000002265b     0x38f1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_dct.o)
+ .debug_info    0x0000000000025f4c     0x1bb5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_fbt.o)
+ .debug_info    0x0000000000027b01     0x19a2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_huff.o)
+ .debug_info    0x00000000000294a3     0x10bb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_e_nf.o)
+ .debug_info    0x000000000002a55e     0x1470 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(m4a.o)
+ .debug_info    0x000000000002b9ce     0x2555 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(demux.o)
+ .debug_info    0x000000000002df23     0x1634 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_info    0x000000000002f557     0x1ed7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
+ .debug_info    0x000000000003142e     0x1b52 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(mdct.o)
+ .debug_info    0x0000000000032f80      0x3b1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(mdct_lookup.o)
 
-.debug_abbrev   0x0000000000000000     0x6b3c
+.debug_abbrev   0x0000000000000000     0x6b1e
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0x430 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/aac.o
  .debug_abbrev  0x0000000000000430      0x287 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
@@ -1190,50 +1190,50 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  .debug_abbrev  0x0000000000004eb7      0x43f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_fbt.o)
  .debug_abbrev  0x00000000000052f6      0x3ba /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_huff.o)
  .debug_abbrev  0x00000000000056b0      0x1c1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_e_nf.o)
- .debug_abbrev  0x0000000000005871      0x354 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(m4a.o)
- .debug_abbrev  0x0000000000005bc5      0x44f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(demux.o)
- .debug_abbrev  0x0000000000006014      0x35b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
- .debug_abbrev  0x000000000000636f      0x401 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
- .debug_abbrev  0x0000000000006770      0x2fb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(mdct.o)
- .debug_abbrev  0x0000000000006a6b       0xd1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(mdct_lookup.o)
+ .debug_abbrev  0x0000000000005871      0x345 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(m4a.o)
+ .debug_abbrev  0x0000000000005bb6      0x44f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(demux.o)
+ .debug_abbrev  0x0000000000006005      0x34c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_abbrev  0x0000000000006351      0x401 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
+ .debug_abbrev  0x0000000000006752      0x2fb /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(mdct.o)
+ .debug_abbrev  0x0000000000006a4d       0xd1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(mdct_lookup.o)
 
-.debug_line     0x0000000000000000    0x11fc1
+.debug_line     0x0000000000000000    0x11fe9
  *(.debug_line .debug_line.* .debug_line_end)
- .debug_line    0x0000000000000000      0x4ba /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/aac.o
- .debug_line    0x00000000000004ba       0xa9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
- .debug_line    0x0000000000000563      0x872 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(decoder.o)
- .debug_line    0x0000000000000dd5      0x1d5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(drc.o)
- .debug_line    0x0000000000000faa       0x51 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(error.o)
- .debug_line    0x0000000000000ffb      0x451 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(mp4.o)
- .debug_line    0x000000000000144c     0x1933 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(syntax.o)
- .debug_line    0x0000000000002d7f      0x231 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(bits.o)
- .debug_line    0x0000000000002fb0      0x462 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(common.o)
- .debug_line    0x0000000000003412      0x73e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(huffman.o)
- .debug_line    0x0000000000003b50       0xe6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(pulse.o)
- .debug_line    0x0000000000003c36      0x87f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_dec.o)
- .debug_line    0x00000000000044b5      0xd7f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_hfadj.o)
- .debug_line    0x0000000000005234      0x98c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_hfgen.o)
- .debug_line    0x0000000000005bc0      0x751 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_qmf.o)
- .debug_line    0x0000000000006311      0xfff /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_syntax.o)
- .debug_line    0x0000000000007310      0x362 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_tf_grid.o)
- .debug_line    0x0000000000007672      0x8b0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(specrec.o)
- .debug_line    0x0000000000007f22      0x3c3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(tns.o)
- .debug_line    0x00000000000082e5      0x731 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(filtbank.o)
- .debug_line    0x0000000000008a16      0x1f6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(is.o)
- .debug_line    0x0000000000008c0c      0x1b8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(ms.o)
- .debug_line    0x0000000000008dc4      0x582 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(pns.o)
- .debug_line    0x0000000000009346     0x2762 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(ps_dec.o)
- .debug_line    0x000000000000baa8      0x5ef /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(ps_syntax.o)
- .debug_line    0x000000000000c097     0x1c72 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_dct.o)
- .debug_line    0x000000000000dd09      0xb2c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_fbt.o)
- .debug_line    0x000000000000e835      0x59d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_huff.o)
- .debug_line    0x000000000000edd2      0x34e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_e_nf.o)
- .debug_line    0x000000000000f120      0x564 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(m4a.o)
- .debug_line    0x000000000000f684      0xa26 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(demux.o)
- .debug_line    0x00000000000100aa      0x2a8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
- .debug_line    0x0000000000010352      0xbfa /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
- .debug_line    0x0000000000010f4c     0x1016 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(mdct.o)
- .debug_line    0x0000000000011f62       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(mdct_lookup.o)
+ .debug_line    0x0000000000000000      0x4b3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/aac.o
+ .debug_line    0x00000000000004b3       0xa9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_line    0x000000000000055c      0x872 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(decoder.o)
+ .debug_line    0x0000000000000dce      0x1d5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(drc.o)
+ .debug_line    0x0000000000000fa3       0x51 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(error.o)
+ .debug_line    0x0000000000000ff4      0x451 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(mp4.o)
+ .debug_line    0x0000000000001445     0x1933 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(syntax.o)
+ .debug_line    0x0000000000002d78      0x231 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(bits.o)
+ .debug_line    0x0000000000002fa9      0x462 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(common.o)
+ .debug_line    0x000000000000340b      0x73e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(huffman.o)
+ .debug_line    0x0000000000003b49       0xe6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(pulse.o)
+ .debug_line    0x0000000000003c2f      0x87f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_dec.o)
+ .debug_line    0x00000000000044ae      0xd7f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_hfadj.o)
+ .debug_line    0x000000000000522d      0x98c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_hfgen.o)
+ .debug_line    0x0000000000005bb9      0x751 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_qmf.o)
+ .debug_line    0x000000000000630a      0xfff /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_syntax.o)
+ .debug_line    0x0000000000007309      0x362 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_tf_grid.o)
+ .debug_line    0x000000000000766b      0x8b0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(specrec.o)
+ .debug_line    0x0000000000007f1b      0x3c3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(tns.o)
+ .debug_line    0x00000000000082de      0x731 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(filtbank.o)
+ .debug_line    0x0000000000008a0f      0x1f6 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(is.o)
+ .debug_line    0x0000000000008c05      0x1b8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(ms.o)
+ .debug_line    0x0000000000008dbd      0x582 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(pns.o)
+ .debug_line    0x000000000000933f     0x2762 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(ps_dec.o)
+ .debug_line    0x000000000000baa1      0x5ef /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(ps_syntax.o)
+ .debug_line    0x000000000000c090     0x1c72 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_dct.o)
+ .debug_line    0x000000000000dd02      0xb2c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_fbt.o)
+ .debug_line    0x000000000000e82e      0x59d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_huff.o)
+ .debug_line    0x000000000000edcb      0x34e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_e_nf.o)
+ .debug_line    0x000000000000f119      0x55c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(m4a.o)
+ .debug_line    0x000000000000f675      0xa5d /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(demux.o)
+ .debug_line    0x00000000000100d2      0x2a8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_line    0x000000000001037a      0xbfa /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
+ .debug_line    0x0000000000010f74     0x1016 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(mdct.o)
+ .debug_line    0x0000000000011f8a       0x5f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(mdct_lookup.o)
 
 .debug_frame
  *(.debug_frame)
@@ -1241,7 +1241,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_str      0x0000000000000000     0x4da5
  *(.debug_str)
  .debug_str     0x0000000000000000     0x4da5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/aac.o
-                                       0x1c28 (size before relaxing)
+                                       0x1c2f (size before relaxing)
  .debug_str     0x0000000000004da5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
                                         0xcbf (size before relaxing)
  .debug_str     0x0000000000004da5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(decoder.o)
@@ -1299,11 +1299,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  .debug_str     0x0000000000004da5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_e_nf.o)
                                         0xa3c (size before relaxing)
  .debug_str     0x0000000000004da5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(m4a.o)
-                                        0xb3f (size before relaxing)
+                                        0xb46 (size before relaxing)
  .debug_str     0x0000000000004da5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(demux.o)
                                         0xee3 (size before relaxing)
  .debug_str     0x0000000000004da5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
-                                        0xedb (size before relaxing)
+                                        0xed0 (size before relaxing)
  .debug_str     0x0000000000004da5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
                                         0x7c5 (size before relaxing)
  .debug_str     0x0000000000004da5        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(mdct.o)
@@ -1448,74 +1448,74 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
                                         0x201 (size before relaxing)
 
 .debug_loclists
-                0x0000000000000000    0x2be06
+                0x0000000000000000    0x2be38
  *(.debug_loclists)
  .debug_loclists
-                0x0000000000000000      0x256 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/aac.o
+                0x0000000000000000      0x261 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/aac.o
  .debug_loclists
-                0x0000000000000256       0x1e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
+                0x0000000000000261       0x1e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
  .debug_loclists
-                0x0000000000000274      0x440 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(decoder.o)
+                0x000000000000027f      0x440 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(decoder.o)
  .debug_loclists
-                0x00000000000006b4      0x107 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(drc.o)
+                0x00000000000006bf      0x107 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(drc.o)
  .debug_loclists
-                0x00000000000007bb      0x202 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(mp4.o)
+                0x00000000000007c6      0x202 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(mp4.o)
  .debug_loclists
-                0x00000000000009bd     0x160a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(syntax.o)
+                0x00000000000009c8     0x160a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(syntax.o)
  .debug_loclists
-                0x0000000000001fc7      0x130 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(bits.o)
+                0x0000000000001fd2      0x130 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(bits.o)
  .debug_loclists
-                0x00000000000020f7      0x5cd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(common.o)
+                0x0000000000002102      0x5cd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(common.o)
  .debug_loclists
-                0x00000000000026c4      0x656 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(huffman.o)
+                0x00000000000026cf      0x656 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(huffman.o)
  .debug_loclists
-                0x0000000000002d1a       0x72 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(pulse.o)
+                0x0000000000002d25       0x72 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(pulse.o)
  .debug_loclists
-                0x0000000000002d8c      0x7fa /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_dec.o)
+                0x0000000000002d97      0x7fa /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_dec.o)
  .debug_loclists
-                0x0000000000003586      0xbb7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_hfadj.o)
+                0x0000000000003591      0xbb7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_hfadj.o)
  .debug_loclists
-                0x000000000000413d      0x6d9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_hfgen.o)
+                0x0000000000004148      0x6d9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_hfgen.o)
  .debug_loclists
-                0x0000000000004816      0x8e1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_qmf.o)
+                0x0000000000004821      0x8e1 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_qmf.o)
  .debug_loclists
-                0x00000000000050f7      0xe2c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_syntax.o)
+                0x0000000000005102      0xe2c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_syntax.o)
  .debug_loclists
-                0x0000000000005f23      0x2e9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_tf_grid.o)
+                0x0000000000005f2e      0x2e9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_tf_grid.o)
  .debug_loclists
-                0x000000000000620c      0x691 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(specrec.o)
+                0x0000000000006217      0x691 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(specrec.o)
  .debug_loclists
-                0x000000000000689d      0x3ea /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(tns.o)
+                0x00000000000068a8      0x3ea /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(tns.o)
  .debug_loclists
-                0x0000000000006c87      0xae7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(filtbank.o)
+                0x0000000000006c92      0xae7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(filtbank.o)
  .debug_loclists
-                0x000000000000776e      0x166 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(is.o)
+                0x0000000000007779      0x166 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(is.o)
  .debug_loclists
-                0x00000000000078d4      0x145 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(ms.o)
+                0x00000000000078df      0x145 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(ms.o)
  .debug_loclists
-                0x0000000000007a19      0x642 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(pns.o)
+                0x0000000000007a24      0x642 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(pns.o)
  .debug_loclists
-                0x000000000000805b     0x296a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(ps_dec.o)
+                0x0000000000008066     0x296a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(ps_dec.o)
  .debug_loclists
-                0x000000000000a9c5      0x541 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(ps_syntax.o)
+                0x000000000000a9d0      0x541 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(ps_syntax.o)
  .debug_loclists
-                0x000000000000af06    0x1c9b7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_dct.o)
+                0x000000000000af11    0x1c9b7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_dct.o)
  .debug_loclists
-                0x00000000000278bd      0xfda /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_fbt.o)
+                0x00000000000278c8      0xfda /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_fbt.o)
  .debug_loclists
-                0x0000000000028897      0x3a3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_huff.o)
+                0x00000000000288a2      0x3a3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_huff.o)
  .debug_loclists
-                0x0000000000028c3a      0x208 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_e_nf.o)
+                0x0000000000028c45      0x208 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(sbr_e_nf.o)
  .debug_loclists
-                0x0000000000028e42      0x640 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(m4a.o)
+                0x0000000000028e4d      0x640 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(m4a.o)
  .debug_loclists
-                0x0000000000029482      0xa08 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(demux.o)
+                0x000000000002948d      0xa2f /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(demux.o)
  .debug_loclists
-                0x0000000000029e8a      0x328 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x0000000000029ebc      0x328 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
  .debug_loclists
-                0x000000000002a1b2      0xbd8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
+                0x000000000002a1e4      0xbd8 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
  .debug_loclists
-                0x000000000002ad8a     0x107c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(mdct.o)
+                0x000000000002adbc     0x107c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(mdct.o)
 
 .debug_macro
  *(.debug_macro)
@@ -1524,7 +1524,7 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_names)
 
 .debug_rnglists
-                0x0000000000000000      0xe55
+                0x0000000000000000      0xe65
  *(.debug_rnglists)
  .debug_rnglists
                 0x0000000000000000       0x17 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libfaad.a(decoder.o)
@@ -1573,11 +1573,11 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  .debug_rnglists
                 0x00000000000005e0       0x17 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(m4a.o)
  .debug_rnglists
-                0x00000000000005f7       0xc5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(demux.o)
+                0x00000000000005f7       0xd5 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libm4a.a(demux.o)
  .debug_rnglists
-                0x00000000000006bc      0x3e7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
+                0x00000000000006cc      0x3e7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(fft-ffmpeg.o)
  .debug_rnglists
-                0x0000000000000aa3      0x3b2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(mdct.o)
+                0x0000000000000ab3      0x3b2 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(mdct.o)
 
 .debug_str_offsets
  *(.debug_str_offsets)

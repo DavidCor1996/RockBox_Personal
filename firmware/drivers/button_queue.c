@@ -133,6 +133,11 @@ static inline void button_queue_wait(struct queue_event *evp, int timeout)
 
 void button_queue_post(long id, intptr_t data)
 {
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+    if (button_hibernate_event_filtered(id))
+        return;
+#endif
     queue_post(&button_queue, id, data);
 }
 
@@ -144,6 +149,11 @@ void button_queue_post_remove_head(long id, intptr_t data)
 
 bool button_queue_try_post(long button, int data)
 {
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+    if (button_hibernate_event_filtered(button))
+        return true;
+#endif
 #ifdef HAVE_TOUCHSCREEN
     /* one can swipe over the scren very quickly,
      * for this to work we want to forget about old presses and
@@ -213,6 +223,28 @@ void button_clear_pressed(void)
     }
 }
 
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+void button_clear_hibernate_wake(void)
+{
+    struct queue_event ev;
+    int oldlevel = disable_irq_save();
+
+    /* The generic helper deliberately preserves BUTTON_REL. RetailOS does
+     * not publish either half of its recovered wake gesture, so drain every
+     * non-system event directly while retaining PMU/USB events and data in
+     * their original order. */
+    for (int count = queue_count(&button_queue); count > 0; count--)
+    {
+        queue_wait_w_tmo(&button_queue, &ev, TIMEOUT_NOBLOCK);
+        if (ev.id & SYS_EVENT)
+            queue_post(&button_queue, ev.id, ev.data);
+    }
+
+    restore_irq(oldlevel);
+}
+#endif
+
 long button_get_w_tmo(int ticks)
 {
     struct queue_event ev;
@@ -226,8 +258,16 @@ long button_get_w_tmo(int ticks)
     if (ev.id == SYS_POWEROFF_REQUEST)
     {
         button_data = ev.data;
-        sys_poweroff_handle_request((uint32_t)ev.data);
+        ev.id = sys_poweroff_handle_request((uint32_t)ev.data);
+    }
+    else if (ev.id == SYS_HIBERNATE_CAPABLE)
+    {
+        sys_poweroff_handle_plugin_capable(ev.data);
         ev.id = BUTTON_NONE;
+    }
+    else if (ev.id == SYS_HIBERNATE_READY)
+    {
+        ev.id = sys_poweroff_handle_plugin_ready(ev.data);
     }
     else
 #endif
@@ -235,6 +275,15 @@ long button_get_w_tmo(int ticks)
         ev.id = BUTTON_NONE;
     else
         button_data = ev.data;
+
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+    /* The result is now durable in this consumer's stack, matching Apple's
+     * queue-insertion boundary. Only now may a waiting storage client leave
+     * DiskMgr-equivalent state 2 and perform the lazy physical wake. */
+    if (ev.id == SYS_HIBERNATE_COMPLETE)
+        sys_poweroff_hibernate_event_committed();
+#endif
 
     return ev.id;
 }

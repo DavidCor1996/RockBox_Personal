@@ -20,6 +20,9 @@
  ****************************************************************************/
 
 #include "config.h"
+#ifdef HAVE_COMPOSITE_VIDEO_OUT
+void settings_apply_tv(int ignored);
+#endif
 #include <stdbool.h>
 #include "string-extra.h"
 #include "system.h"
@@ -422,7 +425,7 @@ static const char graphic_numeric[] = "graphic,numeric";
 #  define DEFAULT_REC_MIC_GAIN 0
 #  define DEFAULT_REC_LEFT_GAIN 0
 #  define DEFAULT_REC_RIGHT_GAIN 0
-# elif defined(HAVE_WM8975)
+# elif defined(HAVE_WM8975) || defined(HAVE_WM1870)
 #  define DEFAULT_REC_MIC_GAIN 16
 #  define DEFAULT_REC_LEFT_GAIN 0
 #  define DEFAULT_REC_RIGHT_GAIN 0
@@ -1204,6 +1207,58 @@ const struct settings_list settings[] = {
                    settings_apply_ipod_videoout, 3,
                    ID2P(LANG_OFF), ID2P(LANG_AUTO), ID2P(LANG_ON)),
 #endif
+#ifdef HAVE_COMPOSITE_VIDEO_OUT
+    CHOICE_SETTING(0, tv_screen, LANG_TV_SCREEN, 0, "tv screen",
+                   "standard,widescreen", settings_apply_tv, 2,
+                   ID2P(LANG_TV_STANDARD), ID2P(LANG_TV_WIDE)),
+    OFFON_SETTING(0, tv_fit, LANG_TV_FIT, false, "tv fit", NULL),
+    CHOICE_SETTING(0, tv_overscan, LANG_TV_OVERSCAN, 0, "tv overscan",
+                   "off,small,medium,large", settings_apply_tv, 4,
+                   ID2P(LANG_OFF), ID2P(LANG_TV_SMALL), ID2P(LANG_TV_MEDIUM),
+                   ID2P(LANG_TV_TEXT_LARGE)),
+    OFFON_SETTING(0, tv_ui_sounds, LANG_TV_UI_SOUNDS, true,
+                  "tv ui sounds", NULL),
+    CHOICE_SETTING(0, tv_interface, LANG_TV_INTERFACE, 0, "tv interface",
+                   "mirror,safe", settings_apply_tv, 2,
+                   ID2P(LANG_TV_MIRROR), ID2P(LANG_TV_SAFE)),
+    CHOICE_SETTING(0, tv_text_size, LANG_TV_TEXT_SIZE, 1, "tv text size",
+                   "standard,large,extra large", settings_apply_tv, 3,
+                   ID2P(LANG_TV_TEXT_STANDARD), ID2P(LANG_TV_TEXT_LARGE),
+                   ID2P(LANG_TV_TEXT_EXTRA)),
+    CHOICE_SETTING(0, tv_now_playing, LANG_TV_NOW_PLAYING, 0,
+                   "tv now playing", "current,cover art", settings_apply_tv, 2,
+                   ID2P(LANG_TV_FOLLOW_WPS), ID2P(LANG_TV_COVER_WPS)),
+#endif
+#ifdef IPOD_ACCESSORY_PROTOCOL
+    CHOICE_SETTING(0, dock_remote_mode, LANG_DOCK_REMOTE_MODE, 0,
+                   "dock remote mode", "playback,navigation", NULL, 2,
+                   ID2P(LANG_REMOTE_PLAYBACK), ID2P(LANG_REMOTE_NAVIGATION)),
+    OFFON_SETTING(0, remote_wake, LANG_REMOTE_WAKE, true,
+                  "remote wake", button_set_remote_wake),
+#endif
+#ifdef HAVE_VIDEOOUT_BACKLIGHT_OFF
+    OFFON_SETTING(0, videoout_backlight_off, LANG_VIDEOOUT_BACKLIGHT_OFF,
+                  true, "videoout backlight off", backlight_set_videoout_off),
+#endif
+#ifdef HAVE_DOCKED_AMBIENT_CLOCK
+    OFFON_SETTING(0, ambient_clock, LANG_AMBIENT_CLOCK, true,
+                  "ambient clock", NULL),
+    TABLE_SETTING(F_ALLOW_ARBITRARY_VALS, ambient_delay, LANG_AMBIENT_DELAY,
+                  2, "ambient delay", NULL, UNIT_MIN, NULL, NULL, NULL,
+                  4, 1, 2, 5, 10),
+    CHOICE_SETTING(0, ambient_colors, LANG_AMBIENT_COLORS, 0,
+                   "ambient colors", "recent,last,neutral", NULL, 3,
+                   ID2P(LANG_AMBIENT_RECENT), ID2P(LANG_AMBIENT_LAST),
+                   ID2P(LANG_AMBIENT_NEUTRAL)),
+    CHOICE_SETTING(0, ambient_brightness, LANG_BRIGHTNESS, 1,
+                   "ambient brightness", "dim,balanced,bright", NULL, 3,
+                   ID2P(LANG_AMBIENT_DIM), ID2P(LANG_AMBIENT_BALANCED),
+                   ID2P(LANG_AMBIENT_BRIGHT)),
+    OFFON_SETTING(0, ambient_reduced_motion, LANG_AMBIENT_REDUCED, false,
+                  "ambient reduced motion", NULL),
+    OFFON_SETTING(0, ambient_weather, LANG_AMBIENT_WEATHER, true,
+                  "ambient weather", NULL),
+#endif
     /* display */
      CHOICE_SETTING(F_TEMPVAR|F_THEMESETTING, cursor_style, LANG_INVERT_CURSOR,
  #ifdef HAVE_LCD_COLOR
@@ -1314,6 +1369,8 @@ const struct settings_list settings[] = {
                   "ui engine lock settings", NULL),
     OFFON_SETTING(0, ui_engine_dark_mode, -1, false,
                   "ui engine dark mode", NULL),
+    OFFON_SETTING(0, ui_engine_playback_screensaver, -1, true,
+                  "ui engine playback screensaver", NULL),
     OFFON_SETTING(0, notifications_enabled, -1, true,
                   "notifications", NULL),
     OFFON_SETTING(0, notification_banners, -1, true,
@@ -1351,7 +1408,7 @@ const struct settings_list settings[] = {
                 set_poweroff_timeout),
 #if defined(IPOD_6G) && !defined(SIMULATOR)
     CHOICE_SETTING(0, ipod6g_poweroff_mode, LANG_IPOD6G_POWEROFF_MODE,
-                   IPOD6G_POWEROFF_LEGACY, "ipod6g poweroff mode",
+                   IPOD6G_POWEROFF_RETAINED, "ipod6g poweroff mode",
                    "legacy,retained", settings_apply_ipod6g_poweroff_mode, 2,
                    ID2P(LANG_IPOD6G_POWEROFF_LEGACY),
                    ID2P(LANG_IPOD6G_POWEROFF_RETAINED)),

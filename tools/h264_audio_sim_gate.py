@@ -133,7 +133,9 @@ def wait_for_result(log: Path, process: subprocess.Popen[bytes], timeout: int):
     raise SystemExit(f"timed out waiting for sustained AAC playback: {log}")
 
 
-def run_gate(build_dir: Path, movie: Path, target_ms: int, timeout: int) -> None:
+def run_gate(
+    build_dir: Path, movie: Path, target_ms: int, timeout: int, start_ms: int
+) -> None:
     with tempfile.TemporaryDirectory(prefix="h264-audio-sim-") as temp:
         root = Path(temp)
         log = prepare_root(build_dir, root, movie)
@@ -147,6 +149,7 @@ def run_gate(build_dir: Path, movie: Path, target_ms: int, timeout: int) -> None
                 "SDL_VIDEODRIVER": "dummy",
                 "SDL_RENDER_DRIVER": "software",
                 "ROCKPOD_SIM_H264_AUDIO_TEST_MS": str(target_ms),
+                "ROCKPOD_SIM_H264_AUDIO_START_MS": str(start_ms),
             }
         )
         with process_log.open("wb") as output:
@@ -167,11 +170,13 @@ def run_gate(build_dir: Path, movie: Path, target_ms: int, timeout: int) -> None
             finally:
                 stop_process(process)
 
-        if requested != target_ms:
+        expected_target = start_ms + target_ms
+        if requested != expected_target:
             raise SystemExit(
-                f"simulator tested {requested} ms instead of {target_ms} ms"
+                f"simulator tested through {requested} ms instead of "
+                f"{expected_target} ms"
             )
-        if failed or result != 0 or elapsed < target_ms:
+        if failed or result != 0 or elapsed < expected_target:
             raise SystemExit(
                 "AAC playback failed: "
                 f"elapsed={elapsed} duration={duration} target={requested} "
@@ -183,7 +188,7 @@ def run_gate(build_dir: Path, movie: Path, target_ms: int, timeout: int) -> None
             raise SystemExit("SDL audio sink contains only silence")
         print(
             "H.264 AAC simulator gate passed: "
-            f"elapsed={elapsed}ms duration={duration}ms "
+            f"start={start_ms}ms elapsed={elapsed}ms duration={duration}ms "
             f"pcm_bytes={audio.stat().st_size}"
         )
 
@@ -195,13 +200,19 @@ def main() -> int:
         "--build-dir", type=Path, default=Path("build-sim-ipodvideo")
     )
     parser.add_argument("--target-ms", type=int, default=30000)
+    parser.add_argument(
+        "--start-ms", type=int, default=0,
+        help="seek before testing (exercises chunk offsets above 2 GiB)",
+    )
     parser.add_argument("--timeout", type=int, default=120)
     args = parser.parse_args()
     if args.target_ms < 3000:
         raise SystemExit("target must be at least 3000 ms")
+    if args.start_ms < 0:
+        raise SystemExit("start must not be negative")
     run_gate(
         args.build_dir.resolve(), args.movie.resolve(),
-        args.target_ms, args.timeout,
+        args.target_ms, args.timeout, args.start_ms,
     )
     return 0
 

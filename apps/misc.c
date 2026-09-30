@@ -66,6 +66,7 @@
 #include "list.h"
 #include "fixedpoint.h"
 #include "open_plugin.h"
+#include "tv_sound.h"
 
 #include "debug.h"
 
@@ -1379,6 +1380,13 @@ void keyclick_click(bool rawbutton, int action)
     if (do_beep && keyclick_current_callback)
         do_beep = keyclick_current_callback(action, keyclick_data);
     keyclick_current_callback = NULL;
+
+#ifdef HAVE_COMPOSITE_VIDEO_OUT
+    /* Use the accepted action, after dock gesture filtering, so packet
+     * repeats and release events cannot create extra navigation sounds. */
+    if (!rawbutton && tv_sound_action(action))
+        return;
+#endif
 
     if (do_beep)
     {

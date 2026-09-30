@@ -49,6 +49,20 @@
 #include "bitmaps/twemoji_atlas.h"
 #endif
 
+#if defined(MAIN_LCD) && defined(IPOD_6G) && !defined(BOOTLOADER)
+static bool boot_frame_held;
+
+void lcd_boot_frame_hold(bool hold)
+{
+    boot_frame_held = hold;
+}
+
+bool lcd_boot_frame_held(void)
+{
+    return boot_frame_held;
+}
+#endif
+
 #ifdef MAIN_LCD
 #define THIS_STRIDE STRIDE_MAIN
 #else
@@ -776,6 +790,10 @@ static bool LCDFN(puts_scroll_worker)(int x, int y, const unsigned char *string,
         s->height = height;
         s->vp = vp;
         s->start_tick = current_tick + LCDFN(scroll_info).delay;
+#ifdef HAVE_IPODJS_UI
+        s->smooth_tick = s->start_tick;
+        s->smooth_remainder = 0;
+#endif
         LCDFN(scroll_info).lines++;
     } else {
         /* not restarting, however we are about to assign new userdata;

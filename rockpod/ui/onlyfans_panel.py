@@ -11,6 +11,7 @@ from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QCheckBox,
+    QComboBox,
     QFileDialog,
     QFormLayout,
     QGroupBox,
@@ -35,10 +36,11 @@ class OnlyFansSignals(QObject):
 
 
 class OnlyFansJob(QRunnable):
-    def __init__(self, function, *args, cancellable=False):
+    def __init__(self, function, *args, cancellable=False, **kwargs):
         super().__init__()
         self.function = function
         self.args = args
+        self.kwargs = kwargs
         self.cancellable = cancellable
         self.cancel_event = threading.Event()
         self.signals = OnlyFansSignals()
@@ -49,7 +51,8 @@ class OnlyFansJob(QRunnable):
     @Slot()
     def run(self):
         try:
-            keywords = {"progress": self.signals.progress.emit}
+            keywords = dict(self.kwargs)
+            keywords["progress"] = self.signals.progress.emit
             if self.cancellable:
                 keywords["cancel_event"] = self.cancel_event
             result = self.function(*self.args, **keywords)
@@ -147,7 +150,7 @@ class OnlyFansPanel(QWidget):
             ["Profile", "Type", "Post", "Size", "Local file"]
         )
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.table.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.table.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.itemSelectionChanged.connect(self._update_preview)
         body.addWidget(self.table, 3)
@@ -182,14 +185,26 @@ class OnlyFansPanel(QWidget):
 
         footer = QHBoxLayout()
         self.status = QLabel()
+        self.status.setWordWrap(True)
         self.cancel_button = QPushButton("Cancel Import")
         self.cancel_button.setEnabled(False)
         self.cancel_button.clicked.connect(self._cancel_job)
-        self.sync_button = QPushButton("Sync OnlyFans to iPod")
-        self.sync_button.clicked.connect(self.sync)
-        footer.addWidget(self.status, 1)
+        self.sync_quality = QComboBox()
+        self.sync_quality.addItem("Standard MPEG", "tv")
+        self.sync_quality.addItem("Space saver MPEG", "space")
+        self.sync_posts_button = QPushButton("Sync Selected Posts")
+        self.sync_posts_button.clicked.connect(self.sync_selected_posts)
+        self.sync_creator_button = QPushButton("Sync Creator")
+        self.sync_creator_button.clicked.connect(self.sync_selected_creator)
+        self.sync_mpeg_button = QPushButton("Sync All")
+        self.sync_mpeg_button.clicked.connect(lambda: self.sync())
+        layout.addWidget(self.status)
+        footer.addStretch(1)
         footer.addWidget(self.cancel_button)
-        footer.addWidget(self.sync_button)
+        footer.addWidget(self.sync_quality)
+        footer.addWidget(self.sync_posts_button)
+        footer.addWidget(self.sync_creator_button)
+        footer.addWidget(self.sync_mpeg_button)
         layout.addLayout(footer)
         self.refresh()
 
@@ -334,7 +349,10 @@ class OnlyFansPanel(QWidget):
     def _set_busy(self, busy):
         self.capture_button.setEnabled(not busy)
         self.login_button.setEnabled(not busy)
-        self.sync_button.setEnabled(not busy)
+        self.sync_mpeg_button.setEnabled(not busy)
+        self.sync_posts_button.setEnabled(not busy)
+        self.sync_creator_button.setEnabled(not busy)
+        self.sync_quality.setEnabled(not busy)
         self.cancel_button.setEnabled(bool(busy and self._job and self._job.cancellable))
 
     def _begin_progress(self, message):
@@ -375,13 +393,13 @@ class OnlyFansPanel(QWidget):
         except (OSError, ValueError) as exc:
             try:
                 auth_path = self.service.launch_ofscraper_login(url)
-            except (OSError, ValueError) as terminal_exc:
+            except (OSError, ValueError) as login_exc:
                 QMessageBox.warning(
-                    self, "OnlyFans Login", f"{exc}\n\n{terminal_exc}"
+                    self, "OnlyFans Login", f"{exc}\n\n{login_exc}"
                 )
                 return
             self.status.setText(
-                "Complete the download-only login in the terminal, then click Import Full Profile"
+                "Sign in to OnlyFans in Firefox, then click Set Up / Refresh Login again."
             )
             return
         self.status.setText(
@@ -455,15 +473,45 @@ class OnlyFansPanel(QWidget):
         self.status.setText("OnlyFans operation failed")
         QMessageBox.critical(self, "OnlyFans", message)
 
-    def sync(self):
+    def _selected_media(self):
+        return [
+            self.table.item(index.row(), 0).data(Qt.UserRole)
+            for index in self.table.selectionModel().selectedRows()
+            if self.table.item(index.row(), 0)
+        ]
+
+    def sync_selected_posts(self):
+        rows = self._selected_media()
+        if not rows:
+            QMessageBox.warning(self, "OnlyFans", "Select a post first.")
+            return
+        post_ids = {str(row["post_id"]) for row in rows if row.get("post_id")}
+        item_ids = {str(row["id"]) for row in rows if not row.get("post_id")}
+        self.sync(post_ids=post_ids, item_ids=item_ids)
+
+    def sync_selected_creator(self):
+        rows = self._selected_media()
+        if not rows:
+            QMessageBox.warning(self, "OnlyFans", "Select a creator's post first.")
+            return
+        usernames = {row["username"] for row in rows}
+        if len(usernames) != 1:
+            QMessageBox.warning(self, "OnlyFans", "Select posts from one creator.")
+            return
+        self.sync(usernames=usernames)
+
+    def sync(self, *, post_ids=None, item_ids=None, usernames=None):
         device = self.device_provider()
         mount = getattr(device, "mount_path", None) if device else None
         if not mount:
             QMessageBox.warning(self, "OnlyFans", "Connect and mount the iPod first.")
             return
         self._set_busy(True)
-        self._begin_progress("Preparing iPod-sized media…")
-        self._job = OnlyFansJob(self.service.sync, mount)
+        self._begin_progress("Preparing iPod-sized MPEG media…")
+        self._job = OnlyFansJob(
+            self.service.sync, mount, post_ids=post_ids, item_ids=item_ids,
+            usernames=usernames, video_quality=self.sync_quality.currentData(),
+        )
         self._job.signals.progress.connect(self._set_progress_message)
         self._job.signals.finished.connect(self._sync_finished)
         self._job.signals.error.connect(self._failed)

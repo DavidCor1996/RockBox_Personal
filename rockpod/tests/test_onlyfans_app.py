@@ -36,6 +36,17 @@ def test_onlyfans_profile_url_validation():
         raise AssertionError("non-OnlyFans URL was accepted")
 
 
+def test_onlyfans_sync_screen_is_mpeg_only():
+    panel = (ROOT / "rockpod/ui/onlyfans_panel.py").read_text(
+        encoding="utf-8"
+    )
+    assert 'QPushButton("Sync Selected Posts")' in panel
+    assert 'QPushButton("Sync Creator")' in panel
+    assert 'QPushButton("Sync All")' in panel
+    assert 'QPushButton("Sync as H.264")' not in panel
+    assert "sync_h264_button" not in panel
+
+
 def test_ofscraper_completion_message_can_wrap_across_terminal_lines():
     assert _metadata_enumeration_complete([
         "[postcollection.get_media_for_metadata:147] Returning "
@@ -119,7 +130,7 @@ def test_ofscraper_database_payload_requires_exact_creator(tmp_path):
     try:
         service._ofscraper_database_payload("someoneelse")
     except ValueError as exc:
-        assert "unambiguous database" in str(exc)
+        assert "no profile data" in str(exc)
     else:
         raise AssertionError("cross-profile database was accepted")
 
@@ -517,6 +528,37 @@ def test_sync_keeps_device_only_photo_and_video_when_laptop_sources_are_gone(
     assert report["unchanged"] == 2
 
 
+def test_onlyfans_h264_request_still_syncs_mpeg(
+    config, mock_device, monkeypatch,
+):
+    service = OnlyFansAppService(config, ROOT)
+    source = Path(config.get("cache_dir")) / "onlyfans-video.mp4"
+    source.write_bytes(b"source")
+    service._save({"profiles": [{
+        "username": "creator", "display_name": "Creator", "media": [{
+            "id": "ofv_switch", "type": "video", "title": "Video",
+            "source_path": str(source),
+        }],
+    }]})
+
+    def fake_stage(_source, target, **kwargs):
+        Path(target).write_bytes(kwargs["profile"].encode("ascii"))
+
+    monkeypatch.setattr(onlyfans_app_module, "stage_app_video", fake_stage)
+    monkeypatch.setattr(
+        onlyfans_app_module.subprocess, "run", lambda *a, **k: None,
+    )
+    media = Path(mock_device) / ".rockbox/onlyfans/media"
+
+    service.sync(mock_device, video_profile="h264_apple_exact")
+
+    assert (media / "ofv_switch.mpg").read_bytes() == b"quality"
+    assert not (media / "ofv_switch.m4v").exists()
+    assert "/.rockbox/onlyfans/media/ofv_switch.mpg" in (
+        Path(mock_device) / ".rockbox/onlyfans/library.tsv"
+    ).read_text(encoding="utf-8")
+
+
 def test_owner_profile_repair_retains_missing_device_only_post_metadata(
         tmp_path):
     service = OnlyFansAppService(
@@ -551,11 +593,12 @@ def test_native_app_is_standalone_and_in_applications_menu():
     categories = (ROOT / "apps/plugins/CATEGORIES").read_text(encoding="utf-8")
     assert 'OF_ROOT         ROCKBOX_DIR "/onlyfans"' in plugin
     assert 'PLUGIN_APPS_DIR "/onlyfans.rock"' in root_menu
-    assert '{ "OnlyFans", launch_onlyfans_plugin }' in root_menu
+    assert '{ "OnlyFans", launch_onlyfans_plugin,' in root_menu
     assert 'ROCKBOX_DIR "/onlyfans/hidden"' in root_menu
     assert "onlyfans_item_callback" in root_menu
     assert "root_menu_video_application_item_visible" in root_menu
-    assert "root_menu_video_application_item_at(selected)->function" in root_menu
+    assert "root_menu_video_application_item_at(" in root_menu
+    assert "selected)->function(NULL)" in root_menu
     assert "onlyfans,apps" in categories
     assert "OF_SCREEN_PROFILES" in plugin
     assert "visible_posts[OF_MAX_POSTS]" in plugin

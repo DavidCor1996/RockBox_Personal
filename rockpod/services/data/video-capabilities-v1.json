@@ -1,0 +1,142 @@
+{
+  "schema": 1,
+  "revision": "phase2-b2",
+  "limits": {
+    "h264_width": 640,
+    "h264_height": 480,
+    "h264_level": 30,
+    "h264_poc_type": 0,
+    "h264_references": 2,
+    "video_samples": 400000,
+    "audio_samples": 600000,
+    "sample_buffer_bytes": 524288,
+    "slice_dma_bytes": 262144,
+    "desktop_max_file_bytes": 2147483647,
+    "timing_runs": 4096,
+    "sync_samples": 8192,
+    "codec_data_bytes": 512,
+    "slices_per_picture": 10
+  },
+  "targets": {
+    "ipod6g": {
+      "model": "iPod Classic 6G/7G",
+      "h264": {
+        "implemented": true,
+        "decoder": "hardware",
+        "containers": [
+          "mov,mp4,m4a,3gp,3g2,mj2"
+        ],
+        "video_codecs": [
+          "h264"
+        ],
+        "audio_codecs": [
+          "aac"
+        ],
+        "audio_profiles": [
+          "LC"
+        ],
+        "audio_sample_rates": [
+          44100,
+          48000
+        ],
+        "max_audio_channels": 2,
+        "profile_idc": 66,
+        "pixel_format": "yuv420p",
+        "max_fps": "30/1",
+        "progressive_only": true,
+        "slice_types": [
+          0,
+          2
+        ],
+        "active_references": 1,
+        "cabac": false,
+        "weighted_prediction": false,
+        "reference_list_modification": false,
+        "adaptive_reference_marking": false,
+        "parameter_set_changes": false,
+        "fragmented_mp4": false,
+        "hardware_qualified": false,
+        "qualification": "Candidate limits from installed code; sustained hardware matrix pending"
+      },
+      "mpeg": {
+        "implemented": true,
+        "decoder": "software",
+        "containers": [
+          "mpeg"
+        ],
+        "video_codecs": [
+          "mpeg1video",
+          "mpeg2video"
+        ],
+        "audio_codecs": [
+          "mp2",
+          "mp3"
+        ],
+        "conversion_envelope": [
+          320,
+          240
+        ],
+        "qualified_fps": [],
+        "hardware_qualified": false,
+        "qualification": "Existing software player retained; target/content throughput unmeasured"
+      },
+      "presentation": {
+        "lcd": [
+          320,
+          240
+        ],
+        "tv_native_input": true,
+        "tv_planar_surface": [
+          320,
+          240
+        ],
+        "tv_higher_resolution_qualified": false,
+        "tv_field_handoff_qualified": false
+      }
+    },
+    "ipodvideo": {
+      "model": "iPod Video 5G/5.5G",
+      "h264": {
+        "implemented": false,
+        "hardware_qualified": false
+      },
+      "mpeg": {
+        "implemented": true,
+        "decoder": "software",
+        "containers": [
+          "mpeg"
+        ],
+        "video_codecs": [
+          "mpeg1video",
+          "mpeg2video"
+        ],
+        "audio_codecs": [
+          "mp2",
+          "mp3"
+        ],
+        "conversion_envelope": [
+          320,
+          240
+        ],
+        "qualified_fps": [],
+        "hardware_qualified": false,
+        "qualification": "Existing software player retained; no Classic decoder assumption"
+      },
+      "presentation": {
+        "lcd": [
+          320,
+          240
+        ],
+        "tv_native_input": false
+      }
+    }
+  },
+  "aliases": {
+    "ipodvideo64mb": "ipodvideo"
+  },
+  "duration_policy": "Bound by sample counts, timescales, offsets and available plugin memory; no universal full-movie duration guarantee",
+  "qualification": {
+    "accepted_build": null,
+    "hardware_results": []
+  }
+}

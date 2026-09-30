@@ -26,6 +26,9 @@
 #ifndef PLUGIN 
 
 extern const struct menu_item_ex 
+#if defined(HAVE_COMPOSITE_VIDEO_OUT) && !defined(SIMULATOR)
+        composite_menu,
+#endif
         display_menu,               /* display_menu.c   */
         playback_settings,          /* playback_menu.c  */
 #ifdef HAVE_RECORDING

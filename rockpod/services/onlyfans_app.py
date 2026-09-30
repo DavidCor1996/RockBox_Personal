@@ -24,9 +24,17 @@ from urllib.parse import unquote, urljoin, urlsplit
 from PIL import Image, ImageOps
 
 from services.device_sync_index import DeviceSyncIndex
+from services.device_manifest import present_manifest_ids
 from services.file_safety import atomic_write_text
 from services.path_safety import resolve_under_root, validate_device_root
-from services.android_media import build_ffmpeg_command
+from services.app_video_sync import (
+    app_video_extension,
+    app_video_profile,
+    app_video_signature,
+    device_video_target,
+    remove_alternate_video,
+    stage_app_video,
+)
 from scripts.offlineweb_sync import (
     _discover_firefox_profile,
     _firefox_cache_entries_root,
@@ -340,6 +348,7 @@ class OnlyFansAppService:
             "metadata",
             "--config", str(self.ofscraper_config_root),
             "--username", username,
+            "--username-individual-search",
             "--posts", "all",
             "--metadata", "check",
             "--normal-only",
@@ -355,19 +364,20 @@ class OnlyFansAppService:
         return command
 
     def launch_ofscraper_login(self, profile_url):
-        """Open a terminal for OF-Scraper's own cookie setup and safe download."""
+        """Open the requested OnlyFans page in the Firefox profile we read."""
         username = _profile_slug(profile_url)
-        self._ensure_ofscraper_config()
-        if not self.ofscraper_ready():
+        firefox = shutil.which("firefox")
+        if not firefox:
             raise ValueError(
-                "OF-Scraper is not installed. Run rockpod/scripts/"
-                "install_ofscraper.sh first."
+                "Firefox was not found. Open Firefox and sign in to OnlyFans, "
+                "then click Set Up / Refresh Login again."
             )
-        command = self._ofscraper_command(username)
-        terminal = shutil.which("konsole")
-        if not terminal:
-            raise ValueError("Konsole is required for the one-time login setup")
-        subprocess.Popen([terminal, "--hold", "-e", *command])
+        subprocess.Popen(
+            [firefox, "--new-window", f"https://onlyfans.com/{username}"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True,
+        )
         return self.ofscraper_auth_path
 
     def import_ofscraper_login_from_firefox(self):
@@ -1335,7 +1345,13 @@ class OnlyFansAppService:
                 continue
             if row and str(row[0]).lower() == username.lower():
                 matches.append(candidate)
-        if len(matches) != 1:
+        if not matches:
+            raise ValueError(
+                f"OF-Scraper returned no profile data for @{username}. "
+                "Refresh the login and confirm this account can access the "
+                "creator, then retry."
+            )
+        if len(matches) > 1:
             raise ValueError(
                 "OF-Scraper did not create an unambiguous database for "
                 f"@{username}."
@@ -1817,6 +1833,11 @@ class OnlyFansAppService:
             output_selector.close()
             if process.poll() is None:
                 process.terminate()
+        if any("auth failed" in line.lower() for line in recent):
+            raise ValueError(
+                "OnlyFans rejected the saved login. Sign in to OnlyFans in "
+                "Firefox, refresh the login in RockPod, then retry."
+            )
         if return_code != 0 and not enumeration_complete:
             detail = next((line for line in reversed(recent) if line), "")
             raise ValueError(
@@ -1897,12 +1918,60 @@ class OnlyFansAppService:
         else:
             _write_if_changed(hidden_path, "hidden\n")
 
-    def sync(self, mount_path, progress=None):
+    def sync(self, mount_path, progress=None, video_profile=None,
+             item_ids=None, usernames=None, post_ids=None,
+             video_quality="tv"):
         mount = validate_device_root(mount_path)
+        if video_quality not in {"tv", "space"}:
+            raise ValueError("Choose Standard or Space saver video quality")
+        video_target = device_video_target(mount)
+        video_profile = app_video_profile(
+            self.config, video_profile, source_app="onlyfans"
+        )
+        video_extension = app_video_extension(video_profile)
         self.repair_cross_profile_media()
         profiles = self.list_profiles()
         if not profiles:
             raise ValueError("Capture an OnlyFans profile before syncing")
+        if item_ids is not None or usernames is not None or post_ids is not None:
+            selected_ids = {str(value) for value in (item_ids or ())}
+            selected_users = {str(value).lower() for value in (usernames or ())}
+            selected_posts = {str(value) for value in (post_ids or ())}
+            known_ids = {
+                str(item.get("id")) for profile in profiles
+                for item in (profile.get("media") or []) if item.get("id")
+            }
+            known_posts = {
+                str(item.get("post_id")) for profile in profiles
+                for item in (profile.get("media") or []) if item.get("post_id")
+            }
+            if selected_posts - known_posts:
+                raise ValueError("Select an imported OnlyFans post to sync")
+            selected_ids.update(
+                str(item["id"]) for profile in profiles
+                for item in (profile.get("media") or [])
+                if str(item.get("post_id")) in selected_posts
+            )
+            known_users = {str(profile.get("username") or "").lower() for profile in profiles}
+            if (not selected_ids and not selected_users
+                    or selected_ids - known_ids or selected_users - known_users):
+                raise ValueError("Select an imported post or creator to sync")
+            existing = present_manifest_ids(
+                mount, ONLYFANS_LIBRARY, ("media", "display")
+            )
+            profiles = [
+                {**profile, "media": [
+                    (item if (str(item.get("id")) in selected_ids or
+                              str(profile.get("username") or "").lower() in selected_users)
+                     else {**item, "source_path": ""})
+                    for item in (profile.get("media") or [])
+                    if (str(item.get("id")) in existing | selected_ids
+                        or str(profile.get("username") or "").lower() in selected_users)
+                ]}
+                for profile in profiles
+            ]
+            profiles = [profile for profile in profiles if profile["media"] or
+                        str(profile.get("username") or "").lower() in selected_users]
         roots = {
             name: resolve_under_root(mount, path)
             for name, path in {
@@ -2047,7 +2116,16 @@ class OnlyFansAppService:
                             photo_count += 1
                             report["photos"] += 1
                     else:
-                        target = Path(roots["media"]) / f"{item_id}.mpg"
+                        selected_target = (
+                            Path(roots["media"]) / f"{item_id}{video_extension}"
+                        )
+                        alternate_target = selected_target.with_suffix(
+                            ".mpg" if video_extension == ".m4v" else ".m4v"
+                        )
+                        target = (
+                            selected_target if selected_target.is_file()
+                            else alternate_target
+                        )
                         ready = target.is_file()
                         if ready:
                             device_media = f"/{ONLYFANS_MEDIA_ROOT}/{target.name}"
@@ -2190,11 +2268,18 @@ class OnlyFansAppService:
                     photo_count += 1
                     report["photos"] += 1
                 else:
-                    target = Path(roots["media"]) / f"{item_id}.mpg"
-                    signature_path = target.with_suffix(".mpg.source")
-                    signature = "onlyfans-mpeg2-320x240-30-v1:" + _media_signature(source)
+                    target = (
+                        Path(roots["media"]) / f"{item_id}{video_extension}"
+                    )
+                    signature_path = Path(str(target) + ".source")
+                    signature = app_video_signature(
+                        video_profile, _media_signature(source),
+                        "onlyfans-video-320x240-30-v2" +
+                        (":space" if video_quality == "space" else ""),
+                        video_target,
+                    )
                     media_current = sync_index.current_or_seed(
-                        "onlyfans", item_id, "video-media-v1", signature,
+                        "onlyfans", item_id, "video-media-v2", signature,
                         [target], legacy_marker=signature_path,
                         legacy_signature=signature,
                     )
@@ -2219,20 +2304,26 @@ class OnlyFansAppService:
                         )
                     if not media_current:
                         staged = staging / target.name
-                        command = build_ffmpeg_command(
-                            source, str(staged), "video",
-                            ffmpeg_path=self.config.get("ffmpeg_binary", "ffmpeg"),
+                        stage_app_video(
+                            source, staged,
+                            config=self.config,
+                            profile=video_profile,
+                            cache_namespace="onlyfans-video",
+                            device_key=item_id,
+                            device_target=video_target,
+                            title=item.get("title") or item_id,
+                            artist=f"@{profile['username']}",
+                            mpeg_filter=(
+                                "scale=320:240:force_original_aspect_ratio=decrease,"
+                                "pad=320:240:(ow-iw)/2:(oh-ih)/2:black,fps=30"
+                            ),
+                            quality=video_quality,
                         )
-                        filter_index = command.index("-vf") + 1
-                        command[filter_index] = (
-                            "scale=320:240:force_original_aspect_ratio=decrease,"
-                            "pad=320:240:(ow-iw)/2:(oh-ih)/2:black,fps=30"
-                        )
-                        subprocess.run(command, check=True)
                         os.replace(staged, target)
                         atomic_write_text(signature_path, signature)
+                        remove_alternate_video(target)
                         sync_index.mark(
-                            "onlyfans", item_id, "video-media-v1",
+                            "onlyfans", item_id, "video-media-v2",
                             signature, [target],
                         )
                         report["updated"] += 1

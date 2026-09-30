@@ -1,0 +1,21 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Kanaami/z_bg_jya_kanaami.c: In function 'BgJyaKanaami_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Kanaami/z_bg_jya_kanaami.c:60:43: warning: passing argument 3 of 'BgJyaKanaami_InitDynaPoly' from incompatible pointer type [-Wincompatible-pointer-types]
+   60 |     BgJyaKanaami_InitDynaPoly(this, play, &gKanaamiCol, DPM_UNK);
+      |                                           ^~~~~~~~~~~~
+      |                                           |
+      |                                           const char (*)[42]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Kanaami/z_bg_jya_kanaami.c:43:86: note: expected 'CollisionHeader *' but argument is of type 'const char (*)[42]'
+   43 | void BgJyaKanaami_InitDynaPoly(BgJyaKanaami* this, PlayState* play, CollisionHeader* collision, s32 flag) {
+      |                                                                     ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Kanaami/z_bg_jya_kanaami.c: In function 'BgJyaKanaami_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Kanaami/z_bg_jya_kanaami.c:128:28: warning: passing argument 2 of 'Gfx_DrawDListOpa' from incompatible pointer type [-Wincompatible-pointer-types]
+  128 |     Gfx_DrawDListOpa(play, gKanaamiDL);
+      |                            ^~~~~~~~~~
+      |                            |
+      |                            const char *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Kanaami/z_bg_jya_kanaami.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Jya_Kanaami/z_bg_jya_kanaami.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:546:45: note: expected 'Gfx *' but argument is of type 'const char *'
+  546 | void Gfx_DrawDListOpa(PlayState* play, Gfx* dlist);
+      |                                        ~~~~~^~~~~

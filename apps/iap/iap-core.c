@@ -23,6 +23,8 @@
 #include "string-extra.h"
 #include "panic.h"
 #include "iap-core.h"
+#include "iap-remote-debug.h"
+void iap_reset_lingo2(void);
 #include "iap-lingo.h"
 #include "button.h"
 #include "config.h"
@@ -38,6 +40,8 @@
 #include "playback.h"
 #include "audio.h"
 #include "settings.h"
+#include "videoout.h"
+#include "tv_ui.h"
 #include "metadata.h"
 #include "sound.h"
 #include "action.h"
@@ -49,6 +53,7 @@
 #endif
 
 #include "tuner.h"
+#include "iap-volume-gesture.h"
 #if CONFIG_TUNER
 #include "ipod_remote_tuner.h"
 #endif
@@ -135,6 +140,12 @@ unsigned long iap_remotebtn = 0;
  * Counted down by remote_control_rx()
  */
 int iap_repeatbtn = 0;
+
+/* Display Remote volume commands have no key-up packet. Deliver a complete
+ * sampled press/release through the normal button driver, including wake. */
+static int iap_volume_button;
+static struct iap_volume_gesture iap_volume_gesture;
+static int iap_navigation_volume = -1;
 /* Used to time out button down events in case we miss the button up event
  * from the device somehow.
  * If a device sends a button down event it's required to repeat that event
@@ -148,7 +159,7 @@ int iap_repeatbtn = 0;
 unsigned int iap_timeoutbtn = 0;
 bool iap_btnrepeat = false, iap_btnshuffle = false;
 
-static long thread_stack[(DEFAULT_STACK_SIZE*6)/sizeof(long)];
+static long thread_stack[(DEFAULT_STACK_SIZE*8)/sizeof(long)];
 static struct event_queue iap_queue;
 
 /* These are pointer used to manage a dynamically allocated buffer which
@@ -647,6 +658,13 @@ void iap_reset_state(IF_IAP_MP_NONVOID(int port))
 
 void iap_reset_device(struct device_t* device)
 {
+    iap_remote_packet(NULL,0,0,0,'D');
+    iap_remotebtn = BUTTON_NONE;
+    iap_repeatbtn = iap_timeoutbtn = 0;
+    iap_volume_button = BUTTON_NONE;
+    iap_navigation_volume = -1;
+    iap_volume_gesture.direction = 0;
+    iap_reset_lingo2();
     iap_reset_auth(&(device->auth));
     device->lingoes = 0;
     device->notifications = 0;
@@ -757,6 +775,23 @@ void iap_note_serial_disconnect(void)
     if (iap_started && global_settings.kokkia_pause_on_unplug &&
         iap_kokkia_present())
         queue_post(&iap_queue, IAP_EV_DISCONNECT, 0);
+}
+
+bool iap_remote_tv_active(void)
+{
+#ifdef HAVE_COMPOSITE_VIDEO_OUT
+    return videoout_active() &&
+        (global_settings.tv_interface || global_settings.tv_now_playing) &&
+        !iap_kokkia_present();
+#else
+    return false;
+#endif
+}
+
+bool iap_remote_navigation_active(void)
+{
+    return !iap_kokkia_present() &&
+        (global_settings.dock_remote_mode || iap_remote_tv_active());
 }
 
 bool iap_remote_input_suppressed(void)
@@ -1081,6 +1116,8 @@ static int iap_task(struct timeout *tmo)
  */
 unsigned char iap_volume_byte(void)
 {
+    /* Outgoing volume is audio gain, never the private navigation cursor.
+     * Docks can apply this value to their own line output. */
     int minv = sound_min(SOUND_VOLUME);
     int maxv = sound_max(SOUND_VOLUME);
     int range = maxv - minv;
@@ -1106,6 +1143,89 @@ int iap_volume_from_byte(unsigned char raw)
         return minv;
 
     return minv + ((int)raw * range + 127) / 255;
+}
+
+bool iap_remote_volume_navigation(unsigned char mute, unsigned char volume,
+                                  unsigned char ui)
+{
+    /* The Universal Dock sends 03 0e 04 00 vv 01 for +/- navigation.
+     * A request carries a moving cursor even while real audio gain is fixed.
+     * Comparing with real gain misreads the first Down after several Ups. */
+    bool locked = !iap_kokkia_present() && tv_ui_remote_volume_locked();
+    if (!iap_remote_navigation_active() && !locked)
+    {
+        iap_navigation_volume = -1;
+        iap_volume_gesture.direction = 0;
+        return false;
+    }
+
+    if (mute)
+    {
+        if (locked)
+            return true;
+        iap_navigation_volume = -1;
+        iap_volume_gesture.direction = 0;
+        return false;
+    }
+
+    if (ui != 1)
+    {
+        /* Home and guide never accept an accessory's absolute cursor as
+         * gain, including its first synchronization packet. Elsewhere an
+         * initial sync still works; later echoes stay private. */
+        if (locked)
+            return true;
+        if (iap_navigation_volume < 0)
+            return false;
+        iap_navigation_volume = volume;
+        return true;
+    }
+
+    int actual = iap_volume_byte();
+    int previous = iap_navigation_volume < 0 ? actual :
+                   iap_navigation_volume;
+    iap_navigation_volume = volume;
+    if (iap_remote_input_suppressed())
+    {
+        iap_volume_gesture.direction = 0;
+        return true;
+    }
+
+    int button = volume > previous ? BUTTON_RC_VOL_UP :
+                 volume < previous ? BUTTON_RC_VOL_DOWN :
+                 volume == 255 ? BUTTON_RC_VOL_UP :
+                 volume == 0 ? BUTTON_RC_VOL_DOWN : BUTTON_NONE;
+    /* Some docks reset their cursor to our returned gain after each tap.
+     * Two separate taps can then carry the same vv byte. A quiet gap, not
+     * a repeated packet in the current burst, marks the next tap. */
+    if (!button && volume != actual &&
+        TIME_AFTER(current_tick,
+                   iap_volume_gesture.last + MAX(1, HZ / 5)))
+        button = volume > actual ? BUTTON_RC_VOL_UP : BUTTON_RC_VOL_DOWN;
+    if (!button)
+        iap_volume_gesture.last = current_tick;
+    if (button && iap_volume_gesture_step(&iap_volume_gesture,
+                                          button, current_tick))
+    {
+        int level = disable_irq_save();
+        iap_remotebtn = BUTTON_NONE;
+        iap_timeoutbtn = 0;
+        iap_volume_button = button;
+        iap_repeatbtn = 4;
+        restore_irq(level);
+        iap_remote_packet(NULL, 0, volume, button, 'V');
+    }
+    return true;
+}
+
+void iap_remote_volume_recenter(void)
+{
+    /* Rebase a bounded cursor without exporting a synthetic volume value. */
+    if (iap_navigation_volume == 0 || iap_navigation_volume == 255)
+    {
+        iap_navigation_volume = iap_volume_byte();
+        iap_set_remote_volume();
+    }
 }
 
 void iap_set_remote_volume(void)
@@ -1646,8 +1766,12 @@ void iap_periodic(void)
 
     if (!iap_timeoutbtn)
     {
-        iap_remotebtn = BUTTON_NONE;
-        iap_repeatbtn = 0;
+        if (iap_remotebtn)
+        {
+            iap_remote_packet(NULL,0,0,0,'T');
+            iap_remotebtn = BUTTON_NONE;
+            iap_repeatbtn = 2;
+        }
         iap_btnshuffle = false;
         iap_btnrepeat = false;
     }
@@ -2247,6 +2371,7 @@ void iap_handlepkt(void)
 #endif
         case 10: iap_handlepkt_mode10(length, iap_rxstart+2); break;
         }
+        iap_remote_command(iap_rxstart + 2, length);
     }
 
     /* Remove the handled packet from the RX buffer
@@ -2280,6 +2405,7 @@ int remote_control_rx(void)
         iap_remotebtn = BUTTON_NONE;
         iap_repeatbtn = 0;
         iap_timeoutbtn = 0;
+        iap_volume_button = BUTTON_NONE;
         return BUTTON_NONE;
     }
 
@@ -2298,6 +2424,13 @@ int remote_control_rx(void)
 #else
             btn |= BUTTON_RC_PLAY;
 #endif
+    }
+
+    if (iap_volume_button)
+    {
+        btn = iap_repeatbtn > 2 ? iap_volume_button : BUTTON_NONE;
+        if (iap_repeatbtn <= 1)
+            iap_volume_button = BUTTON_NONE;
     }
 
     if(iap_repeatbtn)

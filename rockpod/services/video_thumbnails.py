@@ -5,6 +5,7 @@ import json
 import math
 import os
 import shutil
+import re
 from pathlib import Path
 
 from PIL import Image
@@ -22,11 +23,79 @@ _VIDEO_POSTER_FILENAMES = (
     "season1-poster.jpg", "season1-poster.png",
     "show.jpg", "show.png",
 )
+_POSTER_VARIANT_NOISE_TOKENS = {
+    "2160p", "1080p", "720p", "480p", "x264", "x265", "h264", "h265",
+    "hevc", "xvid", "divx", "bluray", "brrip", "dvd", "dvdrip", "webrip",
+    "webdl", "web-dl", "web", "hd", "hdrip", "remux", "hdtv",
+    "aac", "ac3", "dts", "flac", "truehd", "atmos", "mp3",
+}
+_KNOWN_MOVIE_POSTER_CANONICAL = {
+    "kikisdevliveryservice": "Kiki's Delivery Service",
+}
+
+
+def _poster_signature(value):
+    return re.sub(r"[^a-z0-9]+", "", str(value or "").casefold())
+
+
+def _poster_name_variants(value):
+    text = str(value or "").strip()
+    if not text:
+        return []
+
+    tokens = [part.strip(" ()[]") for part in re.split(r"[\s._-]+", text) if part.strip(" ()[]")]
+    if not tokens:
+        return []
+
+    variants = []
+
+    def _add(candidate):
+        candidate = re.sub(r"\s+", " ", str(candidate).strip())
+        if not candidate:
+            return
+        normalized = candidate.strip(" -_")
+        if normalized and normalized not in variants:
+            variants.append(normalized)
+
+    cursor = tokens[:]
+    while cursor:
+        candidate = " ".join(cursor).strip()
+        _add(candidate)
+        _add(candidate.replace(" ", "_"))
+        _add(candidate.replace(" ", "."))
+        _add(candidate.replace(" ", "-"))
+        _add(candidate.replace(" ", ""))
+        if (
+            cursor
+            and (
+                re.fullmatch(r"(?i)(?:19|20)\d{2}", cursor[-1])
+                or cursor[-1].casefold() in _POSTER_VARIANT_NOISE_TOKENS
+            )
+        ):
+            cursor.pop()
+            if not cursor:
+                break
+            continue
+        break
+
+    canonical = _KNOWN_MOVIE_POSTER_CANONICAL.get(_poster_signature(text))
+    if canonical:
+        _add(canonical)
+        _add(canonical.replace(" ", "_"))
+        _add(canonical.replace(" ", "."))
+        _add(canonical.replace(" ", "-"))
+        _add(canonical.replace(" ", ""))
+
+    return variants
 _VIDEO_LIST_THUMB_SIZE = (32, 32)
 _VIDEO_LIST_PREVIEW_SIZE = (174, 240)
 _VIDEO_LIST_NETFLIX_POSTER_SIZE = (28, 42)
 _VIDEO_LIST_NETFLIX_LANDING_SIZE = (72, 108)
 _VIDEO_LIST_NETFLIX_DETAIL_SIZE = (96, 144)
+# The native Netflix Details surface leaves 180 pixels below its 32-pixel bar
+# and above its 28-pixel action row.  Keep the complete 16:9 catalog image:
+# scale it down to this box, never crop it into a decorative strip.
+_VIDEO_LIST_NETFLIX_BANNER_SIZE = (320, 180)
 
 
 class VideoThumbnailService:
@@ -171,7 +240,44 @@ class VideoThumbnailService:
             "genre": str(entry.get("genre") or ""),
             "content_rating": str(entry.get("content_rating") or ""),
             "show_plot": str(entry.get("show_plot") or ""),
+            "external_rating": entry.get("external_rating") or 0.0,
+            "external_rating_votes": entry.get("external_rating_votes") or 0,
+            "banner_art": str(entry.get("banner_art") or ""),
         }
+
+    def video_catalog_banner_path(self, track):
+        """Return a verified wide banner from the local metadata catalog."""
+        kind = str((track or {}).get("video_kind") or "movie").casefold()
+        scope = "show" if kind == "show" else "movie"
+        _poster, entry = self._imdb_artwork.resolve(track, scope=scope)
+        filename = str((entry or {}).get("banner_art") or "").strip()
+        path = self._imdb_artwork.asset_dir / filename
+        return str(path) if filename and path.is_file() else ""
+
+    def video_banner_art_id(self, track):
+        """Return a stable manifest id shared by all rows for one title."""
+        track = dict(track or {})
+        kind = str(track.get("video_kind") or "movie").casefold()
+        identity = str(
+            track.get("imdb_id") or
+            (track.get("show_title") if kind == "show" else track.get("title")) or
+            track.get("file_path") or
+            "video"
+        ).strip().casefold()
+        return hashlib.sha1(
+            f"banner|{identity}".encode("utf-8", "replace")
+        ).hexdigest()[:24]
+
+    @staticmethod
+    def manifest_external_rating_tenths(value):
+        """Encode a 0-10 provider rating without float parsing on ARM."""
+        try:
+            rating = float(value or 0)
+        except (TypeError, ValueError):
+            return ""
+        if not 0.0 < rating <= 10.0:
+            return ""
+        return str(max(1, min(100, int(round(rating * 10)))))
 
     def video_playback_markers(self, track):
         """Resolve item-specific intro and credits markers.
@@ -424,6 +530,25 @@ class VideoThumbnailService:
             artwork_id=artwork_id,
         )
 
+    def export_video_list_banner(self, track, force=False):
+        """Render one complete catalog banner for the native Details surface."""
+        source = self.video_catalog_banner_path(track)
+        banner_id = self.video_banner_art_id(track)
+        if not source:
+            return "", "", "", banner_id
+
+        width, height = _VIDEO_LIST_NETFLIX_BANNER_SIZE
+        source_hash = self._file_hash(source)[:12]
+        cache_target = os.path.join(
+            self._video_list_dir,
+            f"{banner_id}_{width}x{height}_banner_{source_hash}.bmp",
+        )
+        if not os.path.exists(cache_target) or force:
+            self._render_list_thumbnail(source, cache_target, width, height)
+        if not os.path.exists(cache_target):
+            return "", "", "", banner_id
+        return cache_target, self._file_hash(cache_target), f"{banner_id}.bmp", banner_id
+
     # Manifest column order. The device parser reads these positionally and
     # tolerates a longer row but not a reordered one, so new columns are only
     # ever appended. The header line and every row are generated from this one
@@ -434,7 +559,8 @@ class VideoThumbnailService:
         "year", "genre", "rating", "plot_short", "plot_long",
         "content_rating", "netflix_poster", "netflix_detail", "show_art_id",
         "season_art_id", "show_plot", "intro_start", "intro_end",
-        "credits_start", "credits_duration",
+        "credits_start", "credits_duration", "external_rating_tenths",
+        "external_rating_votes", "banner_art_id",
     )
 
     # The device reads a manifest row into a fixed VIDEO_LIST_MANIFEST_LINE_MAX
@@ -473,11 +599,12 @@ class VideoThumbnailService:
 
     def export_video_list_manifest(self, entries):
         manifest_path = os.path.join(self._video_list_dir, "index.tsv")
-        # v7 appends playback markers. Appending is the only safe way to grow this
-        # file: the device parser reads columns positionally and tolerates a
-        # longer row, but not a reordered one.
+        # v7 appended playback markers and v8 appended provider ratings plus
+        # banner art. Appending is the only safe way to grow this file: the
+        # device parser reads columns positionally and tolerates a longer row,
+        # but not a reordered one.
         lines = [
-            "# rockpod videolist v7",
+            "# rockpod videolist v8",
             "\t".join(self._MANIFEST_COLUMNS),
         ]
         def sort_key(item):
@@ -554,9 +681,13 @@ class VideoThumbnailService:
             scope = "show"
         season_number = int((track or {}).get("season_number") or 0)
         show_title = str((track or {}).get("show_title") or "").strip()
+        stem_variants = _poster_name_variants(path.stem)
+        title_variants = _poster_name_variants((track or {}).get("title") or "")
+        artist_variants = _poster_name_variants((track or {}).get("artist") or "")
+        album_variants = _poster_name_variants((track or {}).get("album") or "")
 
         candidates = []
-        stem_variants = (
+        stem_files = (
             f"{path.stem}.jpg",
             f"{path.stem}.png",
         )
@@ -587,6 +718,13 @@ class VideoThumbnailService:
         for directory in search_dirs:
             for name in season_specific + list(_VIDEO_POSTER_FILENAMES):
                 candidates.append(directory / name)
+            for name in stem_variants + title_variants + artist_variants + album_variants:
+                candidates.extend(
+                    [
+                        directory / f"{name}.jpg",
+                        directory / f"{name}.png",
+                    ]
+                )
             if show_title:
                 safe_show = show_title.replace("/", " ").replace("\\", " ").strip()
                 candidates.extend(
@@ -599,7 +737,7 @@ class VideoThumbnailService:
                 )
 
         if scope != "show":
-            for name in stem_variants:
+            for name in stem_files:
                 candidates.append(path.with_name(name))
 
         seen = set()

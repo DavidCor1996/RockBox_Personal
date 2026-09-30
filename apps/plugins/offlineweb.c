@@ -11,6 +11,7 @@
  ****************************************************************************/
 
 #include "plugin.h"
+#include "lib/video_player.h"
 
 #define OW_ROOT          ROCKBOX_DIR "/offlineweb"
 #define OW_INDEX         OW_ROOT "/index.html"
@@ -26,7 +27,6 @@
 #define OW_PAGES         OW_ROOT "/cache/pages.tsv"
 #define OW_HISTORY       OW_ROOT "/cache/history.tsv"
 #define OW_FAVORITES     OW_ROOT "/cache/favorites.tsv"
-#define OW_MPEGPLAYER    ROCKBOX_DIR "/rocks/viewers/mpegplayer.rock"
 #define OW_YOUTUBE_SUBSCRIPTIONS \
     OW_ROOT "/archive/www.youtube.com/subscriptions.html"
 #define OW_INSTAGRAM_PROFILES \
@@ -80,9 +80,7 @@
 #define OW_IPODJS_MEDIA_TOP        LCD_RGBPACK(246, 247, 248)
 #define OW_IPODJS_MEDIA_BOTTOM     LCD_RGBPACK(218, 220, 223)
 #define OW_IPODJS_SHADOW           LCD_RGBPACK(142, 145, 149)
-#define OW_IPODJS_ACTIVE_TOP       LCD_RGBPACK(107, 200, 254)
 #define OW_IPODJS_ACTIVE_BOTTOM    LCD_RGBPACK(0, 92, 192)
-#define OW_IPODJS_DARK_ACTIVE      LCD_RGBPACK(38, 146, 226)
 #define OW_INSTAGRAM_NAV            LCD_RGBPACK(18, 18, 20)
 #define OW_ONLYFANS_NAV             LCD_RGBPACK(0, 145, 234)
 #define OW_YOUTUBE_BLUE             LCD_RGBPACK(0, 51, 204)
@@ -611,14 +609,43 @@ static unsigned ow_color_muted(void)
     return ow_dark() ? OW_IPODJS_DARK_MUTED : OW_IPODJS_MUTED_TEXT;
 }
 
+static unsigned ow_color_selected(void);
+
 static unsigned ow_color_link(void)
 {
-    return ow_dark() ? OW_IPODJS_DARK_TEXT : LCD_RGBPACK(0, 70, 190);
+    return ow_color_selected();
 }
 
 static unsigned ow_color_selected(void)
 {
-    return ow_dark() ? OW_IPODJS_DARK_ACTIVE : OW_IPODJS_ACTIVE_BOTTOM;
+    if (rb->global_settings == NULL)
+        return OW_IPODJS_ACTIVE_BOTTOM;
+
+    switch (rb->global_settings->ui_engine_accent)
+    {
+        case UI_ENGINE_ACCENT_GRAPHITE: return LCD_RGBPACK(84, 90, 100);
+        case UI_ENGINE_ACCENT_U2: return LCD_RGBPACK(182, 24, 35);
+        case UI_ENGINE_ACCENT_TEAL: return LCD_RGBPACK(0, 128, 132);
+        case UI_ENGINE_ACCENT_GREEN: return LCD_RGBPACK(55, 142, 64);
+        case UI_ENGINE_ACCENT_GOLD: return LCD_RGBPACK(184, 135, 38);
+        case UI_ENGINE_ACCENT_ORANGE: return LCD_RGBPACK(208, 104, 32);
+        case UI_ENGINE_ACCENT_PURPLE: return LCD_RGBPACK(113, 82, 170);
+        case UI_ENGINE_ACCENT_PINK: return LCD_RGBPACK(195, 72, 128);
+        case UI_ENGINE_ACCENT_BLUE:
+        default: return OW_IPODJS_ACTIVE_BOTTOM;
+    }
+}
+
+static unsigned ow_color_selected_top(void)
+{
+    unsigned color = ow_color_selected();
+    int r = RGB_UNPACK_RED(color);
+    int g = RGB_UNPACK_GREEN(color);
+    int b = RGB_UNPACK_BLUE(color);
+
+    return LCD_RGBPACK((r * 143 + 255 * 112) / 255,
+                       (g * 143 + 255 * 112) / 255,
+                       (b * 143 + 255 * 112) / 255);
 }
 #endif
 
@@ -2446,7 +2473,7 @@ static void ow_draw_browser(const char *path)
 #ifdef HAVE_LCD_COLOR
             ow_fill_two_tone(0, y - 1, LCD_WIDTH, item_h,
                              ow_dark() ? ow_color_selected() :
-                             OW_IPODJS_ACTIVE_TOP,
+                             ow_color_selected_top(),
                              ow_color_selected());
 #else
             rb->lcd_set_foreground(LCD_BLACK);
@@ -2498,7 +2525,7 @@ static void ow_draw_browser(const char *path)
             ow_fill_two_tone(OW_MARGIN_X, y,
                              LCD_WIDTH - OW_MARGIN_X * 2 -
                              OW_SCROLLBAR_W, item_h - 2,
-                             selected ? OW_IPODJS_ACTIVE_TOP :
+                             selected ? ow_color_selected_top() :
                              (ow_dark() ? ow_color_header() :
                               OW_IPODJS_MEDIA_TOP),
                              selected ? ow_color_selected() :
@@ -2643,7 +2670,8 @@ static int ow_play_youtube_video(void)
     }
     rb->snprintf(launch_path, sizeof(launch_path), "youtube:%s",
                  youtube_page.video_path);
-    return rb->plugin_open(OW_MPEGPLAYER, launch_path);
+    return rb->plugin_open(
+        plugin_video_player_for(youtube_page.video_path), launch_path);
 }
 
 static void ow_draw_remote_page(const char *path, int cursor_x)
@@ -2707,7 +2735,7 @@ static void ow_draw_remote_page(const char *path, int cursor_x)
     }
 
 #ifdef HAVE_LCD_COLOR
-    rb->lcd_set_foreground(OW_IPODJS_ACTIVE_BOTTOM);
+    rb->lcd_set_foreground(ow_color_selected());
 #else
     rb->lcd_set_foreground(LCD_BLACK);
 #endif

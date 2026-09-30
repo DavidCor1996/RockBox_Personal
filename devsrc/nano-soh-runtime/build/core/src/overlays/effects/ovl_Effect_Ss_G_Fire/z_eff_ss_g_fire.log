@@ -1,0 +1,29 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Fire/z_eff_ss_g_fire.c: In function 'EffectSsGFire_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Fire/z_eff_ss_g_fire.c:27:15: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   27 |     this->gfx = SEGMENTED_TO_VIRTUAL(gEffFireFootprintDL);
+      |               ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Fire/z_eff_ss_g_fire.c: In function 'EffectSsGFire_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Fire/z_eff_ss_g_fire.c:47:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   47 |         gEffFireFootprint1Tex, gEffFireFootprint2Tex, gEffFireFootprint3Tex, gEffFireFootprint4Tex,
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Fire/z_eff_ss_g_fire.c:47:32: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   47 |         gEffFireFootprint1Tex, gEffFireFootprint2Tex, gEffFireFootprint3Tex, gEffFireFootprint4Tex,
+      |                                ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Fire/z_eff_ss_g_fire.c:47:55: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   47 |         gEffFireFootprint1Tex, gEffFireFootprint2Tex, gEffFireFootprint3Tex, gEffFireFootprint4Tex,
+      |                                                       ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Fire/z_eff_ss_g_fire.c:47:78: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   47 |         gEffFireFootprint1Tex, gEffFireFootprint2Tex, gEffFireFootprint3Tex, gEffFireFootprint4Tex,
+      |                                                                              ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Fire/z_eff_ss_g_fire.c:48:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   48 |         gEffFireFootprint5Tex, gEffFireFootprint6Tex, gEffFireFootprint7Tex, gEffFireFootprint8Tex,
+      |         ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Fire/z_eff_ss_g_fire.c:48:32: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   48 |         gEffFireFootprint5Tex, gEffFireFootprint6Tex, gEffFireFootprint7Tex, gEffFireFootprint8Tex,
+      |                                ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Fire/z_eff_ss_g_fire.c:48:55: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   48 |         gEffFireFootprint5Tex, gEffFireFootprint6Tex, gEffFireFootprint7Tex, gEffFireFootprint8Tex,
+      |                                                       ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_G_Fire/z_eff_ss_g_fire.c:48:78: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   48 |         gEffFireFootprint5Tex, gEffFireFootprint6Tex, gEffFireFootprint7Tex, gEffFireFootprint8Tex,
+      |                                                                              ^~~~~~~~~~~~~~~~~~~~~

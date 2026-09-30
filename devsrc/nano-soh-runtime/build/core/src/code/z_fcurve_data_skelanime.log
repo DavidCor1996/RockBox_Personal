@@ -1,0 +1,41 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_fcurve_data_skelanime.c: In function 'SkelCurve_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_fcurve_data_skelanime.c:19:33: warning: passing argument 1 of 'ResourceMgr_OTRSigCheck' from incompatible pointer type [-Wincompatible-pointer-types]
+   19 |     if (ResourceMgr_OTRSigCheck(limbListSeg))
+      |                                 ^~~~~~~~~~~
+      |                                 |
+      |                                 SkelCurveLimbList *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_fcurve_data_skelanime.c:3:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:70:35: note: expected 'char *' but argument is of type 'SkelCurveLimbList *'
+   70 | int ResourceMgr_OTRSigCheck(char* imgData);
+      |                             ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_fcurve_data_skelanime.c:20:54: warning: passing argument 1 of 'ResourceMgr_LoadSkeletonByName' from incompatible pointer type [-Wincompatible-pointer-types]
+   20 |         limbListSeg = ResourceMgr_LoadSkeletonByName(limbListSeg, NULL);
+      |                                                      ^~~~~~~~~~~
+      |                                                      |
+      |                                                      SkelCurveLimbList *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:66:60: note: expected 'const char *' but argument is of type 'SkelCurveLimbList *'
+   66 | SkeletonHeader* ResourceMgr_LoadSkeletonByName(const char* path, SkelAnime* skelAnime);
+      |                                                ~~~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_fcurve_data_skelanime.c:20:21: warning: assignment to 'SkelCurveLimbList *' from incompatible pointer type 'SkeletonHeader *' [-Wincompatible-pointer-types]
+   20 |         limbListSeg = ResourceMgr_LoadSkeletonByName(limbListSeg, NULL);
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_fcurve_data_skelanime.c: In function 'SkelCurve_Update':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_fcurve_data_skelanime.c:63:33: warning: passing argument 1 of 'ResourceMgr_OTRSigCheck' from incompatible pointer type [-Wincompatible-pointer-types]
+   63 |     if (ResourceMgr_OTRSigCheck(transformIndex))
+      |                                 ^~~~~~~~~~~~~~
+      |                                 |
+      |                                 TransformUpdateIndex *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:70:35: note: expected 'char *' but argument is of type 'TransformUpdateIndex *'
+   70 | int ResourceMgr_OTRSigCheck(char* imgData);
+      |                             ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_fcurve_data_skelanime.c:64:53: warning: passing argument 1 of 'ResourceMgr_LoadAnimByName' from incompatible pointer type [-Wincompatible-pointer-types]
+   64 |         transformIndex = ResourceMgr_LoadAnimByName(transformIndex);
+      |                                                     ^~~~~~~~~~~~~~
+      |                                                     |
+      |                                                     TransformUpdateIndex *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:49:63: note: expected 'const char *' but argument is of type 'TransformUpdateIndex *'
+   49 | AnimationHeaderCommon* ResourceMgr_LoadAnimByName(const char* path);
+      |                                                   ~~~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_fcurve_data_skelanime.c:64:24: warning: assignment to 'TransformUpdateIndex *' from incompatible pointer type 'AnimationHeaderCommon *' [-Wincompatible-pointer-types]
+   64 |         transformIndex = ResourceMgr_LoadAnimByName(transformIndex);
+      |                        ^

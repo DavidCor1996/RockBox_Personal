@@ -10,7 +10,7 @@ from models.track import compute_metadata_hash
 
 logger = logging.getLogger(__name__)
 
-SCHEMA_VERSION = 24
+SCHEMA_VERSION = 27
 
 SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS schema_version (
@@ -69,6 +69,8 @@ CREATE TABLE IF NOT EXISTS tracks (
     plot_long TEXT DEFAULT '',
     content_rating TEXT DEFAULT '',
     show_plot TEXT DEFAULT '',
+    external_rating REAL DEFAULT 0.0,
+    external_rating_votes INTEGER DEFAULT 0,
     intro_start INTEGER DEFAULT 0,
     intro_end INTEGER DEFAULT 0,
     credits_start INTEGER DEFAULT 0
@@ -221,6 +223,9 @@ CREATE TABLE IF NOT EXISTS youtube_videos (
     my_rating INTEGER DEFAULT 0,
     source_hash TEXT DEFAULT '',
     last_synced_source_hash TEXT DEFAULT '',
+    is_live INTEGER DEFAULT 0,
+    live_creator_key TEXT DEFAULT '',
+    live_start_epoch INTEGER DEFAULT 0,
     date_added TEXT DEFAULT (datetime('now')),
     date_modified TEXT DEFAULT (datetime('now'))
 );
@@ -231,6 +236,41 @@ CREATE TABLE IF NOT EXISTS youtube_channel_syncs (
     keep_count INTEGER NOT NULL DEFAULT 3,
     date_added TEXT DEFAULT (datetime('now')),
     date_modified TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS twitch_creators (
+    creator_key TEXT PRIMARY KEY,
+    channel_url TEXT UNIQUE NOT NULL,
+    login TEXT NOT NULL,
+    display_name TEXT DEFAULT '',
+    keep_count INTEGER NOT NULL DEFAULT 3,
+    cycle_epoch INTEGER NOT NULL DEFAULT 0,
+    avatar_path TEXT DEFAULT '',
+    follower_count INTEGER DEFAULT 0,
+    date_added TEXT DEFAULT (datetime('now')),
+    date_modified TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS twitch_vods (
+    id TEXT PRIMARY KEY,
+    twitch_id TEXT DEFAULT '',
+    creator_key TEXT NOT NULL,
+    source_path TEXT NOT NULL,
+    title TEXT DEFAULT '',
+    game TEXT DEFAULT '',
+    description TEXT DEFAULT '',
+    duration_ms INTEGER DEFAULT 0,
+    published_date TEXT DEFAULT '',
+    view_count INTEGER DEFAULT 0,
+    source_url TEXT DEFAULT '',
+    source_type TEXT DEFAULT 'manual',
+    thumbnail_path TEXT DEFAULT '',
+    source_hash TEXT DEFAULT '',
+    last_synced_source_hash TEXT DEFAULT '',
+    date_added TEXT DEFAULT (datetime('now')),
+    date_modified TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (creator_key) REFERENCES twitch_creators(creator_key)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS tiktok_videos (
@@ -351,6 +391,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_device_playlists_device_source ON device_pl
 CREATE INDEX IF NOT EXISTS idx_device_playlist_tracks_playlist ON device_playlist_tracks(device_playlist_id, position);
 CREATE INDEX IF NOT EXISTS idx_youtube_videos_home ON youtube_videos(show_home, home_order);
 CREATE INDEX IF NOT EXISTS idx_youtube_videos_profile ON youtube_videos(show_profile, date_added);
+CREATE INDEX IF NOT EXISTS idx_twitch_vods_creator ON twitch_vods(creator_key, published_date);
 """
 
 
@@ -797,6 +838,74 @@ class Database:
                     "verified INTEGER DEFAULT 0"
                 )
 
+        if current_version < 25:
+            track_cols = {
+                row["name"] for row in conn.execute("PRAGMA table_info(tracks)")
+            }
+            additions = {
+                "external_rating": "REAL DEFAULT 0.0",
+                "external_rating_votes": "INTEGER DEFAULT 0",
+            }
+            for col, spec in additions.items():
+                if col not in track_cols:
+                    conn.execute(f"ALTER TABLE tracks ADD COLUMN {col} {spec}")
+
+        if current_version < 26:
+            video_cols = {
+                row["name"]
+                for row in conn.execute("PRAGMA table_info(youtube_videos)")
+            }
+            additions = {
+                "is_live": "INTEGER DEFAULT 0",
+                "live_creator_key": "TEXT DEFAULT ''",
+                "live_start_epoch": "INTEGER DEFAULT 0",
+            }
+            for col, spec in additions.items():
+                if col not in video_cols:
+                    conn.execute(
+                        f"ALTER TABLE youtube_videos ADD COLUMN {col} {spec}"
+                    )
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_youtube_videos_live "
+                "ON youtube_videos(is_live, live_creator_key)"
+            )
+
+        if current_version < 27:
+            conn.executescript(
+                """
+                CREATE TABLE IF NOT EXISTS twitch_creators (
+                    creator_key TEXT PRIMARY KEY,
+                    channel_url TEXT UNIQUE NOT NULL,
+                    login TEXT NOT NULL,
+                    display_name TEXT DEFAULT '',
+                    keep_count INTEGER NOT NULL DEFAULT 3,
+                    cycle_epoch INTEGER NOT NULL DEFAULT 0,
+                    avatar_path TEXT DEFAULT '',
+                    follower_count INTEGER DEFAULT 0,
+                    date_added TEXT DEFAULT (datetime('now')),
+                    date_modified TEXT DEFAULT (datetime('now'))
+                );
+                CREATE TABLE IF NOT EXISTS twitch_vods (
+                    id TEXT PRIMARY KEY,
+                    twitch_id TEXT DEFAULT '',
+                    creator_key TEXT NOT NULL,
+                    source_path TEXT NOT NULL,
+                    title TEXT DEFAULT '', game TEXT DEFAULT '',
+                    description TEXT DEFAULT '', duration_ms INTEGER DEFAULT 0,
+                    published_date TEXT DEFAULT '', view_count INTEGER DEFAULT 0,
+                    source_url TEXT DEFAULT '', source_type TEXT DEFAULT 'manual',
+                    thumbnail_path TEXT DEFAULT '', source_hash TEXT DEFAULT '',
+                    last_synced_source_hash TEXT DEFAULT '',
+                    date_added TEXT DEFAULT (datetime('now')),
+                    date_modified TEXT DEFAULT (datetime('now')),
+                    FOREIGN KEY (creator_key) REFERENCES twitch_creators(creator_key)
+                        ON DELETE CASCADE
+                );
+                CREATE INDEX IF NOT EXISTS idx_twitch_vods_creator
+                    ON twitch_vods(creator_key, published_date);
+                """
+            )
+
     @classmethod
     def _write_lock_for_path(cls, path):
         abs_path = os.path.abspath(path)
@@ -929,6 +1038,7 @@ class Database:
                 "ORDER BY disc_number, track_number",
                 (album, artist, artist),
             )
+
         return self.fetchall(
             "SELECT * FROM tracks WHERE album = ? ORDER BY disc_number, track_number",
             (album,),
@@ -1137,6 +1247,8 @@ class Database:
             "plot_long",
             "content_rating",
             "show_plot",
+            "external_rating",
+            "external_rating_votes",
             "intro_start",
             "intro_end",
             "credits_start",

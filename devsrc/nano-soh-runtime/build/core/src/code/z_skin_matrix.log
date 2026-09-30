@@ -1,0 +1,14 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skin_matrix.c: In function 'SkinMatrix_MtxFToMtx':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skin_matrix.c:523:14: warning: passing argument 1 of 'guMtxF2L' from incompatible pointer type [-Wincompatible-pointer-types]
+  523 |     guMtxF2L(src, dest);
+      |              ^~~
+      |              |
+      |              MtxF *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/libultraship/include/libultraship/libultra.h:10,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64.h:4,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:4,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skin_matrix.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/libultraship/include/libultraship/libultra/gu.h:114:28: note: expected 'float (*)[4]' but argument is of type 'MtxF *'
+  114 | extern void guMtxF2L(float mf[4][4], Mtx* m);
+      |                      ~~~~~~^~~~~~~~

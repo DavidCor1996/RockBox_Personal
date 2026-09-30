@@ -1841,16 +1841,22 @@ void iap_handlepkt_mode4(const unsigned int len, const unsigned char *buf)
                 case 0x20:
                     len = strlcpy((char *)&data[3],
                                   id3.title ? id3.title : "", 64);
+                    if (len > 63)
+                        len = 63;
                     iap_send_pkt(data, 4+len);
                     break;
                 case 0x22:
                     len = strlcpy((char *)&data[3],
                                   id3.artist ? id3.artist : "", 64);
+                    if (len > 63)
+                        len = 63;
                     iap_send_pkt(data, 4+len);
                     break;
                 case 0x24:
                     len = strlcpy((char *)&data[3],
                                   id3.album ? id3.album : "", 64);
+                    if (len > 63)
+                        len = 63;
                     iap_send_pkt(data, 4+len);
                     break;
             }

@@ -4,6 +4,9 @@
 
 #include "mpegplayer.h"
 #include "mpeg_settings.h"
+#define VLS_API rb->
+#include "video_library_state.h"
+#undef VLS_API
 
 struct mpeg_settings settings;
 
@@ -1058,7 +1061,14 @@ static int show_resume_prompt(uint32_t resume_time, uint32_t duration)
     while (true)
     {
         button = rb->button_get(true);
-        
+#ifdef BUTTON_RC_PLAY
+        if (button == (BUTTON_RC_PLAY|BUTTON_REL) ||
+            button == (BUTTON_RC_SELECT|BUTTON_REL)) button = BUTTON_SELECT;
+        if (button == (BUTTON_RC_LEFT|BUTTON_REPEAT) ||
+            button == BUTTON_RC_MENU) button = BUTTON_LEFT;
+        if (button == BUTTON_RC_DOWN || button == BUTTON_RC_VOL_DOWN)
+            button = BUTTON_MENU;
+#endif
         if (button == BUTTON_SELECT || button == (BUTTON_SELECT | BUTTON_REL))
         {
             /* Resume */
@@ -1152,7 +1162,7 @@ int mpeg_start_menu(uint32_t duration)
 
     /* Calculate 95% threshold */
     if (duration != INVALID_TIMESTAMP && duration > 0)
-        resume_threshold_high = (duration * 95) / 100;
+        resume_threshold_high = (uint64_t)duration * 95 / 100;
     else
         resume_threshold_high = INVALID_TIMESTAMP;
 
@@ -1545,6 +1555,11 @@ void init_settings(const char* filename)
     {
         settings.resume_time = 0;
     }
+
+    struct video_library_state shared;
+    if (video_library_load(filename, &shared))
+        settings.resume_time = shared.watched ? 0 :
+            (uint64_t)shared.position_ms * TS_SECOND / 1000;
 
 #if MPEG_OPTION_DITHERING_ENABLED
     rb->lcd_yuv_set_options(settings.displayoptions);

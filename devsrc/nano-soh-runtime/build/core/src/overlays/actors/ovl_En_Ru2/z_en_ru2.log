@@ -1,0 +1,154 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:89:5: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   89 |     gAdultRutoEyeOpenTex,
+      |     ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:90:5: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   90 |     gAdultRutoEyeHalfTex,
+      |     ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:91:5: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   91 |     gAdultRutoEyeClosedTex,
+      |     ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:96:37: warning: extra tokens at end of '#include' directive
+   96 | #include "z_en_ru2_cutscene_data.c" EARLY
+      |                                     ^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c: In function 'EnRu2_InitChamberOfSages':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:303:33: warning: passing argument 2 of 'EnRu2_AnimationChange' from incompatible pointer type [-Wincompatible-pointer-types]
+  303 |     EnRu2_AnimationChange(this, &gAdultRutoIdleAnim, 0, 0.0f, 0);
+      |                                 ^~~~~~~~~~~~~~~~~~~
+      |                                 |
+      |                                 const char (*)[45]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:271:58: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[45]'
+  271 | void EnRu2_AnimationChange(EnRu2* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 direction) {
+      |                                         ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c: In function 'EnRu2_CheckStartRaisingArms':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:385:34: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[54]' [-Wincompatible-pointer-types]
+  385 |     AnimationHeader* animation = &gAdultRutoRaisingArmsUpAnim;
+      |                                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c: In function 'EnRu2_InitWaterTrial':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:472:33: warning: passing argument 2 of 'EnRu2_AnimationChange' from incompatible pointer type [-Wincompatible-pointer-types]
+  472 |     EnRu2_AnimationChange(this, &gAdultRutoCrossingArmsAnim, 2, 0.0f, 0);
+      |                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                 |
+      |                                 const char (*)[53]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:271:58: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[53]'
+  271 | void EnRu2_AnimationChange(EnRu2* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 direction) {
+      |                                         ~~~~~~~~~~~~~~~~~^~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:10,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c: In function 'EnRu2_DrawXlu':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:584:60: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  584 |     gSPSegment(POLY_XLU_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(tex));
+      |                                                            ^~~
+      |                                                            |
+      |                                                            void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:585:60: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  585 |     gSPSegment(POLY_XLU_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(tex));
+      |                                                            ^~~
+      |                                                            |
+      |                                                            void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:587:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  587 |     gSPSegment(POLY_XLU_DISP++, 0x0C, &D_80116280[0]);
+      |                                       ^~~~~~~~~~~~~~
+      |                                       |
+      |                                       Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c: In function 'EnRu2_InitCredits':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:599:33: warning: passing argument 2 of 'EnRu2_AnimationChange' from incompatible pointer type [-Wincompatible-pointer-types]
+  599 |     EnRu2_AnimationChange(this, &gAdultRutoIdleHandsOnHipsAnim, 0, 0.0f, 0);
+      |                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                 |
+      |                                 const char (*)[56]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:271:58: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[56]'
+  271 | void EnRu2_AnimationChange(EnRu2* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 direction) {
+      |                                         ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c: In function 'EnRu2_SetupTurnHeadDownLeftAnimation':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:646:33: warning: passing argument 2 of 'EnRu2_AnimationChange' from incompatible pointer type [-Wincompatible-pointer-types]
+  646 |     EnRu2_AnimationChange(this, &gAdultRutoHeadTurnDownLeftAnim, 2, 0.0f, 0);
+      |                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                 |
+      |                                 const char (*)[57]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:271:58: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[57]'
+  271 | void EnRu2_AnimationChange(EnRu2* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 direction) {
+      |                                         ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c: In function 'EnRu2_HoldLookingDownLeftPose':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:655:37: warning: passing argument 2 of 'EnRu2_AnimationChange' from incompatible pointer type [-Wincompatible-pointer-types]
+  655 |         EnRu2_AnimationChange(this, &gAdultRutoLookingDownLeftAnim, 0, 0.0f, 0);
+      |                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                     |
+      |                                     const char (*)[56]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:271:58: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[56]'
+  271 | void EnRu2_AnimationChange(EnRu2* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 direction) {
+      |                                         ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c: In function 'EnRu2_InitWaterTempleEncounter':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:731:37: warning: passing argument 2 of 'EnRu2_AnimationChange' from incompatible pointer type [-Wincompatible-pointer-types]
+  731 |         EnRu2_AnimationChange(this, &gAdultRutoIdleAnim, 0, 0.0f, 0);
+      |                                     ^~~~~~~~~~~~~~~~~~~
+      |                                     |
+      |                                     const char (*)[45]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:271:58: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[45]'
+  271 | void EnRu2_AnimationChange(EnRu2* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 direction) {
+      |                                         ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c: In function 'EnRu2_StartSwimmingUp':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:836:37: warning: passing argument 2 of 'EnRu2_AnimationChange' from incompatible pointer type [-Wincompatible-pointer-types]
+  836 |         EnRu2_AnimationChange(this, &gAdultRutoSwimmingUpAnim, 0, -12.0f, 0);
+      |                                     ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                     |
+      |                                     const char (*)[51]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:271:58: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[51]'
+  271 | void EnRu2_AnimationChange(EnRu2* this, AnimationHeader* animation, u8 mode, f32 transitionRate, s32 direction) {
+      |                                         ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c: In function 'EnRu2_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:914:48: warning: passing argument 3 of 'SkelAnime_InitFlex' from incompatible pointer type [-Wincompatible-pointer-types]
+  914 |     SkelAnime_InitFlex(play, &this->skelAnime, &gAdultRutoSkel, NULL, this->jointTable, this->morphTable, 23);
+      |                                                ^~~~~~~~~~~~~~~
+      |                                                |
+      |                                                const char (*)[41]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1329:83: note: expected 'FlexSkeletonHeader *' but argument is of type 'const char (*)[41]'
+ 1329 | s32 SkelAnime_InitFlex(PlayState* play, SkelAnime* skelAnime, FlexSkeletonHeader* skeletonHeaderSeg,
+      |                                                               ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c: In function 'EnRu2_DrawOpa':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:949:60: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  949 |     gSPSegment(POLY_OPA_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(tex));
+      |                                                            ^~~
+      |                                                            |
+      |                                                            void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:950:60: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  950 |     gSPSegment(POLY_OPA_DISP++, 0x09, SEGMENTED_TO_VIRTUAL(tex));
+      |                                                            ^~~
+      |                                                            |
+      |                                                            void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Ru2/z_en_ru2.c:952:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  952 |     gSPSegment(POLY_OPA_DISP++, 0x0C, &D_80116280[2]);
+      |                                       ^~~~~~~~~~~~~~
+      |                                       |
+      |                                       Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~

@@ -1,0 +1,38 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Breakwall/z_bg_breakwall.c:64:7: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[52]' [-Wincompatible-pointer-types]
+   64 |     { &object_bwall_Col_000118, object_bwall_DL_000040, 0 },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Breakwall/z_bg_breakwall.c:64:7: note: (near initialization for 'sBombableWallInfo[0].colHeader')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Breakwall/z_bg_breakwall.c:64:33: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   64 |     { &object_bwall_Col_000118, object_bwall_DL_000040, 0 },
+      |                                 ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Breakwall/z_bg_breakwall.c:64:33: note: (near initialization for 'sBombableWallInfo[0].dList')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Breakwall/z_bg_breakwall.c:65:7: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[52]' [-Wincompatible-pointer-types]
+   65 |     { &object_bwall_Col_000118, object_bwall_DL_000040, 0 },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Breakwall/z_bg_breakwall.c:65:7: note: (near initialization for 'sBombableWallInfo[1].colHeader')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Breakwall/z_bg_breakwall.c:65:33: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   65 |     { &object_bwall_Col_000118, object_bwall_DL_000040, 0 },
+      |                                 ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Breakwall/z_bg_breakwall.c:65:33: note: (near initialization for 'sBombableWallInfo[1].dList')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Breakwall/z_bg_breakwall.c:66:7: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[64]' [-Wincompatible-pointer-types]
+   66 |     { &object_kingdodongo_Col_0264A8, object_kingdodongo_DL_025BD0, 1 },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Breakwall/z_bg_breakwall.c:66:7: note: (near initialization for 'sBombableWallInfo[2].colHeader')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Breakwall/z_bg_breakwall.c:66:39: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   66 |     { &object_kingdodongo_Col_0264A8, object_kingdodongo_DL_025BD0, 1 },
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Breakwall/z_bg_breakwall.c:66:39: note: (near initialization for 'sBombableWallInfo[2].dList')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Breakwall/z_bg_breakwall.c:67:7: warning: initialization of 'CollisionHeader *' from incompatible pointer type 'const char (*)[64]' [-Wincompatible-pointer-types]
+   67 |     { &object_kingdodongo_Col_025B64, NULL, -1 },
+      |       ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Breakwall/z_bg_breakwall.c:67:7: note: (near initialization for 'sBombableWallInfo[3].colHeader')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Breakwall/z_bg_breakwall.c: In function 'BgBreakwall_Wait':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Breakwall/z_bg_breakwall.c:258:43: warning: passing argument 2 of 'Cutscene_SetSegment' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  258 |                 Cutscene_SetSegment(play, gDcOpeningCs);
+      |                                           ^~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Breakwall/z_bg_breakwall.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Breakwall/z_bg_breakwall.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:872:49: note: expected 'void *' but argument is of type 'const char *'
+  872 | void Cutscene_SetSegment(PlayState* play, void* segment);
+      |                                           ~~~~~~^~~~~~~

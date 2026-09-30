@@ -17,16 +17,14 @@
 
 #include "plugin.h"
 #include "bmp.h"
+#include "weather_font.h"
 
 #define WEATHER_DIR ROCKBOX_DIR "/rockpod/weather"
 #define FORECAST_PATH WEATHER_DIR "/forecast.tsv"
-#define BG_DIR WEATHER_DIR "/backgrounds"
 #define WEATHER_ICON_DIR WEATHER_DIR "/icons"
-#define WEATHER_APPLE_ICON_DIR WEATHER_DIR "/apple-icons"
 #define MAX_DAYS 7
-#define MAX_HOURS (16 * 24)
-#define FILE_BUF 32768
-#define WEATHER_ICON_MAX 64
+#define MAX_HOURS (16 * 24 + 1)
+#define FILE_BUF 512
 
 struct weather_day
 {
@@ -74,25 +72,14 @@ struct weather_state
 
 static struct weather_state weather;
 static char file_buf[FILE_BUF];
-static unsigned char *bg_data = NULL;
-static size_t bg_data_size;
-static struct bitmap bg_bmp;
-static bool bg_loaded;
-static char bg_loaded_path[MAX_PATH];
-static struct bitmap icon_bmp;
-static unsigned char icon_data[BM_SCALED_SIZE(WEATHER_ICON_MAX,
-                                              WEATHER_ICON_MAX,
-                                              FORMAT_NATIVE, 0)];
-static char icon_loaded_path[MAX_PATH];
-static int icon_loaded_size;
-static bool icon_loaded;
-#ifdef HAVE_LCD_COLOR
-#define WEATHER_BG_BUFFER_BYTES BM_SCALED_SIZE(LCD_WIDTH, LCD_HEIGHT, FORMAT_NATIVE, 0)
-static unsigned char bg_fallback[WEATHER_BG_BUFFER_BYTES];
-#else
-#define WEATHER_BG_BUFFER_BYTES BM_SCALED_SIZE(LCD_WIDTH, LCD_HEIGHT, FORMAT_MONO, 0)
-static unsigned char bg_fallback[WEATHER_BG_BUFFER_BYTES];
-#endif
+/* Fixed plugin BSS: 93,440 bytes on RGB565; no playback allocation. */
+static const char *const icon_names[] = {
+    "clear_day", "clear_night", "partly_cloudy", "cloudy", "rain",
+    "drizzle", "snow", "fog", "thunderstorm", "unknown"
+};
+static fb_data large_icons[10][64 * 64];
+static fb_data small_icons[10][24 * 24];
+static bool icons_ready[10][2];
 
 static bool weather_valid_time(const struct tm *tm)
 {
@@ -103,13 +90,13 @@ static bool weather_valid_time(const struct tm *tm)
 }
 
 #ifdef HAVE_LCD_COLOR
-#define WEATHER_HEADER_TOP      LCD_RGBPACK(254, 255, 255)
-#define WEATHER_HEADER_BOTTOM   LCD_RGBPACK(177, 182, 185)
-#define WEATHER_HEADER_BORDER   LCD_RGBPACK(121, 149, 163)
-#define WEATHER_CARD            LCD_RGBPACK(246, 248, 250)
-#define WEATHER_CARD_BORDER     LCD_RGBPACK(174, 181, 188)
-#define WEATHER_TEXT            LCD_RGBPACK(20, 22, 24)
-#define WEATHER_MUTED           LCD_RGBPACK(92, 98, 106)
+#define WEATHER_HEADER_TOP      LCD_RGBPACK(73, 119, 172)
+#define WEATHER_HEADER_BOTTOM   LCD_RGBPACK(19, 54, 99)
+#define WEATHER_HEADER_BORDER   LCD_RGBPACK(106, 161, 211)
+#define WEATHER_CARD            LCD_RGBPACK(30, 75, 124)
+#define WEATHER_CARD_BORDER     LCD_RGBPACK(74, 118, 164)
+#define WEATHER_TEXT            LCD_RGBPACK(255, 255, 255)
+#define WEATHER_MUTED           LCD_RGBPACK(184, 213, 241)
 #define WEATHER_BLUE_TOP        LCD_RGBPACK(60, 184, 255)
 #define WEATHER_BLUE_BOTTOM     LCD_RGBPACK(52, 122, 181)
 #else
@@ -292,7 +279,8 @@ static int current_hour_index(void)
     int best_past_index = -1;
     int best_future_index = -1;
 
-    if (weather.has_current && weather.hour_count > 0)
+    if (weather.has_current && weather.hour_count > 0 &&
+        weather_stamp_key(weather.hours[0].stamp) == now)
         return 0;
 
     for (int i = 0; i < weather.hour_count; i++)
@@ -320,9 +308,7 @@ static int current_hour_index(void)
 static bool load_forecast(void)
 {
     int fd;
-    ssize_t got;
     char *line;
-    char *save;
     char *cursor;
 
     rb->memset(&weather, 0, sizeof(weather));
@@ -333,19 +319,19 @@ static bool load_forecast(void)
     if (fd < 0)
         return false;
 
-    got = rb->read(fd, file_buf, sizeof(file_buf) - 1);
-    rb->close(fd);
-    if (got <= 0)
+    if (rb->read_line(fd, file_buf, sizeof(file_buf)) <= 0)
+    {
+        rb->close(fd);
         return false;
-    file_buf[got] = '\0';
-
-    line = rb->strtok_r(file_buf, "\n", &save);
-    if (!line)
-        return false;
+    }
+    line = file_buf;
     trim_line(line);
     cursor = line;
     if (rb->strcmp(next_field(&cursor), "rockpod_weather_v1"))
+    {
+        rb->close(fd);
         return false;
+    }
     copy_field(weather.location, sizeof(weather.location), &cursor);
     next_field(&cursor);
     next_field(&cursor);
@@ -354,7 +340,7 @@ static bool load_forecast(void)
     next_field(&cursor);
     copy_field(weather.units, sizeof(weather.units), &cursor);
 
-    while ((line = rb->strtok_r(NULL, "\n", &save)))
+    while (rb->read_line(fd, file_buf, sizeof(file_buf)) > 0)
     {
         char first[24];
         trim_line(line);
@@ -404,6 +390,7 @@ static bool load_forecast(void)
         weather.day_count++;
     }
 
+    rb->close(fd);
     weather.loaded = weather.day_count > 0;
     weather_status();
     return weather.loaded;
@@ -442,8 +429,9 @@ static const char *weather_icon_name(const char *code, bool night)
     if (code && rb->strstr(code, "clear"))
         return night ? "clear_night" : "clear_day";
     if (code && rb->strstr(code, "partly_cloudy"))
-        return "partly_cloudy";
-    if (code && rb->strstr(code, "cloudy"))
+        return night ? "cloudy" : "partly_cloudy";
+    if (code && (rb->strstr(code, "cloudy") ||
+                 rb->strstr(code, "overcast")))
         return "cloudy";
     if (code && rb->strstr(code, "drizzle"))
         return "drizzle";
@@ -458,118 +446,63 @@ static const char *weather_icon_name(const char *code, bool night)
     return "unknown";
 }
 
-static const char *background_path(void)
-{
-    int hour = current_hour_index();
-    const char *code = hour >= 0 ? weather.hours[hour].code :
-        (weather.day_count > 0 ? weather.days[0].code : "");
-
-    if (hour_is_night(hour))
-        return BG_DIR "/night.bmp";
-    if (code_is_snow(code))
-        return BG_DIR "/snow_day.bmp";
-    if (code_is_rain(code))
-        return BG_DIR "/rain_day.bmp";
-    return BG_DIR "/clear_day.bmp";
-}
-
-static struct bitmap *load_weather_icon(const char *code, bool night, int size)
+static void prepare_icons(void)
 {
     char path[MAX_PATH];
-    const char *name;
-    int rc;
-
-    size = MAX(16, MIN(size, WEATHER_ICON_MAX));
-    name = weather_icon_name(code, night);
-    rb->snprintf(path, sizeof(path), WEATHER_APPLE_ICON_DIR
-                 "/%s.64x64x24.bmp", name);
-    if (!rb->file_exists(path))
-        rb->snprintf(path, sizeof(path), WEATHER_ICON_DIR "/%s.64x64x24.bmp",
-                     name);
-
-    if (icon_loaded && icon_loaded_size == size &&
-        !rb->strcmp(icon_loaded_path, path))
-        return &icon_bmp;
-
-    icon_loaded = false;
-    icon_loaded_path[0] = '\0';
-    if (!rb->file_exists(path))
-        return NULL;
-
-    rb->memset(&icon_bmp, 0, sizeof(icon_bmp));
-    icon_bmp.width = size;
-    icon_bmp.height = size;
-    icon_bmp.format = FORMAT_NATIVE;
-    icon_bmp.data = icon_data;
-    rc = rb->read_bmp_file(path, &icon_bmp, sizeof(icon_data),
-                           FORMAT_NATIVE | FORMAT_RESIZE |
-                           FORMAT_TRANSPARENT | FORMAT_DITHER, NULL);
-    if (rc < 0)
-        return NULL;
-
-    weather_clean_icon_transparency(&icon_bmp);
-
-    rb->strlcpy(icon_loaded_path, path, sizeof(icon_loaded_path));
-    icon_loaded_size = size;
-    icon_loaded = true;
-    return &icon_bmp;
-}
-
-static void load_background(void)
-{
-    const char *path = background_path();
-#ifdef HAVE_LCD_COLOR
-    const int needed_bytes = BM_SCALED_SIZE(LCD_WIDTH, LCD_HEIGHT, FORMAT_NATIVE, 0);
-#else
-    const int needed_bytes = BM_SCALED_SIZE(LCD_WIDTH, LCD_HEIGHT, FORMAT_MONO, 0);
-#endif
-    int decode_buffer_bytes = WEATHER_BG_BUFFER_BYTES;
-
-    if (!bg_data)
-        bg_data = (unsigned char *)rb->plugin_get_buffer(&bg_data_size);
-
-    if (bg_loaded && !rb->strcmp(bg_loaded_path, path))
-        return;
-
-    if (bg_data && bg_data_size >= needed_bytes)
+    struct bitmap bm;
+    for (int i = 0; i < 10; i++)
     {
-        decode_buffer_bytes = needed_bytes;
-        bg_bmp.data = bg_data;
+        rb->snprintf(path, sizeof(path), WEATHER_ICON_DIR
+                     "/%s.64x64x24.bmp", icon_names[i]);
+        rb->memset(&bm, 0, sizeof(bm));
+        bm.data = (unsigned char *)large_icons[i];
+        icons_ready[i][0] = rb->read_bmp_file(path, &bm,
+            sizeof(large_icons[i]), FORMAT_NATIVE | FORMAT_TRANSPARENT,
+            NULL) > 0 && bm.width == 64 && bm.height == 64;
+        if (icons_ready[i][0])
+        {
+            weather_clean_icon_transparency(&bm);
+            for (int y = 0; y < 24; y++)
+                for (int x = 0; x < 24; x++)
+                    small_icons[i][y * 24 + x] =
+                        large_icons[i][(y * 64 / 24) * 64 + x * 64 / 24];
+            icons_ready[i][1] = true;
+        }
+        rb->yield();
     }
-    else
-        bg_bmp.data = (unsigned char *)bg_fallback;
-
-    bg_bmp.width = LCD_WIDTH;
-    bg_bmp.height = LCD_HEIGHT;
-    bg_bmp.format = FORMAT_NATIVE;
-    bg_loaded = rb->read_bmp_file(path, &bg_bmp, decode_buffer_bytes,
-                                  FORMAT_NATIVE | FORMAT_RESIZE |
-                                  FORMAT_DITHER, NULL) > 0;
-    if (bg_loaded)
-        rb->strlcpy(bg_loaded_path, path, sizeof(bg_loaded_path));
-    else
-        bg_loaded_path[0] = '\0';
 }
 
 static void puts_fit(int x, int y, int width, const char *text, bool center)
 {
-    char buf[64];
-    int w, h, len;
-
-    if (!text || !text[0])
+    int w = 0, len = 0;
+    if (!text)
         return;
-
-    rb->strlcpy(buf, text, sizeof(buf));
-    len = rb->strlen(buf);
-    rb->lcd_getstringsize(buf, &w, &h);
-    while (len > 1 && w > width)
+    while (text[len])
     {
-        buf[--len] = '\0';
-        rb->lcd_getstringsize(buf, &w, &h);
+        unsigned ch = (unsigned char)text[len];
+        if (ch < 32 || ch > 126)
+            ch = '?';
+        int advance = weather_text_width[ch - 32];
+        if (w + advance > width)
+            break;
+        w += advance;
+        len++;
     }
-    if (center && w < width)
+    if (center)
         x += (width - w) / 2;
-    rb->lcd_putsxy(x, y, buf);
+    rb->lcd_set_drawmode(DRMODE_FG);
+    for (int i = 0; i < len; i++)
+    {
+        unsigned ch = (unsigned char)text[i];
+        if (ch < 32 || ch > 126)
+            ch = '?';
+        int glyph = ch - 32;
+        int advance = weather_text_width[glyph];
+        rb->lcd_mono_bitmap(weather_text_bits + weather_text_offset[glyph],
+                            x, y, advance, 12);
+        x += advance;
+    }
+    rb->lcd_set_drawmode(DRMODE_SOLID);
 }
 
 static void draw_header(const char *title, const char *right)
@@ -606,9 +539,20 @@ static void draw_panel(int x, int y, int w, int h, bool active)
 
 static const char *day_label(const char *date)
 {
-    if (weather.day_count > 0 && !rb->strcmp(date, weather.days[0].date))
+    static const char *const names[] = {"Sun", "Mon", "Tue", "Wed",
+                                        "Thu", "Fri", "Sat"};
+    static const int offsets[] = {0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4};
+    int year = rb->atoi(date), month = rb->atoi(date + 5);
+    int day = rb->atoi(date + 8);
+    struct tm *now = rb->get_time();
+    if (month < 1 || month > 12 || day < 1 || day > 31)
+        return "--";
+    if (weather_valid_time(now) && year == now->tm_year + 1900 &&
+        month == now->tm_mon + 1 && day == now->tm_mday)
         return "Today";
-    return date && date[5] ? date + 5 : "--";
+    year -= month < 3;
+    return names[(year + year / 4 - year / 100 + year / 400 +
+                  offsets[month - 1] + day) % 7];
 }
 
 static bool hour_is_for_day(const struct weather_hour *hour,
@@ -637,25 +581,11 @@ static int selected_day_current_hour(void)
 
 static void draw_background(void)
 {
-    load_background();
     rb->lcd_set_viewport(NULL);
     rb->lcd_set_drawmode(DRMODE_SOLID);
-    if (bg_loaded)
-        rb->lcd_bitmap((const fb_data *)bg_bmp.data, 0, 0, LCD_WIDTH, LCD_HEIGHT);
-    else
-    {
-#ifdef HAVE_LCD_COLOR
-        rb->lcd_set_background(LCD_RGBPACK(28, 36, 48));
-#else
-        rb->lcd_set_background(LCD_WHITE);
-#endif
-        rb->lcd_clear_display();
-#ifdef HAVE_LCD_COLOR
-        fill_vgradient(0, 0, LCD_WIDTH, LCD_HEIGHT,
-                       LCD_RGBPACK(102, 151, 198),
-                       LCD_RGBPACK(227, 235, 242));
-#endif
-    }
+    rb->lcd_set_backdrop(NULL);
+    fill_vgradient(0, 0, LCD_WIDTH, LCD_HEIGHT,
+                   WEATHER_BLUE_BOTTOM, WEATHER_HEADER_BOTTOM);
 }
 
 static bool code_matches(const char *code, const char *name)
@@ -663,92 +593,25 @@ static bool code_matches(const char *code, const char *name)
     return code && !rb->strcmp(code, name);
 }
 
-static void draw_weather_picture(int cx, int cy, int size, const char *code)
+static void draw_weather_picture(int cx, int cy, int size, const char *code,
+                                 bool night)
 {
-    int hour = current_hour_index();
-    struct bitmap *icon = load_weather_icon(code, hour_is_night(hour), size);
-    int r = size / 2;
-    bool rain = code_is_rain(code);
-    bool snow = code_is_snow(code);
-    bool cloudy = code_matches(code, "cloudy") ||
-                  code_matches(code, "overcast") ||
-                  code_matches(code, "fog");
-    bool night = is_night_now();
-
-#ifdef HAVE_LCD_COLOR
-    unsigned sun = LCD_RGBPACK(255, 204, 62);
-    unsigned cloud = LCD_RGBPACK(235, 239, 244);
-    unsigned cloud_shadow = LCD_RGBPACK(174, 184, 195);
-    unsigned blue = LCD_RGBPACK(65, 139, 210);
-    unsigned moon = LCD_RGBPACK(237, 240, 210);
-#else
-    unsigned sun = LCD_BLACK;
-    unsigned cloud = LCD_WHITE;
-    unsigned cloud_shadow = LCD_BLACK;
-    unsigned blue = LCD_BLACK;
-    unsigned moon = LCD_WHITE;
-#endif
-
-    if (icon)
+    const char *name = weather_icon_name(code, night);
+    for (int i = 0; i < 10; i++)
     {
-        rb->lcd_bitmap((const fb_data *)icon->data, cx - icon->width / 2,
-                       cy - icon->height / 2, icon->width, icon->height);
-        return;
-    }
-
-    if (night && !rain && !snow)
-    {
-        rb->lcd_set_foreground(moon);
-        rb->lcd_fillrect(cx - r / 2, cy - r / 2, r, r);
-        rb->lcd_set_foreground(WEATHER_CARD);
-        rb->lcd_fillrect(cx - r / 5, cy - r / 2, r, r);
-    }
-    else if (!cloudy && !rain && !snow)
-    {
-        int i;
-        rb->lcd_set_foreground(sun);
-        rb->lcd_fillrect(cx - r / 2, cy - r / 2, r, r);
-        for (i = 0; i < 8; i++)
+        int small = size < 40;
+        int extent = small ? 24 : 64;
+        if (!rb->strcmp(name, icon_names[i]) && icons_ready[i][small])
         {
-            int dx = (i & 1) ? r : r / 2;
-            int dy = (i & 2) ? r : r / 2;
-            rb->lcd_drawline(cx, cy, cx + ((i & 4) ? -dx : dx),
-                             cy + ((i & 2) ? -dy : dy));
+            rb->lcd_bitmap_transparent(small ? small_icons[i] : large_icons[i],
+                cx - extent / 2, cy - extent / 2, extent, extent);
+            return;
         }
     }
 
-    if (cloudy || rain || snow)
-    {
-        rb->lcd_set_foreground(cloud_shadow);
-        rb->lcd_fillrect(cx - r + 4, cy + 3, size - 8, r / 2);
-        rb->lcd_set_foreground(cloud);
-        rb->lcd_fillrect(cx - r, cy, size, r / 2);
-        rb->lcd_fillrect(cx - r / 2, cy - r / 3, r, r / 2);
-        rb->lcd_fillrect(cx + r / 6, cy - r / 5, r / 2, r / 2);
-        rb->lcd_set_foreground(cloud_shadow);
-        rb->lcd_drawrect(cx - r, cy, size, r / 2 + 1);
-    }
-
-    if (rain)
-    {
-        int i;
-        rb->lcd_set_foreground(blue);
-        for (i = -2; i <= 2; i++)
-            rb->lcd_drawline(cx + i * 9, cy + r / 2 + 8,
-                             cx + i * 9 - 4, cy + r / 2 + 18);
-    }
-    else if (snow)
-    {
-        int i;
-        rb->lcd_set_foreground(cloud);
-        for (i = -2; i <= 2; i++)
-        {
-            int x = cx + i * 9;
-            int y = cy + r / 2 + 11;
-            rb->lcd_hline(x - 3, x + 3, y);
-            rb->lcd_vline(x, y - 3, y + 3);
-        }
-    }
+    /* Missing optional artwork must not become a misleading condition. */
+    rb->lcd_set_foreground(WEATHER_MUTED);
+    rb->lcd_putsxy(cx - 6, cy - 4, "--");
 }
 
 static void draw_empty(void)
@@ -757,7 +620,7 @@ static void draw_empty(void)
     draw_header("Weather", "No Data");
     draw_panel(24, 62, LCD_WIDTH - 48, 108, false);
     rb->lcd_setfont(FONT_SYSFIXED);
-    draw_weather_picture(LCD_WIDTH / 2, 96, 58, "cloudy");
+    draw_weather_picture(LCD_WIDTH / 2, 96, 58, "cloudy", false);
     rb->lcd_set_foreground(WEATHER_TEXT);
     rb->lcd_set_background(WEATHER_CARD);
     puts_fit(26, 132, LCD_WIDTH - 52, "No Weather", true);
@@ -766,128 +629,149 @@ static void draw_empty(void)
     rb->lcd_update();
 }
 
+/* Embedded Helvetica numerals: no font cache, file I/O or allocation. */
+static void draw_temperature(int x, int y, const char *text)
+{
+    rb->lcd_set_drawmode(DRMODE_FG);
+    for (; *text; text++)
+    {
+        int glyph = *text >= '-' && *text <= '9' ? *text - '-' : 0;
+        int width = _sysfont_width[glyph];
+        rb->lcd_mono_bitmap(_font_bits + _sysfont_offset[glyph],
+                            x, y, width, 35);
+        x += width + 1;
+    }
+    rb->lcd_set_drawmode(DRMODE_SOLID);
+}
+
+static void draw_atmosphere(const char *code)
+{
+    unsigned phase = (unsigned long)*rb->current_tick / MAX(1, HZ / 8);
+    bool rain = code_is_rain(code), snow = code_is_snow(code);
+    rb->lcd_set_foreground(WEATHER_MUTED);
+    if (rain || snow)
+    {
+        for (unsigned i = 0; i < 9; i++)
+        {
+            int x = 13 + (i * 23 + phase / 3) % 70;
+            int y = 26 + (i * 17 + phase * (rain ? 4 : 1)) % 61;
+            if (rain)
+                rb->lcd_drawline(x, y, x - 2, y + 4);
+            else
+                rb->lcd_fillrect(x, y, 2, 2);
+        }
+    }
+    else if (code_matches(code, "clear"))
+    {
+        for (unsigned i = 0; i < 4; i++)
+        {
+            int x = 15 + i * 21;
+            int y = 30 + (i * 19) % 49;
+            rb->lcd_drawpixel(x, y);
+            if ((phase / 3 + i) % 4 == 0)
+            {
+                rb->lcd_hline(x - 2, x + 2, y);
+                rb->lcd_vline(x, y - 2, y + 2);
+            }
+        }
+    }
+}
+
 static void draw_overview(void)
 {
-    int i;
-    struct weather_day *today = &weather.days[weather.selected];
-    int hour_index = selected_day_current_hour();
-    struct weather_hour *hour = hour_index >= 0 ? &weather.hours[hour_index] : NULL;
-    char hero_temp[32];
-
+    struct weather_day *day = &weather.days[weather.selected];
+    int hi = selected_day_current_hour();
+    struct weather_hour *hour = hi >= 0 ? &weather.hours[hi] : NULL;
+    char line[64];
+    const char *unit = !rb->strcmp(weather.units, "imperial") ? "F" : "C";
     draw_background();
-    rb->lcd_setfont(FONT_SYSFIXED);
-    draw_header(weather.location[0] ? weather.location : "Weather",
-                weather.status);
-
-    draw_panel(10, 28, LCD_WIDTH - 20, 58, false);
-    draw_weather_picture(44, 56, 42, hour ? hour->code : today->code);
-    if (hour && hour->temp[0])
-        rb->snprintf(hero_temp, sizeof(hero_temp), "%s%s Now",
-                     hour->temp,
-                     !rb->strcmp(weather.units, "imperial") ? "F" : "C");
-    else
-        rb->snprintf(hero_temp, sizeof(hero_temp), "%s / %s%s",
-                     today->temp_max[0] ? today->temp_max : "--",
-                     today->temp_min[0] ? today->temp_min : "--",
-                     !rb->strcmp(weather.units, "imperial") ? "F" : "C");
     rb->lcd_set_foreground(WEATHER_TEXT);
-    rb->lcd_set_background(WEATHER_CARD);
-    puts_fit(82, 42, 142,
-             hour && hour->text[0] ? hour->text :
-             (today->text[0] ? today->text : "Weather"), false);
+    puts_fit(10, 5, LCD_WIDTH - 20, weather.location, true);
+    draw_atmosphere(hour ? hour->code : day->code);
+    unsigned phase = (unsigned long)*rb->current_tick / MAX(1, HZ / 8) % 64;
+    int drift = (phase < 32 ? phase : 64 - phase) / 4 - 4;
+    draw_weather_picture(51 + drift, 59, 64,
+                         hour ? hour->code : day->code,
+                         hour ? hour_is_night(hi) : false);
+    rb->lcd_set_foreground(WEATHER_TEXT);
+    draw_temperature(100, 25, hour && hour->temp[0] ? hour->temp :
+                     (day->temp_max[0] ? day->temp_max : "--"));
+    rb->lcd_drawrect(166, 30, 4, 4);
+    puts_fit(176, 29, 24, unit, false);
+    puts_fit(100, 62, 208, hour ? hour->text : day->text, false);
+    rb->snprintf(line, sizeof(line), "H %s  L %s   Rain %s%%",
+                 day->temp_max, day->temp_min, day->precip);
     rb->lcd_set_foreground(WEATHER_MUTED);
-    puts_fit(82, 61, 142, hero_temp, false);
-
-    for (i = 0; i < weather.day_count; i++)
+    puts_fit(100, 78, 212, line, false);
+    for (int i = 0; i < weather.day_count; i++)
     {
-        struct weather_day *day = &weather.days[i];
-        int y = 94 + i * 19;
-        bool active = i == weather.selected;
-        char temps[24];
-        char precip[16];
-
-        draw_panel(10, y, LCD_WIDTH - 20, 17, active);
-        rb->lcd_set_foreground(active ? LCD_WHITE : WEATHER_TEXT);
-        rb->lcd_set_background(active ? WEATHER_BLUE_BOTTOM : WEATHER_CARD);
-        rb->snprintf(temps, sizeof(temps), "%s/%s%s", day->temp_max[0] ? day->temp_max : "--",
-                     day->temp_min[0] ? day->temp_min : "--",
-                     !rb->strcmp(weather.units, "imperial") ? "F" : "C");
-        rb->snprintf(precip, sizeof(precip), "%s%%", day->precip[0] ? day->precip : "--");
-        puts_fit(18, y + 3, 44, day_label(day->date), false);
-        puts_fit(62, y + 3, 112, day->text[0] ? day->text : "Weather", false);
-        puts_fit(180, y + 3, 62, temps, true);
-        puts_fit(248, y + 3, 46, precip, true);
+        int y = 94 + i * 18;
+        struct weather_day *d = &weather.days[i];
+        if (i == weather.selected)
+        {
+            rb->lcd_set_foreground(WEATHER_TEXT);
+            rb->lcd_fillrect(5, y + 6, 2, 2);
+        }
+        draw_weather_picture(85, y + 9, 24, d->code, false);
+        rb->lcd_set_foreground(WEATHER_TEXT);
+        puts_fit(14, y + 2, 48, day_label(d->date), false);
+        puts_fit(107, y + 2, 100, d->text, false);
+        rb->snprintf(line, sizeof(line), "%s / %s", d->temp_max, d->temp_min);
+        puts_fit(213, y + 2, 94, line, true);
     }
-
     rb->lcd_set_foreground(WEATHER_MUTED);
-    rb->lcd_set_background(WEATHER_CARD);
-    puts_fit(14, LCD_HEIGHT - 18, 120, "Select: Details", false);
-    puts_fit(LCD_WIDTH - 112, LCD_HEIGHT - 18, 100, "Menu: Back", true);
+    puts_fit(10, 223, 300, "Select: Details       Menu: Back", true);
     rb->lcd_update();
 }
 
 static void draw_detail(void)
 {
     struct weather_day *day = &weather.days[weather.selected];
-    int current_hour = selected_day_current_hour();
-    int shown = 0;
+    int first = selected_day_current_hour();
     char line[64];
-
+    int shown = 0;
+    bool imperial = !rb->strcmp(weather.units, "imperial");
     draw_background();
-    draw_header(weather.location[0] ? weather.location : "Weather",
-                day_label(day->date));
-    draw_panel(14, 30, LCD_WIDTH - 28, LCD_HEIGHT - 50, false);
-    rb->lcd_setfont(FONT_SYSFIXED);
-    draw_weather_picture(52, 70, 54,
-                         current_hour >= 0 ? weather.hours[current_hour].code :
-                         day->code);
+    draw_header(weather.location, day_label(day->date));
+    draw_weather_picture(45, 59, 64, day->code, false);
     rb->lcd_set_foreground(WEATHER_TEXT);
-    rb->lcd_set_background(WEATHER_CARD);
-    puts_fit(90, 48, LCD_WIDTH - 112, day_label(day->date), false);
-    rb->lcd_set_foreground(WEATHER_MUTED);
-    puts_fit(90, 68, LCD_WIDTH - 112,
-             current_hour >= 0 && weather.hours[current_hour].text[0] ?
-             weather.hours[current_hour].text :
-             (day->text[0] ? day->text : "Weather"), false);
-    rb->lcd_set_foreground(WEATHER_TEXT);
-    if (current_hour >= 0 && weather.hours[current_hour].temp[0])
-        rb->snprintf(line, sizeof(line), "Now %s %s",
-                     weather.hours[current_hour].temp,
-                     !rb->strcmp(weather.units, "imperial") ? "F" : "C");
-    else
-        rb->snprintf(line, sizeof(line), "High %s  Low %s %s",
-                     day->temp_max[0] ? day->temp_max : "--",
-                     day->temp_min[0] ? day->temp_min : "--",
-                     !rb->strcmp(weather.units, "imperial") ? "F" : "C");
-    puts_fit(28, 104, LCD_WIDTH - 56, line, false);
-    rb->snprintf(line, sizeof(line), "Precipitation %s%%", day->precip[0] ? day->precip : "--");
-    puts_fit(28, 126, LCD_WIDTH - 56, line, false);
-    rb->snprintf(line, sizeof(line), "Wind %s %s", day->wind_speed[0] ? day->wind_speed : "--",
-                 day->wind_dir[0] ? day->wind_dir : "");
-    puts_fit(28, 148, LCD_WIDTH - 56, line, false);
-    rb->snprintf(line, sizeof(line), "Sun %s / %s", day->sunrise[0] ? day->sunrise : "--",
-                 day->sunset[0] ? day->sunset : "--");
-    puts_fit(28, 170, LCD_WIDTH - 56, line, false);
-    rb->lcd_set_foreground(WEATHER_MUTED);
-    for (int i = 0; i < weather.hour_count && shown < 2; i++)
+    puts_fit(87, 32, 222, day->text, false);
+    rb->snprintf(line, sizeof(line), "High %s   Low %s %s",
+                 day->temp_max, day->temp_min, imperial ? "F" : "C");
+    puts_fit(87, 51, 222, line, false);
+    rb->snprintf(line, sizeof(line), "Rain %s%%", day->precip);
+    puts_fit(87, 70, 222, line, false);
+    rb->lcd_set_foreground(WEATHER_CARD_BORDER);
+    rb->lcd_hline(12, LCD_WIDTH - 13, 94);
+    rb->lcd_hline(12, LCD_WIDTH - 13, 174);
+    for (int i = MAX(0, first); i < weather.hour_count && shown < 6; i++)
     {
         struct weather_hour *hour = &weather.hours[i];
+        int x = 11 + shown * 50;
         if (!hour_is_for_day(hour, day))
             continue;
-        if (current_hour >= 0 && i < current_hour)
-            continue;
-        rb->snprintf(line, sizeof(line), "%2.2s:00  %s%s  %s",
-                     hour->stamp + 11,
-                     hour->temp[0] ? hour->temp : "--",
-                     !rb->strcmp(weather.units, "imperial") ? "F" : "C",
-                     hour->text[0] ? hour->text : "Weather");
-        puts_fit(28, 184 + shown * 12, LCD_WIDTH - 56, line, false);
+        rb->lcd_set_foreground(WEATHER_MUTED);
+        rb->snprintf(line, sizeof(line), "%2.2s:00", hour->stamp + 11);
+        puts_fit(x, 99, 48, line, true);
+        draw_weather_picture(x + 24, 123, 24, hour->code, hour_is_night(i));
+        rb->lcd_set_foreground(WEATHER_TEXT);
+        rb->snprintf(line, sizeof(line), "%s%s", hour->temp, imperial ? "F" : "C");
+        puts_fit(x, 140, 48, line, true);
+        rb->lcd_set_foreground(WEATHER_MUTED);
+        rb->snprintf(line, sizeof(line), "%s%%", hour->precip);
+        puts_fit(x, 157, 48, line, true);
         shown++;
     }
+    if (!shown)
+        puts_fit(12, 125, 296, "Hourly forecast unavailable", true);
+    rb->lcd_set_foreground(WEATHER_TEXT);
+    rb->snprintf(line, sizeof(line), "Wind %s %s  Bearing %s",
+                 day->wind_speed, imperial ? "mph" : "km/h", day->wind_dir);
+    puts_fit(12, 181, 296, line, false);
+    rb->snprintf(line, sizeof(line), "Sunrise %s    Sunset %s", day->sunrise, day->sunset);
+    puts_fit(12, 198, 296, line, false);
     rb->lcd_set_foreground(WEATHER_MUTED);
-    puts_fit(28, 208, LCD_WIDTH - 56, day->source[0] ? day->source : "RockPod", true);
-    puts_fit(14, LCD_HEIGHT - 18, 126, "Select: Forecast", false);
-    puts_fit(LCD_WIDTH - 112, LCD_HEIGHT - 18, 100, "Menu: Back", true);
+    puts_fit(10, 223, 300, "Select: Forecast      Menu: Back", true);
     rb->lcd_update();
 }
 
@@ -905,12 +789,16 @@ enum plugin_status plugin_start(const void *parameter)
 {
     int action;
     bool done = false;
+    long last_frame = *rb->current_tick;
+    int last_hour;
 #ifdef USB_ENABLE_ETHERNET
     unsigned long weather_generation;
 #endif
 
     (void)parameter;
     weather.loaded = load_forecast();
+    prepare_icons();
+    last_hour = weather_now_key();
 #ifdef USB_ENABLE_ETHERNET
     weather_generation = rb->usb_internet_weather_generation();
 #endif
@@ -928,7 +816,19 @@ enum plugin_status plugin_start(const void *parameter)
             draw_weather();
         }
 #endif
-        action = rb->get_action(CONTEXT_LIST, HZ / 4);
+        action = rb->get_action(CONTEXT_LIST, MAX(1, HZ / 8));
+        if (action == ACTION_NONE &&
+            TIME_AFTER(*rb->current_tick, last_frame + MAX(1, HZ / 8)))
+        {
+            if (last_hour != weather_now_key())
+            {
+                last_hour = weather_now_key();
+                weather_status();
+            }
+            if (weather.loaded && !weather.detail)
+                draw_weather();
+            last_frame = *rb->current_tick;
+        }
         switch (action)
         {
             case ACTION_STD_PREV:

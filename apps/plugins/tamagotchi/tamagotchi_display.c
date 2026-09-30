@@ -286,17 +286,6 @@ static void draw_ipodjs_selection(int x, int y, int w, int h,
     unsigned top;
     unsigned bottom;
 
-    if (rb->global_settings == NULL ||
-        rb->global_settings->ui_engine_accent == UI_ENGINE_ACCENT_BLUE)
-    {
-        glass_gradient(x, y, w, h, LCD_RGBPACK(107, 200, 254),
-                       LCD_RGBPACK(38, 146, 226),
-                       LCD_RGBPACK(0, 92, 192));
-        if (midp != NULL)
-            *midp = LCD_RGBPACK(38, 146, 226);
-        return;
-    }
-
     top = rgb_blend(accent, LCD_RGBPACK(255, 255, 255), 112);
     bottom = rgb_blend(accent, LCD_RGBPACK(0, 0, 0), 70);
     glass_gradient(x, y, w, h, top, accent, bottom);

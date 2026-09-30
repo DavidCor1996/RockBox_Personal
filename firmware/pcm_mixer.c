@@ -78,6 +78,11 @@ static struct mixer_channel * active_channels[PCM_MIXER_NUM_CHANNELS+1] IBSS_ATT
 #define MAX_IDLE_FRAMES     (mixer_sampr*3 / (mix_frame_size / 4))
 static unsigned int idle_counter = 0;
 
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+static bool mixer_hibernate_suspended;
+#endif
+
 /** Mixing routines, CPU optmized **/
 #include "asm/pcm-mixer.c"
 
@@ -257,6 +262,12 @@ fill_frame:
 /* Start PCM driver if it's not currently playing */
 static void mixer_start_pcm(void)
 {
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+    if (mixer_hibernate_suspended)
+        return;
+#endif
+
     if (pcm_is_playing())
         return;
 
@@ -448,6 +459,45 @@ void mixer_reset(void)
 
     idle_counter = 0;
 }
+
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+void mixer_hibernate_suspend(void)
+{
+    /* RetailOS 2.0.4 media opcode 8 reaches PCM-backend vmethod +0x10
+     * (0x081e9904), acquires the backend lock at object +0x3c, drains and
+     * stops output, and deliberately carries that lock across Standby.  Its
+     * paired opcode-9 vmethod is the code that releases it.  Carry one PCM
+     * lock here in the same way: it inhibits callbacks on both the old DMA
+     * channel and the channel rebuilt by pcm_hibernate_resume().  Do not
+     * deactivate or rewrite any mixer channel. */
+    if (mixer_hibernate_suspended)
+        return;
+
+    pcm_play_lock();
+    mixer_hibernate_suspended = true;
+    pcm_play_stop();
+}
+
+void mixer_hibernate_resume(void)
+{
+    /* RetailOS opcode 9 invokes the paired backend vmethod +0x0c
+     * (0x081e99bc), rebuilds output while the opcode-8 lock is still held,
+     * then releases that same lock.  The target has already rebuilt clocks,
+     * I2S and DMAC and reapplied the carried interrupt lock to the new DMA
+     * channel.  Recreate physical PCM only for a retained active channel,
+     * then perform the single paired unlock. */
+    if (!mixer_hibernate_suspended)
+        return;
+
+    mixer_hibernate_suspended = false;
+    if (*active_channels)
+        mixer_start_pcm();
+
+    pcm_play_unlock();
+}
+
+#endif
 
 /* Set output samplerate */
 void mixer_set_frequency(unsigned int samplerate)

@@ -1,0 +1,48 @@
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:10,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skin_awb.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skin_awb.c: In function 'Skin_InitAnimatedLimb':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skin_awb.c:11:48: warning: initialization of 'SkinLimb **' from incompatible pointer type 'void **' [-Wincompatible-pointer-types]
+   11 |     SkinLimb** skeleton = SEGMENTED_TO_VIRTUAL(skin->skeletonHeader->segment);
+      |                                                ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skin_awb.c: In function 'Skin_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skin_awb.c:42:33: warning: passing argument 1 of 'ResourceMgr_OTRSigCheck' from incompatible pointer type [-Wincompatible-pointer-types]
+   42 |     if (ResourceMgr_OTRSigCheck(skeletonHeader))
+      |                                 ^~~~~~~~~~~~~~
+      |                                 |
+      |                                 SkeletonHeader *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skin_awb.c:4:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:70:35: note: expected 'char *' but argument is of type 'SkeletonHeader *'
+   70 | int ResourceMgr_OTRSigCheck(char* imgData);
+      |                             ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skin_awb.c:43:57: warning: passing argument 1 of 'ResourceMgr_LoadSkeletonByName' from incompatible pointer type [-Wincompatible-pointer-types]
+   43 |         skeletonHeader = ResourceMgr_LoadSkeletonByName(skeletonHeader, NULL);
+      |                                                         ^~~~~~~~~~~~~~
+      |                                                         |
+      |                                                         SkeletonHeader *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/soh/ResourceManagerHelpers.h:66:60: note: expected 'const char *' but argument is of type 'SkeletonHeader *'
+   66 | SkeletonHeader* ResourceMgr_LoadSkeletonByName(const char* path, SkelAnime* skelAnime);
+      |                                                ~~~~~~~~~~~~^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skin_awb.c:53:14: warning: assignment to 'SkinLimb **' from incompatible pointer type 'void **' [-Wincompatible-pointer-types]
+   53 |     skeleton = SEGMENTED_TO_VIRTUAL(skin->skeletonHeader->segment);
+      |              ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skin_awb.c: In function 'Skin_ApplyAnimTransformations':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skin_awb.c:159:48: warning: initialization of 'SkinLimb **' from incompatible pointer type 'void **' [-Wincompatible-pointer-types]
+  159 |     SkinLimb** skeleton = SEGMENTED_TO_VIRTUAL(skin->skeletonHeader->segment);
+      |                                                ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skin_awb.c:208:72: warning: passing argument 2 of 'func_800A698C' from incompatible pointer type [-Wincompatible-pointer-types]
+  208 |     ret = func_800A698C(skin, SEGMENTED_TO_VIRTUAL(skin->skeletonHeader->segment), limbMatrices, LIMB_DONE, 0);
+      |                                                    ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~
+      |                                                                        |
+      |                                                                        void **
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_skin_awb.c:113:42: note: expected 'SkinLimb **' but argument is of type 'void **'
+  113 | s32 func_800A698C(Skin* skin, SkinLimb** skeleton, MtxF* limbMatrices, u8 parentIndex, u8 limbIndex) {
+      |                               ~~~~~~~~~~~^~~~~~~~

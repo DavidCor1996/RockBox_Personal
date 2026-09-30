@@ -1,0 +1,129 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:56:5: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[56]' [-Wincompatible-pointer-types]
+   56 |     &gHorseNormalIdleAnim,      &gHorseNormalWhinnyAnim,  &gHorseNormalRefuseAnim,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:56:5: note: (near initialization for 'sAnimations[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:56:33: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[58]' [-Wincompatible-pointer-types]
+   56 |     &gHorseNormalIdleAnim,      &gHorseNormalWhinnyAnim,  &gHorseNormalRefuseAnim,
+      |                                 ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:56:33: note: (near initialization for 'sAnimations[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:56:59: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[58]' [-Wincompatible-pointer-types]
+   56 |     &gHorseNormalIdleAnim,      &gHorseNormalWhinnyAnim,  &gHorseNormalRefuseAnim,
+      |                                                           ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:56:59: note: (near initialization for 'sAnimations[2]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:57:5: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[59]' [-Wincompatible-pointer-types]
+   57 |     &gHorseNormalRearingAnim,   &gHorseNormalWalkingAnim, &gHorseNormalTrottingAnim,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:57:5: note: (near initialization for 'sAnimations[3]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:57:33: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[59]' [-Wincompatible-pointer-types]
+   57 |     &gHorseNormalRearingAnim,   &gHorseNormalWalkingAnim, &gHorseNormalTrottingAnim,
+      |                                 ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:57:33: note: (near initialization for 'sAnimations[4]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:57:59: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[60]' [-Wincompatible-pointer-types]
+   57 |     &gHorseNormalRearingAnim,   &gHorseNormalWalkingAnim, &gHorseNormalTrottingAnim,
+      |                                                           ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:57:59: note: (near initialization for 'sAnimations[5]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:58:5: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[61]' [-Wincompatible-pointer-types]
+   58 |     &gHorseNormalGallopingAnim, &gHorseNormalJumpingAnim, &gHorseNormalJumpingHighAnim,
+      |     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:58:5: note: (near initialization for 'sAnimations[6]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:58:33: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[59]' [-Wincompatible-pointer-types]
+   58 |     &gHorseNormalGallopingAnim, &gHorseNormalJumpingAnim, &gHorseNormalJumpingHighAnim,
+      |                                 ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:58:33: note: (near initialization for 'sAnimations[7]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:58:59: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[63]' [-Wincompatible-pointer-types]
+   58 |     &gHorseNormalGallopingAnim, &gHorseNormalJumpingAnim, &gHorseNormalJumpingHighAnim,
+      |                                                           ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:58:59: note: (near initialization for 'sAnimations[8]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c: In function 'EnHorseNormal_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:230:38: warning: passing argument 3 of 'Skin_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  230 |         Skin_Init(play, &this->skin, &gHorseNormalSkel, &gHorseNormalIdleAnim);
+      |                                      ^~~~~~~~~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[52]
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1361:61: note: expected 'SkeletonHeader *' but argument is of type 'const char (*)[52]'
+ 1361 | void Skin_Init(PlayState* play, Skin* skin, SkeletonHeader* skeletonHeader, AnimationHeader* animationHeader);
+      |                                             ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:230:57: warning: passing argument 4 of 'Skin_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  230 |         Skin_Init(play, &this->skin, &gHorseNormalSkel, &gHorseNormalIdleAnim);
+      |                                                         ^~~~~~~~~~~~~~~~~~~~~
+      |                                                         |
+      |                                                         const char (*)[56]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1361:94: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[56]'
+ 1361 | void Skin_Init(PlayState* play, Skin* skin, SkeletonHeader* skeletonHeader, AnimationHeader* animationHeader);
+      |                                                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:244:42: warning: passing argument 3 of 'Skin_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  244 |             Skin_Init(play, &this->skin, &gHorseNormalSkel, &gHorseNormalIdleAnim);
+      |                                          ^~~~~~~~~~~~~~~~~
+      |                                          |
+      |                                          const char (*)[52]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1361:61: note: expected 'SkeletonHeader *' but argument is of type 'const char (*)[52]'
+ 1361 | void Skin_Init(PlayState* play, Skin* skin, SkeletonHeader* skeletonHeader, AnimationHeader* animationHeader);
+      |                                             ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:244:61: warning: passing argument 4 of 'Skin_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  244 |             Skin_Init(play, &this->skin, &gHorseNormalSkel, &gHorseNormalIdleAnim);
+      |                                                             ^~~~~~~~~~~~~~~~~~~~~
+      |                                                             |
+      |                                                             const char (*)[56]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1361:94: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[56]'
+ 1361 | void Skin_Init(PlayState* play, Skin* skin, SkeletonHeader* skeletonHeader, AnimationHeader* animationHeader);
+      |                                                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:252:42: warning: passing argument 3 of 'Skin_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  252 |             Skin_Init(play, &this->skin, &gHorseNormalSkel, &gHorseNormalIdleAnim);
+      |                                          ^~~~~~~~~~~~~~~~~
+      |                                          |
+      |                                          const char (*)[52]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1361:61: note: expected 'SkeletonHeader *' but argument is of type 'const char (*)[52]'
+ 1361 | void Skin_Init(PlayState* play, Skin* skin, SkeletonHeader* skeletonHeader, AnimationHeader* animationHeader);
+      |                                             ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:252:61: warning: passing argument 4 of 'Skin_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  252 |             Skin_Init(play, &this->skin, &gHorseNormalSkel, &gHorseNormalIdleAnim);
+      |                                                             ^~~~~~~~~~~~~~~~~~~~~
+      |                                                             |
+      |                                                             const char (*)[56]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1361:94: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[56]'
+ 1361 | void Skin_Init(PlayState* play, Skin* skin, SkeletonHeader* skeletonHeader, AnimationHeader* animationHeader);
+      |                                                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:257:38: warning: passing argument 3 of 'Skin_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  257 |         Skin_Init(play, &this->skin, &gHorseNormalSkel, &gHorseNormalIdleAnim);
+      |                                      ^~~~~~~~~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[52]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1361:61: note: expected 'SkeletonHeader *' but argument is of type 'const char (*)[52]'
+ 1361 | void Skin_Init(PlayState* play, Skin* skin, SkeletonHeader* skeletonHeader, AnimationHeader* animationHeader);
+      |                                             ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:257:57: warning: passing argument 4 of 'Skin_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  257 |         Skin_Init(play, &this->skin, &gHorseNormalSkel, &gHorseNormalIdleAnim);
+      |                                                         ^~~~~~~~~~~~~~~~~~~~~
+      |                                                         |
+      |                                                         const char (*)[56]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1361:94: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[56]'
+ 1361 | void Skin_Init(PlayState* play, Skin* skin, SkeletonHeader* skeletonHeader, AnimationHeader* animationHeader);
+      |                                                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:260:38: warning: passing argument 3 of 'Skin_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  260 |         Skin_Init(play, &this->skin, &gHorseNormalSkel, &gHorseNormalIdleAnim);
+      |                                      ^~~~~~~~~~~~~~~~~
+      |                                      |
+      |                                      const char (*)[52]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1361:61: note: expected 'SkeletonHeader *' but argument is of type 'const char (*)[52]'
+ 1361 | void Skin_Init(PlayState* play, Skin* skin, SkeletonHeader* skeletonHeader, AnimationHeader* animationHeader);
+      |                                             ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:260:57: warning: passing argument 4 of 'Skin_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  260 |         Skin_Init(play, &this->skin, &gHorseNormalSkel, &gHorseNormalIdleAnim);
+      |                                                         ^~~~~~~~~~~~~~~~~~~~~
+      |                                                         |
+      |                                                         const char (*)[56]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1361:94: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[56]'
+ 1361 | void Skin_Init(PlayState* play, Skin* skin, SkeletonHeader* skeletonHeader, AnimationHeader* animationHeader);
+      |                                                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c: In function 'EnHorseNormal_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Normal/z_en_horse_normal.c:725:45: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  725 |             gSPDisplayList(POLY_XLU_DISP++, gHorseShadowDL);
+      |                                             ^~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~

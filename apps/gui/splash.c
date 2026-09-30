@@ -28,11 +28,15 @@
 #include "settings.h"
 #include "talk.h"
 #include "splash.h"
+#include "tv_ui.h"
 #include "viewport.h"
 #include "strptokspn_r.h"
 #include "scrollbar.h"
 #include "font.h"
 #include "ipodjs_ui.h"
+#ifdef HAVE_IPODJS_UI
+#include "ipodjs_settings.h"
+#endif
 #ifndef BOOTLOADER
 #include "misc.h" /* get_current_activity */
 #endif
@@ -70,6 +74,10 @@ static bool splash_draw_modern_panel(struct screen *screen,
 {
     if (screen->depth <= 1)
         return false;
+#ifdef HAVE_IPODJS_UI
+    if (ipodjs_settings_draw_notice(screen, vp->x, vp->y, vp->width, vp->height))
+        return true;
+#endif
 
     const bool ipodjs = ipodjs_ui_enabled(screen->screen_type);
     const unsigned edge = ipodjs ? ipodjs_ui_header_bg() :
@@ -138,11 +146,19 @@ static bool splash_internal(struct screen * screen, const char *fmt, va_list ap,
     int maxw = min_width - 2*RECT_SPACING;
     int fontnum = vp->font;
     bool modern_panel = false;
+    bool retail_notice = false;
 
     char lastbrkchr;
     size_t len, next_len;
     const char matchstr[] = "\r\n\f\v\t ";
     viewport_set_centered_preset(&bounds, VIEWPORT_OVERLAY_PRESET_SMALL);
+#ifdef HAVE_IPODJS_UI
+    if (ipodjs_settings_dialog_available(screen))
+    {
+        fontnum = ipodjs_ui_retailos_detail_font();
+        bounds.font = vp->font = fontnum;
+    }
+#endif
     font_getstringsize(" ", &space_w, &chr_h, fontnum);
     y = chr_h + (addl_lines * chr_h);
 
@@ -216,6 +232,14 @@ static bool splash_internal(struct screen * screen, const char *fmt, va_list ap,
 
     width = maxw + 2*RECT_SPACING;
     height = y + 2*RECT_SPACING;
+#ifdef HAVE_IPODJS_UI
+    if (ipodjs_settings_dialog_available(screen) && height <= 80)
+    {
+        height = 80;
+        width = MAX(width, 180);
+        retail_notice = true;
+    }
+#endif
 
     *vp = bounds;
     viewport_set_centered(vp, width, height);
@@ -236,6 +260,10 @@ static bool splash_internal(struct screen * screen, const char *fmt, va_list ap,
 #ifdef HAVE_LCD_COLOR
         if (ipodjs_ui_enabled(screen->screen_type))
             fg = ipodjs_ui_text();
+#ifdef HAVE_IPODJS_UI
+        if (retail_notice)
+            fg = LCD_RGBPACK(255,255,255);
+#endif
 #endif
 
         broken = (fg == bg) ||
@@ -275,7 +303,8 @@ static bool splash_internal(struct screen * screen, const char *fmt, va_list ap,
         screen->draw_border_viewport();
 
     /* print the message to screen */
-    for(i = 0, y = RECT_SPACING; i <= line; i++, y+= chr_h)
+    for(i = 0, y = retail_notice ? (height - (line + 1) * chr_h) / 2 : RECT_SPACING;
+        i <= line; i++, y+= chr_h)
     {
         screen->putsxyf(0, y, "%.*s", lines[i].len, lines[i].str);
     }
@@ -284,6 +313,8 @@ static bool splash_internal(struct screen * screen, const char *fmt, va_list ap,
 
 void splashf(int ticks, const char *fmt, ...)
 {
+    /* Startup errors and explicit notices must remain visible. */
+    lcd_boot_frame_hold(false);
     va_list ap;
 
     /* fmt may be a so called virtual pointer. See settings.h. */
@@ -310,6 +341,14 @@ void splashf(int ticks, const char *fmt, ...)
 
         screen->set_viewport(last_vp);
     }
+#ifdef HAVE_COMPOSITE_VIDEO_OUT
+    char tv_message[256];
+    va_start(ap, fmt);
+    vsnprintf(tv_message, sizeof(tv_message), fmt, ap);
+    va_end(ap);
+    const char *tv_lines[] = {tv_message};
+    tv_dialog_draw("Rockbox", tv_lines, 1, "");
+#endif
     if (ticks)
         sleep(ticks);
 }

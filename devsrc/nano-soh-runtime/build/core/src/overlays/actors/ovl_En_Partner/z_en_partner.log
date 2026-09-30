@@ -1,0 +1,347 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c: In function 'EnPartner_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:120:44: warning: passing argument 3 of 'SkelAnime_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  120 |     SkelAnime_Init(play, &this->skelAnime, &gFairySkel, &gFairyAnim, this->jointTable, this->morphTable, 15);
+      |                                            ^~~~~~~~~~~
+      |                                            |
+      |                                            const char (*)[40]
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1327:75: note: expected 'SkeletonHeader *' but argument is of type 'const char (*)[40]'
+ 1327 | s32 SkelAnime_Init(PlayState* play, SkelAnime* skelAnime, SkeletonHeader* skeletonHeaderSeg,
+      |                                                           ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:120:57: warning: passing argument 4 of 'SkelAnime_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  120 |     SkelAnime_Init(play, &this->skelAnime, &gFairySkel, &gFairyAnim, this->jointTable, this->morphTable, 15);
+      |                                                         ^~~~~~~~~~~
+      |                                                         |
+      |                                                         const char (*)[40]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1328:37: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[40]'
+ 1328 |                    AnimationHeader* animation, Vec3s* jointTable, Vec3s* morphTable, s32 limbCount);
+      |                    ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c: In function 'EnPartner_Destroy':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:145:24: warning: passing argument 1 of 'Actor_Kill' from incompatible pointer type [-Wincompatible-pointer-types]
+  145 |         Actor_Kill(this->windEffect);
+      |                    ~~~~^~~~~~~~~~~~
+      |                        |
+      |                        DemoEffect *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:399:24: note: expected 'Actor *' but argument is of type 'DemoEffect *'
+  399 | void Actor_Kill(Actor* actor);
+      |                 ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c: In function 'UseBow':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:232:24: warning: passing argument 1 of 'Player_PlaySfx' from incompatible pointer type [-Wincompatible-pointer-types]
+  232 |         Player_PlaySfx(this, NA_SE_PL_CHANGE_ARMS);
+      |                        ^~~~
+      |                        |
+      |                        EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:478:28: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  478 | void Player_PlaySfx(Actor* actor, u16 sfxId);
+      |                     ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c: In function 'UseSlingshot':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:273:24: warning: passing argument 1 of 'Player_PlaySfx' from incompatible pointer type [-Wincompatible-pointer-types]
+  273 |         Player_PlaySfx(this, NA_SE_PL_CHANGE_ARMS);
+      |                        ^~~~
+      |                        |
+      |                        EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:478:28: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  478 | void Player_PlaySfx(Actor* actor, u16 sfxId);
+      |                     ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c: In function 'UseBombchus':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:348:31: warning: initialization of 'EnBom *' from incompatible pointer type 'Actor *' [-Wincompatible-pointer-types]
+  348 |                 EnBom* bomb = Actor_Spawn(&play->actorCtx, play, ACTOR_EN_BOM, this->actor.world.pos.x,
+      |                               ^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c: In function 'UseDekuStick':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:371:32: warning: passing argument 1 of 'Player_PlaySfx' from incompatible pointer type [-Wincompatible-pointer-types]
+  371 |                 Player_PlaySfx(this, NA_SE_EV_FLAME_IGNITION);
+      |                                ^~~~
+      |                                |
+      |                                EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:478:28: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  478 | void Player_PlaySfx(Actor* actor, u16 sfxId);
+      |                     ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c: In function 'IvanWindEffect_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:426:44: warning: passing argument 3 of 'SkelCurve_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  426 |     SkelCurve_Init(play, &this->skelCurve, &gTimeWarpSkel, &gTimeWarpAnim);
+      |                                            ^~~~~~~~~~~~~~
+      |                                            |
+      |                                            const char (*)[43]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:887:83: note: expected 'SkelCurveLimbList *' but argument is of type 'const char (*)[43]'
+  887 | s32 SkelCurve_Init(PlayState* play, SkelAnimeCurve* skelCurve, SkelCurveLimbList* limbListSeg,
+      |                                                                ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:426:60: warning: passing argument 4 of 'SkelCurve_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  426 |     SkelCurve_Init(play, &this->skelCurve, &gTimeWarpSkel, &gTimeWarpAnim);
+      |                                                            ^~~~~~~~~~~~~~
+      |                                                            |
+      |                                                            const char (*)[43]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:888:42: note: expected 'TransformUpdateIndex *' but argument is of type 'const char (*)[43]'
+  888 |                    TransformUpdateIndex* transUpdIdx);
+      |                    ~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:427:41: warning: passing argument 2 of 'SkelCurve_SetAnim' from incompatible pointer type [-Wincompatible-pointer-types]
+  427 |     SkelCurve_SetAnim(&this->skelCurve, &gTimeWarpAnim, 1.0f, 59.0f, 1.0f, 8.0f);
+      |                                         ^~~~~~~~~~~~~~
+      |                                         |
+      |                                         const char (*)[43]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:890:73: note: expected 'TransformUpdateIndex *' but argument is of type 'const char (*)[43]'
+  890 | void SkelCurve_SetAnim(SkelAnimeCurve* skelCurve, TransformUpdateIndex* transUpdIdx, f32 arg2, f32 animFinalFrame,
+      |                                                   ~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c: In function 'IvanWindEffect_Spawn':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:443:9: warning: initialization of 'DemoEffect *' from incompatible pointer type 'Actor *' [-Wincompatible-pointer-types]
+  443 |         Actor_Spawn(&play->actorCtx, play, ACTOR_DEMO_EFFECT, spawn.pos.x, spawn.pos.y, spawn.pos.z, spawn.rot.x,
+      |         ^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c: In function 'UseHookshot':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:537:28: warning: passing argument 1 of 'Player_PlaySfx' from incompatible pointer type [-Wincompatible-pointer-types]
+  537 |             Player_PlaySfx(this, NA_SE_PL_CHANGE_ARMS);
+      |                            ^~~~
+      |                            |
+      |                            EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:478:28: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  478 | void Player_PlaySfx(Actor* actor, u16 sfxId);
+      |                     ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:549:28: warning: passing argument 1 of 'Player_PlaySfx' from incompatible pointer type [-Wincompatible-pointer-types]
+  549 |             Player_PlaySfx(this, NA_SE_PL_CHANGE_ARMS);
+      |                            ^~~~
+      |                            |
+      |                            EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:478:28: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  478 | void Player_PlaySfx(Actor* actor, u16 sfxId);
+      |                     ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c: In function 'UseBoomerang':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:581:34: warning: assignment to 'EnBoom *' from incompatible pointer type 'Actor *' [-Wincompatible-pointer-types]
+  581 |             this->boomerangActor = &boomerang->actor;
+      |                                  ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c: In function 'UseItem':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:684:30: warning: passing argument 1 of 'UseDekuStick' from incompatible pointer type [-Wincompatible-pointer-types]
+  684 |                 UseDekuStick(this, play, started);
+      |                              ^~~~
+      |                              |
+      |                              EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:365:26: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  365 | void UseDekuStick(Actor* thisx, PlayState* play, u8 started) {
+      |                   ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:687:26: warning: passing argument 1 of 'UseBombs' from incompatible pointer type [-Wincompatible-pointer-types]
+  687 |                 UseBombs(this, play, started);
+      |                          ^~~~
+      |                          |
+      |                          EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:292:22: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  292 | void UseBombs(Actor* thisx, PlayState* play, u8 started) {
+      |               ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:690:29: warning: passing argument 1 of 'UseBombchus' from incompatible pointer type [-Wincompatible-pointer-types]
+  690 |                 UseBombchus(this, play, started);
+      |                             ^~~~
+      |                             |
+      |                             EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:341:25: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  341 | void UseBombchus(Actor* thisx, PlayState* play, u8 started) {
+      |                  ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:693:25: warning: passing argument 1 of 'UseNuts' from incompatible pointer type [-Wincompatible-pointer-types]
+  693 |                 UseNuts(this, play, started);
+      |                         ^~~~
+      |                         |
+      |                         EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:515:21: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  515 | void UseNuts(Actor* thisx, PlayState* play, u8 started) {
+      |              ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:696:24: warning: passing argument 1 of 'UseBow' from incompatible pointer type [-Wincompatible-pointer-types]
+  696 |                 UseBow(this, play, started, 0);
+      |                        ^~~~
+      |                        |
+      |                        EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:228:20: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  228 | void UseBow(Actor* thisx, PlayState* play, u8 started, u8 arrowType) {
+      |             ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:699:24: warning: passing argument 1 of 'UseBow' from incompatible pointer type [-Wincompatible-pointer-types]
+  699 |                 UseBow(this, play, started, 1);
+      |                        ^~~~
+      |                        |
+      |                        EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:228:20: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  228 | void UseBow(Actor* thisx, PlayState* play, u8 started, u8 arrowType) {
+      |             ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:702:24: warning: passing argument 1 of 'UseBow' from incompatible pointer type [-Wincompatible-pointer-types]
+  702 |                 UseBow(this, play, started, 2);
+      |                        ^~~~
+      |                        |
+      |                        EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:228:20: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  228 | void UseBow(Actor* thisx, PlayState* play, u8 started, u8 arrowType) {
+      |             ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:705:24: warning: passing argument 1 of 'UseBow' from incompatible pointer type [-Wincompatible-pointer-types]
+  705 |                 UseBow(this, play, started, 3);
+      |                        ^~~~
+      |                        |
+      |                        EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:228:20: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  228 | void UseBow(Actor* thisx, PlayState* play, u8 started, u8 arrowType) {
+      |             ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:708:30: warning: passing argument 1 of 'UseSlingshot' from incompatible pointer type [-Wincompatible-pointer-types]
+  708 |                 UseSlingshot(this, play, started);
+      |                              ^~~~
+      |                              |
+      |                              EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:269:26: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  269 | void UseSlingshot(Actor* thisx, PlayState* play, u8 started) {
+      |                   ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:712:28: warning: passing argument 1 of 'UseOcarina' from incompatible pointer type [-Wincompatible-pointer-types]
+  712 |                 UseOcarina(this, play, started);
+      |                            ^~~~
+      |                            |
+      |                            EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:557:24: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  557 | void UseOcarina(Actor* thisx, PlayState* play, u8 started) {
+      |                 ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:716:29: warning: passing argument 1 of 'UseHookshot' from incompatible pointer type [-Wincompatible-pointer-types]
+  716 |                 UseHookshot(this, play, started);
+      |                             ^~~~
+      |                             |
+      |                             EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:532:25: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  532 | void UseHookshot(Actor* thisx, PlayState* play, u8 started) {
+      |                  ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:719:26: warning: passing argument 1 of 'UseSpell' from incompatible pointer type [-Wincompatible-pointer-types]
+  719 |                 UseSpell(this, play, started, 1);
+      |                          ^~~~
+      |                          |
+      |                          EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:623:22: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  623 | void UseSpell(Actor* thisx, PlayState* play, u8 started, u8 spellType) {
+      |               ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:722:26: warning: passing argument 1 of 'UseSpell' from incompatible pointer type [-Wincompatible-pointer-types]
+  722 |                 UseSpell(this, play, started, 2);
+      |                          ^~~~
+      |                          |
+      |                          EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:623:22: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  623 | void UseSpell(Actor* thisx, PlayState* play, u8 started, u8 spellType) {
+      |               ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:728:27: warning: passing argument 1 of 'UseHammer' from incompatible pointer type [-Wincompatible-pointer-types]
+  728 |                 UseHammer(this, play, started);
+      |                           ^~~~
+      |                           |
+      |                           EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:311:23: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  311 | void UseHammer(Actor* thisx, PlayState* play, u8 started) {
+      |                ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:731:30: warning: passing argument 1 of 'UseBoomerang' from incompatible pointer type [-Wincompatible-pointer-types]
+  731 |                 UseBoomerang(this, play, started);
+      |                              ^~~~
+      |                              |
+      |                              EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:567:26: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  567 | void UseBoomerang(Actor* thisx, PlayState* play, u8 started) {
+      |                   ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:734:25: warning: passing argument 1 of 'UseLens' from incompatible pointer type [-Wincompatible-pointer-types]
+  734 |                 UseLens(this, play, started);
+      |                         ^~~~
+      |                         |
+      |                         EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:590:21: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  590 | void UseLens(Actor* thisx, PlayState* play, u8 started) {
+      |              ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:737:26: warning: passing argument 1 of 'UseBeans' from incompatible pointer type [-Wincompatible-pointer-types]
+  737 |                 UseBeans(this, play, started);
+      |                          ^~~~
+      |                          |
+      |                          EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:606:22: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  606 | void UseBeans(Actor* thisx, PlayState* play, u8 started) {
+      |               ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c: In function 'EnPartner_Update':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:893:40: warning: passing argument 3 of 'UseItem' from incompatible pointer type [-Wincompatible-pointer-types]
+  893 |             UseItem(this->usedItem, 1, this, play);
+      |                                        ^~~~
+      |                                        |
+      |                                        EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:678:51: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  678 | void UseItem(uint8_t usedItem, u8 started, Actor* thisx, PlayState* play) {
+      |                                            ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:895:40: warning: passing argument 3 of 'UseItem' from incompatible pointer type [-Wincompatible-pointer-types]
+  895 |             UseItem(this->usedItem, 0, this, play);
+      |                                        ^~~~
+      |                                        |
+      |                                        EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:678:51: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  678 | void UseItem(uint8_t usedItem, u8 started, Actor* thisx, PlayState* play) {
+      |                                            ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:898:40: warning: passing argument 3 of 'UseItem' from incompatible pointer type [-Wincompatible-pointer-types]
+  898 |             UseItem(this->usedItem, 2, this, play);
+      |                                        ^~~~
+      |                                        |
+      |                                        EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:678:51: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  678 | void UseItem(uint8_t usedItem, u8 started, Actor* thisx, PlayState* play) {
+      |                                            ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:901:36: warning: passing argument 3 of 'UseItem' from incompatible pointer type [-Wincompatible-pointer-types]
+  901 |         UseItem(this->usedItem, 0, this, play);
+      |                                    ^~~~
+      |                                    |
+      |                                    EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:678:51: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  678 | void UseItem(uint8_t usedItem, u8 started, Actor* thisx, PlayState* play) {
+      |                                            ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:911:26: warning: passing argument 1 of 'CenterIvanOnLink' from incompatible pointer type [-Wincompatible-pointer-types]
+  911 |         CenterIvanOnLink(this, play);
+      |                          ^~~~
+      |                          |
+      |                          EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:220:30: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  220 | void CenterIvanOnLink(Actor* thisx, PlayState* play) {
+      |                       ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c: In function 'DrawOrb':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:1004:37: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1004 |     gSPDisplayList(POLY_XLU_DISP++, gEffFlash1DL);
+      |                                     ^~~~~~~~~~~~
+      |                                     |
+      |                                     const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:1008:37: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1008 |     gSPDisplayList(POLY_XLU_DISP++, gEffFlash1DL);
+      |                                     ^~~~~~~~~~~~
+      |                                     |
+      |                                     const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c: In function 'EnPartner_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:1023:36: warning: passing argument 3 of 'UseItem' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1023 |         UseItem(this->usedItem, 0, this, play);
+      |                                    ^~~~
+      |                                    |
+      |                                    EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:678:51: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  678 | void UseItem(uint8_t usedItem, u8 started, Actor* thisx, PlayState* play) {
+      |                                            ~~~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:1042:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1042 |     gSPSegment(POLY_XLU_DISP++, 0x08, dListHead);
+      |                                       ^~~~~~~~~
+      |                                       |
+      |                                       Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:1053:57: warning: passing argument 3 of 'SkelAnime_DrawSkeleton2' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1053 |         SkelAnime_DrawSkeleton2(play, &this->skelAnime, EnPartner_OverrideLimbDraw, NULL, this, POLY_XLU_DISP);
+      |                                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                         |
+      |                                                         s32 (*)(PlayState *, s32,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **) {aka long int (*)(PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **)}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1271:89: note: expected 'OverrideLimbDrawOpa' {aka 'long int (*)(struct PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *)'} but argument is of type 's32 (*)(PlayState *, s32,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **)' {aka 'long int (*)(PlayState *, long int,  Gfx **, Vec3f *, Vec3s *, void *, Gfx **)'}
+ 1271 | Gfx* SkelAnime_DrawSkeleton2(PlayState* play, SkelAnime* skelAnime, OverrideLimbDrawOpa overrideLimbDraw,
+      |                                                                     ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:945:5: note: 'EnPartner_OverrideLimbDraw' declared here
+  945 | s32 EnPartner_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, void* thisx,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64actor.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64.h:10,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:4:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/z64animation.h:114:15: note: 'OverrideLimbDrawOpa' declared here
+  114 | typedef s32 (*OverrideLimbDrawOpa)(struct PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot,
+      |               ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:1058:17: warning: passing argument 1 of 'DrawOrb' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1058 |         DrawOrb(this, play, this->usedSpell);
+      |                 ^~~~
+      |                 |
+      |                 EnPartner *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Partner/z_en_partner.c:964:21: note: expected 'Actor *' but argument is of type 'EnPartner *'
+  964 | void DrawOrb(Actor* thisx, PlayState* play, u8 color) {
+      |              ~~~~~~~^~~~~

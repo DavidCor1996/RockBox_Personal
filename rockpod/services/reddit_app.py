@@ -15,7 +15,14 @@ from urllib.parse import urlsplit
 
 from PIL import Image, ImageOps
 
-from services.android_media import build_ffmpeg_command
+from services.app_video_sync import (
+    app_video_extension,
+    app_video_profile,
+    app_video_signature,
+    device_video_target,
+    remove_alternate_video,
+    stage_app_video,
+)
 from services.device_sync_index import DeviceSyncIndex
 from services.file_safety import atomic_write_text
 from services.path_safety import resolve_under_root, validate_device_root
@@ -203,8 +210,11 @@ class RedditAppService:
         self._save(payload)
         return {"subreddits": 1, "posts": len(posts), "media": sum(bool(p.get("source_path")) for p in posts)}
 
-    def sync(self, mount_path, progress=None):
+    def sync(self, mount_path, progress=None, video_profile=None):
         mount = validate_device_root(mount_path)
+        video_target = device_video_target(mount)
+        video_profile = app_video_profile(self.config, video_profile)
+        video_extension = app_video_extension(video_profile)
         subreddits = self.list_subreddits()
         if not subreddits:
             raise ValueError("Import a subreddit before syncing")
@@ -265,22 +275,39 @@ class RedditAppService:
                         display_device = f"/{REDDIT_ROOT}/display/{display.name}"
                         previews.append(display_device)
                     else:
-                        target = paths["media"] / f"{post['id']}.mpg"
-                        marker = target.with_suffix(".source")
-                        media_signature = signature + ":reddit-mpeg2-320x240-30-v1"
+                        target = paths["media"] / f"{post['id']}{video_extension}"
+                        marker = Path(str(target) + ".source")
+                        media_signature = app_video_signature(
+                            video_profile, signature,
+                            "reddit-video-320x240-30-v2",
+                            video_target,
+                        )
                         current = sync_index.current_or_seed(
-                            "reddit", post["id"], "video-media-v1", media_signature,
-                            [target], legacy_marker=marker, legacy_signature=signature,
+                            "reddit", post["id"], "video-media-v2", media_signature,
+                            [target], legacy_marker=marker,
+                            legacy_signature=media_signature,
                         )
                         if not current:
                             staged = staging / target.name
-                            command = build_ffmpeg_command(source, str(staged), "video", ffmpeg_path=self.config.get("ffmpeg_binary", "ffmpeg"))
-                            command[command.index("-vf") + 1] = "scale=320:240:force_original_aspect_ratio=decrease,pad=320:240:(ow-iw)/2:(oh-ih)/2:black,fps=30"
-                            subprocess.run(command, check=True)
+                            stage_app_video(
+                                source, staged,
+                                config=self.config,
+                                profile=video_profile,
+                                cache_namespace="reddit-video",
+                                device_key=post["id"],
+                                device_target=video_target,
+                                title=post.get("title") or post["id"],
+                                artist=f"r/{community['name']}",
+                                mpeg_filter=(
+                                    "scale=320:240:force_original_aspect_ratio=decrease,"
+                                    "pad=320:240:(ow-iw)/2:(oh-ih)/2:black,fps=30"
+                                ),
+                            )
                             os.replace(staged, target)
-                            atomic_write_text(marker, signature)
+                            atomic_write_text(marker, media_signature)
+                            remove_alternate_video(target)
                             sync_index.mark(
-                                "reddit", post["id"], "video-media-v1",
+                                "reddit", post["id"], "video-media-v2",
                                 media_signature, [target],
                             )
                             report["updated"] += 1

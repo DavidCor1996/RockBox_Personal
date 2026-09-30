@@ -85,11 +85,42 @@ def main() -> int:
         "lcd_set_overlay_row_hook",
         "notification_render_banner",
         "notification_blend_round_rect",
+        "NOTIFICATION_DESKTOP_X",
+        "notification_load_desktop_icon",
+        "notification_desktop_display_x",
+        "notification_manager_set_desktop_mode",
+        "notification_manager_hibernate_prepare",
+        "notification_manager_hibernate_resume",
+        "notification_hibernate_suspended",
+        "notification_hibernate_resume_pending",
+        "notification_music_reset_baseline",
+        "beep_play(0, 0, 0)",
         "notification_manager_test_banner",
         "notification_puts_fit",
-        "14-Adobe-Helvetica-Bold.fnt",
+        "15-Helvetica-Bold-RetailOS-Apple.fnt",
+        "13-Helvetica-RetailOS-Apple.fnt",
         "notification-banner.ios5.320x42x24.bmp",
     )
+    reset_start = manager.index(
+        "static void notification_music_reset_baseline(void)"
+    )
+    reset_end = manager.index(
+        "static void notification_music_service(void)", reset_start
+    )
+    reset_body = manager[reset_start:reset_end]
+    for forbidden in ("audio_status(", "audio_current_track(",
+                      "notification_post(", "beep_play("):
+        if forbidden in reset_body:
+            raise SystemExit(
+                "hibernate notification baseline touches live service: " +
+                forbidden
+            )
+    if ("notification_music_known = false" not in reset_body or
+            "notification_music_path[0] = '\\0'" not in reset_body):
+        raise SystemExit(
+            "hibernate notification baseline is not invalidated for a "
+            "silent later relearn"
+        )
     require(
         "apps/menus/theme_menu.c",
         "Test Notification",
@@ -103,6 +134,8 @@ def main() -> int:
         "notification-center-linen.ios5.32x32x24.bmp",
         "achievement-icon.22x22x24.bmp",
         "root_menu_video_notification_age",
+        "notification_manager_set_desktop_mode(true)",
+        "notification_manager_set_desktop_mode(false)",
         "ipodjs_ui_transition_begin_vertical(1)",
         "ipodjs_ui_transition_begin_vertical(-1)",
     )
@@ -113,16 +146,16 @@ def main() -> int:
         "static int root_menu_video_dashboard", center_start)
     center_source = center_source[center_start:center_end]
     if not re.search(
-            r"case ACTION_STD_CONTEXT:.*?Clear all notifications\?",
+            r"case ACTION_STD_CONTEXT:.*?clear_pending = true",
             center_source, re.DOTALL):
         raise SystemExit("Select hold must offer to clear all notifications")
     if "case ACTION_STD_MENU:" not in center_source:
         raise SystemExit("Menu must dismiss Notification Center")
     if not re.search(
-            r"case ACTION_STD_MENU:\s*notification_manager_set_center_active"
+            r"case ACTION_STD_MENU:.*?notification_manager_set_center_active"
             r"\(false\);",
-            center_source):
-        raise SystemExit("Menu alone must dismiss Notification Center")
+            center_source, re.DOTALL):
+        raise SystemExit("Menu must cancel confirmation or dismiss the center")
     dashboard_source = (ROOT / "apps/root_menu.c").read_text(encoding="utf-8")
     if "left_hold_start" in dashboard_source:
         raise SystemExit("Notification Center must not require Left hold")

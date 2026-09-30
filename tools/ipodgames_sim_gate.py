@@ -77,6 +77,7 @@ def run_plugin(
     parameter: str | None,
     extra_environment: dict[str, str],
     timeout: int = 30,
+    stop_after_return: bool = False,
 ) -> str:
     environment = os.environ.copy()
     environment.update(
@@ -92,7 +93,7 @@ def run_plugin(
     if parameter:
         environment["ROCKBOX_SIM_PLUGIN_PARAM"] = parameter
     environment.update(extra_environment)
-    result = subprocess.run(
+    process = subprocess.Popen(
         [
             str(build_dir / "rockboxui"),
             "--nobackground",
@@ -106,10 +107,35 @@ def run_plugin(
         text=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
-        timeout=timeout,
-        check=False,
     )
-    return result.stdout
+    deadline = time.monotonic() + timeout
+    while True:
+        try:
+            output, _ = process.communicate(timeout=0.2)
+            if process.returncode != 0:
+                raise RuntimeError(f"simulator exited {process.returncode}:\n{output}")
+            return output
+        except subprocess.TimeoutExpired as error:
+            output = error.output or b""
+            if isinstance(output, bytes):
+                output = output.decode("utf-8", errors="replace")
+            returned = "ROCKBOX_SIM_PLUGIN rc=0\n" in output
+            if stop_after_return and returned:
+                # plugin_load has returned, including the plugin's teardown.
+                # This does not qualify the simulator's later poweroff path.
+                process.terminate()
+                try:
+                    process.communicate(timeout=2)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.communicate()
+                print("Plugin returned successfully; host stopped by headless gate. "
+                      "Simulator poweroff is not tested.")
+                return output
+            if time.monotonic() >= deadline:
+                process.kill()
+                process.communicate()
+                raise RuntimeError(f"simulator timed out after {timeout}s:\n{output}")
 
 
 def validate_cardinal_joystick(simdisk: Path) -> bool:
@@ -354,6 +380,22 @@ def main() -> int:
         "--build-dir", type=Path, default=Path("build-sim-ipod6g")
     )
     parser.add_argument(
+        "--simdisk", type=Path,
+        help="isolated test disk (default: the build directory's simdisk)",
+    )
+    parser.add_argument(
+        "--stop-after-return", action="store_true",
+        help="stop the headless host after plugin_load returns; excludes poweroff testing",
+    )
+    parser.add_argument(
+        "--vortex-play", action="store_true",
+        help="exercise Vortex name entry, gameplay, pause and save/exit",
+    )
+    parser.add_argument(
+        "--require-music", action="store_true",
+        help="require three registered tracks, playback and no music errors",
+    )
+    parser.add_argument(
         "--frames", type=int, default=120,
         help="number of eApp event frames to execute (default: 120)",
     )
@@ -404,7 +446,7 @@ def main() -> int:
     args = parser.parse_args()
 
     build_dir = args.build_dir.resolve()
-    simdisk = (build_dir / "simdisk").resolve()
+    simdisk = (args.simdisk or build_dir / "simdisk").resolve()
     metadata = args.metadata.resolve()
     if not metadata.is_relative_to(simdisk):
         raise SystemExit("metadata must be inside the selected simulator disk")
@@ -416,8 +458,10 @@ def main() -> int:
     eapp_report = imported_eapp_report(metadata)
     log_path = simdisk / LOG_PATH
     coverflow_log_path = simdisk / COVERFLOW_LOG_PATH
+    runtime_path = simdisk / ".rockbox/ipodgames/ipodgames-runtime.log"
     log_path.unlink(missing_ok=True)
     coverflow_log_path.unlink(missing_ok=True)
+    runtime_path.unlink(missing_ok=True)
     for path in (simdisk / ".rockbox/ipodgames").glob(
         "ipodgames-continuity-*.ppm"
     ):
@@ -428,7 +472,9 @@ def main() -> int:
         simdisk,
         LAUNCHER_PATH,
         None,
-        {"ROCKBOY_LAUNCHER_TEST_IPODGAMES": "1"},
+        {"ROCKBOY_LAUNCHER_TEST_IPODGAMES": "1",
+         "IPODGAMES_TEST_METADATA": "/" + metadata.relative_to(simdisk).as_posix()},
+        stop_after_return=args.stop_after_return,
     )
     if not coverflow_log_path.is_file():
         print(output, end="")
@@ -445,6 +491,7 @@ def main() -> int:
         "IPODGAMES_TEST": "1",
         "IPODGAMES_TEST_FRAMES": str(args.frames),
         **({"IPODGAMES_TEST_GENERIC": "1"} if args.generic else {}),
+        **({"IPODGAMES_TEST_VORTEX_PLAY": "1"} if args.vortex_play else {}),
         **({"IPODGAMES_TEST_WHEEL_SWEEP": "1"}
            if args.wheel_sweep else {}),
         **({"IPODGAMES_TEST_CAPTURE_MENUS": "1"}
@@ -456,7 +503,7 @@ def main() -> int:
         **({"IPODGAMES_TEST_MOTION_CONTINUITY": "1"}
            if args.motion_continuity else {}),
         **({"IPODGAMES_TEST_SAVE_EXIT_PATH": "1"}
-           if args.save_exit_path else {}),
+           if args.save_exit_path or args.vortex_play else {}),
         **({"IPODGAMES_SIM_HARDWARE_EXEC": "1"}
            if args.hardware_path else {}),
     }
@@ -468,6 +515,7 @@ def main() -> int:
         test_environment,
         timeout=max(60 if args.wheel_sweep else 30,
                     (args.frames + (129 if args.wheel_sweep else 0)) // 3),
+        stop_after_return=args.stop_after_return,
     )
     elapsed = time.monotonic() - started
     if not log_path.is_file():
@@ -482,6 +530,34 @@ def main() -> int:
         if "=" in line
     )
     completed_frames = int(log_fields.get("vm_frames", "0"), 0)
+    runtime_fields = dict(
+        line.split("=", 1)
+        for line in runtime_path.read_text(
+            encoding="utf-8", errors="replace"
+        ).splitlines()
+        if "=" in line
+    )
+    music_pass = True
+    if args.require_music:
+        music = runtime_fields.get("music", "").split(":")
+        music_pass = (
+            len(music) == 5 and music[0] == "3"
+            and int(music[1]) > 0 and int(music[2]) > 0
+            and music[3:] == ["0", "0"]
+        )
+        print(f"Music: {':'.join(music)} / " + ("pass" if music_pass else "FAIL"))
+    vortex_pass = True
+    if args.vortex_play:
+        saves = simdisk / ".rockbox/ipodgames/saves/12345"
+        vortex_pass = (
+            runtime_fields.get("frame_rate") == "30"
+            and runtime_fields.get("save", "").split(":")[2:5]
+            == ["4", "21356", "0"]
+            and all((saves / name).is_file()
+                    for name in ("stats", "en/stats", "options", "quicka"))
+            and (saves / "quicka").stat().st_size == 18988
+        )
+        print("Vortex saves and clock: " + ("pass" if vortex_pass else "FAIL"))
     visual_reference_pass = True
     if args.visual_reference:
         frame_path = simdisk / ".rockbox/ipodgames/ipodgames-frame.ppm"
@@ -497,6 +573,7 @@ def main() -> int:
             "/" + metadata.relative_to(simdisk).as_posix(),
             {**test_environment, "IPODGAMES_SIM_REFERENCE_RASTER": "1"},
             timeout=max(60, args.frames),
+            stop_after_return=args.stop_after_return,
         )
         if not frame_path.is_file():
             print(reference_output, end="")
@@ -508,39 +585,14 @@ def main() -> int:
         visual_reference_pass = validate_visual_reference(
             optimized_pixels, ppm_pixels(frame_path)
         )
-    hardware_budget_pass = True
+    batched_execution_pass = True
     if args.hardware_path:
-        runtime_path = simdisk / ".rockbox/ipodgames/ipodgames-runtime.log"
-        runtime_fields = dict(
-            line.split("=", 1)
-            for line in runtime_path.read_text(
-                encoding="utf-8", errors="replace"
-            ).splitlines()
-            if "=" in line
-        )
-        instructions = int(runtime_fields.get("instructions", "0"), 0)
-        work = [
-            int(value, 0)
-            for value in runtime_fields.get(
-                "render_work", "0:0:0:0"
-            ).split(":")
-        ]
-        opaque, blended, _skipped, general = work
-        modeled_us = (
-            instructions * 1.0
-            + opaque * 0.06
-            + blended * 0.25
-            + general * 1.18
-        )
-        modeled_frame_us = modeled_us / max(completed_frames, 1)
-        modeled_fps = 1_000_000 / max(modeled_frame_us, 1)
-        hardware_budget_pass = modeled_fps >= 30.0
+        batched_execution_pass = runtime_fields.get("execution") == "batched"
         print(
-            "Hardware-path performance: "
-            f"host={completed_frames / max(elapsed, 0.001):.1f} fps, "
-            f"modeled-ipod6g={modeled_fps:.1f} fps, "
-            f"frame-budget={modeled_frame_us:.0f} us / "
-            + ("pass" if hardware_budget_pass else "FAIL")
+            "Batched interpreter: "
+            + ("confirmed" if batched_execution_pass else "NOT EXERCISED")
+            + f", host throughput={completed_frames / max(elapsed, 0.001):.1f} fps. "
+              "Physical iPod performance is not inferred from host timing."
         )
     cardinal_joystick_pass = (
         not args.wheel_sweep or validate_cardinal_joystick(simdisk)
@@ -553,8 +605,8 @@ def main() -> int:
         and "probe=eApp header valid\n" in log
         and "vm=lifecycle completed\n" in log
         and (
-            (not args.save_exit_path and completed_frames == args.frames)
-            or (args.save_exit_path and 0 < completed_frames < args.frames)
+            (not (args.save_exit_path or args.vortex_play) and completed_frames == args.frames)
+            or ((args.save_exit_path or args.vortex_play) and 0 < completed_frames < args.frames)
         )
         and "vm_fault=0\n" in log
         and f"frameworks={eapp_report['framework_count']}\n" in log
@@ -564,7 +616,9 @@ def main() -> int:
         and int(log_fields.get("vm_presented_frames", "0"), 0) > 0
         and int(log_fields.get("vm_nonblack_pixels", "0"), 0) > 0
         and int(log_fields.get("vm_framebuffer_checksum", "0"), 0) != 0
-        and hardware_budget_pass
+        and batched_execution_pass
+        and music_pass
+        and vortex_pass
         and visual_reference_pass
         and (
             args.generic
@@ -577,7 +631,7 @@ def main() -> int:
         )
         and log_fields.get("vm_armemu_signed_byte") == "1"
         and (
-            not args.save_exit_path
+            not (args.save_exit_path or args.vortex_play)
             or log_fields.get("vm_save_exit") == "1"
         )
         and actor_continuity_pass

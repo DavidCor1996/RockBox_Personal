@@ -18,8 +18,16 @@ from urllib.request import Request, urlopen
 
 from PIL import Image, ImageOps
 
-from services.android_media import build_ffmpeg_command
+from services.app_video_sync import (
+    app_video_extension,
+    app_video_profile,
+    app_video_signature,
+    device_video_target,
+    remove_alternate_video,
+    stage_app_video,
+)
 from services.device_sync_index import DeviceSyncIndex
+from services.device_manifest import present_manifest_rows
 from services.file_safety import atomic_write_text
 from services.path_safety import resolve_under_root, validate_device_root
 
@@ -1626,15 +1634,20 @@ class TikTokAppService:
             os.unlink(extracted)
         return changed
 
-    def _sync_media(self, row, mount, staging, sync_index):
+    def _sync_media(
+        self, row, mount, staging, sync_index, video_profile,
+        device_target="", video_quality="tv",
+    ):
+        video_extension = app_video_extension(video_profile)
         destination = resolve_under_root(
-            mount, f"{TIKTOK_MEDIA_ROOT}/{row['id']}.mpg"
+            mount, f"{TIKTOK_MEDIA_ROOT}/{row['id']}{video_extension}"
         )
         # Include the output contract so existing 20 fps device copies are
         # rebuilt after an encoder/profile upgrade even when source is unchanged.
-        signature = (
-            f"{TIKTOK_MEDIA_PIPELINE_VERSION}:"
-            f"{_source_signature(row['source_path'])}"
+        signature = app_video_signature(
+            video_profile, _source_signature(row["source_path"]),
+            TIKTOK_MEDIA_PIPELINE_VERSION + (":space" if video_quality == "space" else ""),
+            device_target,
         )
         if sync_index.current_or_seed(
             "tiktok", row["id"], "video-media-v2", signature,
@@ -1642,38 +1655,40 @@ class TikTokAppService:
             trust_existing=row.get("last_synced_source_hash") == signature,
         ):
             return False, signature
-        staged = os.path.join(staging, f"{row['id']}.mpg")
-        if Path(row["source_path"]).suffix.lower() in {".mpg", ".mpeg", ".mpe"}:
-            shutil.copy2(row["source_path"], staged)
-        else:
-            command = build_ffmpeg_command(
-                row["source_path"],
-                staged,
-                "video",
-                ffmpeg_path=self.config.get("ffmpeg_binary", "ffmpeg"),
-            )
-            # Preserve source aspect in a fixed portrait-safe center window.
-            # The native player owns only the resulting black side gutters.
-            filter_index = command.index("-vf") + 1
-            command[filter_index] = (
+        staged = os.path.join(staging, f"{row['id']}{video_extension}")
+        stage_app_video(
+            row["source_path"], staged,
+            config=self.config,
+            profile=video_profile,
+            cache_namespace="tiktok-video",
+            device_key=row["id"],
+            device_target=device_target,
+            title=row.get("title") or row["id"],
+            artist=row.get("creator") or "",
+            duration=float(row.get("duration_ms") or 0) / 1000.0,
+            mpeg_filter=(
                 "scale=136:240:force_original_aspect_ratio=decrease,"
                 "pad=320:240:(ow-iw)/2:(oh-ih)/2:black,fps=30"
-            )
-            subprocess.run(command, check=True)
+            ),
+            quality=video_quality,
+        )
         os.replace(staged, destination)
+        remove_alternate_video(destination)
         sync_index.mark(
             "tiktok", row["id"], "video-media-v2", signature, [destination]
         )
         return True, signature
 
-    def _ensure_sync_source(self, row):
+    def _ensure_sync_source(self, row, video_profile, device_target="", video_quality="tv"):
         """Repair a stale/broken URL import before it reaches the transcoder."""
         source = Path(row["source_path"])
         if source.suffix.lower() in {".mpg", ".mpeg", ".mpe"}:
             return row
         ffprobe = self.config.get("ffprobe_binary", "ffprobe")
-        proven_signature = (
-            f"{TIKTOK_MEDIA_PIPELINE_VERSION}:{_source_signature(source)}"
+        proven_signature = app_video_signature(
+            video_profile, _source_signature(source),
+            TIKTOK_MEDIA_PIPELINE_VERSION + (":space" if video_quality == "space" else ""),
+            device_target,
         )
         if row.get("last_synced_source_hash") == proven_signature:
             # A previous ffmpeg run used mandatory 0:v:0 and 0:a:0 maps, so a
@@ -1723,11 +1738,24 @@ class TikTokAppService:
 
     def sync(
         self, mount_path, device=None, refresh_accounts=True,
-        progress_callback=None,
+        progress_callback=None, video_profile=None, video_ids=None,
+        video_quality="tv",
     ):
         progress = progress_callback or (lambda _done, _total, _message: None)
         progress(0, 0, "Checking the connected iPod…")
         mount = validate_device_root(mount_path)
+        device_target = (
+            str(getattr(device, "rockbox_target", "") or "").strip().lower()
+            or device_video_target(mount)
+        )
+        video_profile = app_video_profile(
+            self.config, video_profile, source_app="tiktok"
+        )
+        video_extension = app_video_extension(video_profile)
+        if video_quality not in {"tv", "space"}:
+            raise ValueError("Choose Standard or Space saver video quality")
+        if video_ids is not None:
+            refresh_accounts = False
         if refresh_accounts and self.list_account_syncs():
             progress(0, 0, "Refreshing the newest Following videos…")
             following = self.sync_account_uploads(progress_callback=progress)
@@ -1735,6 +1763,23 @@ class TikTokAppService:
             following = {"accounts": 0, "videos_added": 0, "videos_removed": 0}
         progress(0, 0, "Reading the TikTok library…")
         videos = self.list_videos()
+        retained_library = {}
+        retained_feed = {}
+        if video_ids is not None:
+            requested = {str(value) for value in video_ids}
+            known = {str(row["id"]) for row in videos}
+            if not requested or requested - known:
+                raise ValueError("Select one or more available TikToks to sync")
+            existing = present_manifest_rows(
+                mount, f"{TIKTOK_DEVICE_ROOT}/library.tsv", ("path",)
+            )
+            feed_rows = present_manifest_rows(
+                mount, TIKTOK_FEED_PATH, ("path",)
+            )
+            retained_ids = existing.keys() & feed_rows.keys()
+            retained_library = {item_id: existing[item_id] for item_id in retained_ids}
+            retained_feed = {item_id: feed_rows[item_id] for item_id in retained_ids}
+            videos = [row for row in videos if str(row["id"]) in requested]
         missing_sources = [
             row for row in videos if not os.path.isfile(row["source_path"])
         ]
@@ -1760,11 +1805,12 @@ class TikTokAppService:
         projected = 0
         for row in videos:
             destination = resolve_under_root(
-                mount, f"{TIKTOK_MEDIA_ROOT}/{row['id']}.mpg"
+                mount, f"{TIKTOK_MEDIA_ROOT}/{row['id']}{video_extension}"
             )
-            media_signature = (
-                f"{TIKTOK_MEDIA_PIPELINE_VERSION}:"
-                f"{_source_signature(row['source_path'])}"
+            media_signature = app_video_signature(
+                video_profile, _source_signature(row["source_path"]),
+                TIKTOK_MEDIA_PIPELINE_VERSION + (":space" if video_quality == "space" else ""),
+                device_target,
             )
             if not sync_index.current_or_seed(
                 "tiktok", row["id"], "video-media-v2", media_signature,
@@ -1775,7 +1821,8 @@ class TikTokAppService:
             ):
                 projected += max(
                     2 * 1024 * 1024,
-                    int(row.get("duration_ms") or 0) * 92,
+                    int(row.get("duration_ms") or 0)
+                    * (80 if video_quality == "space" else 220),
                 )
         free = shutil.disk_usage(mount).free
         reserve = 64 * 1024 * 1024
@@ -1824,14 +1871,17 @@ class TikTokAppService:
                 f"Checking clip {video_index}/{total_videos}: {title}",
             )
             try:
-                row = self._ensure_sync_source(row)
+                row = self._ensure_sync_source(
+                    row, video_profile, device_target, video_quality
+                )
                 progress(
                     video_index - 1,
                     total_videos,
                     f"Syncing clip {video_index}/{total_videos}: {title}",
                 )
                 updated, signature = self._sync_media(
-                    row, mount, staging, sync_index
+                    row, mount, staging, sync_index, video_profile,
+                    device_target, video_quality,
                 )
             except (OSError, ValueError, subprocess.CalledProcessError):
                 report["videos_skipped"] += 1
@@ -1876,7 +1926,24 @@ class TikTokAppService:
                 "last_synced_thumbnail_hash=? WHERE id=?",
                 (signature, thumbnail_signature, row["id"]),
             )
-            device_video = f"/{TIKTOK_MEDIA_ROOT}/{row['id']}.mpg"
+            device_video = (
+                f"/{TIKTOK_MEDIA_ROOT}/{row['id']}{video_extension}"
+            )
+            player_metadata = os.path.join(
+                media_root, f"{row['id']}.ttm"
+            )
+            report["state_files_updated"] += _write_text_if_changed(
+                player_metadata,
+                "\n".join([
+                    f"id={_clean(row['id'], 96)}",
+                    f"title={_clean(row.get('title'), 80)}",
+                    f"creator={_clean(row.get('creator'), 48)}",
+                    f"description={_clean(row.get('description'), 180)}",
+                    f"likes={int(row.get('like_count') or 0)}",
+                    f"comments={int(row.get('comment_count') or 0)}",
+                    f"source_type={_clean(row.get('source_type'), 24)}",
+                ]) + "\n",
+            )
             device_thumb = f"/{TIKTOK_THUMB_ROOT}/{row['id']}.bmp"
             device_preview = ""
             if video_index <= TIKTOK_MENU_PREVIEW_LIMIT:
@@ -1942,6 +2009,20 @@ class TikTokAppService:
                 f"{result} · clip {video_index}/{total_videos}: {title}",
             )
 
+        for item_id in sorted(retained_library):
+            if item_id in synced_ids:
+                continue
+            feed_row = retained_feed[item_id]
+            library_row = retained_library[item_id]
+            lines.append("\t".join(str(feed_row.get(key) or "") for key in (
+                "id", "title", "path", "source_type", "creator", "description",
+                "thumbnail", "likes", "comments", "pin_order",
+            )))
+            library.append("\t".join(str(library_row.get(key) or "") for key in (
+                "id", "title", "creator", "source_type", "account_url",
+                "upload_date", "path", "thumbnail", "menu_preview",
+            )))
+            synced_ids.add(item_id)
         expected = synced_ids
         progress(total_videos, total_videos, "Writing feeds and profile data…")
         report["videos"] = len(synced_ids)
@@ -1949,6 +2030,12 @@ class TikTokAppService:
         if legacy_reconcile:
             report["stale_files_removed"] += self._remove_stale(
                 media_root, expected, ".mpg"
+            )
+            report["stale_files_removed"] += self._remove_stale(
+                media_root, expected, ".m4v"
+            )
+            report["stale_files_removed"] += self._remove_stale(
+                media_root, expected, ".ttm"
             )
             report["stale_files_removed"] += self._remove_stale(
                 thumb_root, expected, ".bmp"
@@ -2040,6 +2127,10 @@ class TikTokAppService:
                     continue
                 for path in (
                     os.path.join(media_root, stale_id + ".mpg"),
+                    os.path.join(media_root, stale_id + ".mpg.source"),
+                    os.path.join(media_root, stale_id + ".m4v"),
+                    os.path.join(media_root, stale_id + ".m4v.source"),
+                    os.path.join(media_root, stale_id + ".ttm"),
                     os.path.join(thumb_root, stale_id + ".bmp"),
                     os.path.join(preview_root, stale_id + ".bmp"),
                     os.path.join(preview_root, stale_id + ".bmp.source"),

@@ -1,0 +1,347 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c: In function 'ActorShadow_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:135:23: warning: comparison of distinct pointer types lacks a cast [-Wcompare-distinct-pointer-types]
+  135 |             if (dlist != gCircleShadowDL) {
+      |                       ^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c: In function 'ActorShadow_DrawCircle':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:151:43: warning: passing argument 4 of 'ActorShadow_Draw' from incompatible pointer type [-Wincompatible-pointer-types]
+  151 |     ActorShadow_Draw(actor, lights, play, gCircleShadowDL, NULL);
+      |                                           ^~~~~~~~~~~~~~~
+      |                                           |
+      |                                           const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:106:75: note: expected 'Gfx *' but argument is of type 'const char *'
+  106 | void ActorShadow_Draw(Actor* actor, Lights* lights, PlayState* play, Gfx* dlist, Color_RGBA8* color) {
+      |                                                                      ~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c: In function 'ActorShadow_DrawWhiteCircle':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:157:43: warning: passing argument 4 of 'ActorShadow_Draw' from incompatible pointer type [-Wincompatible-pointer-types]
+  157 |     ActorShadow_Draw(actor, lights, play, gCircleShadowDL, &white);
+      |                                           ^~~~~~~~~~~~~~~
+      |                                           |
+      |                                           const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:106:75: note: expected 'Gfx *' but argument is of type 'const char *'
+  106 | void ActorShadow_Draw(Actor* actor, Lights* lights, PlayState* play, Gfx* dlist, Color_RGBA8* color) {
+      |                                                                      ~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c: In function 'ActorShadow_DrawHorse':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:161:43: warning: passing argument 4 of 'ActorShadow_Draw' from incompatible pointer type [-Wincompatible-pointer-types]
+  161 |     ActorShadow_Draw(actor, lights, play, gHorseShadowDL, NULL);
+      |                                           ^~~~~~~~~~~~~~
+      |                                           |
+      |                                           const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:106:75: note: expected 'Gfx *' but argument is of type 'const char *'
+  106 | void ActorShadow_Draw(Actor* actor, Lights* lights, PlayState* play, Gfx* dlist, Color_RGBA8* color) {
+      |                                                                      ~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c: In function 'ActorShadow_DrawFoot':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:182:37: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  182 |     gSPDisplayList(POLY_OPA_DISP++, gFootShadowDL);
+      |                                     ^~~~~~~~~~~~~
+      |                                     |
+      |                                     const char *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c: In function 'Attention_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:531:56: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  531 |                         gSPDisplayList(OVERLAY_DISP++, gZTargetLockOnTriangleDL);
+      |                                                        ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                        |
+      |                                                        const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:559:41: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+  559 |         gSPDisplayList(POLY_XLU_DISP++, gZTargetArrowDL);
+      |                                         ^~~~~~~~~~~~~~~
+      |                                         |
+      |                                         const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c: In function 'TitleCard_InitPlaceName':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:888:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  888 |             texture = gDekuTreeTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:891:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  891 |             texture = gDodongosCavernTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:894:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  894 |             texture = gJabuJabuTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:897:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  897 |             texture = gForestTempleTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:900:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  900 |             texture = gFireTempleTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:903:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  903 |             texture = gWaterTempleTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:906:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  906 |             texture = gSpiritTempleTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:909:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  909 |             texture = gShadowTempleTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:912:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  912 |             texture = gBottomOfTheWellTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:915:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  915 |             texture = gIceCavernTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:918:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  918 |             texture = gGERudoTrainingGroundTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:921:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  921 |             texture = gThievesHideoutTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:924:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  924 |             texture = gGanonsCastleTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:927:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  927 |             texture = gInsideGanonsCastleTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:930:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  930 |             texture = gTreasureBoxShopTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:934:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  934 |             texture = gBackAlleyTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:939:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  939 |             texture = gMarketTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:942:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  942 |             texture = gBazaarTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:945:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  945 |             texture = gKokiriShopTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:948:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  948 |             texture = gGoronShopTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:951:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  951 |             texture = gZoraShopTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:954:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  954 |             texture = gBombchuShopTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:959:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  959 |             texture = gPotionShopTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:962:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  962 |             texture = gHappyMaskShopTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:965:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  965 |             texture = gStableTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:968:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  968 |             texture = gLakesideLaboratoryTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:971:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  971 |             texture = gGravekeepersHutTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:975:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  975 |             texture = gGreatFairysFountainTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:978:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  978 |             texture = gFairysFountainTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:981:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  981 |             texture = gRoyalFamilysTombTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:984:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  984 |             texture = gShootingGalleryTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:987:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  987 |             texture = gTempleOfTimeTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:990:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  990 |             texture = gChamberOfTheSagesTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:996:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  996 |             texture = gCastleCourtyardTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:999:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  999 |             texture = gQuestionMarkTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1002:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1002 |             texture = gFishingPondTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1005:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1005 |             texture = gBombchuBowlingAlleyCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1008:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1008 |             texture = gHouseOfSkulltulaTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1011:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1011 |             texture = gHyruleFieldTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1014:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1014 |             texture = gKakarikoVillageTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1017:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1017 |             texture = gGraveyardTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1020:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1020 |             texture = gZorasRiverTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1023:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1023 |             texture = gKokiriForestTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1026:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1026 |             texture = gSacredForestMeadowTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1029:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1029 |             texture = gLakeHyliaTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1032:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1032 |             texture = gZorasDomainTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1035:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1035 |             texture = gZorasFountainTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1038:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1038 |             texture = gGERudoValleyTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1041:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1041 |             texture = gLostWoodsTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1044:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1044 |             texture = gDesertColossusTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1047:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1047 |             texture = gGERudosFortressTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1050:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1050 |             texture = gHauntedWastelandTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1053:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1053 |             texture = gHyruleCastleTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1056:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1056 |             texture = gDeathMountainTrailTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1059:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1059 |             texture = gDeathMountainCraterTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1062:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1062 |             texture = gGoronCityTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1065:21: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1065 |             texture = gLonLonRanchTitleCardENGTex;
+      |                     ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c: In function 'func_8002EBCC':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1839:43: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1839 |         gSPSegment(POLY_OPA_DISP++, 0x07, displayList);
+      |                                           ^~~~~~~~~~~
+      |                                           |
+      |                                           Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c: In function 'func_8002ED80':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:1865:43: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1865 |         gSPSegment(POLY_XLU_DISP++, 0x07, displayList);
+      |                                           ^~~~~~~~~~~
+      |                                           |
+      |                                           Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c: In function 'Actor_DrawFaroresWindPointer':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:2516:45: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 2516 |             gSPDisplayList(POLY_XLU_DISP++, gEffFlash1DL);
+      |                                             ^~~~~~~~~~~~
+      |                                             |
+      |                                             const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:2522:45: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 2522 |             gSPDisplayList(POLY_XLU_DISP++, gEffFlash1DL);
+      |                                             ^~~~~~~~~~~~
+      |                                             |
+      |                                             const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c: In function 'Actor_FaultPrint':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:2746:10: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 2746 |     name = ActorDB_Retrieve(actor->id)->name;
+      |          ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c: In function 'Actor_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:2787:82: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 2787 |     gSPSegment(POLY_OPA_DISP++, 0x06, play->objectCtx.status[actor->objBankIndex].segment);
+      |                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~
+      |                                                                                  |
+      |                                                                                  void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:2788:82: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 2788 |     gSPSegment(POLY_XLU_DISP++, 0x06, play->objectCtx.status[actor->objBankIndex].segment);
+      |                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~
+      |                                                                                  |
+      |                                                                                  void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c: In function 'Actor_DrawAll':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:3067:31: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 3067 |             char* actorName = ActorDB_Retrieve(actor->id)->name;
+      |                               ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c: In function 'func_80033C30':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:4151:37: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 4151 |     gSPDisplayList(POLY_OPA_DISP++, gCircleShadowDL);
+      |                                     ^~~~~~~~~~~~~~~
+      |                                     |
+      |                                     const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c: At top level:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:4201:66: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+ 4201 |     /* DOORLOCK_NORMAL */ { 0.54f, 6000.0f, 5000.0f, 1.0f, 0.0f, gDoorChainDL, gDoorLockDL },
+      |                                                                  ^~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:4201:66: note: (near initialization for 'sDoorLocksInfo[0].chainDL')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:4201:80: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+ 4201 |     /* DOORLOCK_NORMAL */ { 0.54f, 6000.0f, 5000.0f, 1.0f, 0.0f, gDoorChainDL, gDoorLockDL },
+      |                                                                                ^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:4201:80: note: (near initialization for 'sDoorLocksInfo[0].lockDL')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:4202:66: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+ 4202 |     /* DOORLOCK_BOSS */ { 0.644f, 12000.0f, 8000.0f, 1.0f, 0.0f, gBossDoorChainDL, gBossDoorLockDL },
+      |                                                                  ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:4202:66: note: (near initialization for 'sDoorLocksInfo[1].chainDL')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:4202:84: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+ 4202 |     /* DOORLOCK_BOSS */ { 0.644f, 12000.0f, 8000.0f, 1.0f, 0.0f, gBossDoorChainDL, gBossDoorLockDL },
+      |                                                                                    ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:4202:84: note: (near initialization for 'sDoorLocksInfo[1].lockDL')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:4203:80: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+ 4203 |     /* DOORLOCK_NORMAL_SPIRIT */ { 0.64000005f, 8500.0f, 8000.0f, 1.75f, 0.1f, gDoorChainDL, gDoorLockDL },
+      |                                                                                ^~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:4203:80: note: (near initialization for 'sDoorLocksInfo[2].chainDL')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:4203:94: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+ 4203 |     /* DOORLOCK_NORMAL_SPIRIT */ { 0.64000005f, 8500.0f, 8000.0f, 1.75f, 0.1f, gDoorChainDL, gDoorLockDL },
+      |                                                                                              ^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:4203:94: note: (near initialization for 'sDoorLocksInfo[2].lockDL')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c: In function 'func_80034BA0':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:4603:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 4603 |     gSPSegment(POLY_OPA_DISP++, 0x0C, func_80034B28(play->state.gfxCtx));
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                       |
+      |                                       Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c: In function 'func_80034CC4':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:4619:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 4619 |     gSPSegment(POLY_XLU_DISP++, 0x0C, func_80034B54(play->state.gfxCtx));
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                       |
+      |                                       Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c: In function 'func_800358DC':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_actor.c:4889:36: warning: assignment to 'Gfx *' from 's32' {aka 'long int'} makes pointer from integer without a cast [-Wint-conversion]
+ 4889 |         spawnedEnPart->displayList = arg8;
+      |                                    ^

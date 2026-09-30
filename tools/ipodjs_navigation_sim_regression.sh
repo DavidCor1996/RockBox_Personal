@@ -6,7 +6,7 @@ build_dir_arg="${1:-${repo_root}/build-sim-ipod6g}"
 build_dir="$(cd "${build_dir_arg}" && pwd)"
 out_dir="${2:-/tmp/ipodjs-navigation-regression}"
 rockboxui="${build_dir}/rockboxui"
-source_root="${build_dir}/simdisk"
+source_root="${IPODJS_NAVIGATION_SOURCE_ROOT:-${build_dir}/simdisk}"
 runtime_root=""
 sim_pid=""
 sim_wid=""
@@ -120,6 +120,10 @@ prepare_root()
     for file in "${source_root}"/.rockbox/*; do
         [ -f "${file}" ] && cp "${file}" "${runtime_root}/.rockbox/"
     done
+    # Include the actual saved hardware mapping when checking button behavior.
+    if [ -n "${IPODJS_NAVIGATION_KEYMAP:-}" ]; then
+        cp "${IPODJS_NAVIGATION_KEYMAP}" "${runtime_root}/.rockbox/keyremap.kmf"
+    fi
     for directory in langs icons backdrops wps themes fonts albumlist \
                      rockpod ipodjs codecs rocks; do
         if [ -d "${source_root}/.rockbox/${directory}" ]; then
@@ -128,6 +132,12 @@ prepare_root()
                   "${runtime_root}/.rockbox/${directory}/"
         fi
     done
+    # A minimal plugin fixture may have a valid database but no tag browser
+    # definition. The portable journey needs the shipped navigation menu.
+    if [ ! -s "${runtime_root}/.rockbox/tagnavi.config" ]; then
+        cp "${repo_root}/apps/tagnavi.config" \
+           "${runtime_root}/.rockbox/tagnavi.config"
+    fi
     # Exercise the current source assets even when simdisk predates the most
     # recent private Apple extraction/package build.
     if [ -d "${repo_root}/assets/ipodjs/apple" ]; then
@@ -148,6 +158,7 @@ prepare_root()
     if [ -n "${IPODJS_NAVIGATION_MUSIC_ROOT:-}" ]; then
         ln -s "${IPODJS_NAVIGATION_MUSIC_ROOT}" "${runtime_root}/Music"
     elif [ "${IPODJS_NAVIGATION_LONG_TITLE:-0}" = "1" ] ||
+       [ "${IPODJS_NAVIGATION_LONG_ALBUM:-0}" = "1" ] ||
        [ "${IPODJS_NAVIGATION_SHORT_TRACK:-0}" = "1" ] ||
        [ "${IPODJS_NAVIGATION_ALBUM_ART:-0}" = "1" ]; then
         local long_track
@@ -170,6 +181,13 @@ prepare_root()
         if [ "${IPODJS_NAVIGATION_SHORT_TRACK:-0}" = "1" ]; then
             long_tmp="${long_track%.*}.short.mp3"
             ffmpeg -loglevel error -y -i "${long_track}" -t 12 -c copy \
+                "${long_tmp}"
+            mv "${long_tmp}" "${long_track}"
+        fi
+        if [ "${IPODJS_NAVIGATION_LONG_ALBUM:-0}" = "1" ]; then
+            long_tmp="${long_track%.*}.long-album.mp3"
+            ffmpeg -loglevel error -y -i "${long_track}" -c copy \
+                -metadata album="A Very Long Album Name That Must Scroll Completely On Now Playing" \
                 "${long_tmp}"
             mv "${long_tmp}" "${long_track}"
         fi
@@ -229,6 +247,7 @@ prepare_root()
     fi
     config_file="${runtime_root}/.rockbox/config.cfg"
     awk -v dark_mode="${dark_mode}" -v accent="${accent}" \
+        -v root_order="${IPODJS_NAVIGATION_ROOT_MENU_ORDER:-}" \
         -v extras_pane="${extras_pane}" '
         /^ui engine:/ { next }
         /^ui engine accent:/ { next }
@@ -240,6 +259,7 @@ prepare_root()
         /^resume:/ { next }
         /^repeat:/ { next }
         /^shuffle:/ { next }
+        /^root menu order:/ { if (root_order != "") next }
         { print }
         END {
             print "ui engine: ipodjs"
@@ -251,6 +271,7 @@ prepare_root()
             print "tagcache_autoupdate: off"
             print "resume: off"
             print "repeat: off"
+            if (root_order != "") print "root menu order: " root_order
             print "shuffle: off"
         }
     ' "${config_file}" >"${runtime_root}/config.cfg.new"
@@ -992,7 +1013,14 @@ run_music_journey()
     tap_key KP_5 1.2
     wait_for_trace_kind_after "wps" "${before}"
     wps_name="$(trace_last_name_of_kind wps)"
+    # Allow a reference capture after an existing track-change toast expires.
+    # This is test timing only; notification behavior stays untouched.
+    sleep "${IPODJS_NAVIGATION_WPS_SETTLE_SECONDS:-0}"
     capture "05-wps"
+    if [ "${IPODJS_NAVIGATION_LONG_ALBUM:-0}" = "1" ]; then
+        sleep 3
+        capture "05-wps-album-scrolled"
+    fi
 
     if [ "${IPODJS_NAVIGATION_WPS_MENU_ONLY:-0}" = "1" ]; then
         # Exact hardware contract: from an actively playing Now Playing
@@ -1048,7 +1076,7 @@ run_music_journey()
     fi
 
     if [ "${IPODJS_NAVIGATION_WPS_SELECT_BEHAVIOR:-0}" = "1" ]; then
-        # A short center press is deliberately inert on iPodJS Now Playing.
+        # Short center changes the iPodJS page without leaving Now Playing.
         before="$(trace_last_sequence)"
         tap_key KP_5 0.45
         wait_for_trace_after "WPS Select" "${before}"
@@ -1557,4 +1585,6 @@ main()
         "${out_dir}"
 }
 
-main "$@"
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    main "$@"
+fi

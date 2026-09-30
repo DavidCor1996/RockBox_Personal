@@ -68,9 +68,10 @@
 #define PHYS(x)     ((uint32_t)((uintptr_t)(x) & 0x7FFFFFFF))
 #define UNCACHED(x) ((typeof(x))((uintptr_t)(x) + 0x40000000))
 
-#define BS_DMA_SIZE     262144
-#define SLICE_DESC_SIZE 320
+#include "video_capabilities.h"
+#define BS_DMA_SIZE     VIDEO_CAP_SLICE_DMA_BYTES
 #define SLICE_DESC_WORDS 8
+#define SLICE_DESC_SIZE (VIDEO_CAP_SLICES_PER_PICTURE * SLICE_DESC_WORDS * sizeof(uint32_t))
 #define VPU_MAX_SLICES  (SLICE_DESC_SIZE / (SLICE_DESC_WORDS * sizeof(uint32_t)))
 
 #ifndef MIN
@@ -765,8 +766,8 @@ int vpu_h264_configure(struct vpu_h264 *v,
         parse_sps(&v->sps, &b);
 
         if (b.error || v->sps.profile_idc != 66 ||
-            v->sps.level_idc > 30 || v->sps.pic_order_cnt_type != 0 ||
-            v->sps.max_num_ref_frames > 2 || v->sps.gaps_allowed ||
+            v->sps.level_idc > VIDEO_CAP_H264_LEVEL || v->sps.pic_order_cnt_type != VIDEO_CAP_H264_POC_TYPE ||
+            v->sps.max_num_ref_frames > VIDEO_CAP_H264_REFERENCES || v->sps.gaps_allowed ||
             !v->sps.frame_mbs_only)
             return -1;
 
@@ -963,8 +964,8 @@ int vpu_h264_decode_nalu(struct vpu_h264 *v,
     {
         parse_sps(&v->sps, &b);
         if (b.error || v->sps.profile_idc != 66 ||
-            v->sps.level_idc > 30 || v->sps.pic_order_cnt_type != 0 ||
-            v->sps.max_num_ref_frames > 2 || v->sps.gaps_allowed ||
+            v->sps.level_idc > VIDEO_CAP_H264_LEVEL || v->sps.pic_order_cnt_type != VIDEO_CAP_H264_POC_TYPE ||
+            v->sps.max_num_ref_frames > VIDEO_CAP_H264_REFERENCES || v->sps.gaps_allowed ||
             !v->sps.frame_mbs_only || apply_sps_dimensions(v) < 0)
             return -1;
         v->have_sps = 1;

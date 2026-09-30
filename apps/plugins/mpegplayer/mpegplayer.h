@@ -36,7 +36,15 @@
 #define MIN_MEMMARGIN (4*1024)
 
 /** Video thread **/
+#ifdef HAVE_COMPOSITE_VIDEO_OUT
+/* The compressed chunk/state uses about 1.2 MiB before picture allocation.
+ * Three VGA YUV420 references need another 1.32 MiB, plus LCD thumbnails.
+ * Reserve this from the plugin-owned audio arena before the disk buffer;
+ * the former 2 MiB pool left null chroma planes on 640x480 input. */
+#define LIBMPEG2_ALLOC_SIZE (4*1024*1024)
+#else
 #define LIBMPEG2_ALLOC_SIZE (2*1024*1024)
+#endif
 
 /** MPEG audio buffer **/
 #define AUDIOBUF_GUARD_SIZE (MPA_MAX_FRAME_SIZE + 2*MAD_BUFFER_GUARD)
@@ -92,6 +100,7 @@ int mpegplayer_yuv_overlay_transition_direction(void);
 bool mpegplayer_yuv_overlay_transition_active(void);
 bool mpegplayer_yuv_overlay_capture_pending(void);
 bool mpegplayer_instagram_inline_rect(struct vo_rect *rect);
+bool mpegplayer_twitch_chat_video_rect(struct vo_rect *rect);
 void mpegplayer_yuv_overlay_draw(uint8_t * const *planes,
                                  int width, int height);
 #endif
@@ -101,5 +110,7 @@ void mpegplayer_yuv_overlay_draw(uint8_t * const *planes,
 
 extern bool mpegplayer_youtube_launch;
 extern bool mpegplayer_youtube_embedded;
+
+const unsigned char *mpegplayer_tv_caption(void);
 
 #endif /* MPEGPLAYER_H */

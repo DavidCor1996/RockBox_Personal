@@ -316,6 +316,7 @@ class LiveTvPanel(QWidget):
     refresh_requested = Signal()
     autobuild_requested = Signal()
     sync_requested = Signal()
+    sync_selected_requested = Signal(int)
     assign_requested = Signal(str, list, int)   # kind, paths, channel number
     unassign_requested = Signal(str, list)      # kind, paths
     delete_media_requested = Signal(str, list)  # kind, paths
@@ -395,7 +396,8 @@ class LiveTvPanel(QWidget):
 
         actions = QFrame()
         actions.setObjectName("itunes_store_import_bar")
-        action_layout = QHBoxLayout(actions)
+        actions_layout = QVBoxLayout(actions)
+        action_layout = QHBoxLayout()
         action_layout.setContentsMargins(9, 6, 9, 6)
         action_layout.setSpacing(6)
         self._refresh_btn = QPushButton("Rescan Live Folders")
@@ -422,6 +424,7 @@ class LiveTvPanel(QWidget):
             "Cut sections out of a recording, or split a long one into "
             "several programmes.")
         self._sync_btn = QPushButton("Generate Schedule and Sync")
+        self._sync_selected_btn = QPushButton("Sync Selected Channel")
         self._sync_btn.setObjectName("store_buy_button")
         self._edit_btn.setToolTip(
             "Change this channel's number, call sign and name. "
@@ -436,13 +439,18 @@ class LiveTvPanel(QWidget):
                        self._delete_media_btn,
                        self._rename_btn, self._edit_media_btn):
             action_layout.addWidget(widget)
-        action_layout.addStretch(1)
-        action_layout.addWidget(self._sync_btn)
+        actions_layout.addLayout(action_layout)
+        sync_layout = QHBoxLayout()
+        sync_layout.addStretch(1)
+        sync_layout.addWidget(self._sync_selected_btn)
+        sync_layout.addWidget(self._sync_btn)
+        actions_layout.addLayout(sync_layout)
         layout.addWidget(actions)
 
         self._refresh_btn.clicked.connect(self.refresh_requested.emit)
         self._autobuild_btn.clicked.connect(self.autobuild_requested.emit)
         self._sync_btn.clicked.connect(self.sync_requested.emit)
+        self._sync_selected_btn.clicked.connect(self._emit_sync_selected)
         self._add_btn.clicked.connect(self.add_channel_requested.emit)
         self._edit_btn.clicked.connect(self._emit_edit)
         self._remove_btn.clicked.connect(self._emit_remove)
@@ -633,6 +641,7 @@ class LiveTvPanel(QWidget):
 
     def set_busy(self, busy):
         for widget in (self._refresh_btn, self._autobuild_btn, self._sync_btn,
+                       self._sync_selected_btn,
                        self._assign_btn, self._unassign_btn, self._add_btn,
                        self._edit_btn, self._remove_btn, self._logo_btn,
                        self._favourite_btn, self._rename_btn,
@@ -764,12 +773,18 @@ class LiveTvPanel(QWidget):
             self.rename_requested.emit(
                 "show" if self._tab == "shows" else "ad", str(path))
 
+    def _emit_sync_selected(self):
+        number = self._selected_channel_number()
+        if number is not None:
+            self.sync_selected_requested.emit(number)
+        else:
+            self.set_status("Select a channel first.")
+
 
 class LiveTvStorePanel(QWidget):
     """Store tab for downloading Live TV shows and commercials.
 
-    Downloads go to the Live TV staging folder rather than the video library,
-    and the sync removes them from there once they are verified on the iPod.
+    Downloads stay in the Live TV staging folder for additional iPods.
     """
 
     browse_requested = Signal(str, str)   # query, destination
@@ -832,8 +847,7 @@ class LiveTvStorePanel(QWidget):
         headline = QLabel("Fill your channels with shows and commercials")
         headline.setObjectName("itunes_store_headline")
         subhead = QLabel(
-            "Downloads are staged locally, converted to iPod MPEG, then "
-            "removed from this computer once they are verified on the iPod. "
+            "Downloads are staged locally and kept for syncing multiple iPods. "
             "Only download material you own or are permitted to download."
         )
         subhead.setObjectName("itunes_store_subhead")

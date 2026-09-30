@@ -48,12 +48,16 @@
 #include "lcd.h"       /* lcd_active() prototype */
 #endif
 
-#if defined(IPOD_ACCESSORY_PROTOCOL) && (defined(IPOD_COLOR) || defined(IPOD_4G) || defined(IPOD_MINI) || defined(IPOD_MINI2G))
+#ifdef IPOD_ACCESSORY_PROTOCOL
 #include "iap.h"
 #endif
 
 static long lastbtn;   /* Last valid button status */
 static long last_read; /* Last button status, for debouncing/filtering */
+#ifdef IPOD_ACCESSORY_PROTOCOL
+static bool remote_wake_enabled = true;
+void button_set_remote_wake(bool enabled) { remote_wake_enabled = enabled; }
+#endif
 static bool flipped;  /* buttons can be flipped to match the LCD flip */
 
 #ifdef HAVE_BACKLIGHT /* Filter first keypress function pointer */
@@ -92,6 +96,9 @@ static int button_read(int *data);
 #if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
         IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
 static volatile bool hibernate_button_reset_pending;
+static volatile bool hibernate_wake_filter_active;
+static volatile bool hibernate_action_reset_pending;
+static volatile bool hibernate_power_hold_committed;
 
 void button_hibernate_resume_state(void)
 {
@@ -104,8 +111,68 @@ void button_hibernate_resume_state(void)
     last_read = BUTTON_NONE;
     lastdata = 0;
     hibernate_button_reset_pending = true;
+    hibernate_wake_filter_active = true;
+    hibernate_action_reset_pending = true;
 
     restore_irq(oldlevel);
+}
+
+void button_hibernate_wheel_sample(int buttons)
+{
+    int oldlevel = disable_irq_save();
+
+    /* button_read_device() is only a cache, so its repeated NONE value cannot
+     * prove physical release after the resume code clears int_btn. Open the
+     * new input epoch only when an actual click-wheel state packet says every
+     * local button is neutral. */
+    if (hibernate_wake_filter_active && buttons == BUTTON_NONE)
+    {
+        hibernate_wake_filter_active = false;
+        hibernate_power_hold_committed = false;
+        lastbtn = BUTTON_NONE;
+        last_read = BUTTON_NONE;
+        lastdata = 0;
+    }
+
+    restore_irq(oldlevel);
+}
+
+bool button_hibernate_event_filtered(long id)
+{
+    if (id & SYS_EVENT)
+        return false;
+
+    /* RetailOS consumes the mode-3 recovered wake state instead of posting
+     * it to the UI. Keep every physical wake edge private until the wheel is
+     * stably neutral, and reserve only the exact long-Play repeat while the
+     * retained power policy is active. Short Play remains unchanged. */
+    if (hibernate_wake_filter_active)
+        return true;
+
+    if (id == (POWEROFF_BUTTON | BUTTON_REL) &&
+        hibernate_power_hold_committed)
+    {
+        /* A RetailOS longpressandhold is terminal for this gesture. Never
+         * reinterpret its later up phase as the ordinary short-Play action. */
+        hibernate_power_hold_committed = false;
+        return true;
+    }
+
+    return id == (POWEROFF_BUTTON | BUTTON_REPEAT) &&
+#ifdef HAVE_SW_POWEROFF
+           enable_sw_poweroff &&
+#endif
+           sys_poweroff_button_is_reserved();
+}
+
+bool button_hibernate_take_action_reset(void)
+{
+    int oldlevel = disable_irq_save();
+    bool pending = hibernate_action_reset_pending;
+
+    hibernate_action_reset_pending = false;
+    restore_irq(oldlevel);
+    return pending;
 }
 #endif
 
@@ -193,7 +260,11 @@ static bool filter_first_keypress_enabled(int button, int data)
 #if defined(HAVE_TRANSFLECTIVE_LCD) && defined(HAVE_LCD_SLEEP)
     if (is_backlight_on(false) && lcd_active())
 #else
-    if (is_backlight_on(false))
+    if (is_backlight_on(false)
+#ifdef IPOD_ACCESSORY_PROTOCOL
+        || (remote_wake_enabled && (button & BUTTON_REMOTE))
+#endif
+        )
 #endif
     {
         return filter_first_keypress_disabled(button, data);
@@ -216,6 +287,25 @@ static bool filter_first_remote_keypress_enabled(int button, int data)
 }
 #endif /* def HAVE_REMOTE_LCD */
 #endif /* def HAVE_BACKLIGHT */
+
+#ifdef HAVE_SW_POWEROFF
+static bool button_poweroff_candidate(int btn)
+{
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+    /* Apple's press-and-hold recognizer owns one unmodified Play gesture.
+     * Never reinterpret a wheel chord as the retained power event. */
+    if (sys_poweroff_button_is_reserved())
+        return btn == POWEROFF_BUTTON;
+#endif
+
+    return (btn & POWEROFF_BUTTON)
+#ifdef RC_POWEROFF_BUTTON
+           || btn == RC_POWEROFF_BUTTON
+#endif
+           ;
+}
+#endif
 
 static void button_tick(void)
 {
@@ -343,11 +433,7 @@ static void button_tick(void)
                            key */
 #ifdef HAVE_SW_POWEROFF
                         if (enable_sw_poweroff &&
-                            (btn & POWEROFF_BUTTON
-#ifdef RC_POWEROFF_BUTTON
-                                    || btn == RC_POWEROFF_BUTTON
-#endif
-                                    ) &&
+                            button_poweroff_candidate(btn) &&
 #if CONFIG_CHARGING && !defined(HAVE_POWEROFF_WHILE_CHARGING)
                                 !charger_inserted() &&
 #endif
@@ -355,6 +441,14 @@ static void button_tick(void)
                         {
                             /* Tell the main thread that it's time to
                                power off */
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+                            if (sys_poweroff_button_is_reserved() &&
+                                btn == POWEROFF_BUTTON)
+                            {
+                                hibernate_power_hold_committed = true;
+                            }
+#endif
                             sys_poweroff();
 
                             /* Safety net for players without hardware
@@ -436,6 +530,9 @@ static void button_tick(void)
 #endif
                     {
                         skip_release = keypress_filter_fn(btn, data);
+#ifdef IPOD_ACCESSORY_PROTOCOL
+                        iap_remote_filter(btn,skip_release,remote_wake_enabled);
+#endif
                         backlight_on();
                         buttonlight_on();
                     }
@@ -622,6 +719,20 @@ static int button_read(int *data)
         btn = button_flip(btn); /* swap upside down */
 #endif /* HAVE_LCD_FLIP */
 
+#if defined(IPOD_6G) && defined(IPOD6G_HIBERNATE_STAGE3) && \
+        IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+    if (hibernate_wake_filter_active)
+    {
+        /* Physical neutrality is established by
+         * button_hibernate_wheel_sample(), not by this retained cache. */
+        last_read = BUTTON_NONE;
+        lastbtn = BUTTON_NONE;
+        lastdata = 0;
+        *data = 0;
+        return BUTTON_NONE;
+    }
+#endif
+
 #ifdef HAVE_TOUCHSCREEN
     if (btn & BUTTON_TOUCHSCREEN)
         last_touchscreen_touch = current_tick;
@@ -675,9 +786,11 @@ long touchscreen_last_touch(void)
  */
 int button_apply_acceleration(const unsigned int data)
 {
-    int delta = (data >> 24) & 0x7f;
+    /* Remote and other discrete buttons carry no wheel delta. A mapped
+     * Previous/Next action still represents one step in every list. */
+    int delta = MAX(1, (data >> 24) & 0x7f);
 
-    if ((data & (1 << 31)) != 0)
+    if ((data & (1u << 31)) != 0)
     {
         /* read driver's velocity from data */
         unsigned int v = data & 0xffffff;

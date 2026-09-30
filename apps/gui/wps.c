@@ -22,6 +22,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include "config.h"
+#include "tv_ui.h"
+#include "videoout_art.h"
 
 #include "system.h"
 #include "debug.h"
@@ -199,6 +201,30 @@ static int skintouch_to_wps(void)
         #endif
     }
     return button;
+}
+#endif
+
+#if defined(IPOD_6G)
+static void ipodjs_wps_scrub_adjust(int delta)
+{
+    struct mp3entry *id3 = audio_current_track();
+    if (id3 && id3->length &&
+        (audio_status() & AUDIO_STATUS_PLAY))
+    {
+        /* Explicit seek only, through the same playback
+         * API as the normal WPS seek/skip actions. */
+        unsigned long step =
+            MAX(1, global_settings.ff_rewind_min_step) *
+            1000UL;
+        unsigned long elapsed = MIN(id3->elapsed,
+                                     id3->length);
+        unsigned long target = delta > 0 ?
+            elapsed + MIN(step, id3->length - elapsed) :
+            elapsed - MIN(step, elapsed);
+        audio_pre_ff_rewind();
+        id3->elapsed = target;
+        audio_ff_rewind(target);
+    }
 }
 #endif
 
@@ -410,8 +436,14 @@ static void wps_lcd_activation_hook(unsigned short id, void *param)
 
 static void gwps_leave_wps(bool theme_enabled)
 {
+    tv_art_leave();
+    tv_ui_leave();
     bool restore_skin_theme = theme_enabled;
 
+#ifdef HAVE_IPODJS_UI
+    if (ipodjs_wps_controls())
+        root_menu_ipodjs_leave_wps_frame();
+#endif
     if (restore_skin_theme)
         skin_render_inhibit_flush(true);
     FOR_NB_SCREENS(i) {
@@ -443,7 +475,12 @@ static void restore_theme(void)
 
 static void gwps_enter_wps(bool theme_enabled)
 {
+    tv_wps_enter();
     wps_state_init();
+#ifdef HAVE_IPODJS_UI
+    if (ipodjs_wps_controls())
+        root_menu_ipodjs_enter_wps_frame();
+#endif
     if (theme_enabled)
         restore_theme();
     FOR_NB_SCREENS(i) {
@@ -472,6 +509,10 @@ static void gwps_enter_wps(bool theme_enabled)
     if (gwps->data->touchregions < 0) touchscreen_set_mode(TOUCHSCREEN_BUTTON);
     #endif
     send_event(GUI_EVENT_ACTIONUPDATE, (void*)1);
+#ifdef HAVE_IPODJS_UI
+    if (ipodjs_wps_controls())
+        root_menu_ipodjs_draw_wps_frame();
+#endif
 }
 
 static long do_wps_exit(long action, bool bookmark)
@@ -578,7 +619,7 @@ long gui_wps_show(void)
             gwps_enter_wps(theme_enabled);
 #if defined(IPOD_6G)
             if (ipodjs_wps_controls())
-                ipodjs_trace_wps("full-skin", 0, 0, LCD_WIDTH,
+                ipodjs_trace_wps("lifecycle-full", 0, 0, LCD_WIDTH,
                                   LCD_HEIGHT, NULL, 0, 0);
 #endif
             theme_enabled = true;
@@ -625,12 +666,19 @@ long gui_wps_show(void)
             }
 #if defined(IPOD_6G)
             if (ipodjs_wps_controls() && skin_updated)
-                ipodjs_trace_wps(skin_full_updated ? "full-skin" : "bottom",
+                /* The lifecycle host has no painted skin viewports. Actual
+                 * full/dirty pixels are traced by the native compositor. */
+                ipodjs_trace_wps(skin_full_updated ? "lifecycle-full" :
+                                  "lifecycle-partial",
                                   0, 0, LCD_WIDTH, LCD_HEIGHT,
                                   NULL, 0, 0);
 #else
             (void)skin_updated;
             (void)skin_full_updated;
+#endif
+#ifdef HAVE_IPODJS_UI
+            if (ipodjs_wps_controls())
+                root_menu_ipodjs_draw_wps_frame();
 #endif
             update = false;
         }
@@ -638,9 +686,20 @@ long gui_wps_show(void)
         if (exit) return do_wps_exit(button, bookmark);
         if (button && !IS_SYSEVENT(button)) storage_spin();
 
-        button = skin_wait_for_action(WPS,
-                                      CONTEXT_WPS|ALLOW_SOFTLOCK,
-                                      HZ/5);
+        tv_wps_draw();
+        button = skin_wait_for_action(
+            WPS, CONTEXT_WPS|ALLOW_SOFTLOCK,
+            HZ / 5);
+#if defined(IPOD_6G)
+        if (ipodjs_wps_controls())
+        {
+            int raw;
+            get_action_statuscode(&raw);
+            root_menu_ipodjs_wps_input_trace(button, raw);
+        }
+#endif
+        tv_art_service(button == ACTION_NONE);
+        tv_wps_service(button == ACTION_NONE);
         if (!(audio_status() & AUDIO_STATUS_PLAY)) exit = true;
         #ifdef HAVE_TOUCHSCREEN
         if (button == ACTION_TOUCHSCREEN) button = skintouch_to_wps();
@@ -692,14 +751,21 @@ long gui_wps_show(void)
 
             case ACTION_WPS_BROWSE:
             {
+#ifdef IPOD_ACCESSORY_PROTOCOL
+                int raw;
+                get_action_statuscode(&raw);
+                if ((raw & BUTTON_REMOTE) && iap_remote_tv_active())
+                {
+                    gwps_leave_wps(true);
+                    return GO_TO_PREVIOUS_BROWSER;
+                }
+#endif
 #if defined(IPOD_6G)
                 if (ipodjs_wps_controls())
                 {
-                    /* Stock iPodJS semantics: a short center press does not
-                     * leave Now Playing. Long center is ACTION_WPS_CONTEXT
-                     * and launches Lyrics directly above. */
-                    ipodjs_trace_screen("WPS Select", "ignored", 0, 0, 0,
-                                        0, 0, LCD_WIDTH, LCD_HEIGHT);
+                    /* Stay in the normal WPS loop: artwork, rating, bars.
+                     * Long center still opens Lyrics. */
+                    root_menu_ipodjs_wps_select();
                     update = true;
                     break;
                 }
@@ -729,6 +795,32 @@ long gui_wps_show(void)
 
             case ACTION_WPS_VOLUP:
             case ACTION_WPS_VOLDOWN:
+#if defined(IPOD_6G)
+                if (ipodjs_wps_controls() &&
+                    root_menu_ipodjs_wps_adjust_rating(
+                        button == ACTION_WPS_VOLUP ? 1 : -1))
+                {
+                    update = true;
+                    break;
+                }
+#endif
+#if defined(IPOD_6G)
+                if (ipodjs_wps_controls())
+                {
+                    int delta = button == ACTION_WPS_VOLUP ? 1 : -1;
+                    if (root_menu_ipodjs_wps_adjust_page(delta))
+                    {
+                        update = true;
+                        break;
+                    }
+                    if (root_menu_ipodjs_wps_scrubbing())
+                    {
+                        ipodjs_wps_scrub_adjust(delta);
+                        update = true;
+                        break;
+                    }
+                }
+#endif
                 adjust_volume(button == ACTION_WPS_VOLUP ? 1 : -1);
                 update = true; break;
 
@@ -821,7 +913,11 @@ long gui_wps_show(void)
 
             case ACTION_REDRAW: skin_request_full_update(WPS); skin_request_full_update(CUSTOM_STATUSBAR); break;
 
-            case ACTION_NONE: update = true; ffwd_rew(button, false); break;
+            case ACTION_NONE:
+                if (!ipodjs_wps_controls())
+                    update = true;
+                ffwd_rew(button, false);
+                break;
 
             #ifdef HAVE_RECORDING
             case ACTION_WPS_REC: exit = true; break;

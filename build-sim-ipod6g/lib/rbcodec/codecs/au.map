@@ -560,23 +560,23 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0x7a9b
+.debug_info     0x0000000000000000     0x7a5a
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x0000000000000000     0x18da /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/au.o
- .debug_info    0x00000000000018da      0xed9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
- .debug_info    0x00000000000027b3     0x177e /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libpcm.a(linear_pcm.o)
- .debug_info    0x0000000000003f31     0x12f0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libpcm.a(itut_g711.o)
- .debug_info    0x0000000000005221     0x1239 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libpcm.a(ieee_float.o)
- .debug_info    0x000000000000645a     0x1641 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_info    0x0000000000000000     0x18cd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/au.o
+ .debug_info    0x00000000000018cd      0xed9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_info    0x00000000000027a6     0x1771 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libpcm.a(linear_pcm.o)
+ .debug_info    0x0000000000003f17     0x12e3 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libpcm.a(itut_g711.o)
+ .debug_info    0x00000000000051fa     0x122c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libpcm.a(ieee_float.o)
+ .debug_info    0x0000000000006426     0x1634 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
-.debug_abbrev   0x0000000000000000     0x1346
+.debug_abbrev   0x0000000000000000     0x12fb
  *(.debug_abbrev)
- .debug_abbrev  0x0000000000000000      0x44a /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/au.o
- .debug_abbrev  0x000000000000044a      0x287 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
- .debug_abbrev  0x00000000000006d1      0x365 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libpcm.a(linear_pcm.o)
- .debug_abbrev  0x0000000000000a36      0x2dc /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libpcm.a(itut_g711.o)
- .debug_abbrev  0x0000000000000d12      0x2d9 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libpcm.a(ieee_float.o)
- .debug_abbrev  0x0000000000000feb      0x35b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+ .debug_abbrev  0x0000000000000000      0x43b /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/au.o
+ .debug_abbrev  0x000000000000043b      0x287 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
+ .debug_abbrev  0x00000000000006c2      0x356 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libpcm.a(linear_pcm.o)
+ .debug_abbrev  0x0000000000000a18      0x2cd /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libpcm.a(itut_g711.o)
+ .debug_abbrev  0x0000000000000ce5      0x2ca /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libpcm.a(ieee_float.o)
+ .debug_abbrev  0x0000000000000faf      0x34c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
 
 .debug_line     0x0000000000000000     0x157d
  *(.debug_line .debug_line.* .debug_line_end)
@@ -593,17 +593,17 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
 .debug_str      0x0000000000000000     0x136c
  *(.debug_str)
  .debug_str     0x0000000000000000     0x136c /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/au.o
-                                       0x11e6 (size before relaxing)
+                                       0x11db (size before relaxing)
  .debug_str     0x000000000000136c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
                                         0xcbf (size before relaxing)
  .debug_str     0x000000000000136c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libpcm.a(linear_pcm.o)
-                                        0xec3 (size before relaxing)
+                                        0xeb8 (size before relaxing)
  .debug_str     0x000000000000136c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libpcm.a(itut_g711.o)
-                                        0xe66 (size before relaxing)
+                                        0xe5b (size before relaxing)
  .debug_str     0x000000000000136c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libpcm.a(ieee_float.o)
-                                        0xe02 (size before relaxing)
+                                        0xdf7 (size before relaxing)
  .debug_str     0x000000000000136c        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
-                                        0xedb (size before relaxing)
+                                        0xed0 (size before relaxing)
 
 .debug_loc
  *(.debug_loc)
@@ -633,25 +633,25 @@ LOAD /usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/crtn.o
  *(.debug_addr)
 
 .debug_line_str
-                0x0000000000000000      0x4de
+                0x0000000000000000      0x4e7
  *(.debug_line_str)
  .debug_line_str
-                0x0000000000000000      0x4de /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/au.o
+                0x0000000000000000      0x4e7 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/au.o
                                         0x36b (size before relaxing)
  .debug_line_str
-                0x00000000000004de        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
+                0x00000000000004e7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/codec_crt0.o
                                         0x260 (size before relaxing)
  .debug_line_str
-                0x00000000000004de        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libpcm.a(linear_pcm.o)
+                0x00000000000004e7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libpcm.a(linear_pcm.o)
                                         0x31a (size before relaxing)
  .debug_line_str
-                0x00000000000004de        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libpcm.a(itut_g711.o)
+                0x00000000000004e7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libpcm.a(itut_g711.o)
                                         0x317 (size before relaxing)
  .debug_line_str
-                0x00000000000004de        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libpcm.a(ieee_float.o)
+                0x00000000000004e7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libpcm.a(ieee_float.o)
                                         0x31a (size before relaxing)
  .debug_line_str
-                0x00000000000004de        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
+                0x00000000000004e7        0x0 /home/david/Documents/RockBox_Personal-master/build-sim-ipod6g/lib/rbcodec/codecs/libcodec.a(codeclib.o)
                                         0x328 (size before relaxing)
 
 .debug_loclists

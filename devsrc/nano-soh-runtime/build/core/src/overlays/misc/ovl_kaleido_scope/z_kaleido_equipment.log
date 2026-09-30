@@ -1,0 +1,104 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_equipment.c: In function 'KaleidoScope_DrawEquipmentImage':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_equipment.c:75:36: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+   75 |         gSPVertex(POLY_OPA_DISP++, &pauseCtx->equipVtx[vtxIndex], 4, 0);
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                    |
+      |                                    Vtx *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_scope.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_equipment.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_equipment.c: In function 'KaleidoScope_DrawAButton':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_equipment.c:120:32: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+  120 |     gSPVertex(POLY_OPA_DISP++, vtx, 4, 0);
+      |                                ^~~
+      |                                |
+      |                                Vtx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_equipment.c: In function 'KaleidoScope_DrawEquipment':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_equipment.c:198:40: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+  198 |             gSPVertex(POLY_OPA_DISP++, &pauseCtx->equipVtx[j], 4, 0);
+      |                                        ^~~~~~~~~~~~~~~~~~~~~~
+      |                                        |
+      |                                        Vtx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_equipment.c:200:72: warning: passing argument 2 of 'KaleidoScope_QuadTextureIA8' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  200 |             POLY_OPA_DISP = KaleidoScope_QuadTextureIA8(POLY_OPA_DISP, gEquippedItemOutlineTex, 32, 32, 0);
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_scope.h:55:50: note: expected 'void *' but argument is of type 'const char *'
+   55 | Gfx* KaleidoScope_QuadTextureIA8(Gfx* gfx, void* texture, s16 width, s16 height, u16 point);
+      |                                            ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_equipment.c:776:36: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+  776 |         gSPVertex(POLY_OPA_DISP++, &pauseCtx->equipVtx[j], 16, 0);
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~
+      |                                    |
+      |                                    Vtx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_equipment.c:831:72: warning: passing argument 2 of 'KaleidoScope_DrawQuadTextureRGBA32' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  831 |                 KaleidoScope_DrawQuadTextureRGBA32(play->state.gfxCtx, gItemIconSwordBiggoronTex, 32, 32, point);
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_scope.h:57:72: note: expected 'void *' but argument is of type 'const char *'
+   57 | void KaleidoScope_DrawQuadTextureRGBA32(GraphicsContext* gfxCtx, void* texture, u16 width, u16 height, u16 point);
+      |                                                                  ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_equipment.c:833:72: warning: passing argument 2 of 'KaleidoScope_DrawQuadTextureRGBA32' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  833 |                 KaleidoScope_DrawQuadTextureRGBA32(play->state.gfxCtx, gItemIconBrokenGiantsKnifeTex, 32, 32, point);
+      |                                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_scope.h:57:72: note: expected 'void *' but argument is of type 'const char *'
+   57 | void KaleidoScope_DrawQuadTextureRGBA32(GraphicsContext* gfxCtx, void* texture, u16 width, u16 height, u16 point);
+      |                                                                  ~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_equipment.c:868:52: warning: passing argument 2 of 'gSPInvalidateTexCache' makes integer from pointer without a cast [-Wint-conversion]
+  868 |     gSPInvalidateTexCache(POLY_OPA_DISP++, pauseCtx->iconItemSegment);
+      |                                            ~~~~~~~~^~~~~~~~~~~~~~~~~
+      |                                                    |
+      |                                                    u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:30:48: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   30 | void gSPInvalidateTexCache(Gfx* pkt, uintptr_t texAddr);
+      |                                      ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_equipment.c:870:52: warning: passing argument 2 of 'gSPInvalidateTexCache' makes integer from pointer without a cast [-Wint-conversion]
+  870 |     gSPInvalidateTexCache(POLY_OPA_DISP++, pauseCtx->nameSegment);
+      |                                            ~~~~~~~~^~~~~~~~~~~~~
+      |                                                    |
+      |                                                    u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:30:48: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   30 | void gSPInvalidateTexCache(Gfx* pkt, uintptr_t texAddr);
+      |                                      ~~~~~~~~~~^~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_equipment.c:873:47: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  873 |     gSPSegment(POLY_OPA_DISP++, 0x08, pauseCtx->iconItemSegment);
+      |                                       ~~~~~~~~^~~~~~~~~~~~~~~~~
+      |                                               |
+      |                                               u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_equipment.c:874:47: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  874 |     gSPSegment(POLY_OPA_DISP++, 0x09, pauseCtx->iconItem24Segment);
+      |                                       ~~~~~~~~^~~~~~~~~~~~~~~~~~~
+      |                                               |
+      |                                               u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_equipment.c:875:47: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  875 |     gSPSegment(POLY_OPA_DISP++, 0x0A, pauseCtx->nameSegment);
+      |                                       ~~~~~~~~^~~~~~~~~~~~~
+      |                                               |
+      |                                               u8 * {aka unsigned char *}
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'u8 *' {aka 'unsigned char *'}
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/misc/ovl_kaleido_scope/z_kaleido_equipment.c:876:57: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  876 |     gSPSegment(POLY_OPA_DISP++, 0x0B, play->interfaceCtx.mapSegment);
+      |                                       ~~~~~~~~~~~~~~~~~~^~~~~~~~~~~
+      |                                                         |
+      |                                                         char **
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'char **'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~

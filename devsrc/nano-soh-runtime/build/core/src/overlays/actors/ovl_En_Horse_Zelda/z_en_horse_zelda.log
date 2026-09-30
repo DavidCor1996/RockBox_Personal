@@ -1,0 +1,24 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Zelda/z_en_horse_zelda.c:34:49: warning: initialization of 'AnimationHeader *' from incompatible pointer type 'const char (*)[59]' [-Wincompatible-pointer-types]
+   34 | static AnimationHeader* sAnimationHeaders[] = { &gHorseZeldaGallopingAnim };
+      |                                                 ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Zelda/z_en_horse_zelda.c:34:49: note: (near initialization for 'sAnimationHeaders[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Zelda/z_en_horse_zelda.c: In function 'EnHorseZelda_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Zelda/z_en_horse_zelda.c:161:34: warning: passing argument 3 of 'Skin_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  161 |     Skin_Init(play, &this->skin, &gHorseZeldaSkel, &gHorseZeldaGallopingAnim);
+      |                                  ^~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char (*)[50]
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Zelda/z_en_horse_zelda.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Zelda/z_en_horse_zelda.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1361:61: note: expected 'SkeletonHeader *' but argument is of type 'const char (*)[50]'
+ 1361 | void Skin_Init(PlayState* play, Skin* skin, SkeletonHeader* skeletonHeader, AnimationHeader* animationHeader);
+      |                                             ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Horse_Zelda/z_en_horse_zelda.c:161:52: warning: passing argument 4 of 'Skin_Init' from incompatible pointer type [-Wincompatible-pointer-types]
+  161 |     Skin_Init(play, &this->skin, &gHorseZeldaSkel, &gHorseZeldaGallopingAnim);
+      |                                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                    |
+      |                                                    const char (*)[59]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:1361:94: note: expected 'AnimationHeader *' but argument is of type 'const char (*)[59]'
+ 1361 | void Skin_Init(PlayState* play, Skin* skin, SkeletonHeader* skeletonHeader, AnimationHeader* animationHeader);
+      |                                                                             ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~

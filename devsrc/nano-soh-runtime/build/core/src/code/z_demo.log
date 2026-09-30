@@ -1,0 +1,128 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:63:47: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   63 |     { ENTR_HYRULE_FIELD_WOODED_EXIT, 2, 0xA0, gHyruleFieldIntroCs },
+      |                                               ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:64:55: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   64 |     { ENTR_DEATH_MOUNTAIN_TRAIL_BOTTOM_EXIT, 2, 0xA1, gDMTIntroCs },
+      |                                                       ^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:65:50: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   65 |     { ENTR_KAKARIKO_VILLAGE_FRONT_GATE, 2, 0xA3, gKakarikoVillageIntroCs },
+      |                                                  ^~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:66:44: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   66 |     { ENTR_ZORAS_DOMAIN_ENTRANCE, 2, 0xA4, gZorasDomainIntroCs },
+      |                                            ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:67:48: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   67 |     { ENTR_CASTLE_GROUNDS_SOUTH_EXIT, 1, 0xA5, gHyruleCastleIntroCs },
+      |                                                ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:68:44: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   68 |     { ENTR_GORON_CITY_UPPER_EXIT, 2, 0xA6, gGoronCityIntroCs },
+      |                                            ^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:69:46: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   69 |     { ENTR_TEMPLE_OF_TIME_ENTRANCE, 2, 0xA7, gTempleOfTimeIntroCs },
+      |                                              ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:70:41: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   70 |     { ENTR_DEKU_TREE_ENTRANCE, 2, 0xA8, gDekuTreeIntroCs },
+      |                                         ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:71:38: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   71 |     { ENTR_HYRULE_FIELD_11, 0, 0x18, gHyruleFieldSouthEponaJumpCs },
+      |                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:72:38: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   72 |     { ENTR_HYRULE_FIELD_13, 0, 0x18, gHyruleFieldEastEponaJumpCs },
+      |                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:73:38: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   73 |     { ENTR_HYRULE_FIELD_12, 0, 0x18, gHyruleFieldWestEponaJumpCs },
+      |                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:74:38: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   74 |     { ENTR_HYRULE_FIELD_15, 0, 0x18, gHyruleFieldGateEponaJumpCs },
+      |                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:75:38: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   75 |     { ENTR_HYRULE_FIELD_16, 1, 0xA9, gHyruleFieldGetOoTCs },
+      |                                      ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:76:44: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   76 |     { ENTR_LAKE_HYLIA_NORTH_EXIT, 2, 0xB1, gLakeHyliaIntroCs },
+      |                                            ^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:77:46: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   77 |     { ENTR_GERUDO_VALLEY_EAST_EXIT, 2, 0xB2, gGerudoValleyIntroCs },
+      |                                              ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:78:49: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   78 |     { ENTR_GERUDOS_FORTRESS_EAST_EXIT, 2, 0xB3, gGerudoFortressIntroCs },
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:79:45: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   79 |     { ENTR_LON_LON_RANCH_ENTRANCE, 2, 0xB4, gLonLonRanchIntroCs },
+      |                                             ^~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:80:41: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   80 |     { ENTR_JABU_JABU_ENTRANCE, 2, 0xB5, gJabuJabuIntroCs },
+      |                                         ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:81:41: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   81 |     { ENTR_GRAVEYARD_ENTRANCE, 2, 0xB6, gGraveyardIntroCs },
+      |                                         ^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:82:49: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   82 |     { ENTR_ZORAS_FOUNTAIN_TUNNEL_EXIT, 2, 0xB7, gZorasFountainIntroCs },
+      |                                                 ^~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:83:48: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   83 |     { ENTR_DESERT_COLOSSUS_EAST_EXIT, 2, 0xB8, gDesertColossusIntroCs },
+      |                                                ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:84:55: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   84 |     { ENTR_DEATH_MOUNTAIN_CRATER_UPPER_EXIT, 2, 0xB9, gDeathMountainCraterIntroCs },
+      |                                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:85:48: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   85 |     { ENTR_CASTLE_GROUNDS_SOUTH_EXIT, 0, 0xBA, gGanonsCastleIntroCs },
+      |                                                ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:86:43: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   86 |     { ENTR_ROYAL_FAMILYS_TOMB_1, 2, 0x5A, gSunSongGraveSunSongTeachPart2Cs },
+      |                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:87:45: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   87 |     { ENTR_INSIDE_GANONS_CASTLE_2, 2, 0xBB, gForestBarrierCs },
+      |                                             ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:88:45: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   88 |     { ENTR_INSIDE_GANONS_CASTLE_3, 2, 0xBC, gWaterBarrierCs },
+      |                                             ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:89:45: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   89 |     { ENTR_INSIDE_GANONS_CASTLE_4, 2, 0xBD, gShadowBarrierCs },
+      |                                             ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:90:45: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   90 |     { ENTR_INSIDE_GANONS_CASTLE_5, 2, 0xBE, gFireBarrierCs },
+      |                                             ^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:91:45: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   91 |     { ENTR_INSIDE_GANONS_CASTLE_6, 2, 0xBF, gLightBarrierCs },
+      |                                             ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:92:45: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   92 |     { ENTR_INSIDE_GANONS_CASTLE_7, 2, 0xAD, gSpiritBarrierCs },
+      |                                             ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:93:50: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   93 |     { ENTR_SPIRIT_TEMPLE_BOSS_ENTRANCE, 0, 0xC0, gSpiritBossNabooruKnuckleIntroCs },
+      |                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:94:42: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   94 |     { ENTR_GERUDOS_FORTRESS_17, 0, 0xC7, gGerudoFortressFirstCaptureCs },
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:95:52: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   95 |     { ENTR_DEATH_MOUNTAIN_CRATER_GC_EXIT, 2, 0xB9, gDeathMountainCraterIntroCs },
+      |                                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:96:39: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   96 |     { ENTR_KOKIRI_FOREST_12, 2, 0xC6, gKokiriForestDekuSproutCs },
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:101:5: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  101 |     gDekuTreeIntroCs, gJabuJabuIntroCs, gDcOpeningCs, gMinuetCs, gIceCavernSerenadeCs, gTowerBarrierCs,
+      |     ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:101:23: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  101 |     gDekuTreeIntroCs, gJabuJabuIntroCs, gDcOpeningCs, gMinuetCs, gIceCavernSerenadeCs, gTowerBarrierCs,
+      |                       ^~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:101:41: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  101 |     gDekuTreeIntroCs, gJabuJabuIntroCs, gDcOpeningCs, gMinuetCs, gIceCavernSerenadeCs, gTowerBarrierCs,
+      |                                         ^~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:101:55: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  101 |     gDekuTreeIntroCs, gJabuJabuIntroCs, gDcOpeningCs, gMinuetCs, gIceCavernSerenadeCs, gTowerBarrierCs,
+      |                                                       ^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:101:66: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  101 |     gDekuTreeIntroCs, gJabuJabuIntroCs, gDcOpeningCs, gMinuetCs, gIceCavernSerenadeCs, gTowerBarrierCs,
+      |                                                                  ^~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:101:88: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  101 |     gDekuTreeIntroCs, gJabuJabuIntroCs, gDcOpeningCs, gMinuetCs, gIceCavernSerenadeCs, gTowerBarrierCs,
+      |                                                                                        ^~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c: In function 'Cutscene_Command_Terminator':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:1269:41: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1269 |                     play->csCtx.segment = SEGMENTED_TO_VIRTUAL(gTowerBarrierCs);
+      |                                         ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c: In function 'Cutscene_ProcessCommands':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_demo.c:1711:21: warning: assignment to 'u8 *' {aka 'unsigned char *'} from incompatible pointer type 's32 *' {aka 'long int *'} [-Wincompatible-pointer-types]
+ 1711 |         cutscenePtr = ResourceMgr_LoadCSByName(cutscenePtr);
+      |                     ^

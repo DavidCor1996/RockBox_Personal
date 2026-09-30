@@ -12,6 +12,7 @@
 struct gui_synclist;
 
 #if defined(HAVE_IPODJS_UI) && defined(SIMULATOR)
+void ipodjs_trace_surface(int x, int y, int width, int height);
 void ipodjs_trace_list(const struct gui_synclist *list, const char *title,
                        const char *update, int x, int y, int width,
                        int height);

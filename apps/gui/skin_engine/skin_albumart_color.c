@@ -18,6 +18,7 @@
  *
  ****************************************************************************/
 
+#include "ambient_clock.h"
 #include "config.h"
 
 #if defined(HAVE_ALBUMART) && defined(HAVE_LCD_COLOR)
@@ -361,7 +362,9 @@ static void extract_colors(const struct bitmap *bmp)
         accent = LCD_RGBPACK(acc_r, acc_g, acc_b);
     }
 
-    start_fade(accent, dominant, false);
+    ambient_clock_palette(dominant, accent);
+    if (global_settings.dynamic_colors)
+        start_fade(accent, dominant, false);
 }
 
 static void track_change_cb(unsigned short id, void *param)
@@ -444,7 +447,11 @@ void dynamic_colors_check_extraction(int aa_slot)
 
     if (!needs_extraction)
         return;
-    if (!enabled)
+    if (!enabled
+#ifdef HAVE_DOCKED_AMBIENT_CLOCK
+        && !global_settings.ambient_clock
+#endif
+       )
     {
         needs_extraction = false;
         return;
@@ -603,7 +610,11 @@ bool dynamic_colors_screen_clear_needed(void)
 
 bool dynamic_colors_pending(void)
 {
-    return needs_extraction && global_settings.dynamic_colors;
+    return needs_extraction && (global_settings.dynamic_colors
+#ifdef HAVE_DOCKED_AMBIENT_CLOCK
+        || global_settings.ambient_clock
+#endif
+    );
 }
 
 #endif /* HAVE_ALBUMART && HAVE_LCD_COLOR */

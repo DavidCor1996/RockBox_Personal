@@ -32,7 +32,9 @@
 #include "hibernate-6g.h"
 #endif
 
-#define PMU_ADC_HIBERNATE_TIMEOUT_US 250000u
+/* A Rockbox liveness bound, not an inferred RetailOS ADC deadline.
+ * Normal conversions take microseconds; the margin allows scheduling and I2C. */
+#define PMU_ADC_TIMEOUT_US 250000u
 
 
 int pmu_read_multiple(int address, int count, unsigned char* buffer)
@@ -47,7 +49,7 @@ int pmu_write_multiple(int address, int count, unsigned char* buffer)
 
 unsigned char pmu_read(int address)
 {
-    unsigned char tmp;
+    unsigned char tmp = 0;
 
     pmu_read_multiple(address, 1, &tmp);
 
@@ -137,7 +139,7 @@ void pmu_write_rtc(unsigned char* buffer)
 
 static struct mutex pmu_adc_mutex;
 #if defined(IPOD6G_HIBERNATE_STAGE3) && IPOD6G_HIBERNATE_STAGE3 && \
-        !defined(BOOTLOADER)
+        IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS && !defined(BOOTLOADER)
 static volatile bool pmu_hibernate_adc_monitor_pending;
 #endif
 
@@ -181,9 +183,9 @@ unsigned short pmu_read_adc(const struct pmu_adc_channel *ch)
     static unsigned char last_raw_valid;
     unsigned int mux =
             (ch->adcc1 & PCF5063X_ADCC1_ADCMUX_MASK) >> 4;
-    bool monitor = false;
 #if defined(IPOD6G_HIBERNATE_STAGE3) && IPOD6G_HIBERNATE_STAGE3 && \
-        !defined(BOOTLOADER)
+        IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS && !defined(BOOTLOADER)
+    bool monitor = false;
     int oldlevel = disable_irq_save();
 
     if (pmu_hibernate_adc_monitor_pending)
@@ -201,24 +203,32 @@ unsigned short pmu_read_adc(const struct pmu_adc_channel *ch)
     mutex_lock(&pmu_adc_mutex);
 
 #if defined(IPOD6G_HIBERNATE_STAGE3) && IPOD6G_HIBERNATE_STAGE3 && \
-        !defined(BOOTLOADER)
+        IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS && !defined(BOOTLOADER)
     if (monitor)
         ipod6g_hibernate_runtime_checkpoint(
                 IPOD6G_HIBERNATE_DIAG_PMU_ADC_LOCKED);
 #endif
 
-    pmu_write(PCF5063X_REG_ADCC3, ch->adcc3);
+    /* The unsigned ADC API cannot report an error. Reuse only a completed
+     * sample; before the first success, raw zero gives a conservative battery
+     * reading. Never read stale conversion data or cache a failed transfer. */
+    int raw = (last_raw_valid & (1u << mux)) ? last_raw[mux] : 0;
+    bool timed_out = true;
+    uint8_t adcs3 = 0;
+    uint8_t data = 0;
+    uint8_t buf[2] = { ch->adcc2, ch->adcc1 | PCF5063X_ADCC1_ADCSTART };
+
+    if (pmu_write(PCF5063X_REG_ADCC3, ch->adcc3) != 0)
+        goto adc_failed;
     if (ch->bias_dly)
         sleep(ch->bias_dly);
-    uint8_t buf[2] = { ch->adcc2, ch->adcc1 | PCF5063X_ADCC1_ADCSTART };
-    pmu_write_multiple(PCF5063X_REG_ADCC2, 2, buf);
+    if (pmu_write_multiple(PCF5063X_REG_ADCC2, 2, buf) != 0)
+        goto adc_failed;
 
-    int adcs3 = 0;
     uint32_t start = USEC_TIMER;
-    bool timed_out = false;
 
 #if defined(IPOD6G_HIBERNATE_STAGE3) && IPOD6G_HIBERNATE_STAGE3 && \
-        !defined(BOOTLOADER)
+        IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS && !defined(BOOTLOADER)
     if (monitor)
         ipod6g_hibernate_runtime_checkpoint(
                 IPOD6G_HIBERNATE_DIAG_PMU_ADC_STARTED);
@@ -226,49 +236,36 @@ unsigned short pmu_read_adc(const struct pmu_adc_channel *ch)
 
     while (!(adcs3 & PCF5063X_ADCS3_ADCRDY))
     {
-        yield();
-        adcs3 = pmu_read(PCF5063X_REG_ADCS3);
-        if (monitor && (uint32_t)(USEC_TIMER - start) >=
-                PMU_ADC_HIBERNATE_TIMEOUT_US)
-        {
-            timed_out = true;
-            break;
-        }
+        /* sleep, rather than yield, lets lower-priority UI/storage threads
+         * run while the power thread waits for conversion completion. */
+        sleep(1);
+        if (pmu_read_multiple(PCF5063X_REG_ADCS3, 1, &adcs3) != 0 ||
+            (uint32_t)(USEC_TIMER - start) >= PMU_ADC_TIMEOUT_US)
+            goto adc_failed;
     }
 
-    int raw;
-    if (timed_out && (last_raw_valid & (1u << mux)))
-    {
-        raw = last_raw[mux];
-    }
-    else
-    {
-        raw = pmu_read(PCF5063X_REG_ADCS1);
-        if ((ch->adcc1 & PCF5063X_ADCC1_RES_MASK) ==
-                PCF5063X_ADCC1_RES_10BIT)
-        {
-            raw = (raw << 2) |
-                    (adcs3 & PCF5063X_ADCS3_ADCDAT1L_MASK);
-        }
+    if (pmu_read_multiple(PCF5063X_REG_ADCS1, 1, &data) != 0)
+        goto adc_failed;
+    raw = data;
+    if ((ch->adcc1 & PCF5063X_ADCC1_RES_MASK) ==
+            PCF5063X_ADCC1_RES_10BIT)
+        raw = (raw << 2) | (adcs3 & PCF5063X_ADCS3_ADCDAT1L_MASK);
 
-        if (!timed_out)
-        {
-            last_raw[mux] = raw;
-            last_raw_valid |= 1u << mux;
-        }
-    }
+    last_raw[mux] = raw;
+    last_raw_valid |= 1u << mux;
+    timed_out = false;
 
+adc_failed:
     if (timed_out)
     {
 #if defined(IPOD6G_HIBERNATE_STAGE3) && IPOD6G_HIBERNATE_STAGE3 && \
-        !defined(BOOTLOADER)
+        IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS && !defined(BOOTLOADER)
         if (monitor)
             ipod6g_hibernate_runtime_checkpoint(
                     IPOD6G_HIBERNATE_DIAG_PMU_ADC_TIMEOUT);
 #endif
-        /* Cancel a conversion that did not complete.  Returning the retained
-         * last-good sample keeps the high-priority power thread from starving
-         * the UI forever while preserving conservative battery behavior. */
+        /* Best-effort cancel through the bounded I2C transport. Do not retry
+         * the failed conversion or publish it as a new measurement. */
         pmu_write(PCF5063X_REG_ADCC1,
                   ch->adcc1 & ~PCF5063X_ADCC1_ADCSTART);
     }
@@ -276,7 +273,7 @@ unsigned short pmu_read_adc(const struct pmu_adc_channel *ch)
     mutex_unlock(&pmu_adc_mutex);
 
 #if defined(IPOD6G_HIBERNATE_STAGE3) && IPOD6G_HIBERNATE_STAGE3 && \
-        !defined(BOOTLOADER)
+        IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS && !defined(BOOTLOADER)
     if (monitor && !timed_out)
         ipod6g_hibernate_runtime_checkpoint(
                 IPOD6G_HIBERNATE_DIAG_PMU_ADC_READY);
@@ -471,12 +468,14 @@ void pmu_hibernate_resume_complete(void)
     pmu_read_inputs_ooc();
 }
 
+#if IPOD6G_HIBERNATE_RUNTIME_DIAGNOSTICS
 void pmu_hibernate_runtime_monitor_enable(void)
 {
     /* Armed only after the resume record has reached PASS, so the first
      * ordinary power-thread ADC transaction can leave a durable boundary. */
     pmu_hibernate_adc_monitor_pending = true;
 }
+#endif
 #endif
 
 /*

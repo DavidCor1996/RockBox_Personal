@@ -11,6 +11,17 @@
     \toprule
     \rowcolor{tblhdrbgcolor}\tblhdrstrut\textbf{Setting} & \textbf{Allowed Values} & \textbf{Unit}\\
     \midrule\localendhead % endhead breaks with htlatex
+    \opt{ipod6g}{
+    composite video output & off, auto, on & N/A\\
+    tv screen & standard, widescreen & N/A\\
+    tv fit & off, on & N/A\\
+    tv overscan & off, small, medium, large & N/A\\
+    tv interface & mirror, safe & N/A\\
+    tv text size & standard, large, extra large & N/A\\
+    tv now playing & current, cover art & N/A\\
+    dock remote mode & playback, navigation & N/A\\
+    remote wake & off, on & N/A\\
+    }
     volume      & \opt{iriverh100,iriverh300}{$-84$ to 0}%
                   \opt{ipodnano}{$-72$ to +6}%
                   \opt{ipodvideo,cowond2}{$-89$ to +6}%
@@ -83,6 +94,15 @@
                       45, 60, 90, 120        & s\\
     backlight filters first keypress & on, off & N/A\\
     backlight on button hold & normal, off, on & N/A\\
+    \opt{ipod6g}{
+      videoout backlight off & on, off & N/A\\
+      ambient clock & on, off & N/A\\
+      ambient delay & 1, 2, 5, 10 & min\\
+      ambient colors & recent, last, neutral & N/A\\
+      ambient brightness & dim, balanced, bright & N/A\\
+      ambient reduced motion & on, off & N/A\\
+      ambient weather & on, off & N/A\\
+    }
     caption backlight & on, off & N/A\\
     brightness      & \fixme{devise a way to get ranges from config-*.h} & N/A\\
     disk spindown   & 3 to 254          & s\\

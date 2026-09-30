@@ -9284,15 +9284,15 @@
   user: core
   <source>
     *: none
-    gigabeatfx,ipod6g,desktop1080,ipodnano3g,ipodnano4g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Bass Cutoff"
+    gigabeatfx,ipod6g,desktop1080,desktop640,ipodnano3g,ipodnano4g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Bass Cutoff"
   </source>
   <dest>
     *: none
-    gigabeatfx,ipod6g,desktop1080,ipodnano3g,ipodnano4g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Bass Cutoff"
+    gigabeatfx,ipod6g,desktop1080,desktop640,ipodnano3g,ipodnano4g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Bass Cutoff"
   </dest>
   <voice>
     *: none
-    gigabeatfx,ipod6g,desktop1080,ipodnano3g,ipodnano4g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Bass Cutoff"
+    gigabeatfx,ipod6g,desktop1080,desktop640,ipodnano3g,ipodnano4g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Bass Cutoff"
   </voice>
 </phrase>
 <phrase>
@@ -9301,15 +9301,15 @@
   user: core
   <source>
     *: none
-    gigabeatfx,ipod6g,desktop1080,ipodnano3g,ipodnano4g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Treble Cutoff"
+    gigabeatfx,ipod6g,desktop1080,desktop640,ipodnano3g,ipodnano4g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Treble Cutoff"
   </source>
   <dest>
     *: none
-    gigabeatfx,ipod6g,desktop1080,ipodnano3g,ipodnano4g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Treble Cutoff"
+    gigabeatfx,ipod6g,desktop1080,desktop640,ipodnano3g,ipodnano4g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Treble Cutoff"
   </dest>
   <voice>
     *: none
-    gigabeatfx,ipod6g,desktop1080,ipodnano3g,ipodnano4g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Treble Cutoff"
+    gigabeatfx,ipod6g,desktop1080,desktop640,ipodnano3g,ipodnano4g,ipodvideo,mpiohd200,mpiohd300,mrobe100: "Treble Cutoff"
   </voice>
 </phrase>
 <phrase>
@@ -17294,5 +17294,575 @@
   <voice>
     *: none
     lcd_color: "Dynamic Colors"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_VIDEOOUT_BACKLIGHT_OFF
+  desc: turn off the local backlight while composite output is active
+  user: core
+  <source>
+    *: "TV Backlight Off"
+  </source>
+  <dest>
+    *: "TV Backlight Off"
+  </dest>
+  <voice>
+    *: "TV Backlight Off"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_AMBIENT_CLOCK
+  desc: Docked ambient clock setting
+  user: core
+  <source>
+    *: "Ambient clock"
+  </source>
+  <dest>
+    *: "Ambient clock"
+  </dest>
+  <voice>
+    *: "Ambient clock"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_AMBIENT_DELAY
+  desc: Docked ambient clock setting
+  user: core
+  <source>
+    *: "Start after"
+  </source>
+  <dest>
+    *: "Start after"
+  </dest>
+  <voice>
+    *: "Start after"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_AMBIENT_COLORS
+  desc: Docked ambient clock setting
+  user: core
+  <source>
+    *: "Fallback colors"
+  </source>
+  <dest>
+    *: "Fallback colors"
+  </dest>
+  <voice>
+    *: "Fallback colors"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_AMBIENT_RECENT
+  desc: Docked ambient clock setting
+  user: core
+  <source>
+    *: "Recent albums"
+  </source>
+  <dest>
+    *: "Recent albums"
+  </dest>
+  <voice>
+    *: "Recent albums"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_AMBIENT_LAST
+  desc: Docked ambient clock setting
+  user: core
+  <source>
+    *: "Last album"
+  </source>
+  <dest>
+    *: "Last album"
+  </dest>
+  <voice>
+    *: "Last album"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_AMBIENT_NEUTRAL
+  desc: Docked ambient clock setting
+  user: core
+  <source>
+    *: "Neutral"
+  </source>
+  <dest>
+    *: "Neutral"
+  </dest>
+  <voice>
+    *: "Neutral"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_AMBIENT_DIM
+  desc: Docked ambient clock setting
+  user: core
+  <source>
+    *: "Dim"
+  </source>
+  <dest>
+    *: "Dim"
+  </dest>
+  <voice>
+    *: "Dim"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_AMBIENT_BALANCED
+  desc: Docked ambient clock setting
+  user: core
+  <source>
+    *: "Balanced"
+  </source>
+  <dest>
+    *: "Balanced"
+  </dest>
+  <voice>
+    *: "Balanced"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_AMBIENT_BRIGHT
+  desc: Docked ambient clock setting
+  user: core
+  <source>
+    *: "Bright"
+  </source>
+  <dest>
+    *: "Bright"
+  </dest>
+  <voice>
+    *: "Bright"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_AMBIENT_REDUCED
+  desc: Docked ambient clock setting
+  user: core
+  <source>
+    *: "Reduced motion"
+  </source>
+  <dest>
+    *: "Reduced motion"
+  </dest>
+  <voice>
+    *: "Reduced motion"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_AMBIENT_WEATHER
+  desc: Docked ambient clock setting
+  user: core
+  <source>
+    *: "Weather"
+  </source>
+  <dest>
+    *: "Weather"
+  </dest>
+  <voice>
+    *: "Weather"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_AMBIENT_PREVIEW
+  desc: Docked ambient clock setting
+  user: core
+  <source>
+    *: "Preview"
+  </source>
+  <dest>
+    *: "Preview"
+  </dest>
+  <voice>
+    *: "Preview"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_COMPOSITE_VIDEO
+  desc: Composite TV and dock remote presentation
+  user: core
+  <source>
+    *: "Composite Video"
+  </source>
+  <dest>
+    *: "Composite Video"
+  </dest>
+  <voice>
+    *: "Composite Video"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_TV_SCREEN
+  desc: Composite TV and dock remote presentation
+  user: core
+  <source>
+    *: "TV Screen"
+  </source>
+  <dest>
+    *: "TV Screen"
+  </dest>
+  <voice>
+    *: "TV Screen"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_TV_STANDARD
+  desc: Composite TV and dock remote presentation
+  user: core
+  <source>
+    *: "Standard 4:3"
+  </source>
+  <dest>
+    *: "Standard 4:3"
+  </dest>
+  <voice>
+    *: "Standard 4:3"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_TV_WIDE
+  desc: Composite TV and dock remote presentation
+  user: core
+  <source>
+    *: "Widescreen 16:9"
+  </source>
+  <dest>
+    *: "Widescreen 16:9"
+  </dest>
+  <voice>
+    *: "Widescreen 16:9"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_TV_FIT
+  desc: Composite TV and dock remote presentation
+  user: core
+  <source>
+    *: "Fit to Screen"
+  </source>
+  <dest>
+    *: "Fit to Screen"
+  </dest>
+  <voice>
+    *: "Fit to Screen"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_TV_OVERSCAN
+  desc: Composite TV and dock remote presentation
+  user: core
+  <source>
+    *: "TV Overscan"
+  </source>
+  <dest>
+    *: "TV Overscan"
+  </dest>
+  <voice>
+    *: "TV Overscan"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_TV_INTERFACE
+  desc: Composite TV and dock remote presentation
+  user: core
+  <source>
+    *: "TV Interface"
+  </source>
+  <dest>
+    *: "TV Interface"
+  </dest>
+  <voice>
+    *: "TV Interface"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_TV_MIRROR
+  desc: Composite TV and dock remote presentation
+  user: core
+  <source>
+    *: "Mirror Current UI"
+  </source>
+  <dest>
+    *: "Mirror Current UI"
+  </dest>
+  <voice>
+    *: "Mirror Current UI"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_TV_SAFE
+  desc: Composite TV and dock remote presentation
+  user: core
+  <source>
+    *: "TV-Safe UI"
+  </source>
+  <dest>
+    *: "TV-Safe UI"
+  </dest>
+  <voice>
+    *: "TV-Safe UI"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_TV_TEXT_SIZE
+  desc: Composite TV and dock remote presentation
+  user: core
+  <source>
+    *: "TV Text Size"
+  </source>
+  <dest>
+    *: "TV Text Size"
+  </dest>
+  <voice>
+    *: "TV Text Size"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_TV_TEXT_STANDARD
+  desc: Composite TV and dock remote presentation
+  user: core
+  <source>
+    *: "Standard"
+  </source>
+  <dest>
+    *: "Standard"
+  </dest>
+  <voice>
+    *: "Standard"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_TV_TEXT_LARGE
+  desc: Composite TV and dock remote presentation
+  user: core
+  <source>
+    *: "Large"
+  </source>
+  <dest>
+    *: "Large"
+  </dest>
+  <voice>
+    *: "Large"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_TV_TEXT_EXTRA
+  desc: Composite TV and dock remote presentation
+  user: core
+  <source>
+    *: "Extra Large"
+  </source>
+  <dest>
+    *: "Extra Large"
+  </dest>
+  <voice>
+    *: "Extra Large"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_TV_NOW_PLAYING
+  desc: Composite TV and dock remote presentation
+  user: core
+  <source>
+    *: "TV Now Playing"
+  </source>
+  <dest>
+    *: "TV Now Playing"
+  </dest>
+  <voice>
+    *: "TV Now Playing"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_TV_FOLLOW_WPS
+  desc: Composite TV and dock remote presentation
+  user: core
+  <source>
+    *: "Follow Current WPS"
+  </source>
+  <dest>
+    *: "Follow Current WPS"
+  </dest>
+  <voice>
+    *: "Follow Current WPS"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_TV_COVER_WPS
+  desc: Composite TV and dock remote presentation
+  user: core
+  <source>
+    *: "TV Cover-Art WPS"
+  </source>
+  <dest>
+    *: "TV Cover-Art WPS"
+  </dest>
+  <voice>
+    *: "TV Cover-Art WPS"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_DOCK_REMOTE_MODE
+  desc: Composite TV and dock remote presentation
+  user: core
+  <source>
+    *: "Dock Remote Mode"
+  </source>
+  <dest>
+    *: "Dock Remote Mode"
+  </dest>
+  <voice>
+    *: "Dock Remote Mode"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_REMOTE_PLAYBACK
+  desc: Composite TV and dock remote presentation
+  user: core
+  <source>
+    *: "Playback Only"
+  </source>
+  <dest>
+    *: "Playback Only"
+  </dest>
+  <voice>
+    *: "Playback Only"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_REMOTE_NAVIGATION
+  desc: Composite TV and dock remote presentation
+  user: core
+  <source>
+    *: "Full UI Navigation"
+  </source>
+  <dest>
+    *: "Full UI Navigation"
+  </dest>
+  <voice>
+    *: "Full UI Navigation"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_REMOTE_WAKE
+  desc: Composite TV and dock remote presentation
+  user: core
+  <source>
+    *: "Remote Wake"
+  </source>
+  <dest>
+    *: "Remote Wake"
+  </dest>
+  <voice>
+    *: "Remote Wake"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_TV_TEST
+  desc: Composite TV and dock remote presentation
+  user: core
+  <source>
+    *: "Composite Video Test Screen"
+  </source>
+  <dest>
+    *: "Composite Video Test Screen"
+  </dest>
+  <voice>
+    *: "Composite Video Test Screen"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_IAP_REMOTE_DEBUG
+  desc: Composite TV and dock remote presentation
+  user: core
+  <source>
+    *: "IAP Remote Debug"
+  </source>
+  <dest>
+    *: "IAP Remote Debug"
+  </dest>
+  <voice>
+    *: "IAP Remote Debug"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_TV_SMALL
+  desc: TV overscan inset
+  user: core
+  <source>
+    *: "Small"
+  </source>
+  <dest>
+    *: "Small"
+  </dest>
+  <voice>
+    *: "Small"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_TV_MEDIUM
+  desc: TV overscan inset
+  user: core
+  <source>
+    *: "Medium"
+  </source>
+  <dest>
+    *: "Medium"
+  </dest>
+  <voice>
+    *: "Medium"
+  </voice>
+</phrase>
+
+<phrase>
+  id: LANG_TV_UI_SOUNDS
+  desc: Original Apple TV navigation cues
+  user: core
+  <source>
+    *: "TV Navigation Sounds"
+  </source>
+  <dest>
+    *: "TV Navigation Sounds"
+  </dest>
+  <voice>
+    *: "TV Navigation Sounds"
   </voice>
 </phrase>

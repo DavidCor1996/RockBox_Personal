@@ -56,11 +56,15 @@ def test_video_sync_panel_prechecks_existing_and_emits_distinct_formats():
     panel.preview_requested.connect(lambda ids: previews.append(ids))
 
     panel._preview_btn.click()
+    panel._sync_h264_btn.click()
     panel._sync_rvp_btn.click()
     panel._sync_mpeg_btn.click()
 
+    assert panel._sync_mpeg_btn.text() == "Sync as MPEG"
+    assert panel._sync_h264_btn.text() == "Sync as H.264"
     assert panel.selected_track_ids() == {1, 2}
     assert requests == [
+        ({2}, "h264_apple_exact"),
         ({2}, "native_raw"),
         ({2}, "quality"),
     ]

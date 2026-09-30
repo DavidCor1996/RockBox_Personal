@@ -58,7 +58,7 @@ enum codec_status codec_run(void)
     stream_t input_stream;
     uint64_t sound_samples_done;
     uint32_t elapsed_time;
-    int file_offset;
+    int64_t file_offset;
     int framelength;
     int lead_trim = 0;
     unsigned int frame_samples;
@@ -200,7 +200,7 @@ enum codec_status codec_run(void)
          */
         file_offset = m4a_check_sample_offset(&demux_res, i, &seek_idx);
 
-        if (file_offset > 0 && file_offset != ci->curpos)
+        if (file_offset > 0 && file_offset != (size_t)ci->curpos)
         {
             ci->seek_buffer(file_offset);
         }

@@ -1,0 +1,154 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c: In function 'Environment_UpdateSkybox':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:697:63: warning: passing argument 4 of 'LoadSkyboxTex' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  697 |                 LoadSkyboxTex(skyboxCtx, 0, i, entryA.textures[i], 128, i == 4 ? 128 : 64, 128, 64);
+      |                                                ~~~~~~~~~~~~~~~^~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:226:86: note: expected 'char *' but argument is of type 'const char *'
+  226 | void LoadSkyboxTex(SkyboxContext* skyboxCtx, int segmentIndex, int imageIndex, char* tex, int width, int height,
+      |                                                                                ~~~~~~^~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:717:63: warning: passing argument 4 of 'LoadSkyboxTex' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  717 |                 LoadSkyboxTex(skyboxCtx, 1, i, entryA.textures[i], 128, i == 4 ? 128 : 64, 128, 64);
+      |                                                ~~~~~~~~~~~~~~~^~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:226:86: note: expected 'char *' but argument is of type 'const char *'
+  226 | void LoadSkyboxTex(SkyboxContext* skyboxCtx, int segmentIndex, int imageIndex, char* tex, int width, int height,
+      |                                                                                ~~~~~~^~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:736:64: warning: passing argument 3 of 'LoadSkyboxPalette' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  736 |                 LoadSkyboxPalette(skyboxCtx, 0, entryA.palettes[0], 16, 8);
+      |                                                 ~~~~~~~~~~~~~~~^~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:225:74: note: expected 'char *' but argument is of type 'const char *'
+  225 | void LoadSkyboxPalette(SkyboxContext* skyboxCtx, int paletteIndex, char* palTex, int width, int height);
+      |                                                                    ~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:745:64: warning: passing argument 3 of 'LoadSkyboxPalette' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  745 |                 LoadSkyboxPalette(skyboxCtx, 1, entryA.palettes[0], 16, 8);
+      |                                                 ~~~~~~~~~~~~~~~^~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:225:74: note: expected 'char *' but argument is of type 'const char *'
+  225 | void LoadSkyboxPalette(SkyboxContext* skyboxCtx, int paletteIndex, char* palTex, int width, int height);
+      |                                                                    ~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:762:64: warning: passing argument 3 of 'LoadSkyboxPalette' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  762 |                 LoadSkyboxPalette(skyboxCtx, 0, entryA.palettes[0], 16, 8);
+      |                                                 ~~~~~~~~~~~~~~~^~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:225:74: note: expected 'char *' but argument is of type 'const char *'
+  225 | void LoadSkyboxPalette(SkyboxContext* skyboxCtx, int paletteIndex, char* palTex, int width, int height);
+      |                                                                    ~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:771:64: warning: passing argument 3 of 'LoadSkyboxPalette' discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  771 |                 LoadSkyboxPalette(skyboxCtx, 1, entryA.palettes[0], 16, 8);
+      |                                                 ~~~~~~~~~~~~~~~^~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:225:74: note: expected 'char *' but argument is of type 'const char *'
+  225 | void LoadSkyboxPalette(SkyboxContext* skyboxCtx, int paletteIndex, char* palTex, int width, int height);
+      |                                                                    ~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c: In function 'Environment_DrawSunAndMoon':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:1376:36: warning: passing argument 2 of 'gSPVertex' makes integer from pointer without a cast [-Wint-conversion]
+ 1376 |         gSPVertex(POLY_OPA_DISP++, vertices, 4, 0);
+      |                                    ^~~~~~~~
+      |                                    |
+      |                                    Vtx *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:1:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:29:36: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Vtx *'
+   29 | void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+      |                          ~~~~~~~~~~^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:1406:45: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1406 |             gSPDisplayList(POLY_OPA_DISP++, gMoonDL);
+      |                                             ^~~~~~~
+      |                                             |
+      |                                             const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c: In function 'Environment_DrawLensFlare':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:1578:53: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1578 |                     gSPDisplayList(POLY_XLU_DISP++, gLensFlareCircleDL);
+      |                                                     ^~~~~~~~~~~~~~~~~~
+      |                                                     |
+      |                                                     const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:1581:53: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1581 |                     gSPDisplayList(POLY_XLU_DISP++, gLensFlareRingDL);
+      |                                                     ^~~~~~~~~~~~~~~~
+      |                                                     |
+      |                                                     const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c: In function 'Environment_DrawRain':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:1705:45: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1705 |             gSPDisplayList(POLY_XLU_DISP++, gRaindropDL);
+      |                                             ^~~~~~~~~~~
+      |                                             |
+      |                                             const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:1735:49: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1735 |                 gSPDisplayList(POLY_XLU_DISP++, gEffShockwaveDL);
+      |                                                 ^~~~~~~~~~~~~~~
+      |                                                 |
+      |                                                 const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c: In function 'Environment_DrawLightning':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:1915:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1915 |         gEffLightning1Tex, gEffLightning2Tex, gEffLightning3Tex,
+      |         ^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:1915:28: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1915 |         gEffLightning1Tex, gEffLightning2Tex, gEffLightning3Tex,
+      |                            ^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:1915:47: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1915 |         gEffLightning1Tex, gEffLightning2Tex, gEffLightning3Tex,
+      |                                               ^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:1916:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1916 |         gEffLightning4Tex, gEffLightning5Tex, gEffLightning6Tex,
+      |         ^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:1916:28: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1916 |         gEffLightning4Tex, gEffLightning5Tex, gEffLightning6Tex,
+      |                            ^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:1916:47: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1916 |         gEffLightning4Tex, gEffLightning5Tex, gEffLightning6Tex,
+      |                                               ^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:1917:9: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1917 |         gEffLightning7Tex, gEffLightning8Tex, NULL,
+      |         ^~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:1917:28: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+ 1917 |         gEffLightning7Tex, gEffLightning8Tex, NULL,
+      |                            ^~~~~~~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:10:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:1981:85: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 1981 |             gSPSegment(POLY_XLU_DISP++, 0x08, SEGMENTED_TO_VIRTUAL(lightningTextures[sLightningBolts[i].textureIndex]));
+      |                                                                    ~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                                     |
+      |                                                                                     void *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/macros.h:37:36: note: in definition of macro 'SEGMENTED_TO_VIRTUAL'
+   37 | #define SEGMENTED_TO_VIRTUAL(addr) addr
+      |                                    ^~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'void *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:1984:45: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1984 |             gSPDisplayList(POLY_XLU_DISP++, gEffLightningDL);
+      |                                             ^~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c: In function 'Environment_DrawSandstorm':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:2432:16: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+ 2432 |                Gfx_TwoTexScrollEx(play->state.gfxCtx, 0, (u32)sp96 % 0x1000, 0, 0x200, 0x20, 1, (u32)sp94 % 0x1000,
+      |                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                |
+      |                Gfx *
+ 2433 |                                   0xFFF - ((u32)sp92 % 0x1000), 0x100, 0x40, sp98, 0, sp98 * 1.5f, -sp98));
+      |                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/code/z_kankyo.c:2436:37: warning: passing argument 2 of 'gSPDisplayList' from incompatible pointer type [-Wincompatible-pointer-types]
+ 2436 |     gSPDisplayList(POLY_XLU_DISP++, gFieldSandstormDL);
+      |                                     ^~~~~~~~~~~~~~~~~
+      |                                     |
+      |                                     const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:24:36: note: expected 'Gfx *' but argument is of type 'const char *'
+   24 | void gSPDisplayList(Gfx* pkt, Gfx* dl);
+      |                               ~~~~~^~

@@ -1,0 +1,7 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_KiraKira/z_eff_ss_kirakira.c: In function 'EffectSsKiraKira_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_KiraKira/z_eff_ss_kirakira.c:44:19: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   44 |         this->gfx = SEGMENTED_TO_VIRTUAL(gEffSparklesDL);
+      |                   ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/effects/ovl_Effect_Ss_KiraKira/z_eff_ss_kirakira.c:49:19: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+   49 |         this->gfx = SEGMENTED_TO_VIRTUAL(gEffSparklesDL);
+      |                   ^

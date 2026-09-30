@@ -732,6 +732,42 @@ def test_tiktok_sync_exports_real_feed_fields_and_letterboxed_thumbnail(
                       feed_path.stat().st_mtime_ns)
 
 
+def test_tiktok_h264_request_still_syncs_mpeg(
+    db, config, mock_device, tmp_dir, monkeypatch,
+):
+    service = TikTokAppService(db, config, ROOT)
+    source = Path(tmp_dir) / "switch.mpg"
+    source.write_bytes(b"source")
+    thumbnail = Path(tmp_dir) / "switch.png"
+    Image.new("RGB", (90, 160), "cyan").save(thumbnail)
+    row = service.add_video(
+        source, title="Switch Me", creator="@creator",
+        thumbnail_path=thumbnail,
+    )
+
+    def fake_stage(_source, target, **kwargs):
+        Path(target).write_bytes(kwargs["profile"].encode("ascii"))
+
+    monkeypatch.setattr(tiktok_app_module, "stage_app_video", fake_stage)
+    monkeypatch.setattr(
+        tiktok_app_module.subprocess, "run", lambda *a, **k: None,
+    )
+    media = Path(mock_device) / "TikTok/videos"
+
+    service.sync(
+        mock_device, refresh_accounts=False,
+        video_profile="h264_apple_exact",
+    )
+
+    assert (media / f"{row['id']}.mpg").read_bytes() == b"quality"
+    assert not (media / f"{row['id']}.m4v").exists()
+    assert (media / f"{row['id']}.ttm").is_file()
+    feed = (
+        Path(mock_device) / ".rockbox/rocks/apps/.ipodtiktok_feed.tsv"
+    ).read_text(encoding="utf-8")
+    assert f"/TikTok/videos/{row['id']}.mpg" in feed
+
+
 def test_tiktok_is_standalone_stock_clickwheel_app():
     plugin = (ROOT / "apps/plugins/ipodtiktok.c").read_text()
     player = (ROOT / "apps/plugins/mpegplayer/mpegplayer.c").read_text()
@@ -830,6 +866,8 @@ def test_tiktok_is_standalone_stock_clickwheel_app():
     assert "MPEG_VIDEO_DISPLAY_FIT" in player
     assert "ACTION_STD_CANCEL" in player
     assert "IPODTIKTOK_PARAM_PREFIX" in plugin
+    assert "IPODTIKTOK_PLAYER_PATH" in plugin
+    assert "plugin_video_player_for" not in plugin
     assert 'ROCKBOX_DIR "/tiktok"' not in offlineweb
 
 
@@ -850,19 +888,25 @@ def test_rockpod_tiktok_page_has_direct_url_and_profile_controls():
     assert "TikTokSyncJob" in panel
     assert 'Signal(int, int, str)' in panel
     assert 'QProgressDialog(' in panel
-    assert "self.sync_button.setEnabled(False)" in panel
-    assert "self.sync_button.setEnabled(True)" in panel
+    assert 'QPushButton("Sync Selected")' in panel
+    assert 'QPushButton("Sync All")' in panel
+    assert 'QPushButton("Sync as H.264")' not in panel
+    assert "self.sync_mpeg_button.setEnabled(False)" in panel
+    assert "sync_h264_button" not in panel
     assert "progress_callback=self.signals.progress.emit" in panel
 
 
 def test_sync_worker_snapshots_config_object(config):
     from ui.tiktok_panel import TikTokSyncJob
 
-    job = TikTokSyncJob(config.db_path, config, ROOT, "/tmp/mock-ipod")
+    job = TikTokSyncJob(
+        config.db_path, config, ROOT, "/tmp/mock-ipod",
+    )
 
     assert job.config["db_path"] == config.db_path
     assert job.config["cache_dir"] == config.cache_dir
     assert job.mount_path == "/tmp/mock-ipod"
+    assert not hasattr(job, "video_profile")
 
 
 def test_archive_worker_snapshots_config_object(config):

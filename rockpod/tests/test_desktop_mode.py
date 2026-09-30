@@ -74,6 +74,21 @@ def test_ipod_engine_lists_desktop_mode_under_extras_applications():
     assert '{ "Desktop Mode", launch_desktop_mode },' in source
 
 
+def test_desktop_simulator_session_is_explicit_but_hardware_stays_dock_gated():
+    root = Path(desktop.__file__).resolve().parents[2]
+    menu = (root / "apps/root_menu.c").read_text(encoding="utf-8")
+    plugin = (root / "apps/plugins/desktop_mode.c").read_text(
+        encoding="utf-8"
+    )
+
+    assert '#define DESKTOP_MODE_SIMULATOR_TOKEN "simulator-desktop"' in menu
+    assert '#define DM_SIMULATOR_LAUNCH_TOKEN "simulator-desktop"' in plugin
+    assert "dm_simulator_session = parameter != NULL" in plugin
+    assert "return dm_simulator_session;" in plugin
+    assert "return ipod6g_videoout_active();" in menu
+    assert "return dm_video_out_connected;" in plugin
+
+
 def test_applications_menu_services_static_preview_after_input_settles():
     source = (
         Path(desktop.__file__).resolve().parents[2] / "apps/root_menu.c"
@@ -97,34 +112,223 @@ def test_desktop_mode_opens_real_device_music_and_videos():
         / "apps/plugins/desktop_mode.c"
     ).read_text(encoding="utf-8")
 
-    assert "row->idxid = search.idx_id;" in source
-    assert "row->seek = search.result_seek;" in source
+    assert "candidate.idxid = search.idx_id;" in source
+    assert "candidate.seek = search.result_seek;" in source
     assert "rb->tagcache_retrieve(&search, idxid, tag_filename" in source
     assert "rb->file_exists(path)" in source
-    assert "dm_itunes_count >= page_size" in source
+    assert "dm_itunes_count == page_size" in source
     assert "for (i = 0; i < dm_itunes_count; i++)" in source
-    assert "rb->playlist_start(start_index, 0, 0);" in source
+    assert "rb->playlist_start(index, 0, 0);" in source
     assert "dm_itunes_source == DM_ITUNES_VIDEOS" in source
     assert '!rb->strncmp(line, "video_id\\t", 9)' in source
-    assert "return dm_open_selected_file();" in source
+    assert "return dm_open_selected_file(state);" in source
     assert "(attribute & FILE_ATTR_MASK) == FILE_ATTR_AUDIO" in source
-    assert "return dm_play_selected_track();" in source
-    assert "return dm_open_itunes_selection();" in source
+    assert "return dm_play_selected_track(state);" in source
+    assert "return dm_open_itunes_selection(state);" in source
     assert "plugin_get_audio_buffer" not in source
     assert "audio_stop(" not in source
 
 
-def test_ipod_itunes_uses_the_full_work_area_without_covering_it_with_dock():
+def test_ipod_itunes_starts_windowed_and_fullscreen_stays_in_desktop_mode():
     source = (
         Path(desktop.__file__).resolve().parents[2]
         / "apps/plugins/desktop_mode.c"
     ).read_text(encoding="utf-8")
 
-    assert "#define DM_ITUNES_H (LCD_HEIGHT - DM_MENUBAR_H)" in source
+    assert "#define DM_ITUNES_H (dm_fullscreen ? LCD_HEIGHT - DM_MENUBAR_H :" in source
     assert "#define DM_ITUNES_ASSET_H 174" in source
     assert "static void dm_draw_itunes_chrome(void)" in source
-    assert "DM_ITUNES_ROW_H * 2" in source
-    assert "state->app != DM_APP_ITUNES" in source
+    assert "#define DM_ITUNES_ROWS ((DM_ITUNES_H - DM_ITUNES_BODY_LOCAL_Y -" in source
+    assert "state->app != DM_APP_DASHBOARD" in source
+    assert "state->fullscreen = !state->fullscreen;" in source
+
+
+def test_native_itunes_uses_captured_geometry_and_non_overlapping_rows():
+    source = (
+        Path(desktop.__file__).resolve().parents[2]
+        / "apps/plugins/desktop_mode.c"
+    ).read_text(encoding="utf-8")
+    draw = source.index("static void dm_draw_itunes(void)")
+    native_start = source.index("#if LCD_WIDTH < 1920", draw)
+    native = source[native_start : source.index("#else", native_start)]
+
+    assert "#define DM_ITUNES_BODY_LOCAL_Y 72" in source
+    assert "#define DM_ITUNES_BOTTOM_H 24" in source
+    assert "#define DM_ITUNES_ROW_H (LCD_WIDTH >= 640 ? 20 : 15)" in source
+    assert "#define DM_ITUNES_NOW_PANEL_H 34" in source
+    assert "#define DM_ITUNES_ART_SIZE (LCD_WIDTH == 640 ? 40 : 15)" in source
+    assert "#define DM_ITUNES_SCROLLER_W 15" in source
+    assert "MAX(DM_ITUNES_SCROLLER_MIN_THUMB_H" in native
+    assert "DM_ITUNES_ART_SIZE * sizeof(uint32_t) * 4 * 3 + 3" in source
+    assert "MAX(54, DM_ITUNES_W - 180), DM_ITUNES_NOW_PANEL_H" in native
+    assert "DM_ITUNES_NAME_X" in native
+    assert "DM_ITUNES_ARTIST_X" in native
+    assert "y + 10" not in native
+    assert "title_ink, row->title" in native
+    assert "dm_blit_asset_region(DM_ASSET_ITUNES_WINDOW" in source
+    assert "DM_ITUNES_Y + 22, 150, 22, 1, 42" in source
+    assert "DM_ITUNES_Y + 56" in source
+    assert "DM_ITUNES_Y + 72" in source
+
+
+def test_dashboard_uses_translucent_aurora_and_flip_card_typography():
+    source = (
+        Path(desktop.__file__).resolve().parents[2]
+        / "apps/plugins/desktop_mode.c"
+    ).read_text(encoding="utf-8")
+    dashboard = source[
+        source.index("static void dm_draw_dashboard") :
+        source.index("static void dm_draw_preferences")
+    ]
+
+    assert "dm_dim_rect" in dashboard
+    assert "weekdays[weekday_index]" in dashboard
+    assert "dm_draw_text_scaled_centered_in_box" in dashboard
+    assert "weather_x + 4" in dashboard
+    assert "DM_DASH_WEATHER_ICON_SIZE 32" in source
+    assert "char location[16]" in dashboard
+    assert "weather_x + 46, top_y + 14" in dashboard
+
+
+def test_dashboard_dock_dispatch_and_launchpad_geometry_stay_in_source_window():
+    source = (
+        Path(desktop.__file__).resolve().parents[2]
+        / "apps/plugins/desktop_mode.c"
+    ).read_text(encoding="utf-8")
+
+    dock = source[
+        source.index("static const enum dm_app dm_dock_apps") :
+        source.index("static const char * const dm_dock_labels")
+    ]
+    assert "DM_APP_DASHBOARD" in dock
+    assert '"Dashboard"' in source
+    assert "dm_launchpad_item_rect" in source
+    assert "dm_compose_scaled" in source
+    assert "int label_width = MIN(item.width - 4, dm_text_width(small, name));" in source
+    assert "label_x = x + icon_size / 2 - label_width / 2;" in source
+    assert "dm_draw_text_in_box(small, label_x" in source
+    assert "int content_x = window.x + 4;" in source
+    assert "int body_y = window.y + DM_WIN_TITLE_H + DM_WIN_TOOLBAR_H;" in source
+    assert "MIN(DM_DOCK_ICON, size)" in source
+    assert "#define DM_NORMAL_WIN_BASE_X 8" in source
+    assert "#define DM_NORMAL_WIN_BASE_Y 24" in source
+    assert "MIN(DM_DOCK_ICON_Y - window.height, window.y + dy)" in source
+    assert "state->app != DM_APP_DASHBOARD" in source
+    assert "dm_dim_rect" in source
+
+
+def test_desktop_has_finder_launchpad_menu_compact_icons_and_reflective_dock():
+    source = (
+        Path(desktop.__file__).resolve().parents[2]
+        / "apps/plugins/desktop_mode.c"
+    ).read_text(encoding="utf-8")
+
+    assert "state->app == DM_APP_DESKTOP ? DM_APP_FINDER : state->app" in source
+    menu_bar = source[
+        source.index("static void dm_draw_menu_bar") :
+        source.index("static void dm_draw_desktop_icons")
+    ]
+    assert "state->app != DM_APP_DASHBOARD" not in menu_bar
+    assert "#define DM_DESKTOP_ICON 20" in source
+    assert "DM_ACTION_DESKTOP_LAUNCHPAD" in source
+    assert "dm_draw_launchpad_shortcut" in source
+    assert "dm_compose_scaled(DM_ASSET_ICON_DISK" in source
+    assert "#define DM_DESKTOP_ITEM_W 50" in source
+    assert "#define DM_DOCK_REFLECTION_MAX_ALPHA 112" in source
+    assert "static void dm_compose_dock_reflection" in source
+    assert "dm_compose_dock_reflection(asset, x, y);" in source
+
+
+def test_dashboard_widgets_use_cached_coverage_instead_of_opaque_bmps():
+    source = (
+        Path(desktop.__file__).resolve().parents[2]
+        / "apps/plugins/desktop_mode.c"
+    ).read_text(encoding="utf-8")
+    dashboard = source[source.index("static void dm_draw_dashboard") :]
+
+    for filename in (
+        "world-clock.74x74x16.rga",
+        "ical.104x51x16.rga",
+        "weather.104x59x16.rga",
+        "stickies.96x88x16.rga",
+        "itunes.196x82x16.rga",
+    ):
+        assert filename in source
+    for asset in (
+        "DM_ASSET_DASH_CLOCK",
+        "DM_ASSET_DASH_ICAL",
+        "DM_ASSET_DASH_WEATHER",
+        "DM_ASSET_DASH_STICKIES",
+        "DM_ASSET_DASH_ITUNES",
+    ):
+        assert f"dm_compose({asset}," in dashboard
+        assert f"dm_blit({asset}," not in dashboard
+
+    assert '"iPod TV Out"' not in dashboard
+    assert "dm_draw_text(small, weather_x" not in dashboard
+    assert "dm_dashboard_battery" not in source
+    assert "DM_ASSET_DASH_CLOCK = DM_ASSET_BMP_COUNT" in source
+
+
+def test_desktop_mode_uses_real_lucida_metrics_and_metric_box_placement():
+    source = (
+        Path(desktop.__file__).resolve().parents[2]
+        / "apps/plugins/desktop_mode.c"
+    ).read_text(encoding="utf-8")
+
+    assert "metrics[3] != '2'" in source
+    assert "font->origin + column" in source
+    assert "static int dm_font_top_in_box" in source
+    assert "dm_draw_text_centered_in_box" in source
+    assert "dm_draw_text_right_in_box" in source
+    assert "DM_MENUBAR_H" in source
+    assert "DM_WIN_TITLE_H" in source
+
+
+def test_native_dock_has_eight_fixed_apps_and_optional_apps_stay_in_launchpad():
+    source = (
+        Path(desktop.__file__).resolve().parents[2]
+        / "apps/plugins/desktop_mode.c"
+    ).read_text(encoding="utf-8")
+    dock = source[
+        source.index("static const enum dm_app dm_dock_apps") :
+        source.index("static const char * const dm_dock_labels")
+    ]
+    expected = (
+        "DM_APP_FINDER",
+        "DM_APP_ITUNES",
+        "DM_APP_PREVIEW",
+        "DM_APP_TEXTEDIT",
+        "DM_APP_CALCULATOR",
+        "DM_APP_DASHBOARD",
+        "DM_APP_PREFERENCES",
+        "DM_APP_TRASH",
+    )
+
+    assert "#define DM_DOCK_SLOTS 8" in source
+    assert dock.count("DM_APP_") == len(expected)
+    assert [dock.index(name) for name in expected] == sorted(
+        dock.index(name) for name in expected
+    )
+    assert "DM_APP_STEAM" not in dock
+    assert "DM_APP_NETFLIX" not in dock
+    assert "DM_APP_SITEKICK" not in dock
+
+
+def test_dashboard_and_launchpad_are_separate_apps():
+    source = (
+        Path(desktop.__file__).resolve().parents[2]
+        / "apps/plugins/desktop_mode.c"
+    ).read_text(encoding="utf-8")
+    dock = source[
+        source.index("static const enum dm_app dm_dock_apps") :
+        source.index("static const char * const dm_dock_labels")
+    ]
+
+    assert "DM_APP_DASHBOARD" in dock
+    assert "DM_APP_LAUNCHPAD" not in dock
+    assert "return dm_activate_app(state, DM_APP_LAUNCHPAD);" in source
+    assert "state->app == DM_APP_LAUNCHPAD" in source
 
 
 def test_desktop_controls_are_bounded_and_hover_does_not_select_files():
@@ -137,7 +341,7 @@ def test_desktop_controls_are_bounded_and_hover_does_not_select_files():
         source.index("static bool dm_focus_move")
     ]
     click = source[
-        source.index("static int dm_click(struct dm_state") :
+        source.index("static NO_INLINE int dm_click(struct dm_state") :
         source.index("static void dm_secondary_click")
     ]
 
@@ -161,8 +365,11 @@ def test_desktop_pointer_frames_use_clipped_composition_and_partial_updates():
 
     assert "dm_prepare_damage(state, full)" in source
     assert "dm_paint_clip" in source
-    assert "rb->lcd_bitmap_part" in present
-    assert "rb->lcd_update_rect" in present
+    sink = source[source.index("static bool dm_lcd_present"):
+                  source.index("static void dm_present")]
+    assert "desktop_surface_present" in present
+    assert "rb->lcd_bitmap_part" in sink
+    assert "rb->lcd_update_rect" in sink
     assert "dirty.width * dirty.height" in source
     assert "DM_ACTION_DOCK_APP" in source
 
@@ -231,7 +438,7 @@ def test_desktop_mode_launches_sitekick_with_an_exact_desktop_underlay():
     assert "sitekick/desktop/icon.64x64.rga" in source
 
 
-def test_desktop_mode_launches_1080p_netflix_with_video_sync_underlay():
+def test_desktop_mode_launches_netflix_from_bounded_launchpad_with_underlay():
     root = Path(desktop.__file__).resolve().parents[2]
     shell = (root / "apps/plugins/desktop_mode.c").read_text(
         encoding="utf-8"
@@ -245,7 +452,13 @@ def test_desktop_mode_launches_1080p_netflix_with_video_sync_underlay():
     assert "DM_NETFLIX_UNDERLAY_MAGIC" in shell
     assert "desktop_mode_netflix_underlay.raw" in shell
     assert "netflix/desktop/icon.64x64.rga" in shell
-    assert '#if LCD_WIDTH >= 1920\n#define DM_DOCK_SLOTS 10' in shell
+    assert "#define DM_DOCK_SLOTS 8" in shell
+    assert "DM_APP_LAUNCHPAD" in shell
+    launchpad = shell[
+        shell.index("static const enum dm_app dm_launchpad_apps[]") :
+        shell.index("static const char * const dm_apple_menu_labels")
+    ]
+    assert "DM_APP_NETFLIX" in launchpad
 
     assert 'NF_VIDEO_INDEX ROCKBOX_DIR "/videolist/index.tsv"' in netflix
     assert 'nf_contains_ci(path, "/livetv/")' in netflix
@@ -456,6 +669,7 @@ def test_launch_parity_uses_direct_plugin_autostart(tmp_dir, monkeypatch):
 
     assert result["pid"] == 4242
     assert captured["kwargs"]["env"]["ROCKBOX_SIM_PLUGIN"] == "/.rockbox/rocks/apps/desktop_mode.rock"
+    assert captured["kwargs"]["env"]["ROCKBOX_SIM_PLUGIN_PARAM"] == "simulator-desktop"
     assert captured["kwargs"]["env"]["ROCKBOX_SIM_PLUGIN_EXIT"] == "1"
     assert captured["kwargs"]["env"]["RBROOT"] == str(root / "preview")
     assert "--root" in captured["command"]
@@ -483,3 +697,48 @@ def test_launch_parity_uses_direct_plugin_autostart(tmp_dir, monkeypatch):
     )
     assert captured["command"][captured["command"].index("--zoom") + 1] == "4"
     assert service.stop_host_previews() == 2
+
+
+def test_biggest_wins_keep_dock_and_window_lifecycle_consistent():
+    source = (
+        Path(desktop.__file__).resolve().parents[2]
+        / "apps/plugins/desktop_mode.c"
+    ).read_text(encoding="utf-8")
+
+    dock_start = source.index(
+        "if (!state->fullscreen && state->app != DM_APP_LAUNCHPAD"
+    )
+    dock_registration = source[dock_start : dock_start + 420]
+    assert "state->app != DM_APP_DASHBOARD" in dock_registration
+    assert "state->app != DM_APP_ITUNES" not in dock_registration
+
+    assert "#define DM_ITUNES_SCROLLER_MIN_THUMB_H" in source
+    assert source.count("DM_ITUNES_SCROLLER_MIN_THUMB_H") >= 3
+
+    menu_start = source.index("static void dm_menu_action")
+    menu = source[menu_start : source.index("static bool dm_button", menu_start)]
+    assert "if (dm_app_has_window(state->app))" in menu
+    assert "dm_start_animation(state, state->app, true);" in menu
+
+
+def test_next_visual_pass_has_album_tiles_focus_restore_and_tv_safe_margin():
+    source = (
+        Path(desktop.__file__).resolve().parents[2]
+        / "apps/plugins/desktop_mode.c"
+    ).read_text(encoding="utf-8")
+
+    assert "#define DM_ITUNES_ALBUM_COLUMNS 2" in source
+    assert "#define DM_ITUNES_ALBUM_ROWS (LCD_WIDTH == 640 ? 6 : 2)" in source
+    assert "DM_ITUNES_ALBUM_TILES" in source
+    assert "dm_itunes_album_item_rect" in source
+    assert '"Albums"' in source
+    assert '"Unknown Artist"' in source
+
+    assert "static void dm_close_active_window" in source
+    close_start = source.index("static void dm_close_active_window")
+    close = source[close_start : source.index("static enum dm_asset_id", close_start)]
+    assert "state->window_stack[state->window_stack_count - 1]" in close
+    assert "dm_stack_raise(state, state->app);" in close
+
+    assert "#define DM_SOURCE_SAFE_MARGIN 8" in source
+    assert "DM_SOURCE_SAFE_MARGIN - window.width" in source

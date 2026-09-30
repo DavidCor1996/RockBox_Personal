@@ -28,6 +28,7 @@
 #include "system.h"
 #include "file.h"
 #include "mp4_demux.h"
+#include "video_file.h"
 
 #include <string.h>
 
@@ -35,7 +36,7 @@
 
 struct mp4_stream {
     int fd;
-    off_t pos;
+    int64_t pos;
     bool eof;
 };
 
@@ -48,7 +49,8 @@ static void stream_init(struct mp4_stream *s, int fd)
 
 static bool stream_read(struct mp4_stream *s, void *buf, size_t len)
 {
-    ssize_t n = read(s->fd, buf, len);
+    ssize_t n = s->pos < 0 || s->pos > UINT32_MAX ? -1 :
+        file_read_at(s->fd, buf, len, (uint32_t)s->pos);
     if (n < (ssize_t)len)
     {
         s->eof = true;
@@ -86,19 +88,19 @@ static uint8_t stream_read_uint8(struct mp4_stream *s)
 
 static void stream_skip(struct mp4_stream *s, size_t n)
 {
-    s->pos = lseek(s->fd, (off_t)n, SEEK_CUR);
+    s->pos += n;
     if (s->pos < 0)
         s->eof = true;
 }
 
-static void stream_seek(struct mp4_stream *s, off_t offset)
+static void stream_seek(struct mp4_stream *s, int64_t offset)
 {
-    s->pos = lseek(s->fd, offset, SEEK_SET);
+    s->pos = offset;
     if (s->pos < 0)
         s->eof = true;
 }
 
-static off_t stream_tell(struct mp4_stream *s)
+static int64_t stream_tell(struct mp4_stream *s)
 {
     return s->pos;
 }
@@ -320,7 +322,7 @@ static uint32_t read_mp4_descr_length(struct mp4_stream *s)
  * Ported from libm4a/demux.c:95-154. */
 static bool read_chunk_esds(struct mp4_parse_ctx *ctx, size_t chunk_len)
 {
-    off_t box_end = ctx->stream.pos + (off_t)(chunk_len - 8);
+    int64_t box_end = ctx->stream.pos + (int64_t)(chunk_len - 8);
     uint8_t tag;
     uint32_t descr_len;
 
@@ -370,7 +372,7 @@ static bool read_chunk_esds(struct mp4_parse_ctx *ctx, size_t chunk_len)
 
     /* Skip any trailing descriptors (SLConfigDescriptor etc.) */
     {
-        off_t remaining = box_end - ctx->stream.pos;
+        int64_t remaining = box_end - ctx->stream.pos;
         if (remaining > 0)
             stream_skip(&ctx->stream, (size_t)remaining);
     }
@@ -470,6 +472,8 @@ static bool read_chunk_stsd_audio(struct mp4_parse_ctx *ctx, size_t chunk_len)
 
 static bool read_chunk_stts_audio(struct mp4_parse_ctx *ctx, size_t chunk_len)
 {
+    if (chunk_len < 16)
+        return false;
     size_t size_remaining = chunk_len - 8;
     uint32_t numentries, i;
 
@@ -479,8 +483,11 @@ static bool read_chunk_stts_audio(struct mp4_parse_ctx *ctx, size_t chunk_len)
     numentries = stream_read_uint32(&ctx->stream);
     size_remaining -= 4;
 
+    if (ctx->stream.eof || numentries > size_remaining / 8)
+        return false;
+
     if (numentries > MP4V_MAX_STTS)
-        numentries = MP4V_MAX_STTS;
+        return false;
 
     ctx->res->audio_num_stts = numentries;
     for (i = 0; i < numentries; i++)
@@ -493,7 +500,7 @@ static bool read_chunk_stts_audio(struct mp4_parse_ctx *ctx, size_t chunk_len)
     if (size_remaining > 0)
         stream_skip(&ctx->stream, size_remaining);
 
-    return true;
+    return !ctx->stream.eof;
 }
 
 static bool read_chunk_stsz_audio(struct mp4_parse_ctx *ctx, size_t chunk_len)
@@ -609,6 +616,8 @@ static bool read_chunk_stco_audio(struct mp4_parse_ctx *ctx, size_t chunk_len)
 
 static bool read_chunk_co64_audio(struct mp4_parse_ctx *ctx, size_t chunk_len)
 {
+    if (chunk_len < 16)
+        return false;
     size_t size_remaining = chunk_len - 8;
     uint32_t numentries, i, cap;
 
@@ -618,6 +627,9 @@ static bool read_chunk_co64_audio(struct mp4_parse_ctx *ctx, size_t chunk_len)
     numentries = stream_read_uint32(&ctx->stream);
     size_remaining -= 4;
 
+    if (ctx->stream.eof || numentries > size_remaining / 8)
+        return false;
+
     ctx->res->audio_num_stco = numentries; /* real count from file */
     cap = (numentries < ctx->res->audio_chunk_offsets_cap)
         ? numentries : ctx->res->audio_chunk_offsets_cap;
@@ -626,7 +638,8 @@ static bool read_chunk_co64_audio(struct mp4_parse_ctx *ctx, size_t chunk_len)
     {
         uint32_t hi = stream_read_uint32(&ctx->stream);
         uint32_t lo = stream_read_uint32(&ctx->stream);
-        (void)hi;
+        if (hi || ctx->stream.eof)
+            return false;
         ctx->res->audio_chunk_offsets[i] = lo;
         size_remaining -= 8;
     }
@@ -640,7 +653,7 @@ static bool read_chunk_co64_audio(struct mp4_parse_ctx *ctx, size_t chunk_len)
     if (size_remaining > 0)
         stream_skip(&ctx->stream, size_remaining);
 
-    return true;
+    return !ctx->stream.eof;
 }
 
 /* Audio sample table container */
@@ -697,6 +710,8 @@ static bool read_chunk_stbl_audio(struct mp4_parse_ctx *ctx, size_t chunk_len)
 /* stts - time-to-sample table */
 static bool read_chunk_stts(struct mp4_parse_ctx *ctx, size_t chunk_len)
 {
+    if (chunk_len < 16)
+        return false;
     size_t size_remaining = chunk_len - 8;
     uint32_t numentries, i;
 
@@ -706,8 +721,11 @@ static bool read_chunk_stts(struct mp4_parse_ctx *ctx, size_t chunk_len)
     numentries = stream_read_uint32(&ctx->stream);
     size_remaining -= 4;
 
+    if (ctx->stream.eof || numentries > size_remaining / 8)
+        return false;
+
     if (numentries > MP4V_MAX_STTS)
-        numentries = MP4V_MAX_STTS;
+        return false;
 
     ctx->res->num_stts = numentries;
     for (i = 0; i < numentries; i++)
@@ -720,7 +738,7 @@ static bool read_chunk_stts(struct mp4_parse_ctx *ctx, size_t chunk_len)
     if (size_remaining > 0)
         stream_skip(&ctx->stream, size_remaining);
 
-    return true;
+    return !ctx->stream.eof;
 }
 
 /* stsz - sample sizes */
@@ -847,10 +865,12 @@ static bool read_chunk_stco(struct mp4_parse_ctx *ctx, size_t chunk_len)
 }
 
 /* co64 - 64-bit chunk offset table (for files >4GB).
- * Reads 64-bit offsets but truncates to 32-bit.
+ * Reject offsets that cannot be represented by the player.
  * Files with chunk offsets >4GB are not supported. */
 static bool read_chunk_co64(struct mp4_parse_ctx *ctx, size_t chunk_len)
 {
+    if (chunk_len < 16)
+        return false;
     size_t size_remaining = chunk_len - 8;
     uint32_t numentries, i, cap;
 
@@ -860,6 +880,9 @@ static bool read_chunk_co64(struct mp4_parse_ctx *ctx, size_t chunk_len)
     numentries = stream_read_uint32(&ctx->stream);
     size_remaining -= 4;
 
+    if (ctx->stream.eof || numentries > size_remaining / 8)
+        return false;
+
     ctx->res->num_stco = numentries; /* real count from file */
     cap = (numentries < ctx->res->chunk_offsets_cap)
         ? numentries : ctx->res->chunk_offsets_cap;
@@ -868,7 +891,8 @@ static bool read_chunk_co64(struct mp4_parse_ctx *ctx, size_t chunk_len)
     {
         uint32_t hi = stream_read_uint32(&ctx->stream);
         uint32_t lo = stream_read_uint32(&ctx->stream);
-        (void)hi; /* discard upper 32 bits */
+        if (hi || ctx->stream.eof)
+            return false;
         ctx->res->chunk_offsets[i] = lo;
         size_remaining -= 8;
     }
@@ -882,34 +906,35 @@ static bool read_chunk_co64(struct mp4_parse_ctx *ctx, size_t chunk_len)
     if (size_remaining > 0)
         stream_skip(&ctx->stream, size_remaining);
 
-    return true;
+    return !ctx->stream.eof;
 }
 
 /* stss - sync sample (keyframe) table */
 static bool read_chunk_stss(struct mp4_parse_ctx *ctx, size_t chunk_len)
 {
+    if (chunk_len < 16)
+        return false;
     size_t size_remaining = chunk_len - 8;
-    uint32_t numentries, i, cap;
+    uint32_t numentries, i;
 
-    stream_read_uint32(&ctx->stream); /* version + flags */
+    if (stream_read_uint32(&ctx->stream) != 0) /* version + flags */
+        return false;
     size_remaining -= 4;
 
     numentries = stream_read_uint32(&ctx->stream);
     size_remaining -= 4;
 
-    cap = (numentries < MP4V_MAX_STSS) ? numentries : MP4V_MAX_STSS;
-    ctx->res->num_stss = cap;
+    if (numentries > MP4V_MAX_STSS || numentries > size_remaining/4)
+        return false;
+    ctx->res->num_stss = numentries;
 
-    for (i = 0; i < cap; i++)
+    for (i = 0; i < numentries; i++)
     {
         ctx->res->stss[i] = stream_read_uint32(&ctx->stream);
+        if (!ctx->res->stss[i] ||
+            (i && ctx->res->stss[i] <= ctx->res->stss[i-1]))
+            return false;
         size_remaining -= 4;
-    }
-
-    if (numentries > cap)
-    {
-        stream_skip(&ctx->stream, (numentries - cap) * 4);
-        size_remaining -= (numentries - cap) * 4;
     }
 
     if (size_remaining > 0)

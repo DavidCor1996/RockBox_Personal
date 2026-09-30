@@ -62,6 +62,13 @@
 #include "disk.h"
 #include "adc.h"
 #include "usb.h"
+#ifdef HAVE_USB_DW_CAPABILITY_SNAPSHOT
+#include "usb_dw_capabilities.h"
+#include "version.h"
+#endif
+#ifdef HAVE_USB_HOST_ROLE_PROBE
+#include "usb_host_probe.h"
+#endif
 #include "storage.h"
 #include "fs_defines.h"
 #include "eeprom_24cxx.h"
@@ -2287,14 +2294,61 @@ static bool dbg_save_roms(void)
     return false;
 }
 #elif defined(CPU_PP) && !(CONFIG_STORAGE & STORAGE_SD)
+#define PP_ROM_DUMP_CHUNK_SIZE 4096
+static unsigned char pp_rom_dump_buf[PP_ROM_DUMP_CHUNK_SIZE]
+    CACHEALIGN_ATTR;
+
 static bool dbg_save_roms(void)
 {
     int fd = creat("/internal_rom_000000-0FFFFF.bin", 0666);
-    if(fd >= 0)
+    bool ok = fd >= 0;
+
+    if (ok)
     {
-        write(fd, (void *)0x20000000, FLASH_SIZE);
+        const volatile unsigned char *rom =
+            (const volatile unsigned char *)0x20000000;
+        unsigned int offset;
+
+        /*
+         * Do not give the filesystem a buffer that points directly into the
+         * memory-mapped NOR window.  Some PP storage paths cannot transfer
+         * from that address and the old single 1 MiB write could hang the
+         * player.  Copy with the CPU into ordinary aligned RAM first.
+         */
+        for (offset = 0; offset < FLASH_SIZE;
+             offset += PP_ROM_DUMP_CHUNK_SIZE)
+        {
+            unsigned int count = MIN(PP_ROM_DUMP_CHUNK_SIZE,
+                                     FLASH_SIZE - offset);
+            unsigned int i;
+
+            for (i = 0; i < count; i++)
+                pp_rom_dump_buf[i] = rom[offset + i];
+
+            if (write(fd, pp_rom_dump_buf, count) != (ssize_t)count)
+            {
+                ok = false;
+                break;
+            }
+
+            if ((offset & 0xffff) == 0)
+            {
+                splashf(0, "Dumping ROM: %u%%",
+                        (100u * (offset + count)) / FLASH_SIZE);
+                yield();
+            }
+        }
+
+        if (ok && fsync(fd) < 0)
+            ok = false;
+
         close(fd);
     }
+
+    if (ok)
+        splash(HZ * 2, "ROM dump complete");
+    else
+        splash(HZ * 3, "ROM dump failed");
 
     return false;
 }
@@ -2750,6 +2804,113 @@ static bool dbg_talk(void)
     return simplelist_show_list(&list);
 }
 
+#ifdef HAVE_USB_DW_CAPABILITY_SNAPSHOT
+static bool dbg_usb_capabilities(void)
+{
+    struct simplelist_info info;
+    struct usb_dw_capabilities caps;
+    usb_dw_get_capabilities(&caps);
+    simplelist_info_init(&info, "USB capabilities (read only)", 0, NULL);
+    info.scroll_all = true;
+    simplelist_reset_lines();
+    simplelist_addline("Build: %s", rbversion);
+    simplelist_addline("Target: ipod6g (Classic 6G/7G)");
+    simplelist_addline("Capture: normal DEVICE initialization");
+    simplelist_addline("Count %lu; consistent %s",
+                       (unsigned long)caps.captures,
+                       caps.consistent ? "yes" : "no");
+    if (!caps.captures)
+    {
+        simplelist_addline("No snapshot; clocks were not accessed.");
+        simplelist_addline("Connect to PC normally, then unplug.");
+        simplelist_addline("Reopen this screen after USB exits.");
+    }
+    simplelist_addline("GSNPSID %08lx", (unsigned long)caps.core_id);
+    for (unsigned i = 0; i < 4; i++)
+        simplelist_addline("GHWCFG%u %08lx", i + 1,
+                           (unsigned long)caps.hwcfg[i]);
+    if (caps.captures)
+    {
+        simplelist_addline("Mode %lu; DMA architecture %lu",
+                           (unsigned long)(caps.hwcfg[1] & 7u),
+                           (unsigned long)((caps.hwcfg[1] >> 3) & 3u));
+        simplelist_addline("Host channels %lu; dynamic FIFO %lu",
+                           (unsigned long)(((caps.hwcfg[1] >> 14) & 15u) + 1),
+                           (unsigned long)((caps.hwcfg[1] >> 19) & 1u));
+        simplelist_addline("FIFO %lu words (32-bit)",
+                           (unsigned long)(caps.hwcfg[2] >> 16));
+    }
+    switch (usb_dw_capabilities_gate(&caps))
+    {
+    case USB_DW_GATE_DUAL_ROLE:
+        simplelist_addline("Dual role: investigate adapter/power next.");
+        break;
+    case USB_DW_GATE_DEVICE_ONLY:
+        simplelist_addline("Device only: STOP; verify raw evidence.");
+        break;
+    case USB_DW_GATE_HOST_ONLY:
+        simplelist_addline("Host only: scrutinize identity/read validity.");
+        break;
+    default:
+        simplelist_addline("Inconclusive: no host capability result.");
+        break;
+    }
+    simplelist_addline("No host transaction has been proven.");
+    simplelist_addline("Model/HwVr: use Debug > View SysCfg.");
+    return simplelist_show_list(&info);
+}
+#endif
+
+#ifdef HAVE_USB_HOST_ROLE_PROBE
+static int dbg_usb_role_probe_cb(int action, struct gui_synclist *lists)
+{
+    struct usb_probe_report report;
+    (void)lists;
+    if (action == ACTION_STD_OK)
+    {
+        usb_host_probe_request();
+        action = ACTION_REDRAW;
+    }
+    usb_host_probe_snapshot(&report);
+    simplelist_reset_lines();
+    simplelist_setline("2A: role only; no peripheral commands");
+    simplelist_addline("Start with all USB cables unplugged.");
+    simplelist_addline("Select: start; Menu: cancel/leave");
+    if (report.result == USB_PROBE_RUNNING)
+        simplelist_addline("Attach CCK + powered hub now (10s).");
+    else if (report.result == USB_PROBE_RESTORE_FAILED)
+        simplelist_addline("RESTORE FAILED: unplug and reboot.");
+    else if (report.result == USB_PROBE_REFUSED)
+        simplelist_addline("Refused: USB busy; unplug first.");
+    simplelist_addline("Result %d; operation %d", report.result,
+                        report.operation_result);
+    simplelist_addline("HOST %d / connected %d / DEVICE %d",
+                        report.host_seen, report.connected_seen,
+                        report.restored);
+    simplelist_addline("Core %08lx / HW %08lx",
+                        (unsigned long)report.core_id,
+                        (unsigned long)report.hardware);
+    simplelist_addline("HPRT %08lx / %lu ms", (unsigned long)report.port,
+                        (unsigned long)report.elapsed_ms);
+    simplelist_addline("Log: /.rockbox/usb-role-probe.log");
+    if (report.log_skipped)
+        simplelist_addline("Log skipped: USB session active");
+    else if (report.result > USB_PROBE_RUNNING)
+        simplelist_addline("Log %s", report.log_saved ? "saved" : "WRITE FAILED");
+    return action == ACTION_NONE ? ACTION_REDRAW : action;
+}
+static bool dbg_usb_role_probe(void)
+{
+    struct simplelist_info info;
+    simplelist_info_init(&info, "USB role probe (Phase 2A)", 0, NULL);
+    info.scroll_all = true;
+    info.action_callback = dbg_usb_role_probe_cb;
+    bool result = simplelist_show_list(&info);
+    usb_host_probe_cancel();
+    return result;
+}
+#endif
+
 #ifdef HAVE_USBSTACK
 #if (defined(ROCKBOX_HAS_LOGF) && defined(USB_ENABLE_SERIAL))
 static bool toggle_usb_core_driver(int driver, char *msg)
@@ -2817,12 +2978,12 @@ static bool dbg_usb_audio(void)
 #endif /* USB_ENABLE_AUDIO */
 #endif /* HAVE_USBSTACK */
 
-#if CONFIG_USBOTG == USBOTG_ISP1583
+#if defined(USBOTG_ISP1683) && (CONFIG_USBOTG == USBOTG_ISP1683)
 extern int dbg_usb_num_items(void);
 extern const char* dbg_usb_item(int selected_item, void *data,
                                 char *buffer, size_t buffer_len);
 
-static int isp1583_action_callback(int action, struct gui_synclist *lists)
+static int isp1683_action_callback(int action, struct gui_synclist *lists)
 {
     (void)lists;
     if (action == ACTION_NONE)
@@ -2830,15 +2991,15 @@ static int isp1583_action_callback(int action, struct gui_synclist *lists)
     return action;
 }
 
-static bool dbg_isp1583(void)
+static bool dbg_isp1683(void)
 {
-    struct simplelist_info isp1583;
-    isp1583.scroll_all = true;
-    simplelist_info_init(&isp1583, "ISP1583", dbg_usb_num_items(), NULL);
-    isp1583.timeout = HZ/100;
-    isp1583.get_name = dbg_usb_item;
-    isp1583.action_callback = isp1583_action_callback;
-    return simplelist_show_list(&isp1583);
+    struct simplelist_info isp1683;
+    isp1683.scroll_all = true;
+    simplelist_info_init(&isp1683, "ISP1683", dbg_usb_num_items(), NULL);
+    isp1683.timeout = HZ/100;
+    isp1683.get_name = dbg_usb_item;
+    isp1683.action_callback = isp1683_action_callback;
+    return simplelist_show_list(&isp1683);
 }
 #endif
 
@@ -3096,6 +3257,7 @@ static const char *dbg_hibernate_breadcrumb_name(uint32_t breadcrumb)
         case IPOD6G_HIBERNATE_DIAG_STORAGE_IO_READY: return "ATA I/O ready";
         case IPOD6G_HIBERNATE_DIAG_REQUEST_RETURNED: return "request returned";
         case IPOD6G_HIBERNATE_DIAG_REQUEST_FINISHED: return "request finished";
+        case IPOD6G_HIBERNATE_DIAG_MEDIA_SERVICE_RESUMED: return "media service resumed";
         case IPOD6G_HIBERNATE_DIAG_PMU_ADC_ENTER: return "PMU ADC enter";
         case IPOD6G_HIBERNATE_DIAG_PMU_ADC_LOCKED: return "PMU ADC locked";
         case IPOD6G_HIBERNATE_DIAG_PMU_ADC_STARTED: return "PMU ADC started";
@@ -3119,7 +3281,7 @@ static bool dbg_hibernate_stage3(void)
     lcd_set_foreground(LCD_RGBPACK(255, 255, 255));
     lcd_clear_display();
     lcd_puts(0, 0, "*** HIBERNATE TEST CORE ***");
-    lcd_puts(0, 1, "Stage 3B-R11 / ABI 12 / BSS FIX");
+    lcd_puts(0, 1, "Stage 4-P16 / ABI 12 / CODEC RESTORE");
     lcd_putsf(0, 2, "State:%s mode:%lu",
               status.valid ? dbg_hibernate_state_name(status.state) :
                              "invalid record",
@@ -3128,48 +3290,47 @@ static bool dbg_hibernate_stage3(void)
               (unsigned long)status.attempt_count,
               (unsigned long)status.last_phase,
               (unsigned long)status.failure);
-    lcd_putsf(0, 4, "PC:%08lx SP:%08lx",
-              (unsigned long)status.context_pc,
-              (unsigned long)status.context_sp);
-    lcd_putsf(0, 5, "CPSR:%08lx wake:%06lx",
-              (unsigned long)status.context_cpsr,
-              (unsigned long)status.observed_wake_reason);
-    lcd_putsf(0, 6, "TTB:%08lx/%08lx",
-              (unsigned long)status.context_ttb_crc32,
-              (unsigned long)status.context_observed_ttb_crc32);
-    lcd_putsf(0, 7, "Cookie:%08lx/%08lx",
-              (unsigned long)status.payload_expected_cookie,
-              (unsigned long)status.payload_observed_cookie);
-    lcd_putsf(0, 8, "SP2:%08lx ret:%08lx",
-              (unsigned long)status.payload_observed_sp,
-              (unsigned long)status.payload_return_value);
-    lcd_putsf(0, 9, "Trail:%s %08lx",
+    lcd_putsf(0, 4, "Trail:%s %08lx",
               dbg_hibernate_breadcrumb_name(status.diagnostic_breadcrumb),
               (unsigned long)status.diagnostic_breadcrumb);
-    lcd_putsf(0, 10, "TK:%lu/%lu S:%lu I:%lu",
+    lcd_putsf(0, 5, "TK:%lu/%lu S:%lu I:%lu",
               (unsigned long)status.runtime_tick_started,
               (unsigned long)status.runtime_tick_completed,
               (unsigned long)status.runtime_tick_stage,
               (unsigned long)status.runtime_tick_index);
-    lcd_putsf(0, 11, "TF:%08lx T:%08lx",
-              (unsigned long)status.runtime_tick_function,
-              (unsigned long)status.runtime_tick_current);
-    lcd_putsf(0, 12, "SW:%lu S:%lu %lx>%lx",
+    lcd_putsf(0, 6, "SW:%lu S:%lu %lx>%lx",
               (unsigned long)status.runtime_switch_count,
               (unsigned long)status.runtime_switch_stage,
               (unsigned long)(status.runtime_switch_current_id & 0xff),
               (unsigned long)(status.runtime_switch_next_id & 0xff));
-    lcd_putsf(0, 13, "ST:%08lx U:%08lx",
+    lcd_putsf(0, 7, "CT:%08lx NT:%08lx",
               (unsigned long)status.runtime_switch_tick,
-              (unsigned long)status.runtime_switch_usec);
-    if (status.failure ==
-        IPOD6G_HIBERNATE_FAILURE_STANDBY_NOT_ENTERED)
-    {
-        lcd_puts(0, 13, "RESULT: STANDBY NOT ENTERED");
-    }
-    lcd_puts(0, 14, ready ? "SELECT: SUSPEND; WAKE BY USB" :
-                            "Matching ABI-11 bootloader required");
-    lcd_puts(0, 15, "MENU: exit without testing");
+              (unsigned long)status.runtime_switch_next_tmo_check);
+    lcd_putsf(0, 8, "Q:%08lx/%08lx",
+              (unsigned long)status.runtime_switch_rtr_head,
+              (unsigned long)status.runtime_switch_tmo_head);
+    lcd_putsf(0, 9, "P:%08lx>%08lx",
+              (unsigned long)status.runtime_switch_current,
+              (unsigned long)status.runtime_switch_next);
+    lcd_putsf(0, 10, "RN:%08lx M:%08lx",
+              (unsigned long)status.runtime_switch_running,
+              (unsigned long)status.runtime_switch_rtr_mask);
+    lcd_putsf(0, 11, "TO:%lx T:%08lx S:%lu",
+              (unsigned long)(status.runtime_switch_timeout_id & 0xff),
+              (unsigned long)status.runtime_switch_timeout_tick,
+              (unsigned long)status.runtime_switch_timeout_state);
+    lcd_putsf(0, 12, "NX:%lx S:%lu P:%lu",
+              (unsigned long)(status.runtime_switch_next_id & 0xff),
+              (unsigned long)status.runtime_switch_next_state,
+              (unsigned long)status.runtime_switch_next_priority);
+    lcd_putsf(0, 13, "C:%08lx/%08lx",
+              (unsigned long)status.runtime_switch_next_context_sp,
+              (unsigned long)status.runtime_switch_next_context_lr);
+    lcd_putsf(0, 14, "A:%08lx K:%08lx",
+              (unsigned long)status.runtime_switch_next_context_start,
+              (unsigned long)status.runtime_switch_next_stack);
+    lcd_puts(0, 15, ready ? "SELECT:test  MENU:exit" :
+                            "ABI-12 bootloader required");
     lcd_update();
 
     while (1)
@@ -3180,13 +3341,20 @@ static bool dbg_hibernate_stage3(void)
 
         if (action == ACTION_STD_OK && ready)
         {
+            uint32_t sequence = (uint32_t)current_tick;
+
             lcd_clear_display();
             lcd_puts(0, 0, "Live context suspend armed");
             lcd_puts(0, 2, "Wait for black, then plug USB");
             lcd_update();
 
-            if (ipod6g_hibernate_stage3_suspend((uint32_t)current_tick))
+            if (ipod6g_hibernate_stage3_suspend(sequence))
+            {
+                /* This diagnostic bypasses the normal button-queue event.
+                 * Its successful return is the local commit boundary. */
+                ata_hibernate_event_commit(sequence);
                 splash(HZ * 2, "LIVE RESUME PASSED");
+            }
             else
                 splash(HZ * 2, "Live context test refused");
             break;
@@ -3299,6 +3467,10 @@ static bool dbg_videoout(void)
     unsigned stage = 0;
     bool enter_stage = true;
     bool have_diagnostics = false;
+#ifdef IPOD6G_VIDEOOUT_HIRES_TEST
+    long hires_deadline = 0;
+    long hires_exit_event = 0;
+#endif
     int saved_videoout_mode = MAX(IPOD6G_VIDEOOUT_OFF,
         MIN(global_settings.composite_video_output, IPOD6G_VIDEOOUT_ON));
     long diagnostic_tick = current_tick;
@@ -3372,6 +3544,23 @@ static bool dbg_videoout(void)
                     dbg_videoout_registers(&diagnostics);
                     have_diagnostics = true;
                     break;
+#ifdef IPOD6G_VIDEOOUT_HIRES_TEST
+                case 6:
+                    dbg_videoout_text("Stage 6: 640x480 test",
+                                      "Rows 00-15; MENU exits");
+                    if (!ipod6g_videoout_test_hires_pattern())
+                    {
+                        ipod6g_videoout_disable();
+                        dbg_videoout_text("640x480 init failed", "Output is OFF");
+                        stage = 0;
+                        have_diagnostics = false;
+                        break;
+                    }
+                    hires_deadline = current_tick + 60 * HZ;
+                    dbg_videoout_registers(&diagnostics);
+                    have_diagnostics = true;
+                    break;
+#endif
                 default:
                     dbg_videoout_text("Stage 5: fmt8 live",
                                       "Stock 320x240 H252 V142");
@@ -3391,12 +3580,31 @@ static bool dbg_videoout(void)
             dbg_videoout_poll_registers(&diagnostics);
             diagnostic_tick = current_tick + HZ / 2;
         }
+#ifdef IPOD6G_VIDEOOUT_HIRES_TEST
+        if (action == SYS_USB_CONNECTED)
+        {
+            hires_exit_event = action;
+            break;
+        }
+        if (stage == 6 && TIME_AFTER(current_tick, hires_deadline))
+        {
+            stage = 4;
+            enter_stage = true;
+        }
+#endif
         if (action == ACTION_STD_CANCEL)
             break;
         if (action == ACTION_STD_OK)
         {
+#ifdef IPOD6G_VIDEOOUT_HIRES_TEST
+            if (stage == 6)
+                stage = 4;
+            else
+                stage++;
+#else
             if (stage < 5)
                 stage++;
+#endif
             enter_stage = true;
         }
     }
@@ -3414,6 +3622,10 @@ static bool dbg_videoout(void)
     ipod6g_videoout_set_mode(
         (enum ipod6g_videoout_mode)saved_videoout_mode,
         FBADDR(0, 0), LCD_WIDTH, LCD_HEIGHT);
+#ifdef IPOD6G_VIDEOOUT_HIRES_TEST
+    if (hires_exit_event)
+        default_event_handler(hires_exit_event);
+#endif
     return false;
 }
 
@@ -3653,6 +3865,12 @@ static const struct {
 #ifdef HAVE_TAGCACHE
         { "View database info", dbg_tagcache_info },
 #endif
+#ifdef HAVE_USB_DW_CAPABILITY_SNAPSHOT
+        { "USB capabilities (read only)", dbg_usb_capabilities },
+#endif
+#ifdef HAVE_USB_HOST_ROLE_PROBE
+        { "USB role probe (Phase 2A)", dbg_usb_role_probe },
+#endif
         { "View buffering thread", dbg_buffering_thread },
         { "Audio playback screen", dbg_audio_playback_screen },
 #if defined(IPOD_NANO3G) || defined(SIMULATOR)
@@ -3672,8 +3890,8 @@ static const struct {
 #if defined(HAVE_EEPROM) && !defined(HAVE_EEPROM_SETTINGS)
         { "Write back EEPROM", dbg_write_eeprom },
 #endif
-#if CONFIG_USBOTG == USBOTG_ISP1583
-        { "View ISP1583 info", dbg_isp1583 },
+#if defined(USBOTG_ISP1683) && (CONFIG_USBOTG == USBOTG_ISP1683)
+        { "View ISP1683 info", dbg_isp1683 },
 #endif
 #ifdef ROCKBOX_HAS_LOGF
         {"Show Log File", logfdisplay },

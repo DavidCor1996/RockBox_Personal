@@ -2,6 +2,7 @@ from pathlib import Path
 
 from PIL import Image
 
+import services.instagram_app as instagram_app
 from services.instagram_app import (
     InstagramAppService,
     _group_media_items,
@@ -22,6 +23,14 @@ def test_instagram_profile_url_validation():
     assert _profile_slug("https://www.instagram.com/jasmine.in.dreamland/") == (
         "jasmine.in.dreamland"
     )
+
+
+def test_instagram_sync_screen_exposes_both_video_formats():
+    panel = (ROOT / "rockpod/ui/instagram_panel.py").read_text(
+        encoding="utf-8"
+    )
+    assert 'QPushButton("Sync as MPEG")' in panel
+    assert 'QPushButton("Sync as H.264")' in panel
 
 
 def test_instagram_public_description_maps_real_profile_counts():
@@ -152,6 +161,36 @@ def test_instagram_sync_keeps_device_only_photo_and_video(config, mock_device):
     assert "ig_video\tdeviceonly\tvideo" in profile_feed
 
 
+def test_instagram_format_switch_replaces_mpeg_with_h264(
+    config, mock_device, monkeypatch,
+):
+    service = InstagramAppService(config, ROOT)
+    source = Path(config.get("cache_dir")) / "instagram-video.mp4"
+    source.write_bytes(b"source")
+    service._save({"profiles": [{
+        "username": "creator", "display_name": "Creator", "media": [{
+            "id": "ig_video", "type": "video", "title": "Reel",
+            "source_path": str(source), "post_date": "2026-08-31",
+        }],
+    }]})
+
+    def fake_stage(_source, target, **kwargs):
+        Path(target).write_bytes(kwargs["profile"].encode("ascii"))
+
+    monkeypatch.setattr(instagram_app, "stage_app_video", fake_stage)
+    monkeypatch.setattr(instagram_app.subprocess, "run", lambda *a, **k: None)
+    media = Path(mock_device) / ".rockbox/instagram/media"
+
+    service.sync(mock_device, video_profile="quality")
+    service.sync(mock_device, video_profile="h264_apple_exact")
+
+    assert (media / "ig_video.m4v").is_file()
+    assert not (media / "ig_video.mpg").exists()
+    assert "/.rockbox/instagram/media/ig_video.m4v" in (
+        Path(mock_device) / ".rockbox/instagram/library.tsv"
+    ).read_text(encoding="utf-8")
+
+
 def test_instagram_zoom_migration_preserves_existing_views(tmp_path):
     source = Image.new("RGB", (900, 1200), "purple")
     display = tmp_path / "post.bmp"
@@ -221,6 +260,12 @@ def test_instagram_photo_profile_sync(config, mock_device, monkeypatch):
         assert name_art.size == (205, 18)
         assert name_art.getbbox() is not None
         assert name_art.getpixel((204, 17)) == (255, 0, 255)
+        # Black text edges must not blend with the magenta color key.
+        assert not any(0 < red < 255 and green == 0 and blue == red
+                       for red, green, blue in
+                       (name_art.getpixel((x, y))
+                        for y in range(name_art.height)
+                        for x in range(name_art.width)))
     with Image.open(bio_art_path) as bio_art:
         assert bio_art.size == (304, 30)
     header, row = (root / "library.tsv").read_text(
@@ -277,7 +322,7 @@ def test_instagram_plugin_has_persistent_likes_favorites_and_no_news_tab():
     assert "ig_toggle_profile_favorite" in source
     assert "IG_SCREEN_PROFILES" in source
     assert "static void ig_draw_profiles(void)" in source
-    assert "static void ig_cache_list_names" in source
+    assert "static bool ig_cache_list_names" in source
     assert "list_name_pixels" in source
     assert "lcd_bitmap_transparent" in source
     assert "profile_return_screen" in source

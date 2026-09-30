@@ -2144,6 +2144,29 @@ fi
     t_manufacturer="s5l8702"
     t_model="ipod6g"
     ;;
+  211|desktop640)
+    target_id=211
+    modelname="desktop640"
+    # Identify as a 6G as well: this tree gates a lot of iPod behaviour on
+    # IPOD_6G, and the 1080p panel is that target with a bigger screen.
+    target="IPOD_6G"
+    extradefines="$extradefines -DDESKTOP_640"
+    memory=64 # always
+    arm926ejscc
+    tool="$rootdir/tools/scramble -add=ip6g"
+    bmp2rb_mono="$rootdir/tools/bmp2rb -f 0"
+    bmp2rb_native="$rootdir/tools/bmp2rb -f 4"
+    output="rockbox.ipod"
+    appextra="recorder:gui:radio"
+    plugins="yes"
+    bootoutput="bootloader-$modelname.ipod"
+    toolset=$ipodbitmaptools
+    # simulator-only: shares the 6G target tree, which a simulator build
+    # compiles the hardware drivers out of
+    t_cpu="arm"
+    t_manufacturer="s5l8702"
+    t_model="ipod6g"
+    ;;
 
    29|ipod6g)
     target_id=71

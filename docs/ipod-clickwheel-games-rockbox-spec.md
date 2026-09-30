@@ -148,6 +148,10 @@ comparison returns equal.
 
 ### Vortex bring-up checkpoint (2026-07-18)
 
+For the later 30 Hz timing, music streaming, and outstanding full-game
+qualification work, see [Vortex retail compatibility](vortex-retail-parity.md).
+The deployment and measurements below describe the July checkpoint.
+
 The full paid Vortex 1.0 package, not the bundled demo, is imported as game
 GUID `12345`, build 2563290. Its Platform ID 1 executable is a decrypted
 414,600-byte eApp at load base `0x18000000`, with seven framework tables and

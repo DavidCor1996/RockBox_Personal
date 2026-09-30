@@ -1,0 +1,44 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Blkobj/z_en_blkobj.c: In function 'EnBlkobj_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Blkobj/z_en_blkobj.c:70:36: warning: passing argument 1 of 'CollisionHeader_GetVirtual' discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+   70 |         CollisionHeader_GetVirtual(&gIllusionRoomCol, &colHeader);
+      |                                    ^~~~~~~~~~~~~~~~~
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Blkobj/z_en_blkobj.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Blkobj/z_en_blkobj.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:673:39: note: expected 'void *' but argument is of type 'const char (*)[46]'
+  673 | void CollisionHeader_GetVirtual(void* colHeader, CollisionHeader** dest);
+      |                                 ~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Blkobj/z_en_blkobj.c: In function 'EnBlkobj_DrawAlpha':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Blkobj/z_en_blkobj.c:153:39: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  153 |     gSPSegment(POLY_XLU_DISP++, 0x08, segment);
+      |                                       ^~~~~~~
+      |                                       |
+      |                                       Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Blkobj/z_en_blkobj.c: In function 'EnBlkobj_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Blkobj/z_en_blkobj.c:174:9: warning: passing argument 3 of 'gSPSegment' makes integer from pointer without a cast [-Wint-conversion]
+  174 |         Gfx_TwoTexScrollEx(play->state.gfxCtx, 0, gameplayFrames, 0, 32, 32, 1, gameplayFrames, 0, 32, 32, 1, 0, 1, 0));
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |         |
+      |         Gfx *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:22:52: note: expected 'uintptr_t' {aka 'unsigned int'} but argument is of type 'Gfx *'
+   22 | void gSPSegment(void* value, int segNum, uintptr_t target);
+      |                                          ~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Blkobj/z_en_blkobj.c:178:34: warning: passing argument 2 of 'EnBlkobj_DrawAlpha' from incompatible pointer type [-Wincompatible-pointer-types]
+  178 |         EnBlkobj_DrawAlpha(play, gIllusionRoomNormalDL, this->alpha);
+      |                                  ^~~~~~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Blkobj/z_en_blkobj.c:142:47: note: expected 'Gfx *' but argument is of type 'const char *'
+  142 | void EnBlkobj_DrawAlpha(PlayState* play, Gfx* dList, s32 alpha) {
+      |                                          ~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Blkobj/z_en_blkobj.c:182:34: warning: passing argument 2 of 'EnBlkobj_DrawAlpha' from incompatible pointer type [-Wincompatible-pointer-types]
+  182 |         EnBlkobj_DrawAlpha(play, gIllusionRoomIllusionDL, illusionAlpha);
+      |                                  ^~~~~~~~~~~~~~~~~~~~~~~
+      |                                  |
+      |                                  const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Blkobj/z_en_blkobj.c:142:47: note: expected 'Gfx *' but argument is of type 'const char *'
+  142 | void EnBlkobj_DrawAlpha(PlayState* play, Gfx* dList, s32 alpha) {
+      |                                          ~~~~~^~~~~

@@ -63,6 +63,8 @@ xlcd_core.c
 xlcd_draw.c
 xlcd_scroll.c
 pluginlib_bmp.c
+desktop_model.c
+desktop_surface.c
 read_image.c
 rockachievements.c
 rockachievements_allocator.c
@@ -85,6 +87,8 @@ rockachievements_math.c
 
 #ifdef HAVE_LCD_COLOR
 bmp_smooth_scale.c
+ipodjs_retailos.c
+ipodjs_retailos_controls.c
 #endif
 
 #if !defined(HAVE_ALBUMART) || !defined(HAVE_JPEG)
@@ -98,3 +102,5 @@ pluginlib_touchscreen.c
 #endif
 
 mul_id3.c
+
+photo_library.c

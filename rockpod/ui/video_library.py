@@ -4,9 +4,10 @@ import os
 import re
 
 from PySide6.QtCore import QSize, Qt, Signal
-from PySide6.QtGui import QFont, QIcon
+from PySide6.QtGui import QFont, QIcon, QPixmap
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QFrame,
     QHBoxLayout,
     QLabel,
     QListWidget,
@@ -27,6 +28,11 @@ _HOME_VIDEO_KEYWORDS = {
 }
 _TV_SHOW_FOLDER_KEYWORDS = {"tv shows", "shows", "series", "anime", "season", "specials", "special"}
 _GENERIC_SHOW_LABELS = {"", "show", "shows", "series", "tv", "tv shows", "special", "specials"}
+_KNOWN_MOVIE_TITLES = {
+    "spiritedaway",
+    "kikisdeliveryservice",
+    "kikisdevliveryservice",
+}
 _TAB_ORDER = (
     ("show", "TV Shows"),
     ("movie", "Movies"),
@@ -35,6 +41,20 @@ _TAB_ORDER = (
     ("home_video", "Home Videos"),
 )
 _TAB_TITLES = dict(_TAB_ORDER)
+
+
+def _video_signature(value):
+    text = str(value or "").strip().casefold().replace("’", "'")
+    text = re.sub(r"[^a-z0-9]+", "", text)
+    text = re.sub(r"(19|20)\d{2}$", "", text)
+    return text
+
+
+def _looks_like_known_movie_title(*values):
+    for value in values:
+        if _video_signature(value) in _KNOWN_MOVIE_TITLES:
+            return True
+    return False
 
 
 def _season_number(value):
@@ -101,6 +121,16 @@ def classify_video_track(track):
     path_show_name = _infer_show_name_from_track(track)
     parent_folder = path_parts[-2] if len(path_parts) >= 2 else ""
     grandparent_folder = path_parts[-3] if len(path_parts) >= 3 else ""
+    looks_like_known_movie = _looks_like_known_movie_title(
+        title,
+        album,
+        artist,
+        track.get("album_artist"),
+        track.get("file_path"),
+        track.get("show_title"),
+        genre,
+        path_text,
+    )
 
     if video_kind == "music_video":
         return {
@@ -160,7 +190,10 @@ def classify_video_track(track):
             "episode_label": _episode_label(track),
         }
 
-    if video_kind == "home_video" or any(keyword in genre or keyword in path_text for keyword in _HOME_VIDEO_KEYWORDS):
+    if (
+        (video_kind == "home_video" or any(keyword in genre or keyword in path_text for keyword in _HOME_VIDEO_KEYWORDS))
+        and not looks_like_known_movie
+    ):
         return {
             "kind": "home_video",
             "group_key": f"home:{(album or title).casefold()}",
@@ -188,6 +221,20 @@ def _episode_label(track):
     if episode:
         return f"{episode:02d} - {title}"
     return title
+
+
+def _season_label(track_or_number):
+    """Return the iPod-style season label used throughout the video browser."""
+    if isinstance(track_or_number, dict):
+        number = int(track_or_number.get("season_number") or 0)
+        if not number:
+            number = _season_number(track_or_number.get("album"))
+    else:
+        try:
+            number = int(track_or_number or 0)
+        except (TypeError, ValueError):
+            number = 0
+    return "Specials" if number == 0 else f"Season {number}"
 
 
 def build_video_browser_groups(tracks):
@@ -247,10 +294,58 @@ class VideoGridView(QWidget):
         self._album_placeholder_path = ""
         self._album_frame_path = ""
         self._show_scope_key = ""
+        self._season_scope_number = None
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
+
+        # The desktop browser mirrors the compact Netflix-style device view:
+        # a wide backdrop, a poster, and the metadata for the current tile
+        # sit above the browse surface.  The source image is always local
+        # catalog artwork or the existing thumbnail cache; this screen never
+        # performs a network lookup while the user is browsing.
+        self._hero = QFrame()
+        self._hero.setObjectName("itunes_store_hero")
+        hero_layout = QHBoxLayout(self._hero)
+        hero_layout.setContentsMargins(10, 8, 10, 8)
+        hero_layout.setSpacing(10)
+
+        self._hero_banner = QLabel("Select a movie or TV show")
+        self._hero_banner.setObjectName("itunes_store_movie_thumbnail")
+        self._hero_banner.setAlignment(Qt.AlignCenter)
+        self._hero_banner.setFixedSize(300, 128)
+        self._hero_banner.setScaledContents(False)
+        hero_layout.addWidget(self._hero_banner, 0, Qt.AlignVCenter)
+
+        self._hero_poster = QLabel()
+        self._hero_poster.setObjectName("itunes_store_cover")
+        self._hero_poster.setAlignment(Qt.AlignCenter)
+        self._hero_poster.setFixedSize(80, 112)
+        hero_layout.addWidget(self._hero_poster, 0, Qt.AlignVCenter)
+
+        hero_text = QVBoxLayout()
+        hero_text.setContentsMargins(0, 0, 0, 0)
+        hero_text.setSpacing(2)
+        self._hero_kicker = QLabel("VIDEO LIBRARY")
+        self._hero_kicker.setObjectName("itunes_store_kicker")
+        self._hero_title = QLabel("Select a title")
+        self._hero_title.setObjectName("itunes_store_headline")
+        self._hero_title.setWordWrap(True)
+        self._hero_meta = QLabel("")
+        self._hero_meta.setObjectName("itunes_store_subhead")
+        self._hero_meta.setWordWrap(True)
+        self._hero_plot = QLabel("")
+        self._hero_plot.setObjectName("itunes_store_subhead")
+        self._hero_plot.setWordWrap(True)
+        self._hero_plot.setMaximumHeight(42)
+        hero_text.addWidget(self._hero_kicker)
+        hero_text.addWidget(self._hero_title)
+        hero_text.addWidget(self._hero_meta)
+        hero_text.addWidget(self._hero_plot)
+        hero_text.addStretch(1)
+        hero_layout.addLayout(hero_text, 1)
+        layout.addWidget(self._hero)
 
         self._tabs = QTabWidget()
         self._tabs.setObjectName("video_tabs")
@@ -327,6 +422,13 @@ class VideoGridView(QWidget):
         self._groups = build_video_browser_groups(self._tracks)
         if self._show_scope_key and self._show_scope_key not in self._groups["show"]:
             self._show_scope_key = ""
+            self._season_scope_number = None
+        elif self._show_scope_key and self._season_scope_number is not None:
+            show_tracks = self._groups["show"].get(self._show_scope_key, {}).get("tracks", [])
+            if self._season_scope_number not in {
+                self._track_season_number(track) for track in show_tracks
+            }:
+                self._season_scope_number = None
         self._refresh_tabs()
         self._set_current_kind(current_kind)
         self.select_track_ids(selected_ids)
@@ -370,11 +472,48 @@ class VideoGridView(QWidget):
     def _show_entries(self):
         if self._show_scope_key:
             show = self._groups["show"].get(self._show_scope_key, {"tracks": []})
-            return self._track_entries(show["tracks"])
+            tracks = show.get("tracks") or []
+            if self._season_scope_number is not None:
+                season = [
+                    track for track in tracks
+                    if self._track_season_number(track) == self._season_scope_number
+                ]
+                return self._track_entries(season)
+            return self._season_entries(self._show_scope_key, tracks)
         return [
             {"entry_kind": "show", "key": group_key, "label": data["label"], "tracks": data["tracks"]}
             for group_key, data in sorted(self._groups["show"].items(), key=lambda item: item[1]["label"].casefold())
         ]
+
+    @staticmethod
+    def _track_season_number(track):
+        track = normalize_track_for_ui(track)
+        return int(track.get("season_number") or 0) or _season_number(track.get("album"))
+
+    @classmethod
+    def _season_entries(cls, show_key, tracks):
+        buckets = {}
+        for track in tracks:
+            number = cls._track_season_number(track)
+            buckets.setdefault(number, []).append(track)
+        entries = []
+        for number, season_tracks in sorted(buckets.items()):
+            season_tracks.sort(
+                key=lambda item: (
+                    _episode_number(item),
+                    str(item.get("title") or "").casefold(),
+                )
+            )
+            entries.append(
+                {
+                    "entry_kind": "season",
+                    "key": f"{show_key}:season:{number}",
+                    "season_number": number,
+                    "label": _season_label(number),
+                    "tracks": season_tracks,
+                }
+            )
+        return entries
 
     @staticmethod
     def _track_entries(tracks):
@@ -383,14 +522,23 @@ class VideoGridView(QWidget):
     def _update_show_header(self):
         if self._show_scope_key:
             show = self._groups["show"].get(self._show_scope_key, {"label": "TV Shows"})
-            self._show_title.setText(show["label"])
+            title = show["label"]
+            if self._season_scope_number is not None:
+                title = f"{title} · {_season_label(self._season_scope_number)}"
+                self._show_back.setText("Back to Seasons")
+            else:
+                self._show_back.setText("Back to Shows")
+            self._show_title.setText(title)
             self._show_back.show()
         else:
             self._show_title.setText("TV Shows")
             self._show_back.hide()
 
     def _back_to_show_list(self):
-        self._show_scope_key = ""
+        if self._season_scope_number is not None:
+            self._season_scope_number = None
+        else:
+            self._show_scope_key = ""
         self._refresh_tabs()
         self._emit_selection_for_active_tab()
 
@@ -412,6 +560,8 @@ class VideoGridView(QWidget):
         if grid.count():
             grid.setCurrentRow(0)
         grid.blockSignals(False)
+        if kind == self._current_kind():
+            self._update_hero_for_current_item()
 
     def _icon_for_entry(self, entry, size):
         tracks = entry.get("tracks") or []
@@ -421,6 +571,10 @@ class VideoGridView(QWidget):
             sample["_video_tracks"] = [normalize_track_for_ui(track) for track in tracks]
         if entry.get("entry_kind") == "show":
             sample["_video_scope"] = "show"
+            sample["_video_artwork_scope"] = "show"
+        elif entry.get("entry_kind") == "season":
+            sample["_video_scope"] = "season"
+            sample["_video_artwork_scope"] = "season"
         thumb = self._thumbnail_service.thumbnail_path(sample, size=max(size, 232))
         if thumb:
             return QIcon(thumb)
@@ -431,6 +585,11 @@ class VideoGridView(QWidget):
         if entry.get("entry_kind") == "show":
             count = len(entry.get("tracks") or [])
             label = entry.get("label") or "Unknown Show"
+            return f"{label}\n{count} episode{'s' if count != 1 else ''}"
+
+        if entry.get("entry_kind") == "season":
+            count = len(entry.get("tracks") or [])
+            label = entry.get("label") or "Season"
             return f"{label}\n{count} episode{'s' if count != 1 else ''}"
 
         track = normalize_track_for_ui(entry.get("track"))
@@ -453,9 +612,19 @@ class VideoGridView(QWidget):
         if entry.get("entry_kind") == "show":
             tracks = entry.get("tracks") or []
             label = entry.get("label") or "Unknown Show"
-            seasons = sorted({track.get("album") or "" for track in tracks if track.get("album")})
+            seasons = sorted({
+                _season_label(track) for track in tracks
+            })
             season_text = ", ".join(seasons[:4])
             return f"{label}\n{len(tracks)} episodes" + (f"\n{season_text}" if season_text else "")
+        if entry.get("entry_kind") == "season":
+            tracks = entry.get("tracks") or []
+            sample = normalize_track_for_ui(tracks[0]) if tracks else {}
+            return (
+                f"{sample.get('show_title') or 'TV Show'} · "
+                f"{entry.get('label') or 'Season'}\n"
+                f"{len(tracks)} episodes"
+            )
         track = normalize_track_for_ui(entry.get("track"))
         parts = [track.get("title") or "Untitled Video"]
         for key in ("show_title", "artist", "album", "genre"):
@@ -471,10 +640,12 @@ class VideoGridView(QWidget):
         item.setFont(font)
 
     def _on_tab_changed(self, index):
+        self._update_hero_for_current_item()
         self._emit_selection_for_active_tab()
 
     def _on_current_changed(self, kind, current, previous):
         if kind == self._current_kind():
+            self._update_hero_for_current_item(current)
             self._emit_selection_for_active_tab()
 
     def _emit_selection_changed(self, kind):
@@ -488,10 +659,16 @@ class VideoGridView(QWidget):
         if not item:
             return
         entry = item.data(Qt.UserRole) or {}
-        if kind == "show" and entry.get("entry_kind") == "show":
-            self._show_scope_key = entry.get("key") or ""
-            self._refresh_tabs()
-            return
+        if kind == "show":
+            if entry.get("entry_kind") == "show":
+                self._show_scope_key = entry.get("key") or ""
+                self._season_scope_number = None
+                self._refresh_tabs()
+                return
+            if entry.get("entry_kind") == "season":
+                self._season_scope_number = int(entry.get("season_number") or 0)
+                self._refresh_tabs()
+                return
         track = normalize_track_for_ui(entry.get("track"))
         if track:
             self.track_double_clicked.emit(track)
@@ -501,6 +678,182 @@ class VideoGridView(QWidget):
         item = grid.itemAt(pos)
         entry = item.data(Qt.UserRole) if item else {}
         self.context_requested.emit(entry or {}, grid.viewport().mapToGlobal(pos))
+
+    @staticmethod
+    def _cropped_pixmap(path, width, height):
+        if not path or not os.path.isfile(path):
+            return QPixmap()
+        pixmap = QPixmap(path)
+        if pixmap.isNull():
+            return QPixmap()
+        scaled = pixmap.scaled(
+            width,
+            height,
+            Qt.KeepAspectRatioByExpanding,
+            Qt.SmoothTransformation,
+        )
+        left = max(0, (scaled.width() - width) // 2)
+        top = max(0, (scaled.height() - height) // 2)
+        return scaled.copy(left, top, width, height)
+
+    def _entry_sample(self, entry):
+        tracks = entry.get("tracks") or []
+        sample = normalize_track_for_ui(tracks[0]) if tracks else {}
+        if entry.get("entry_kind") == "show":
+            sample["_video_scope"] = "show"
+            sample["_video_artwork_scope"] = "show"
+        elif entry.get("entry_kind") == "season":
+            sample["_video_scope"] = "season"
+            sample["_video_artwork_scope"] = "season"
+        elif sample.get("video_kind") == "show":
+            sample["_video_scope"] = "season"
+            sample["_video_artwork_scope"] = "season"
+        if tracks:
+            sample["_video_tracks"] = [normalize_track_for_ui(track) for track in tracks]
+        return sample
+
+    def _catalog_metadata(self, track):
+        resolver = getattr(self._thumbnail_service, "video_catalog_metadata", None)
+        if not callable(resolver):
+            return {}
+        try:
+            return dict(resolver(track) or {})
+        except (OSError, TypeError, ValueError):
+            return {}
+
+    def _catalog_banner_path(self, track):
+        resolver = getattr(self._thumbnail_service, "video_catalog_banner_path", None)
+        if not callable(resolver):
+            return ""
+        try:
+            return str(resolver(track) or "")
+        except (OSError, TypeError, ValueError):
+            return ""
+
+    @staticmethod
+    def _first_value(track, catalog, key):
+        value = track.get(key)
+        return value if value not in (None, "", 0, 0.0) else catalog.get(key)
+
+    @staticmethod
+    def _provider_rating_text(track, catalog):
+        value = VideoGridView._first_value(track, catalog, "external_rating")
+        try:
+            rating = float(value or 0)
+        except (TypeError, ValueError):
+            rating = 0.0
+        if not 0.0 < rating <= 10.0:
+            return ""
+        votes = VideoGridView._first_value(track, catalog, "external_rating_votes")
+        try:
+            vote_text = f" · {int(votes):,} votes" if int(votes or 0) > 0 else ""
+        except (TypeError, ValueError):
+            vote_text = ""
+        return f"★ {rating:.1f}/10{vote_text}"
+
+    def _update_hero_for_current_item(self, item=None):
+        if item is None:
+            grid = self._active_grid()
+            item = grid.currentItem() if grid is not None else None
+        entry = item.data(Qt.UserRole) if item is not None else {}
+        entry = dict(entry or {})
+        tracks = entry.get("tracks") or []
+        if not tracks:
+            self._hero_banner.setPixmap(QPixmap())
+            self._hero_banner.setText("Select a movie or TV show")
+            self._hero_poster.setPixmap(QPixmap())
+            self._hero_poster.setText("")
+            self._hero_kicker.setText("VIDEO LIBRARY")
+            self._hero_title.setText("Select a title")
+            self._hero_meta.setText("")
+            self._hero_plot.setText("")
+            return
+
+        sample = self._entry_sample(entry)
+        catalog = self._catalog_metadata(sample)
+        kind = str(sample.get("video_kind") or "movie").casefold()
+        entry_kind = str(entry.get("entry_kind") or "track")
+        show_title = str(
+            sample.get("show_title") or catalog.get("show_title") or entry.get("label") or "TV Show"
+        ).strip()
+        year = self._first_value(sample, catalog, "year")
+        genre = self._first_value(sample, catalog, "genre")
+        content_rating = self._first_value(sample, catalog, "content_rating")
+        rating = self._provider_rating_text(sample, catalog)
+        local_rating = sample.get("rating")
+        try:
+            local_rating = float(local_rating or 0)
+        except (TypeError, ValueError):
+            local_rating = 0.0
+
+        meta = []
+        if year:
+            meta.append(str(year))
+        if content_rating:
+            meta.append(str(content_rating))
+        if genre:
+            meta.append(str(genre))
+        if rating:
+            meta.append(rating)
+        if local_rating > 0:
+            meta.append(f"My rating {local_rating:g}/5")
+
+        if entry_kind == "show":
+            seasons = len({self._track_season_number(track) for track in tracks})
+            title = str(entry.get("label") or show_title)
+            kicker = "TV SHOW"
+            meta[0:0] = [
+                f"{seasons} season{'s' if seasons != 1 else ''}",
+                f"{len(tracks)} episode{'s' if len(tracks) != 1 else ''}",
+            ]
+            plot = (
+                str(sample.get("show_plot") or "").strip()
+                or str(catalog.get("show_plot") or "").strip()
+                or str(sample.get("plot_long") or sample.get("plot_short") or "").strip()
+            )
+        elif entry_kind == "season":
+            title = str(entry.get("label") or _season_label(sample))
+            kicker = f"{show_title} · TV SEASON"
+            meta[0:0] = [f"{len(tracks)} episode{'s' if len(tracks) != 1 else ''}"]
+            plot = (
+                str(sample.get("show_plot") or "").strip()
+                or str(catalog.get("show_plot") or "").strip()
+            )
+        else:
+            if kind == "show":
+                title = str(sample.get("video_episode_label") or _episode_label(sample))
+                kicker = f"{show_title} · {_season_label(sample)}"
+                plot = str(
+                    sample.get("plot_long") or sample.get("plot_short")
+                    or sample.get("show_plot") or catalog.get("show_plot") or ""
+                ).strip()
+            else:
+                title = str(sample.get("title") or "Untitled Video")
+                kicker = kind.replace("_", " ").upper()
+                plot = str(sample.get("plot_long") or sample.get("plot_short") or "").strip()
+
+        banner = self._cropped_pixmap(self._catalog_banner_path(sample), 300, 128)
+        if banner.isNull():
+            self._hero_banner.setPixmap(QPixmap())
+            self._hero_banner.setText("No banner available")
+        else:
+            self._hero_banner.setText("")
+            self._hero_banner.setPixmap(banner)
+
+        poster_service = getattr(self._thumbnail_service, "thumbnail_path", None)
+        poster_path = ""
+        if callable(poster_service):
+            try:
+                poster_path = str(poster_service(sample, size=96) or "")
+            except (OSError, TypeError, ValueError):
+                poster_path = ""
+        poster = self._cropped_pixmap(poster_path, 80, 112)
+        self._hero_poster.setText("" if not poster.isNull() else "No cover")
+        self._hero_poster.setPixmap(poster)
+        self._hero_kicker.setText(kicker)
+        self._hero_title.setText(title)
+        self._hero_meta.setText(" · ".join(meta))
+        self._hero_plot.setText(plot or "No synopsis available.")
 
     def current_tracks(self):
         tracks = []

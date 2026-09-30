@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import re
+import shutil
 from pathlib import Path
 
 
@@ -66,14 +67,39 @@ def _atom_extent(data: bytes | bytearray, offset: int, end: int) -> tuple[bytes,
 
 
 def top_level_atoms(path: str | os.PathLike[str]) -> list[tuple[str, int, int]]:
-    data = Path(path).read_bytes()
-    atoms: list[tuple[str, int, int]] = []
-    offset = 0
-    while offset < len(data):
-        atom_type, size, _header_size = _atom_extent(data, offset, len(data))
-        atoms.append((atom_type.decode("latin-1"), offset, size))
-        offset += size
+    atoms = []
+    file_size = os.path.getsize(path)
+    with open(path, "rb") as stream:
+        offset = 0
+        while offset < file_size:
+            stream.seek(offset)
+            head = stream.read(16)
+            if len(head) < 8:
+                raise AppleVideoContractError("truncated MP4 atom header")
+            size = int.from_bytes(head[:4], "big")
+            header = 8
+            if size == 1:
+                if len(head) < 16:
+                    raise AppleVideoContractError("truncated extended MP4 atom")
+                size = int.from_bytes(head[8:16], "big"); header = 16
+            elif size == 0:
+                size = file_size - offset
+            if size < header or size > file_size - offset:
+                raise AppleVideoContractError("invalid MP4 atom extent")
+            atoms.append((head[4:8].decode("latin-1"), offset, size))
+            if len(atoms) > 4096:
+                raise AppleVideoContractError("too many top-level atoms")
+            offset += size
     return atoms
+
+
+def _read_moov(path):
+    atoms = [a for a in top_level_atoms(path) if a[0] == "moov"]
+    if len(atoms) != 1 or atoms[0][2] > 64 * 1024 * 1024:
+        raise AppleVideoContractError("missing/duplicate/oversized movie index")
+    with open(path, "rb") as stream:
+        stream.seek(atoms[0][1])
+        return stream.read(atoms[0][2])
 
 
 def movie_header_timescale(path: str | os.PathLike[str]) -> int:
@@ -83,7 +109,7 @@ def movie_header_timescale(path: str | os.PathLike[str]) -> int:
     to the VideoCore MPlayer service.  Apple's per-track readers normalize
     AAC and H.264 media timestamps to milliseconds before that IPC boundary.
     """
-    data = Path(path).read_bytes()
+    data = _read_moov(path)
     offset = 0
     while offset < len(data):
         atom_type, size, header_size = _atom_extent(data, offset, len(data))
@@ -149,40 +175,30 @@ def _patch_chunk_offsets(data: bytearray, start: int, end: int, delta: int) -> i
 def rewrite_mp4_as_apple(path: str | os.PathLike[str]) -> None:
     """Reproduce Apple's ftyp and two-free-atom fast-start layout in place."""
     target = Path(path)
-    data = bytearray(target.read_bytes())
-    atoms: list[tuple[bytes, int, int, int]] = []
-    offset = 0
-    while offset < len(data):
-        atom_type, size, header_size = _atom_extent(data, offset, len(data))
-        atoms.append((atom_type, offset, size, header_size))
-        offset += size
-    names = [item[0] for item in atoms]
-    if names != [b"ftyp", b"moov", b"free", b"mdat"]:
-        raise AppleVideoContractError(
-            "unexpected pre-rewrite MP4 atom order: "
-            + ",".join(name.decode("latin-1") for name in names)
-        )
-    if atoms[0][2] != len(APPLE_FTYP):
-        raise AppleVideoContractError("FFmpeg ftyp is not the expected 32 bytes")
-    if atoms[2][2] != 8:
-        raise AppleVideoContractError("FFmpeg fast-start free atom is not 8 bytes")
-
-    moov = atoms[1]
-    patched = _patch_chunk_offsets(
-        data, moov[1] + moov[3], moov[1] + moov[2], 8
-    )
-    if patched <= 0:
+    atoms = top_level_atoms(path)
+    if [a[0] for a in atoms] != ["ftyp", "moov", "free", "mdat"]:
+        raise AppleVideoContractError("unexpected pre-rewrite MP4 atom order")
+    if atoms[0][2] != len(APPLE_FTYP) or atoms[2][2] != 8:
+        raise AppleVideoContractError("unexpected ftyp/free sizes")
+    moov = bytearray(_read_moov(path))
+    _, _, header = _atom_extent(moov, 0, len(moov))
+    if _patch_chunk_offsets(moov, header, len(moov), 8) <= 0:
         raise AppleVideoContractError("MP4 has no chunk offsets to relocate")
-    data[:len(APPLE_FTYP)] = APPLE_FTYP
-    mdat_offset = atoms[3][1]
-    data[mdat_offset:mdat_offset] = b"\x00\x00\x00\x08free"
-
     temporary = target.with_name(target.name + ".apple-rewrite")
-    temporary.write_bytes(data)
-    os.replace(temporary, target)
-    rewritten = tuple(item[0] for item in top_level_atoms(target))
-    if rewritten != APPLE_TOP_LEVEL_ATOMS:
-        raise AppleVideoContractError("Apple MP4 atom rewrite did not validate")
+    try:
+        with open(target, "rb") as source, open(temporary, "wb") as output:
+            output.write(APPLE_FTYP)
+            output.write(moov)
+            output.write(b"\x00\x00\x00\x08free" * 2)
+            source.seek(atoms[3][1])
+            shutil.copyfileobj(source, output, 1024 * 1024)
+            output.flush()
+            os.fsync(output.fileno())
+        if tuple(a[0] for a in top_level_atoms(temporary)) != APPLE_TOP_LEVEL_ATOMS:
+            raise AppleVideoContractError("Apple MP4 rewrite did not validate")
+        os.replace(temporary, target)
+    finally:
+        temporary.unlink(missing_ok=True)
 
 
 class _BitReader:
@@ -320,7 +336,7 @@ def parse_sps(nal: bytes) -> dict[str, int]:
         "constraint_flags": reader.read(8),
         "level_idc": reader.read(8),
     }
-    reader.ue()
+    result["sps_id"] = reader.ue()
     if result["profile_idc"] not in {66, 77, 88}:
         chroma_format_idc = reader.ue()
         if chroma_format_idc == 3:
@@ -350,10 +366,11 @@ def parse_sps(nal: bytes) -> dict[str, int]:
         for _ in range(reader.ue()):
             reader.se()
     result["max_num_ref_frames"] = reader.ue()
-    reader.read(1)
+    result["gaps_allowed"] = reader.read(1)
     width_mbs = reader.ue() + 1
     height_map_units = reader.ue() + 1
     frame_mbs_only = reader.read(1)
+    result["frame_mbs_only"] = frame_mbs_only
     if not frame_mbs_only:
         reader.read(1)
     reader.read(1)
@@ -363,6 +380,8 @@ def parse_sps(nal: bytes) -> dict[str, int]:
         crop_right = reader.ue()
         crop_top = reader.ue()
         crop_bottom = reader.ue()
+    result["crop_left"] = crop_left
+    result["crop_top"] = crop_top
     result["coded_width"] = width_mbs * 16
     result["coded_height"] = height_map_units * 16 * (2 - frame_mbs_only)
     result["width"] = result["coded_width"] - 2 * (crop_left + crop_right)
@@ -412,6 +431,8 @@ def parse_avcc(extradata: bytes) -> tuple[int, list[bytes], list[bytes]]:
             raise AppleVideoContractError("truncated avcC SPS length")
         size = int.from_bytes(extradata[offset:offset + 2], "big")
         offset += 2
+        if not size or offset + size > len(extradata):
+            raise AppleVideoContractError("invalid avcC SPS extent")
         sps_units.append(extradata[offset:offset + size])
         offset += size
     if offset >= len(extradata):
@@ -424,6 +445,8 @@ def parse_avcc(extradata: bytes) -> tuple[int, list[bytes], list[bytes]]:
             raise AppleVideoContractError("truncated avcC PPS length")
         size = int.from_bytes(extradata[offset:offset + 2], "big")
         offset += 2
+        if not size or offset + size > len(extradata):
+            raise AppleVideoContractError("invalid avcC PPS extent")
         pps_units.append(extradata[offset:offset + size])
         offset += size
     if not sps_units or not pps_units:
@@ -459,28 +482,10 @@ def _sample_nals(sample: bytes, length_size: int) -> list[bytes]:
 
 
 def _skip_ref_pic_list_modification(reader: _BitReader, slice_type: int) -> None:
-    if slice_type in {2, 4}:
-        return
-    if reader.read(1):
-        while True:
-            modification = reader.ue()
-            if modification == 3:
-                break
-            if modification in {0, 1}:
-                reader.ue()
-            elif modification == 2:
-                reader.ue()
-            else:
-                raise AppleVideoContractError("invalid reference-list modification")
+    if slice_type not in {2, 4} and reader.read(1):
+        raise AppleVideoContractError("unsupported reference-list modification")
     if slice_type == 1 and reader.read(1):
-        while True:
-            modification = reader.ue()
-            if modification == 3:
-                break
-            if modification in {0, 1, 2}:
-                reader.ue()
-            else:
-                raise AppleVideoContractError("invalid B reference-list modification")
+        raise AppleVideoContractError("unsupported B reference-list modification")
 
 
 def _skip_dec_ref_pic_marking(reader: _BitReader, nal_type: int, nal_ref_idc: int) -> None:
@@ -488,23 +493,10 @@ def _skip_dec_ref_pic_marking(reader: _BitReader, nal_type: int, nal_ref_idc: in
         return
     if nal_type == 5:
         reader.read(1)
-        reader.read(1)
-        return
-    if reader.read(1):
-        while True:
-            operation = reader.ue()
-            if operation == 0:
-                break
-            if operation in {1, 3}:
-                reader.ue()
-            if operation == 2:
-                reader.ue()
-            if operation in {3, 6}:
-                reader.ue()
-            if operation == 4:
-                reader.ue()
-            if operation > 6:
-                raise AppleVideoContractError("invalid reference-picture marking")
+        if reader.read(1):
+            raise AppleVideoContractError("unsupported long-term reference")
+    elif reader.read(1):
+        raise AppleVideoContractError("unsupported adaptive reference marking")
 
 
 def parse_slice(nal: bytes, sps: dict[str, int], pps: dict[str, int]) -> dict[str, int]:
@@ -520,21 +512,22 @@ def parse_slice(nal: bytes, sps: dict[str, int], pps: dict[str, int]) -> dict[st
     }
     slice_type = reader.ue() % 5
     result["slice_type"] = slice_type
-    reader.ue()
-    reader.read(sps["log2_max_frame_num_minus4"] + 4)
+    result["pps_id"] = reader.ue()
+    result["frame_num"] = reader.read(sps["log2_max_frame_num_minus4"] + 4)
     if nal_type == 5:
-        reader.ue()
+        result["idr_pic_id"] = reader.ue()
     if sps["pic_order_cnt_type"] == 0:
-        reader.read(sps["log2_max_pic_order_cnt_lsb_minus4"] + 4)
+        result["poc_lsb"] = reader.read(sps["log2_max_pic_order_cnt_lsb_minus4"] + 4)
         if pps["bottom_field_pic_order_in_frame_present"]:
             reader.se()
     if pps["redundant_pic_cnt_present"]:
         reader.ue()
     if slice_type == 1:
         reader.read(1)
+    result["active_refs_minus1"] = pps["num_ref_idx_l0_default_active_minus1"]
     if slice_type in {0, 1, 3}:
         if reader.read(1):
-            reader.ue()
+            result["active_refs_minus1"] = reader.ue()
             if slice_type == 1:
                 reader.ue()
     _skip_ref_pic_list_modification(reader, slice_type)

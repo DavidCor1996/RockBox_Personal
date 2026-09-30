@@ -299,6 +299,28 @@ def test_wallpaper_cycle_is_optional_and_default_off(tmp_dir):
     assert metadata_data["wallpaper_cycle_enabled"] is False
 
 
+def test_ipod5g_designer_theme_keeps_rockbox_engine(tmp_dir):
+    repo_root = os.path.join(tmp_dir, "repo")
+    _make_repo(repo_root)
+    service = ThemeDesignerService()
+    profile = _profile(repo_root)
+    profile["target_device_model"] = "iPod Video 5G"
+
+    variant = service.new_variant(repo_root, profile, "5G Rockbox Theme")
+    saved = service.save_variant(repo_root, variant)
+    bundle = service.build_bundle(repo_root, profile, saved)
+    cfg = next(
+        item["source_abs"] for item in bundle["assets"]
+        if item["kind"] == "cfg"
+    )
+
+    with open(cfg, "r", encoding="utf-8") as handle:
+        cfg_text = handle.read()
+
+    assert "ui engine: rockbox\n" in cfg_text
+    assert "ui engine: ipodjs\n" not in cfg_text
+
+
 def test_wallpaper_cycle_opt_in_exports_existing_ipone_settings(tmp_dir):
     repo_root = os.path.join(tmp_dir, "repo")
     _make_repo(repo_root)

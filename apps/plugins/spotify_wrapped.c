@@ -6,6 +6,7 @@
 
 #include "plugin.h"
 #include "lib/pluginlib_actions.h"
+#include "lib/video_player.h"
 
 #if !defined(HAVE_TAGCACHE) || !defined(HAVE_LCD_COLOR) || !defined(HAVE_JPEG) || \
     LCD_WIDTH < 320 || LCD_HEIGHT < 240
@@ -17,7 +18,6 @@
 #define SW_SUMMARY          SW_ROOT "/summary.tsv"
 #define SW_SUMMARY_TMP      SW_ROOT "/summary.tmp"
 #define SW_DATA             SW_ROOT "/data.tsv"
-#define SW_PLAYER           VIEWERS_DIR "/mpegplayer.rock"
 #define SW_ASSET_ROOT       ROCKBOX_DIR "/ipodjs/spotify-wrapped"
 #define SW_BRAND_MARK       SW_ASSET_ROOT "/spotify-mark.24x24x24.bmp"
 
@@ -1332,7 +1332,7 @@ static enum plugin_status sw_play_message(void)
     if (!message_ready)
         return PLUGIN_OK;
     rb->snprintf(launch, sizeof(launch), "spotify-wrapped:%s", message_path);
-    return rb->plugin_open(SW_PLAYER, launch);
+    return rb->plugin_open(plugin_video_player_for(message_path), launch);
 }
 
 enum plugin_status plugin_start(const void *parameter)

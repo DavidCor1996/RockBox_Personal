@@ -40,15 +40,39 @@
 
 static struct mutex i2c_mtx[2];
 
+/* RetailOS gives each controller progress event 100 ms and returns 0x60
+ * when the state machine does not advance.  Rockbox polls the controller,
+ * so it also bounds each register-ready handshake and uses a no-wait abort
+ * as a safety adaptation.  USEC_TIMER remains available with IRQs masked. */
+#define I2C_PROGRESS_TIMEOUT_US 100000u
+#define I2C_ERROR_INCOMPLETE    0x60
+
 void i2c_init()
 {
     mutex_init(&i2c_mtx[0]);
     mutex_init(&i2c_mtx[1]);
 }
 
-static void wait_rdy(int bus)
+static bool i2c_timed_out(uint32_t start)
 {
-    while (IICUNK10(bus));
+    return (uint32_t)(USEC_TIMER - start) >=
+            I2C_PROGRESS_TIMEOUT_US;
+}
+
+static bool wait_rdy_since(int bus, uint32_t start)
+{
+    while (IICUNK10(bus))
+    {
+        if (i2c_timed_out(start))
+            return false;
+    }
+
+    return !i2c_timed_out(start);
+}
+
+static bool wait_rdy(int bus)
+{
+    return wait_rdy_since(bus, USEC_TIMER);
 }
 
 static void i2c_on(int bus)
@@ -62,34 +86,70 @@ static void i2c_on(int bus)
 #endif
 }
 
-static void i2c_off(int bus)
+static void i2c_abort(int bus)
 {
-    /* serial output off */
-    wait_rdy(bus);
+    /* Once the transaction deadline has expired, no cleanup step may wait
+     * on the controller that just failed to make progress. */
     IICSTAT(bus) = 0;
-    /* disable I2C clock */
-    wait_rdy(bus);
+    IICCON(bus) = 0;
+    IICSTA2(bus) = 0x3f00;
     clockgate_enable(I2CCLKGATE(bus), false);
 #if CONFIG_CPU == S5L8720
     clockgate_enable(I2CCLKGATE_2(bus), false);
 #endif
 }
 
+static bool i2c_off(int bus)
+{
+    bool ok = wait_rdy(bus);
+
+    if (!ok)
+    {
+        i2c_abort(bus);
+        return false;
+    }
+
+    /* serial output off */
+    IICSTAT(bus) = 0;
+    /* disable I2C clock */
+    ok = wait_rdy(bus);
+    if (!ok)
+    {
+        i2c_abort(bus);
+        return false;
+    }
+
+    clockgate_enable(I2CCLKGATE(bus), false);
+#if CONFIG_CPU == S5L8720
+    clockgate_enable(I2CCLKGATE_2(bus), false);
+#endif
+
+    return ok;
+}
+
 /* wait for bus not busy, or tx/rx byte (should return once
    8 data + 1 ack clocks are generated), or STOP. */
-static void i2c_wait_io(int bus)
+static bool i2c_wait_io(int bus)
 {
+    uint32_t start = USEC_TIMER;
+
     while (((IICSTAT(bus) & (1 << 5)) != 0) &&
             ((IICSTA2(bus) & ((1 << 8)|(1 << 13))) == 0)) {
-        wait_rdy(bus);
+        if (!wait_rdy_since(bus, start) || i2c_timed_out(start))
+            return false;
     }
+    if (i2c_timed_out(start))
+        return false;
+
     IICSTA2(bus) |= (1 << 8)|(1 << 13);
+    return true;
 }
 
 static int i2c_start(int bus, unsigned char slave, bool rd)
 {
     /* configure port */
-    wait_rdy(bus);
+    if (!wait_rdy(bus))
+        return I2C_ERROR_INCOMPLETE;
     IICCON(bus) = (0 << 8) | /* INT_EN = disabled */
                   (1 << 7) | /* ACK_GEN */
                   (0 << 6) | /* CLKSEL = SRCCLK/32 (TBC) */
@@ -101,21 +161,27 @@ static int i2c_start(int bus, unsigned char slave, bool rd)
 
     /* START */
     int mode = rd ? 0x80 : 0xC0;
-    wait_rdy(bus);
+    if (!wait_rdy(bus))
+        return I2C_ERROR_INCOMPLETE;
     IICSTAT(bus) = mode;
-    wait_rdy(bus);
+    if (!wait_rdy(bus))
+        return I2C_ERROR_INCOMPLETE;
     IICDS(bus) = slave | rd;
-    wait_rdy(bus);
+    if (!wait_rdy(bus))
+        return I2C_ERROR_INCOMPLETE;
     IICSTAT(bus) = mode | 0x30;
 
 #if CONFIG_CPU == S5L8702
     // XXX this seems needed when ECLK is used
-    wait_rdy(bus);      // XXX: To solve the nano3g problem with ECLK,
+    if (!wait_rdy(bus))
+        return I2C_ERROR_INCOMPLETE;
+                        // XXX: To solve the nano3g problem with ECLK,
                         // or you can put it in either of the two i2c_wait_io(),
                         // both work if you put this
                         // TODO: Try on classic, maybe it's not necessary
 #endif
-    i2c_wait_io(bus);
+    if (!i2c_wait_io(bus))
+        return I2C_ERROR_INCOMPLETE;
 
     /* check ACK */
     if (IICSTAT(bus) & 1)
@@ -124,14 +190,19 @@ static int i2c_start(int bus, unsigned char slave, bool rd)
     return 0;
 }
 
-static void i2c_stop(int bus)
+static int i2c_stop(int bus)
 {
     /* STOP */
-    wait_rdy(bus);
+    if (!wait_rdy(bus))
+        return I2C_ERROR_INCOMPLETE;
     IICSTAT(bus) &= ~0x20;
-    wait_rdy(bus);
+    if (!wait_rdy(bus))
+        return I2C_ERROR_INCOMPLETE;
     IICCON(bus) = 0x10;
-    i2c_wait_io(bus);
+    if (!i2c_wait_io(bus))
+        return I2C_ERROR_INCOMPLETE;
+
+    return 0;
 }
 
 static int i2c_wr_internal(int bus, unsigned char slave,
@@ -139,7 +210,8 @@ static int i2c_wr_internal(int bus, unsigned char slave,
 {
     int rc = 0;
 
-    if (i2c_start(bus, slave, false) == 0)
+    rc = i2c_start(bus, slave, false);
+    if (rc == 0)
     {
         /* write address + data */
         const unsigned char *ptr = data;
@@ -149,12 +221,21 @@ static int i2c_wr_internal(int bus, unsigned char slave,
             len++;
         }
         while (len--) {
-            wait_rdy(bus);
+            if (!wait_rdy(bus)) {
+                rc = I2C_ERROR_INCOMPLETE;
+                break;
+            }
             IICDS(bus) = *ptr;
             udelay(5);
-            wait_rdy(bus);
+            if (!wait_rdy(bus)) {
+                rc = I2C_ERROR_INCOMPLETE;
+                break;
+            }
             IICCON(bus) = IICCON(bus);
-            i2c_wait_io(bus);
+            if (!i2c_wait_io(bus)) {
+                rc = I2C_ERROR_INCOMPLETE;
+                break;
+            }
             /* check ACK */
             if (IICSTAT(bus) & 1) {
                 rc = 2;
@@ -164,30 +245,44 @@ static int i2c_wr_internal(int bus, unsigned char slave,
             else ptr++;
         }
     }
-    else
-        rc = 1;
-
-    i2c_stop(bus);
+    if (rc != I2C_ERROR_INCOMPLETE)
+    {
+        int stop_rc = i2c_stop(bus);
+        if (stop_rc != 0)
+            rc = stop_rc;
+    }
     return rc;
 }
 
-static int i2c_rd_internal(int bus, unsigned char slave, int len, unsigned char *data)
+static int i2c_rd_internal(int bus, unsigned char slave, int len,
+                           unsigned char *data)
 {
     int rc = 0;
 
-    if (i2c_start(bus, slave, true) == 0)
+    rc = i2c_start(bus, slave, true);
+    if (rc == 0)
     {
         while (len--) {
-            wait_rdy(bus);
+            if (!wait_rdy(bus)) {
+                rc = I2C_ERROR_INCOMPLETE;
+                break;
+            }
             IICCON(bus) &= ~(len ? 0 : 0x80); /* ACK or NAK */
-            i2c_wait_io(bus);
+            if (!i2c_wait_io(bus)) {
+                rc = I2C_ERROR_INCOMPLETE;
+                break;
+            }
             *data++ = IICDS(bus);
         }
     }
-    else
+    else if (rc != I2C_ERROR_INCOMPLETE)
         rc = 3;
-
-    i2c_stop(bus);
+    if (rc != I2C_ERROR_INCOMPLETE)
+    {
+        int stop_rc = i2c_stop(bus);
+        if (stop_rc != 0)
+            rc = stop_rc;
+    }
     return rc;
 }
 
@@ -195,7 +290,12 @@ int i2c_wr(int bus, unsigned char slave, int address, int len, const unsigned ch
 {
     i2c_on(bus);
     int rc = i2c_wr_internal(bus, slave, address, len, data);
-    i2c_off(bus);
+    if (rc == I2C_ERROR_INCOMPLETE)
+        i2c_abort(bus);
+    else if (!i2c_off(bus))
+        rc = I2C_ERROR_INCOMPLETE;
+    if (rc != 0)
+        rc = I2C_ERROR_INCOMPLETE;
     return rc;
 }
 
@@ -205,7 +305,12 @@ int i2c_rd(int bus, unsigned char slave, int address, int len, unsigned char *da
     int rc = i2c_wr_internal(bus, slave, address, 0, NULL);
     if (rc == 0)
         rc = i2c_rd_internal(bus, slave, len, data);
-    i2c_off(bus);
+    if (rc == I2C_ERROR_INCOMPLETE)
+        i2c_abort(bus);
+    else if (!i2c_off(bus))
+        rc = I2C_ERROR_INCOMPLETE;
+    if (rc != 0)
+        rc = I2C_ERROR_INCOMPLETE;
     return rc;
 }
 
@@ -253,17 +358,28 @@ void i2c_preinit(int bus)
     }
 #endif
     i2c_on(bus);
-    wait_rdy(bus);
+    if (!wait_rdy(bus))
+        goto preinit_abort;
     IICADD(bus) = 0x40;   /* own slave address */
-    wait_rdy(bus);
+    if (!wait_rdy(bus))
+        goto preinit_abort;
     IICUNK14(bus) = 1;    /* SRCCLK = ECLK */
-    wait_rdy(bus);
+    if (!wait_rdy(bus))
+        goto preinit_abort;
     IICUNK18(bus) = 0;
-    wait_rdy(bus);
+    if (!wait_rdy(bus))
+        goto preinit_abort;
     IICSTAT(bus) = 0x80;  /* master Rx mode, serial output off */
-    wait_rdy(bus);
+    if (!wait_rdy(bus))
+        goto preinit_abort;
     IICCON(bus) = 0;
-    wait_rdy(bus);
+    if (!wait_rdy(bus))
+        goto preinit_abort;
     IICSTA2(bus) = 0x3f00;
-    i2c_off(bus);
+
+    (void)i2c_off(bus);
+    return;
+
+  preinit_abort:
+    i2c_abort(bus);
 }

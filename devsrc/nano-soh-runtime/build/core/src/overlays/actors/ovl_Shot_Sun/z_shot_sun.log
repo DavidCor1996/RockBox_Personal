@@ -1,0 +1,4 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Shot_Sun/z_shot_sun.c: In function 'ShotSun_UpdateHyliaSun':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Shot_Sun/z_shot_sun.c:171:37: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
+  171 |                 play->csCtx.segment = SEGMENTED_TO_VIRTUAL(gLakeHyliaFireArrowsCS);
+      |                                     ^

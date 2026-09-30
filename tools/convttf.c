@@ -108,6 +108,7 @@ int             hv_resolution = 60;
 int             dump_glyphs = 0;
 int             digits_equally_wide = 1; /* Try to make digits equally wide */
 int             embedded_bitmaps = 0;
+int             preserve_metrics = 0;
 int             trimming    = 0;
 int             trim_dp     = 0; /* trim descent percent */
 int             trim_da     = 0; /* trim descnet actual  */
@@ -212,6 +213,7 @@ void usage(void)
         "    -w     Don't try to make digits (0-9) equally wide\n"
         "    -B     Prefer an embedded bitmap strike when available\n"
         "    -L     Use lighter hinting algorithm\n"
+        "    -A     Preserve source glyph advances and left bearings\n"
     };
     fprintf(stderr, "%s", help);
     exit( 1 );
@@ -273,6 +275,11 @@ void setcharmap(FT_Face face)
             pid = 3;
             eid = 1;
             FT_Set_Charmap(face, face->charmaps[i]);
+            nocmap = 0;
+        } else if (FT_Select_Charmap(face, FT_ENCODING_UNICODE) == 0) {
+            /* Apple-platform Unicode cmaps are valid too. Falling back to
+             * glyph indices here silently assigns the wrong letters. */
+            nocmap = 0;
         } else {
             /*
              * No CMAP was found.
@@ -518,6 +525,14 @@ void print_raw_glyph( FT_Face face)
 int glyph_width( FT_Face face, FT_Long code, FT_Long digit_width )
 {
     int width;
+
+    if (preserve_metrics)
+    {
+        int spacing = (int)(between_chr * (1 << 6));
+        int extent = face->glyph->bitmap_left + face->glyph->bitmap.width;
+        width = (face->glyph->advance.x + spacing) >> 6;
+        return width > extent ? width : extent;
+    }
 
     if (code >= '0' && code <= '9' && digit_width)
     {
@@ -822,6 +837,8 @@ void convttf(char* path, char* destfile, FT_Long face_index)
         col_off = w - stride;
         if (col_off > 1) col_off /= 2;
         if (col_off < 0) col_off = 0;
+        if (preserve_metrics)
+            col_off = slot->bitmap_left;
 
         for(row=0; row < glyph_height; row++)
         {
@@ -830,6 +847,9 @@ void convttf(char* path, char* destfile, FT_Long face_index)
             for(col = empty_first_col; col < stride; col++)
             {
                 unsigned char *tsrc, *dst;
+                if (preserve_metrics && (col + col_off < 0 ||
+                                         col + col_off >= w))
+                    continue;
                 dst = buf + (w*(start_y+row)) + col + col_off;
                 tsrc = src + stride*row + col;
                 if (dst < endbuf && dst >= tmpbuf)
@@ -1266,6 +1286,9 @@ void getopts(int *pac, char ***pav)
                 ft_load_opts &= ~FT_LOAD_NO_BITMAP;
                 while (*p && *p != ' ')
                     p++;
+                break;
+            case 'A':     /* Preserve source glyph positioning */
+                preserve_metrics = 1;
                 break;
             case 'L':     /* Light rendering algorithm */
                 ft_load_opts |= FT_LOAD_TARGET_LIGHT;

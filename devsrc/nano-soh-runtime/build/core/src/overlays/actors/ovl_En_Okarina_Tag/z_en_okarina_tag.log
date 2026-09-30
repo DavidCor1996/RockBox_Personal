@@ -1,0 +1,8 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okarina_Tag/z_en_okarina_tag.c: In function 'func_80ABF4C8':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okarina_Tag/z_en_okarina_tag.c:265:41: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  265 |                     play->csCtx.segment = LINK_IS_ADULT ? SEGMENTED_TO_VIRTUAL(&spot02_scene_Cs_003C80)
+      |                                         ^
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okarina_Tag/z_en_okarina_tag.c: In function 'func_80ABF7CC':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_En_Okarina_Tag/z_en_okarina_tag.c:320:33: warning: assignment discards 'const' qualifier from pointer target type [-Wdiscarded-array-qualifiers]
+  320 |             play->csCtx.segment = SEGMENTED_TO_VIRTUAL(&gSunSongGraveSunSongTeachCs);
+      |                                 ^

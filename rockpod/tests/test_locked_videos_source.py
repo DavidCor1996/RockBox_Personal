@@ -27,8 +27,11 @@ def test_locked_video_pin_uses_photo_assets_and_fullscreen_surface():
     )
 
     for asset in shared_assets:
-        assert asset in photos_source
-        assert asset in root_source
+        assert asset not in photos_source
+        assert asset not in root_source
+    assert "ipodjs_retailos_prepare_pin(&photos_pin_surfaces)" in photos_source
+    assert "ipodjs_ui_prepare_search_surfaces()" in root_source
+    assert "ipodjs_ui_draw_search_surface(" in root_source
     assert "lcd_set_viewport(NULL);" in root_source
     assert "lcd_set_backdrop(NULL);" in root_source
     assert "lcd_clear_display();" in root_source

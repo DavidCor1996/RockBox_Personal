@@ -62,6 +62,8 @@
 #define BCM_UPDATE_TIMEOUT (HZ/20)
 /* An LCD update command done while the LCD is off needs >~ 200ms */
 #define BCM_LCDINIT_TIMEOUT (HZ/2)
+#define BCM_PLAYER_BUS_TIMEOUT  (HZ * 2)
+#define BCM_PLAYER_START_TIMEOUT (HZ * 10)
 
 /* Addresses within BCM */
 #define BCMA_SRAM_BASE   0
@@ -114,6 +116,47 @@ struct
 
 #ifndef BOOTLOADER
 static bool bcm2722_player_active;
+static bool bcm2722_player_fault;
+static const char *bcm2722_player_error = "VideoCore not started";
+static enum bcm2722_video_stage bcm2722_player_stage =
+    BCM2722_VIDEO_STAGE_OFF;
+
+/* Resident-VMCS composite policy.  Values intentionally match the shared
+ * Off/Auto/On setting without making the target driver depend on apps/. */
+#define BCM_VIDEOOUT_OFF             0
+#define BCM_VIDEOOUT_AUTO            1
+#define BCM_VIDEOOUT_ON              2
+#define BCM_TV_NTSC_WIDTH          LCD_WIDTH
+#define BCM_TV_NTSC_HEIGHT         LCD_HEIGHT
+#define BCM_TV_NTSC_ROW_BYTES     (BCM_TV_NTSC_WIDTH * 3)
+#define BCM_TV_NTSC_IMAGE_BYTES   (BCM_TV_NTSC_ROW_BYTES * \
+                                   BCM_TV_NTSC_HEIGHT)
+#define BCM_TV_NTSC_FILE_BYTES    (54u + BCM_TV_NTSC_IMAGE_BYTES + 2u)
+#define BCM_TV_CACHE_FLUSH_LINES   20
+/* Match the physically qualified 6G mirror's centered 90% NTSC safe area.
+ * The resident 5G VMCS exposes no scaler, so this path scales in the small
+ * target-owned line workspace before streaming the row to VideoCore. */
+#define BCM_TV_SAFE_X              16
+#define BCM_TV_SAFE_Y              12
+#define BCM_TV_SAFE_WIDTH         288
+#define BCM_TV_SAFE_HEIGHT        216
+#define BCM_TV_MAP_INVALID_X   0xffffu
+#define BCM_TV_MAP_INVALID_Y     0xffu
+
+static int bcm2722_videoout_mode = BCM_VIDEOOUT_OFF;
+static bool bcm2722_videoout_signal_active;
+static bool bcm2722_videoout_updating;
+static long bcm2722_videoout_next_update;
+static unsigned long bcm2722_videoout_zero[64] CACHEALIGN_ATTR;
+static unsigned long bcm2722_videoout_line[BCM_TV_NTSC_ROW_BYTES /
+                                           sizeof(unsigned long)]
+                                           CACHEALIGN_ATTR;
+static unsigned short bcm2722_videoout_xmap[BCM_TV_NTSC_WIDTH];
+static unsigned char bcm2722_videoout_ymap[BCM_TV_NTSC_HEIGHT];
+static bool bcm2722_videoout_maps_ready;
+
+static void bcm2722_videoout_mirror_if_due(bool force, int x, int y,
+                                            int width, int height);
 #endif
 
 #ifdef HAVE_LCD_SLEEP
@@ -397,6 +440,12 @@ void lcd_update_rect(int x, int y, int width, int height)
 {
     const fb_data *addr;
     unsigned bcmaddr;
+#ifndef BOOTLOADER
+    int mirror_x;
+    int mirror_y;
+    int mirror_width;
+    int mirror_height;
+#endif
 
 #ifdef HAVE_LCD_SLEEP
     if (!lcd_state.display_on)
@@ -410,6 +459,13 @@ void lcd_update_rect(int x, int y, int width, int height)
 
     if ((width <= 0) || (height <= 0))
         return; /* Nothing left to do. */
+
+#ifndef BOOTLOADER
+    mirror_x = x;
+    mirror_y = y;
+    mirror_width = width;
+    mirror_height = height;
+#endif
 
     /* Ensure x and width are both even. The BCM doesn't like small unaligned
      * writes and would just ignore them. */
@@ -473,6 +529,10 @@ void lcd_update_rect(int x, int y, int width, int height)
         while (--height > 0);
     }
     lcd_unblock_and_update();
+#ifndef BOOTLOADER
+    bcm2722_videoout_mirror_if_due(false, mirror_x, mirror_y,
+                                    mirror_width, mirror_height);
+#endif
 }
 
 /* Update the display.
@@ -494,10 +554,8 @@ void lcd_blit_yuv(unsigned char * const src[3],
                   int x, int y, int width, int height)
 {
     unsigned bcmaddr;
-#ifdef HAVE_IPODJS_UI
     int destination_y = y;
     int destination_height = height;
-#endif
     off_t z;
     unsigned char const * yuv_src[3];
 
@@ -548,6 +606,10 @@ void lcd_blit_yuv(unsigned char * const src[3],
 #endif
 
     lcd_unblock_and_update();
+#ifndef BOOTLOADER
+    bcm2722_videoout_mirror_if_due(false, x, destination_y, width,
+                                    destination_height);
+#endif
 }
 
 #ifdef HAVE_LCD_SLEEP
@@ -684,7 +746,7 @@ void lcd_awake(void)
     {
         /* Ensure BCM has been off for >= 50 ms */
         long sleepwait = lcd_state.update_timeout + HZ/20 - current_tick;
-        if (sleepwait > 0 && sleepwait < HZ/20)
+        if (sleepwait > 0 && sleepwait <= HZ/20)
             sleep(sleepwait);
 
         bcm_init();
@@ -708,6 +770,17 @@ void lcd_awake(void)
 
 void lcd_sleep(void)
 {
+#ifndef BOOTLOADER
+    /* The resident VMCS drives the LCD and composite DAC together.  Keep the
+     * controller alive while an enabled TV signal is scanning; the ordinary
+     * backlight path can still turn the lamp itself off. */
+    if (bcm2722_videoout_signal_active &&
+        (bcm2722_videoout_mode == BCM_VIDEOOUT_ON ||
+         (bcm2722_videoout_mode == BCM_VIDEOOUT_AUTO &&
+          (GPIOA_INPUT_VAL & 0x10) != 0)))
+        return;
+#endif
+
     if (lcd_state.display_on && flash_vmcs_length != 0)
     {
         lcd_state.display_on = false;
@@ -738,31 +811,1009 @@ void lcd_shutdown(void)
 #endif /* HAVE_LCD_SLEEP */
 
 #ifndef BOOTLOADER
-bool bcm2722_video_start(const void *vmcs, size_t length)
+static bool bcm_player_wait(volatile unsigned short *reg, unsigned mask,
+                            unsigned expected, long timeout)
 {
-    long sleepwait;
+    long deadline = current_tick + timeout;
 
-    if (vmcs == NULL || length == 0 || (length & 1) != 0 ||
-        flash_vmcs_length == 0 || bcm2722_player_active)
-        return false;
-
-    if (lcd_state.display_on)
+    while (((unsigned)*reg & mask) != expected)
     {
-        lcd_state.display_on = false;
-        while (lcd_state.state != LCD_INITIAL &&
-               lcd_state.state != LCD_IDLE)
-            yield();
-        tick_remove_task(&lcd_tick);
-        bcm_powerdown();
-        lcd_state.update_timeout = current_tick;
+        if (!TIME_BEFORE(current_tick, deadline))
+            return false;
+        yield();
+    }
+    return true;
+}
+
+/* Apple 5G Diagnostics (device-matched NOR, diagmode 0x1000ebc4) writes the
+ * encoded TV command first, uploads a Windows BMP to 0xc0200000, notifies the
+ * VideoCore with 0x31, polls 0x1f8, then consumes the signed status at 0x1fc.
+ * Commands 2/3/4 are the only commands routed to the BMP staging address.
+ * FS#9787 established that a 320x240 command-3 BMP arms the encoder for the
+ * resident VMCS live framebuffer at 0xc0000000. */
+static const unsigned char bcm_tv_ntsc_header[54] CACHEALIGN_ATTR =
+{
+    0x42, 0x4d, 0x38, 0x84, 0x03, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x36, 0x00, 0x00, 0x00, 0x28, 0x00,
+    0x00, 0x00, 0x40, 0x01, 0x00, 0x00, 0xf0, 0x00,
+    0x00, 0x00, 0x01, 0x00, 0x18, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x02, 0x84, 0x03, 0x00, 0x12, 0x0b,
+    0x00, 0x00, 0x12, 0x0b, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+};
+
+/* FS#9787 measured the resident 5G TV framebuffer at 0xc0000000.  The
+ * encoder consumes BGR24 but expects studio-swing component levels. */
+static const unsigned char bcm_tv_level_6[64] ICONST_ATTR =
+{
+    16, 19, 23, 26, 30, 33, 37, 40, 44, 47, 51, 54, 58, 61, 65, 68,
+    72, 75, 79, 82, 86, 89, 92, 96, 99, 103, 106, 110, 113, 117, 120,
+    124, 127, 131, 134, 138, 141, 145, 148, 152, 155, 159, 162, 165,
+    169, 172, 176, 179, 183, 186, 190, 193, 197, 200, 204, 207, 211,
+    214, 218, 221, 225, 228, 232, 235
+};
+
+static const unsigned char bcm_tv_level_5[32] ICONST_ATTR =
+{
+    16, 23, 30, 37, 44, 51, 58, 65, 73, 80, 87, 94, 101, 108, 115,
+    122, 129, 136, 143, 150, 157, 164, 171, 178, 186, 193, 200, 207,
+    214, 221, 228, 235
+};
+
+static void bcm_videoout_init_maps(void)
+{
+    int i;
+
+    if (bcm2722_videoout_maps_ready)
+        return;
+
+    for (i = 0; i < BCM_TV_NTSC_WIDTH; ++i)
+    {
+        if (i < BCM_TV_SAFE_X ||
+            i >= BCM_TV_SAFE_X + BCM_TV_SAFE_WIDTH)
+            bcm2722_videoout_xmap[i] = BCM_TV_MAP_INVALID_X;
+        else
+            bcm2722_videoout_xmap[i] =
+                ((i - BCM_TV_SAFE_X) * LCD_WIDTH +
+                 BCM_TV_SAFE_WIDTH / 2) / BCM_TV_SAFE_WIDTH;
+    }
+    for (i = 0; i < BCM_TV_NTSC_HEIGHT; ++i)
+    {
+        if (i < BCM_TV_SAFE_Y ||
+            i >= BCM_TV_SAFE_Y + BCM_TV_SAFE_HEIGHT)
+            bcm2722_videoout_ymap[i] = BCM_TV_MAP_INVALID_Y;
+        else
+            bcm2722_videoout_ymap[i] =
+                ((i - BCM_TV_SAFE_Y) * LCD_HEIGHT +
+                 BCM_TV_SAFE_HEIGHT / 2) / BCM_TV_SAFE_HEIGHT;
+    }
+    bcm2722_videoout_maps_ready = true;
+}
+
+static void bcm_videoout_make_line(int output_y, int output_x,
+                                   int output_width)
+{
+    unsigned char *destination = (unsigned char *)bcm2722_videoout_line;
+    unsigned source_y = bcm2722_videoout_ymap[output_y];
+    const fb_data *source = NULL;
+    int column;
+
+    if (source_y != BCM_TV_MAP_INVALID_Y)
+    {
+        source = FBADDR(0, source_y);
+#ifdef HAVE_IPODJS_UI
+        if (lcd_compose_overlay_row(source_y, 0, LCD_WIDTH,
+                                    lcd_overlay_line))
+            source = lcd_overlay_line;
+#endif
     }
 
-    sleepwait = lcd_state.update_timeout + HZ/20 - current_tick;
-    if (sleepwait > 0 && sleepwait < HZ/20)
-        sleep(sleepwait);
+    for (column = output_x; column < output_x + output_width; ++column)
+    {
+        unsigned source_x = bcm2722_videoout_xmap[column];
+        unsigned pixel = source == NULL || source_x == BCM_TV_MAP_INVALID_X ?
+                         0 : source[source_x];
 
-    bcm_init_image(vmcs, length);
+        *destination++ = bcm_tv_level_5[pixel & 0x1f];
+        *destination++ = bcm_tv_level_6[(pixel >> 5) & 0x3f];
+        *destination++ = bcm_tv_level_5[(pixel >> 11) & 0x1f];
+    }
+}
+
+static bool bcm_videoout_read32(unsigned address, unsigned *value)
+{
+    if (value == NULL ||
+        !bcm_player_wait(&BCM_RD_ADDR, 0x1, 0x1,
+                         BCM_PLAYER_BUS_TIMEOUT))
+        return false;
+
+    BCM_RD_ADDR = address;
+    BCM_RD_ADDR = address >> 16;
+    if (!bcm_player_wait(&BCM_CONTROL, 0x10, 0x10,
+                         BCM_PLAYER_BUS_TIMEOUT))
+        return false;
+
+    *value = (unsigned)BCM_DATA;
+    *value |= (unsigned)BCM_DATA << 16;
+    (void)BCM_RD_ADDR;
+    return true;
+}
+
+static void bcm_videoout_write_addr(unsigned address)
+{
+    BCM_WR_ADDR = address;
+    BCM_WR_ADDR = address >> 16;
+}
+
+static bool bcm_videoout_write_addr_ready(unsigned address)
+{
+    bcm_videoout_write_addr(address);
+    return bcm_player_wait(&BCM_CONTROL, 0x2, 0x2,
+                           BCM_PLAYER_BUS_TIMEOUT);
+}
+
+static bool bcm_videoout_write32(unsigned address, unsigned value)
+{
+    if (!bcm_videoout_write_addr_ready(address))
+        return false;
+    BCM_DATA = value;
+    BCM_DATA = value >> 16;
+    return true;
+}
+
+/* diagmode 0x1000e564 waits for write-ready before every 16-byte burst.
+ * The old Rockbox patch omitted this pacing and can overrun the host FIFO,
+ * producing exactly the horizontal line corruption seen on hardware. */
+static bool bcm_videoout_write_halfwords(const unsigned char *source,
+                                         size_t length)
+{
+    while (length != 0)
+    {
+        size_t burst = length > 16 ? 16 : length;
+
+        if (!bcm_player_wait(&BCM_CONTROL, 0x2, 0x2,
+                             BCM_PLAYER_BUS_TIMEOUT))
+            return false;
+        length -= burst;
+        while (burst != 0)
+        {
+            BCM_DATA = (unsigned)source[0] | ((unsigned)source[1] << 8);
+            source += 2;
+            burst -= 2;
+        }
+    }
+    return true;
+}
+
+static bool bcm_videoout_wait_command(unsigned command, bool equal)
+{
+    long deadline = current_tick + BCM_PLAYER_BUS_TIMEOUT;
+
+    while (TIME_BEFORE(current_tick, deadline))
+    {
+        unsigned value;
+
+        if (!bcm_videoout_read32(BCMA_COMMAND, &value))
+            return false;
+        if (equal ? value == command :
+                    (value != command && value != 0xffffu))
+            return true;
+        yield();
+    }
+    return false;
+}
+
+static bool bcm_videoout_write_zeros(size_t length)
+{
+    while (length != 0)
+    {
+        size_t chunk = length > sizeof(bcm2722_videoout_zero) ?
+                       sizeof(bcm2722_videoout_zero) : length;
+
+        if (!bcm_videoout_write_halfwords(
+                (const unsigned char *)bcm2722_videoout_zero, chunk))
+            return false;
+        length -= chunk;
+    }
+    return true;
+}
+
+static bool bcm_videoout_should_enable(void)
+{
+    if (bcm2722_videoout_mode == BCM_VIDEOOUT_ON)
+        return true;
+    if (bcm2722_videoout_mode != BCM_VIDEOOUT_AUTO)
+        return false;
+
+    /* Same dock-present observation already used by the retail movie path.
+     * On remains available for passive 30-pin/headphone composite leads. */
+    return (GPIOA_INPUT_VAL & 0x10) != 0;
+}
+
+static bool bcm_videoout_send_ntsc_frame(void)
+{
+    unsigned command = BCMCMD_TV_NTSCBMP;
+    unsigned route;
+    unsigned status;
+
+    if (!bcm_videoout_wait_command(BCMCMD_LCD_UPDATE, false))
+        return false;
+
+    /* diagmode 0x1000f728 is the required display route immediately before
+     * the first TV command: select route bit 6, clear route bit 7, and point
+     * the first display slot at the resident VMCS LCD workspace. */
+    if (!bcm_videoout_read32(0x10002804, &route))
+        return false;
+    route = (route | 0x40u) & ~0x80u;
+    if (!bcm_videoout_write32(0x10002804, route) ||
+        !bcm_videoout_write32(0x10002810, 0x00080000u))
+        return false;
+
+    /* Command 3 with a 320x240 BGR24 BMP arms the encoder in the LCD's
+     * native mode.  The two bytes after the image are intentional: they are
+     * present in FS#9787's working header/image-size pair and flush the
+     * final host word. */
+    if (!bcm_videoout_write32(BCMA_COMMAND, command) ||
+        !bcm_videoout_write_addr_ready(BCMA_TV_BMPDATA) ||
+        !bcm_videoout_write_halfwords(bcm_tv_ntsc_header,
+                                      sizeof(bcm_tv_ntsc_header)) ||
+        !bcm_videoout_write_zeros(BCM_TV_NTSC_FILE_BYTES -
+                                  sizeof(bcm_tv_ntsc_header)))
+        return false;
+
+    BCM_CONTROL = 0x31;
+    if (!bcm_videoout_wait_command(command, false) ||
+        !bcm_videoout_read32(BCMA_STATUS, &status) ||
+        (short)status != 0)
+        return false;
+
+    /* The first NTSC arm of Apple's diagnostic stops here.  Command 14 is
+     * issued only after an explicit PAL/NTSC change, following a complete
+     * display power cycle.  Re-sending either command on every Rockbox LCD
+     * update makes an attached television repeatedly lose and reacquire
+     * sync. */
+    return true;
+}
+
+static bool bcm_videoout_write_live_rect(int x, int y,
+                                         int width, int height)
+{
+    int source_end_x;
+    int source_end_y;
+    int output_x = BCM_TV_NTSC_WIDTH;
+    int output_end_x = 0;
+    int output_y = BCM_TV_NTSC_HEIGHT;
+    int output_end_y = 0;
+    int column;
+    int row;
+
+    if (x < 0)
+    {
+        width += x;
+        x = 0;
+    }
+    if (y < 0)
+    {
+        height += y;
+        y = 0;
+    }
+    if (x + width > LCD_WIDTH)
+        width = LCD_WIDTH - x;
+    if (y + height > LCD_HEIGHT)
+        height = LCD_HEIGHT - y;
+    if (width <= 0 || height <= 0)
+        return true;
+
+    bcm_videoout_init_maps();
+    source_end_x = x + width;
+    source_end_y = y + height;
+
+    /* Find exactly which safe-area output pixels sample this dirty source
+     * rectangle.  Full-width/full-height updates also repaint the black
+     * border so the whole Rockbox UI remains visible through TV overscan. */
+    if (x == 0 && source_end_x == LCD_WIDTH)
+    {
+        output_x = 0;
+        output_end_x = BCM_TV_NTSC_WIDTH;
+    }
+    else
+    {
+        for (column = BCM_TV_SAFE_X;
+             column < BCM_TV_SAFE_X + BCM_TV_SAFE_WIDTH; ++column)
+        {
+            unsigned source_x = bcm2722_videoout_xmap[column];
+
+            if ((int)source_x >= x && (int)source_x < source_end_x)
+            {
+                if (output_x == BCM_TV_NTSC_WIDTH)
+                    output_x = column;
+                output_end_x = column + 1;
+            }
+        }
+        output_x &= ~3;
+        output_end_x = (output_end_x + 3) & ~3;
+    }
+
+    if (y == 0 && source_end_y == LCD_HEIGHT)
+    {
+        output_y = 0;
+        output_end_y = BCM_TV_NTSC_HEIGHT;
+    }
+    else
+    {
+        for (row = BCM_TV_SAFE_Y;
+             row < BCM_TV_SAFE_Y + BCM_TV_SAFE_HEIGHT; ++row)
+        {
+            unsigned source_y = bcm2722_videoout_ymap[row];
+
+            if ((int)source_y >= y && (int)source_y < source_end_y)
+            {
+                if (output_y == BCM_TV_NTSC_HEIGHT)
+                    output_y = row;
+                output_end_y = row + 1;
+            }
+        }
+    }
+
+    if (output_x >= output_end_x || output_y >= output_end_y)
+        return true;
+
+    width = output_end_x - output_x;
+    if (output_x == 0 && width == BCM_TV_NTSC_WIDTH &&
+        !bcm_videoout_write_addr_ready(
+            BCMA_TV_FB + BCM_TV_NTSC_ROW_BYTES * output_y))
+        return false;
+
+    for (row = output_y; row < output_end_y; ++row)
+    {
+        bcm_videoout_make_line(row, output_x, width);
+        if ((output_x != 0 || width != BCM_TV_NTSC_WIDTH) &&
+            !bcm_videoout_write_addr_ready(
+                BCMA_TV_FB + BCM_TV_NTSC_ROW_BYTES * row + output_x * 3))
+            return false;
+
+        /* lcd_write_data is the PP5022 assembly streaming path.  Separating
+         * conversion from the host-port copy removes tens of thousands of
+         * per-pixel readiness calls and shortens the live-surface write far
+         * enough to avoid the visible scan tearing of the old C loop. */
+        lcd_write_data((const fb_data *)bcm2722_videoout_line,
+                       width * 3 / sizeof(fb_data));
+    }
+
+    /* The VideoCore caches this SDRAM window.  FS#9787 found that touching
+     * twenty scanlines beyond the framebuffer makes live writes visible. */
+    if (!bcm_videoout_write_addr_ready(BCMA_TV_FB +
+                                       BCM_TV_NTSC_IMAGE_BYTES))
+        return false;
+    for (row = 0; row < BCM_TV_NTSC_ROW_BYTES *
+                        BCM_TV_CACHE_FLUSH_LINES /
+                        (int)sizeof(bcm2722_videoout_zero); ++row)
+        lcd_write_data((const fb_data *)bcm2722_videoout_zero,
+                       sizeof(bcm2722_videoout_zero) / sizeof(fb_data));
+
+    return true;
+}
+
+static void bcm2722_videoout_mirror_if_due(bool force, int x, int y,
+                                            int width, int height)
+{
+    bool enabled;
+    bool initialized = true;
+
+    if (bcm2722_videoout_updating || bcm2722_player_active ||
+        !lcd_state.display_on)
+        return;
+
+    enabled = bcm_videoout_should_enable();
+    if (!enabled)
+        return;
+    if (!bcm2722_videoout_signal_active && !force &&
+        TIME_BEFORE(current_tick, bcm2722_videoout_next_update))
+        return;
+
+    bcm2722_videoout_updating = true;
+    cpu_boost(true);
+    lcd_block_tick();
+    if (!bcm2722_videoout_signal_active)
+    {
+        initialized = bcm_videoout_send_ntsc_frame();
+        bcm2722_videoout_signal_active = initialized;
+        bcm2722_videoout_next_update = current_tick + HZ * 2;
+        /* The staging BMP is only the mode-set.  Every displayed frame after
+         * that is written directly to the live framebuffer. */
+        x = 0;
+        y = 0;
+        width = LCD_WIDTH;
+        height = LCD_HEIGHT;
+    }
+    else if (!bcm_videoout_wait_command(BCMCMD_LCD_UPDATE, false))
+        initialized = false;
+
+    if (initialized)
+        (void)bcm_videoout_write_live_rect(x, y, width, height);
+
+    /* A completed TV command leaves the LCD tick's state bookkeeping one
+     * transition behind.  Unblock it without posting an extra LCD command;
+     * the next tick observes completion and returns the state to IDLE. */
+    {
+        int oldlevel = disable_irq_save();
+#if NUM_CORES > 1
+        corelock_lock(&lcd_state.cl);
+#endif
+        lcd_state.blocked = false;
+#if NUM_CORES > 1
+        corelock_unlock(&lcd_state.cl);
+#endif
+        restore_irq(oldlevel);
+    }
+    cpu_boost(false);
+    bcm2722_videoout_updating = false;
+}
+
+bool bcm2722_videoout_set_mode(int mode)
+{
+    bool restarted = false;
+
+    if (mode < BCM_VIDEOOUT_OFF || mode > BCM_VIDEOOUT_ON)
+        mode = BCM_VIDEOOUT_AUTO;
+
+    bcm2722_videoout_mode = mode;
+    bcm2722_videoout_next_update = 0;
+
+    if (bcm2722_player_active || !lcd_state.display_on)
+        return false;
+
+    if (bcm_videoout_should_enable())
+    {
+        bcm2722_videoout_mirror_if_due(true, 0, 0, LCD_WIDTH, LCD_HEIGHT);
+        return false;
+    }
+
+    if (bcm2722_videoout_signal_active)
+    {
+        long deadline = current_tick + BCM_PLAYER_BUS_TIMEOUT;
+
+        while (lcd_state.state != LCD_INITIAL &&
+               lcd_state.state != LCD_IDLE &&
+               TIME_BEFORE(current_tick, deadline))
+            yield();
+
+        if (lcd_state.state == LCD_INITIAL || lcd_state.state == LCD_IDLE)
+        {
+            /* Apple Diagnostics leaves TVOUT through commands 8 and 12,
+             * drops GPO 0x4000, and performs a normal resident bootstrap.
+             * bcm_powerdown()/lcd_awake() are Rockbox's equivalent sequence. */
+            lcd_state.display_on = false;
+            tick_remove_task(&lcd_tick);
+            bcm_powerdown();
+            lcd_state.update_timeout = current_tick;
+            bcm2722_videoout_signal_active = false;
+            lcd_awake();
+            restarted = true;
+        }
+    }
+
+    return restarted;
+}
+
+/* RetailOS uses the PP502x's second DMA controller for the VideoCore host
+ * port.  Rockbox's audio DMA is the separate controller at 0x6000a000 /
+ * 0x6000b000, so this does not borrow or reconfigure PCM's channel. */
+#define BCM_DMA_MASTER_CONTROL (*(volatile unsigned long *)0x60008000)
+#define BCM_DMA_CMD            (*(volatile unsigned long *)0x60009000)
+#define BCM_DMA_STATUS         (*(volatile unsigned long *)0x60009004)
+#define BCM_DMA_RAM_ADDR       (*(volatile unsigned long *)0x60009010)
+#define BCM_DMA_RAM_CONFIG     (*(volatile unsigned long *)0x60009014)
+#define BCM_DMA_PER_ADDR       (*(volatile unsigned long *)0x60009018)
+#define BCM_DMA_PER_CONFIG     (*(volatile unsigned long *)0x6000901c)
+
+#define BCM_DMA_IRQ_MASK       (1ul << 27)
+#define BCM_DMA_CHUNK_BYTES    0x10000u
+#define BCM_DMA_BULK_ALIGN     0x100u
+#define BCM_DMA_RAM_CONFIG_32  0x22000000u
+#define BCM_DMA_PER_CONFIG_32  0x26000000u
+#define BCM_DMA_COMMAND        (DMA_CMD_INTR | DMA_CMD_RAM_TO_PER | \
+                                DMA_CMD_SINGLE)
+
+static bool bcm_player_write_addr(unsigned address)
+{
+    if (bcm2722_player_fault)
+        return false;
+
+    /* RetailOS 1.3's 0x10287be8 writes both halves, in little-endian order,
+     * to the same 16-bit host register.  Do not use the normal LCD driver's
+     * 32-bit shortcut here: Apple's player loader does not use it. */
+    BCM_WR_ADDR = address;
+    BCM_WR_ADDR = address >> 16;
+    return true;
+}
+
+static bool bcm_player_write32(unsigned address, unsigned value)
+{
+    if (!bcm_player_write_addr(address))
+        return false;
+    BCM_DATA = value;
+    BCM_DATA = value >> 16;
+    return true;
+}
+
+static bool bcm_player_write_halfwords_paced(const unsigned char *source,
+                                              size_t length)
+{
+    while (length != 0)
+    {
+        size_t burst = length > 16 ? 16 : length;
+
+        if (!bcm_player_wait(&BCM_CONTROL, 0x2, 0x2,
+                             BCM_PLAYER_BUS_TIMEOUT))
+            goto fault;
+        length -= burst;
+        while (burst != 0)
+        {
+            BCM_DATA = (unsigned)source[0] | ((unsigned)source[1] << 8);
+            source += 2;
+            burst -= 2;
+        }
+    }
+    return true;
+
+fault:
+    bcm2722_player_fault = true;
+    return false;
+}
+
+static bool bcm_player_dma_write(const void *buffer, size_t length)
+{
+    unsigned long source = (unsigned long)buffer;
+    bool restore_irq = (CPU_INT_EN_STAT & BCM_DMA_IRQ_MASK) != 0;
+    long deadline;
+    unsigned long status;
+
+    if (length == 0 || length > BCM_DMA_CHUNK_BYTES ||
+        (source & 3) != 0 || (length & 0xf) != 0)
+        return false;
+
+    /* Keep Apple's INTR command bit, but mask its RetailOS-only IRQ line and
+     * poll START.  No Rockbox ISR owns IRQ 27. */
+    CPU_INT_DIS = BCM_DMA_IRQ_MASK;
+    BCM_DMA_MASTER_CONTROL |= DMA_MASTER_CONTROL_EN;
+    BCM_DMA_CMD &= ~(DMA_CMD_START | DMA_CMD_INTR);
+    (void)BCM_DMA_STATUS;
+
+    deadline = current_tick + BCM_PLAYER_BUS_TIMEOUT;
+    while ((BCM_DMA_STATUS & DMA_STATUS_BUSY) != 0)
+    {
+        if (!TIME_BEFORE(current_tick, deadline))
+            goto fault;
+        yield();
+    }
+
+    if (source < UNCACHED_BASE_ADDR)
+    {
+        commit_dcache();
+        source = (unsigned long)UNCACHED_ADDR(source);
+    }
+
+    /* RetailOS initializes both sides to 0x02000000, selects 32-bit width
+     * in bits 30..28, and applies opcode 8/value 4 to the peripheral side. */
+    BCM_DMA_RAM_CONFIG = BCM_DMA_RAM_CONFIG_32;
+    BCM_DMA_PER_CONFIG = BCM_DMA_PER_CONFIG_32;
+    BCM_DMA_RAM_ADDR = source;
+    BCM_DMA_PER_ADDR = (unsigned long)&BCM_DATA32;
+    BCM_DMA_CMD = BCM_DMA_COMMAND | (length - 4) | DMA_CMD_START;
+
+    deadline = current_tick + BCM_PLAYER_BUS_TIMEOUT;
+    while ((BCM_DMA_CMD & DMA_CMD_START) != 0)
+    {
+        if (!TIME_BEFORE(current_tick, deadline))
+            goto fault;
+        yield();
+    }
+
+    status = BCM_DMA_STATUS; /* Read-to-clear completion latch. */
+    BCM_DMA_CMD &= ~(DMA_CMD_START | DMA_CMD_INTR);
+    if (restore_irq)
+        CPU_INT_EN = BCM_DMA_IRQ_MASK;
+    if ((status & DMA_STATUS_INTR) == 0)
+        goto completed_without_irq;
+    return true;
+
+fault:
+    BCM_DMA_CMD &= ~(DMA_CMD_START | DMA_CMD_INTR);
+    (void)BCM_DMA_STATUS;
+    if (restore_irq)
+        CPU_INT_EN = BCM_DMA_IRQ_MASK;
+completed_without_irq:
+    bcm2722_player_fault = true;
+    return false;
+}
+
+static bool bcm_player_write_buffer_raw(unsigned address, const void *buffer,
+                                        size_t length)
+{
+    const unsigned char *source = buffer;
+    size_t bulk;
+
+    if (buffer == NULL || (address & 1) != 0 || (length & 1) != 0 ||
+        ((unsigned long)buffer & 1) != 0 || !bcm_player_write_addr(address))
+        return false;
+
+    /* RetailOS 1.3 0x10287be8 aligns the source with one halfword, sends the
+     * largest 256-byte-aligned span through 0x10286fb4, then writes the tail
+     * as paced halfwords.  vmcs.bin is therefore 3*64 KiB + 0x1200 by DMA,
+     * followed by a 0xa0-byte CPU tail. */
+    if (((unsigned long)source & 3) == 2 && length != 0)
+    {
+        if (!bcm_player_write_halfwords_paced(source, 2))
+            return false;
+        source += 2;
+        length -= 2;
+    }
+
+    bulk = length & ~(BCM_DMA_BULK_ALIGN - 1);
+    while (bulk != 0)
+    {
+        size_t chunk = bulk > BCM_DMA_CHUNK_BYTES ?
+                       BCM_DMA_CHUNK_BYTES : bulk;
+
+        if (!bcm_player_dma_write(source, chunk))
+            return false;
+        source += chunk;
+        length -= chunk;
+        bulk -= chunk;
+    }
+
+    if (!bcm_player_write_halfwords_paced(source, length))
+        return false;
+    return true;
+}
+
+static bool bcm_player_read32(unsigned address, unsigned *value)
+{
+    if (value == NULL || bcm2722_player_fault)
+        return false;
+    if (!bcm_player_wait(&BCM_RD_ADDR, 0x1, 0x1,
+                         BCM_PLAYER_BUS_TIMEOUT))
+        goto fault;
+
+    BCM_RD_ADDR = address;
+    BCM_RD_ADDR = address >> 16;
+    if (!bcm_player_wait(&BCM_CONTROL, 0x10, 0x10,
+                         BCM_PLAYER_BUS_TIMEOUT))
+        goto fault;
+
+    *value = (unsigned)BCM_DATA;
+    *value |= (unsigned)BCM_DATA << 16;
+    /* RetailOS finishes every read request by consuming this register. */
+    (void)BCM_RD_ADDR;
+    return true;
+
+fault:
+    bcm2722_player_fault = true;
+    return false;
+}
+
+static bool bcm_player_wait32(unsigned address, unsigned mask,
+                              unsigned expected, long timeout)
+{
+    long deadline = current_tick + timeout;
+
+    while (TIME_BEFORE(current_tick, deadline))
+    {
+        unsigned value;
+
+        if (!bcm_player_read32(address, &value))
+            return false;
+        if ((value & mask) == expected)
+            return true;
+        yield();
+    }
+    bcm2722_player_fault = true;
+    return false;
+}
+
+static bool bcm_player_wait32_nonzero(unsigned address, long timeout)
+{
+    long deadline = current_tick + timeout;
+
+    while (TIME_BEFORE(current_tick, deadline))
+    {
+        unsigned value;
+
+        if (!bcm_player_read32(address, &value))
+            return false;
+        if (value != 0)
+            return true;
+        yield();
+    }
+    bcm2722_player_fault = true;
+    return false;
+}
+
+static bool bcm_player_bootstrap_retail(void)
+{
+    unsigned i;
+
+    /* RetailOS 1.3's 0x10287998 two-channel bootstrap. */
+    for (i = 0; i < 8; i++)
+        BCM_CONTROL = bcm_bootstrapdata[i];
+    for (i = 3; i < 8; i++)
+        BCM_ALT_CONTROL = bcm_bootstrapdata[i];
+
+    if (!bcm_player_wait(&BCM_RD_ADDR, 0x1, 0x1,
+                         BCM_PLAYER_BUS_TIMEOUT) ||
+        !bcm_player_wait(&BCM_ALT_RD_ADDR, 0x1, 0x1,
+                         BCM_PLAYER_BUS_TIMEOUT))
+        goto fault;
+
+    (void)BCM_WR_ADDR;
+    (void)BCM_ALT_WR_ADDR;
+
+    return true;
+
+fault:
+    bcm2722_player_fault = true;
+    return false;
+}
+
+static bool bcm_player_wait_initial_upload_ready(void)
+{
+    /* RetailOS 1.3 0x102876cc..0x102876e4 performs this gate immediately
+     * after the first 0x10287998 bootstrap.  Its later 0x10288058 runtime
+     * bootstrap deliberately does not repeat it. */
+    if (!bcm_player_wait(&BCM_ALT_CONTROL, 0x80, 0,
+                         BCM_PLAYER_BUS_TIMEOUT) ||
+        !bcm_player_wait(&BCM_ALT_CONTROL, 0x40, 0x40,
+                         BCM_PLAYER_BUS_TIMEOUT))
+    {
+        bcm2722_player_fault = true;
+        return false;
+    }
+    return true;
+}
+
+static bool bcm_player_read_buffer_raw(unsigned address, void *buffer,
+                                       size_t length)
+{
+    unsigned char *destination = buffer;
+
+    if (buffer == NULL || (address & 1) != 0 || (length & 3) != 0 ||
+        bcm2722_player_fault ||
+        !bcm_player_wait(&BCM_RD_ADDR, 0x1, 0x1,
+                         BCM_PLAYER_BUS_TIMEOUT))
+        goto fault;
+
+    /* RetailOS 1.3's 0x10287a6c latches one source address, then consumes
+     * two 16-bit data-port reads for each 32-bit word. */
+    BCM_RD_ADDR = address;
+    BCM_RD_ADDR = address >> 16;
+    while (length != 0)
+    {
+        unsigned value;
+
+        if (!bcm_player_wait(&BCM_CONTROL, 0x10, 0x10,
+                             BCM_PLAYER_BUS_TIMEOUT))
+            goto fault;
+        value = (unsigned)BCM_DATA;
+        value |= (unsigned)BCM_DATA << 16;
+        destination[0] = value;
+        destination[1] = value >> 8;
+        destination[2] = value >> 16;
+        destination[3] = value >> 24;
+        destination += 4;
+        length -= 4;
+    }
+    (void)BCM_RD_ADDR;
+    return true;
+
+fault:
+    bcm2722_player_fault = true;
+    return false;
+}
+
+static bool bcm_player_verify_buffer_raw(unsigned address,
+                                         const void *buffer, size_t length)
+{
+    const unsigned char *source = buffer;
+    size_t offset;
+
+    /* This is RetailOS 1.3's optional verification branch at
+     * 0x102877cc..0x10287838: read and compare one little-endian word at a
+     * time.  Stock MPlayer disables it for speed; qualification builds use
+     * it so a completed DMA command cannot masquerade as a valid upload. */
+    for (offset = 0; offset < length; offset += 4)
+    {
+        unsigned expected = (unsigned)source[offset] |
+                            ((unsigned)source[offset + 1] << 8) |
+                            ((unsigned)source[offset + 2] << 16) |
+                            ((unsigned)source[offset + 3] << 24);
+        unsigned actual;
+
+        if (!bcm_player_read32(address + offset, &actual))
+            return false;
+        if (actual != expected)
+        {
+            if (offset < 0x10000)
+                bcm2722_player_error = "Apple upload verify chunk 1 mismatch";
+            else if (offset < 0x20000)
+                bcm2722_player_error = "Apple upload verify chunk 2 mismatch";
+            else if (offset < 0x30000)
+                bcm2722_player_error = "Apple upload verify chunk 3 mismatch";
+            else
+                bcm2722_player_error = "Apple upload verify tail mismatch";
+            bcm2722_player_fault = true;
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool bcm_player_start_retail_image(const void *image, size_t length)
+{
+    unsigned char runtime_header[16];
+    unsigned runtime_ready;
+    unsigned service_base;
+
+    /* RetailOS 1.3's 0x10287698 loader, reduced to the flat vmcs.bin path.
+     * The stock movie initializer calls this while the display VMCS is still
+     * powered and passes zero for the optional read-back verification flag.
+     * In particular, it does not issue the NOR sleep commands, cycle GPO
+     * 0x4000, or reprogram the PP5022 boot straps before this bootstrap. */
+    bcm2722_player_stage = BCM2722_VIDEO_STAGE_BOOTSTRAP;
+    bcm2722_player_error = "Apple VideoCore bootstrap timed out";
+    if (!bcm_player_bootstrap_retail())
+        return false;
+
+    bcm2722_player_error = "Apple VideoCore upload gate timed out";
+    if (!bcm_player_wait_initial_upload_ready())
+        return false;
+
+    bcm2722_player_stage = BCM2722_VIDEO_STAGE_UPLOAD;
+    bcm2722_player_error = "Apple VideoCore upload failed";
+    if (!bcm_player_write_buffer_raw(BCMA_SRAM_BASE, image, length))
+        return false;
+
+    bcm2722_player_stage = BCM2722_VIDEO_STAGE_VERIFY;
+    bcm2722_player_error = "Apple upload verification timed out";
+    if (!bcm_player_verify_buffer_raw(BCMA_SRAM_BASE, image, length))
+        return false;
+
+    bcm2722_player_stage = BCM2722_VIDEO_STAGE_START;
+    bcm2722_player_error = "Apple command clear failed";
+    if (!bcm_player_write32(BCMA_COMMAND, 0))
+        return false;
+    bcm2722_player_error = "Apple start mailbox write failed";
+    if (!bcm_player_write32(0x10000C00, 0xC0000000))
+        return false;
+    bcm2722_player_error = "Apple start mailbox arm timed out";
+    if (!bcm_player_wait32(0x10000C00, 1, 1,
+                           BCM_PLAYER_START_TIMEOUT))
+        return false;
+    bcm2722_player_error = "Apple start mailbox clear failed";
+    if (!bcm_player_write32(0x10000C00, 0))
+        return false;
+    bcm2722_player_error = "Apple VideoCore launch write failed";
+    if (!bcm_player_write32(0x10000400, 0xA5A50002))
+        return false;
+    bcm2722_player_error = "Apple VideoCore ready timed out";
+    if (!bcm_player_wait32_nonzero(BCMA_COMMAND,
+                                   BCM_PLAYER_START_TIMEOUT))
+        return false;
+
+    /* RetailOS transitions its loader state from 2 to 3 and calls
+     * 0x10288058.  That routine re-runs only the common two-channel
+     * bootstrap, reads one 16-byte block at 0x1f0, requires word 2 to be
+     * exactly 1, and accepts word 3 only when non-zero and 4-byte aligned. */
+    bcm2722_player_stage = BCM2722_VIDEO_STAGE_RUNTIME_BOOTSTRAP;
+    bcm2722_player_error = "Apple runtime host interface timed out";
+    if (!bcm_player_bootstrap_retail())
+        return false;
+
+    bcm2722_player_error = "Apple runtime service header timed out";
+    if (!bcm_player_read_buffer_raw(0x1f0, runtime_header,
+                                    sizeof(runtime_header)))
+        return false;
+
+    runtime_ready = (unsigned)runtime_header[8] |
+                    ((unsigned)runtime_header[9] << 8) |
+                    ((unsigned)runtime_header[10] << 16) |
+                    ((unsigned)runtime_header[11] << 24);
+    service_base = (unsigned)runtime_header[12] |
+                   ((unsigned)runtime_header[13] << 8) |
+                   ((unsigned)runtime_header[14] << 16) |
+                   ((unsigned)runtime_header[15] << 24);
+    if (runtime_ready != 1)
+    {
+        bcm2722_player_error = "Apple runtime did not become ready";
+        return false;
+    }
+    if (service_base == 0 || (service_base & 3) != 0)
+    {
+        bcm2722_player_error = "Apple runtime service table invalid";
+        return false;
+    }
+    return true;
+}
+
+static void bcm_player_restore_lcd(void)
+{
+    const char *error = bcm2722_player_error;
+
+    bcm2722_player_active = false;
+    bcm2722_player_fault = false;
+    bcm_retail_powerdown();
+    lcd_state.update_timeout = current_tick;
+    lcd_awake();
+
+    /* bcm_retail_powerdown() disables the backlight circuit directly.  A
+     * bare lcd_awake() restores the NOR VMCS but cannot re-enable that
+     * circuit, which was the source of the persistent black/no-backlight
+     * failure after an unsuccessful movie launch. */
+    _backlight_hw_enable(true);
+    _backlight_led_on();
+    bcm2722_videoout_signal_active = false;
+    if (bcm_videoout_should_enable())
+        bcm2722_videoout_mirror_if_due(true, 0, 0,
+                                       LCD_WIDTH, LCD_HEIGHT);
+    bcm2722_player_fault = false;
+    bcm2722_player_error = error;
+}
+
+bool bcm2722_video_start(const void *vmcs, size_t length)
+{
+    long deadline;
+
+    bcm2722_player_stage = BCM2722_VIDEO_STAGE_VALIDATE;
+    if (vmcs == NULL || length == 0 || (length & 3) != 0)
+    {
+        bcm2722_player_error = "Apple VideoCore image invalid";
+        return false;
+    }
+    if (flash_vmcs_length == 0)
+    {
+        bcm2722_player_error = "iPod VideoCore boot image unavailable";
+        return false;
+    }
+    if (bcm2722_player_active)
+    {
+        bcm2722_player_error = "VideoCore already active";
+        return false;
+    }
+
+    bcm2722_player_fault = false;
+    bcm2722_player_stage = BCM2722_VIDEO_STAGE_LCD_HANDOFF;
+    bcm2722_player_error = "LCD handoff failed";
+
+    if (!lcd_state.display_on)
+        lcd_awake();
+    if (!lcd_state.display_on)
+        return false;
+
+    deadline = current_tick + BCM_PLAYER_BUS_TIMEOUT;
+    while (lcd_state.state != LCD_IDLE)
+    {
+        if (!TIME_BEFORE(current_tick, deadline))
+        {
+            bcm2722_player_error = "LCD handoff timed out";
+            return false;
+        }
+        yield();
+    }
+
+    lcd_state.display_on = false;
+    tick_remove_task(&lcd_tick);
+    /* The retail movie VMCS replaces the resident display VMCS and owns the
+     * encoder directly; a later resident restore must arm its TV route anew. */
+    bcm2722_videoout_signal_active = false;
+
+    if (!bcm_player_start_retail_image(vmcs, length))
+    {
+        bcm_player_restore_lcd();
+        return false;
+    }
     bcm2722_player_active = true;
+    bcm2722_player_stage = BCM2722_VIDEO_STAGE_READY;
+    bcm2722_player_error = "VideoCore ready";
     return true;
 }
 
@@ -771,10 +1822,9 @@ void bcm2722_video_stop(void)
     if (!bcm2722_player_active)
         return;
 
-    bcm_retail_powerdown();
-    lcd_state.update_timeout = current_tick;
-    bcm2722_player_active = false;
-    lcd_awake();
+    bcm2722_player_stage = BCM2722_VIDEO_STAGE_STOPPED;
+    bcm2722_player_error = "VideoCore stopped";
+    bcm_player_restore_lcd();
 }
 
 bool bcm2722_video_active(void)
@@ -782,40 +1832,70 @@ bool bcm2722_video_active(void)
     return bcm2722_player_active;
 }
 
-uint32_t bcm2722_read32(uint32_t address)
+bool bcm2722_video_faulted(void)
 {
-    return bcm_read32(address);
+    return bcm2722_player_fault;
 }
 
-void bcm2722_write32(uint32_t address, uint32_t value)
+const char *bcm2722_video_error(void)
 {
-    bcm_write32(address, value);
+    return bcm2722_player_error;
 }
 
-uint16_t bcm2722_read16(uint32_t address)
+enum bcm2722_video_stage bcm2722_video_get_stage(void)
 {
-    uint32_t value = bcm_read32(address & ~3u);
-
-    return address & 2 ? value >> 16 : value;
+    return bcm2722_player_stage;
 }
 
-void bcm2722_write16(uint32_t address, uint16_t value)
+bool bcm2722_read32(uint32_t address, uint32_t *value)
 {
-    BCM_WR_ADDR32 = address;
-    while (!(BCM_CONTROL & 0x2));
+    unsigned result;
+
+    if (value == NULL || !bcm2722_player_active ||
+        !bcm_player_read32(address, &result))
+        return false;
+    *value = result;
+    return true;
+}
+
+bool bcm2722_write32(uint32_t address, uint32_t value)
+{
+    return bcm2722_player_active && bcm_player_write32(address, value);
+}
+
+bool bcm2722_read16(uint32_t address, uint16_t *value)
+{
+    unsigned word;
+
+    if (value == NULL || !bcm2722_player_active ||
+        !bcm_player_read32(address & ~3u, &word))
+        return false;
+    *value = address & 2 ? word >> 16 : word;
+    return true;
+}
+
+bool bcm2722_write16(uint32_t address, uint16_t value)
+{
+    if (!bcm2722_player_active || !bcm_player_write_addr(address))
+        return false;
     BCM_DATA = value;
+    return true;
 }
 
 bool bcm2722_read_buffer(uint32_t address, void *buffer, size_t length)
 {
     uint8_t *destination = buffer;
 
-    if (buffer == NULL || (address & 3) != 0 || (length & 3) != 0)
+    if (buffer == NULL || (address & 3) != 0 || (length & 3) != 0 ||
+        !bcm2722_player_active)
         return false;
 
     while (length != 0)
     {
-        uint32_t value = bcm_read32(address);
+        unsigned value;
+
+        if (!bcm_player_read32(address, &value))
+            return false;
 
         destination[0] = value;
         destination[1] = value >> 8;
@@ -831,16 +1911,18 @@ bool bcm2722_read_buffer(uint32_t address, void *buffer, size_t length)
 bool bcm2722_write_buffer(uint32_t address, const void *buffer,
                           size_t length)
 {
-    if (buffer == NULL || (address & 1) != 0 || (length & 1) != 0)
+    if (buffer == NULL || (address & 1) != 0 || (length & 3) != 0 ||
+        !bcm2722_player_active)
         return false;
 
-    bcm_write_addr(address);
-    lcd_write_data(buffer, length / sizeof(unsigned short));
-    return true;
+    return bcm_player_write_buffer_raw(address, buffer, length);
 }
 
-void bcm2722_notify(void)
+bool bcm2722_notify(void)
 {
+    if (!bcm2722_player_active || bcm2722_player_fault)
+        return false;
     BCM_CONTROL = 0x31;
+    return true;
 }
 #endif /* !BOOTLOADER */

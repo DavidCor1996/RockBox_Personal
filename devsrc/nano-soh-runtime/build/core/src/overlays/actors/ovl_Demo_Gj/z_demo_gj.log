@@ -1,0 +1,273 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_Explode':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:200:43: warning: passing argument 16 of 'EffectSsKakera_Spawn' from incompatible pointer type [-Wincompatible-pointer-types]
+  200 |                              OBJECT_GEFF, gGanonRubbleDL);
+      |                                           ^~~~~~~~~~~~~~
+      |                                           |
+      |                                           const char *
+In file included from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/global.h:8,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.h:5,
+                 from /home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:7:
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/include/functions.h:329:43: note: expected 'Gfx *' but argument is of type 'const char *'
+  329 |                           s16 objId, Gfx* dList);
+      |                                      ~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_InitRubblePile1':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:569:45: warning: passing argument 5 of 'DemoGj_InitSetIndexes' from incompatible pointer type [-Wincompatible-pointer-types]
+  569 |     DemoGj_InitSetIndexes(this, play, 1, 2, &gGanonsCastleRubble2Col);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char (*)[49]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:257:107: note: expected 'CollisionHeader *' but argument is of type 'const char (*)[49]'
+  257 | s32 DemoGj_InitSetIndexes(DemoGj* this, PlayState* play, s32 updateMode, s32 drawConfig, CollisionHeader* header) {
+      |                                                                                          ~~~~~~~~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_DrawRubble2':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:625:35: warning: passing argument 3 of 'DemoGj_DrawCommon' from incompatible pointer type [-Wincompatible-pointer-types]
+  625 |     DemoGj_DrawCommon(this, play, gGanonsCastleRubble2DL);
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~
+      |                                   |
+      |                                   const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:268:60: note: expected 'Gfx *' but argument is of type 'const char *'
+  268 | void DemoGj_DrawCommon(DemoGj* this, PlayState* play, Gfx* displayList) {
+      |                                                       ~~~~~^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_DrawRotatedRubble2':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:629:36: warning: passing argument 3 of 'DemoGj_DrawRotated' from incompatible pointer type [-Wincompatible-pointer-types]
+  629 |     DemoGj_DrawRotated(this, play, gGanonsCastleRubble2DL);
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~
+      |                                    |
+      |                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:285:61: note: expected 'Gfx *' but argument is of type 'const char *'
+  285 | void DemoGj_DrawRotated(DemoGj* this, PlayState* play, Gfx* displayList) {
+      |                                                        ~~~~~^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_InitRubblePile2':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:633:45: warning: passing argument 5 of 'DemoGj_InitSetIndexes' from incompatible pointer type [-Wincompatible-pointer-types]
+  633 |     DemoGj_InitSetIndexes(this, play, 2, 3, &gGanonsCastleRubble3Col);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char (*)[49]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:257:107: note: expected 'CollisionHeader *' but argument is of type 'const char (*)[49]'
+  257 | s32 DemoGj_InitSetIndexes(DemoGj* this, PlayState* play, s32 updateMode, s32 drawConfig, CollisionHeader* header) {
+      |                                                                                          ~~~~~~~~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_DrawRubble3':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:689:35: warning: passing argument 3 of 'DemoGj_DrawCommon' from incompatible pointer type [-Wincompatible-pointer-types]
+  689 |     DemoGj_DrawCommon(this, play, gGanonsCastleRubble3DL);
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~
+      |                                   |
+      |                                   const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:268:60: note: expected 'Gfx *' but argument is of type 'const char *'
+  268 | void DemoGj_DrawCommon(DemoGj* this, PlayState* play, Gfx* displayList) {
+      |                                                       ~~~~~^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_DrawRotatedRubble3':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:693:36: warning: passing argument 3 of 'DemoGj_DrawRotated' from incompatible pointer type [-Wincompatible-pointer-types]
+  693 |     DemoGj_DrawRotated(this, play, gGanonsCastleRubble3DL);
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~
+      |                                    |
+      |                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:285:61: note: expected 'Gfx *' but argument is of type 'const char *'
+  285 | void DemoGj_DrawRotated(DemoGj* this, PlayState* play, Gfx* displayList) {
+      |                                                        ~~~~~^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_InitRubblePile3':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:697:45: warning: passing argument 5 of 'DemoGj_InitSetIndexes' from incompatible pointer type [-Wincompatible-pointer-types]
+  697 |     DemoGj_InitSetIndexes(this, play, 3, 4, &gGanonsCastleRubble4Col);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char (*)[49]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:257:107: note: expected 'CollisionHeader *' but argument is of type 'const char (*)[49]'
+  257 | s32 DemoGj_InitSetIndexes(DemoGj* this, PlayState* play, s32 updateMode, s32 drawConfig, CollisionHeader* header) {
+      |                                                                                          ~~~~~~~~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_DrawRubble4':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:737:35: warning: passing argument 3 of 'DemoGj_DrawCommon' from incompatible pointer type [-Wincompatible-pointer-types]
+  737 |     DemoGj_DrawCommon(this, play, gGanonsCastleRubble4DL);
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~
+      |                                   |
+      |                                   const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:268:60: note: expected 'Gfx *' but argument is of type 'const char *'
+  268 | void DemoGj_DrawCommon(DemoGj* this, PlayState* play, Gfx* displayList) {
+      |                                                       ~~~~~^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_DrawRotatedRubble4':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:741:36: warning: passing argument 3 of 'DemoGj_DrawRotated' from incompatible pointer type [-Wincompatible-pointer-types]
+  741 |     DemoGj_DrawRotated(this, play, gGanonsCastleRubble4DL);
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~
+      |                                    |
+      |                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:285:61: note: expected 'Gfx *' but argument is of type 'const char *'
+  285 | void DemoGj_DrawRotated(DemoGj* this, PlayState* play, Gfx* displayList) {
+      |                                                        ~~~~~^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_InitRubblePile4':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:745:45: warning: passing argument 5 of 'DemoGj_InitSetIndexes' from incompatible pointer type [-Wincompatible-pointer-types]
+  745 |     DemoGj_InitSetIndexes(this, play, 4, 5, &gGanonsCastleRubble5Col);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char (*)[49]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:257:107: note: expected 'CollisionHeader *' but argument is of type 'const char (*)[49]'
+  257 | s32 DemoGj_InitSetIndexes(DemoGj* this, PlayState* play, s32 updateMode, s32 drawConfig, CollisionHeader* header) {
+      |                                                                                          ~~~~~~~~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_DrawRubble5':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:785:35: warning: passing argument 3 of 'DemoGj_DrawCommon' from incompatible pointer type [-Wincompatible-pointer-types]
+  785 |     DemoGj_DrawCommon(this, play, gGanonsCastleRubble5DL);
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~
+      |                                   |
+      |                                   const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:268:60: note: expected 'Gfx *' but argument is of type 'const char *'
+  268 | void DemoGj_DrawCommon(DemoGj* this, PlayState* play, Gfx* displayList) {
+      |                                                       ~~~~~^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_DrawRotatedRubble5':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:789:36: warning: passing argument 3 of 'DemoGj_DrawRotated' from incompatible pointer type [-Wincompatible-pointer-types]
+  789 |     DemoGj_DrawRotated(this, play, gGanonsCastleRubble5DL);
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~
+      |                                    |
+      |                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:285:61: note: expected 'Gfx *' but argument is of type 'const char *'
+  285 | void DemoGj_DrawRotated(DemoGj* this, PlayState* play, Gfx* displayList) {
+      |                                                        ~~~~~^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_InitRubblePile5':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:793:45: warning: passing argument 5 of 'DemoGj_InitSetIndexes' from incompatible pointer type [-Wincompatible-pointer-types]
+  793 |     DemoGj_InitSetIndexes(this, play, 5, 6, &gGanonsCastleRubble6Col);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char (*)[49]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:257:107: note: expected 'CollisionHeader *' but argument is of type 'const char (*)[49]'
+  257 | s32 DemoGj_InitSetIndexes(DemoGj* this, PlayState* play, s32 updateMode, s32 drawConfig, CollisionHeader* header) {
+      |                                                                                          ~~~~~~~~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_DrawRubble6':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:833:35: warning: passing argument 3 of 'DemoGj_DrawCommon' from incompatible pointer type [-Wincompatible-pointer-types]
+  833 |     DemoGj_DrawCommon(this, play, gGanonsCastleRubble6DL);
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~
+      |                                   |
+      |                                   const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:268:60: note: expected 'Gfx *' but argument is of type 'const char *'
+  268 | void DemoGj_DrawCommon(DemoGj* this, PlayState* play, Gfx* displayList) {
+      |                                                       ~~~~~^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_DrawRotatedRubble6':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:837:36: warning: passing argument 3 of 'DemoGj_DrawRotated' from incompatible pointer type [-Wincompatible-pointer-types]
+  837 |     DemoGj_DrawRotated(this, play, gGanonsCastleRubble6DL);
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~
+      |                                    |
+      |                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:285:61: note: expected 'Gfx *' but argument is of type 'const char *'
+  285 | void DemoGj_DrawRotated(DemoGj* this, PlayState* play, Gfx* displayList) {
+      |                                                        ~~~~~^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_InitRubblePile6':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:841:45: warning: passing argument 5 of 'DemoGj_InitSetIndexes' from incompatible pointer type [-Wincompatible-pointer-types]
+  841 |     DemoGj_InitSetIndexes(this, play, 6, 7, &gGanonsCastleRubble7Col);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char (*)[49]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:257:107: note: expected 'CollisionHeader *' but argument is of type 'const char (*)[49]'
+  257 | s32 DemoGj_InitSetIndexes(DemoGj* this, PlayState* play, s32 updateMode, s32 drawConfig, CollisionHeader* header) {
+      |                                                                                          ~~~~~~~~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_DrawRubble7':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:881:35: warning: passing argument 3 of 'DemoGj_DrawCommon' from incompatible pointer type [-Wincompatible-pointer-types]
+  881 |     DemoGj_DrawCommon(this, play, gGanonsCastleRubble7DL);
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~
+      |                                   |
+      |                                   const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:268:60: note: expected 'Gfx *' but argument is of type 'const char *'
+  268 | void DemoGj_DrawCommon(DemoGj* this, PlayState* play, Gfx* displayList) {
+      |                                                       ~~~~~^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_DrawRotatedRubble7':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:885:36: warning: passing argument 3 of 'DemoGj_DrawRotated' from incompatible pointer type [-Wincompatible-pointer-types]
+  885 |     DemoGj_DrawRotated(this, play, gGanonsCastleRubble7DL);
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~
+      |                                    |
+      |                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:285:61: note: expected 'Gfx *' but argument is of type 'const char *'
+  285 | void DemoGj_DrawRotated(DemoGj* this, PlayState* play, Gfx* displayList) {
+      |                                                        ~~~~~^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_InitRubblePile7':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:889:45: warning: passing argument 5 of 'DemoGj_InitSetIndexes' from incompatible pointer type [-Wincompatible-pointer-types]
+  889 |     DemoGj_InitSetIndexes(this, play, 7, 8, &gGanonsCastleRubbleTallCol);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char (*)[52]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:257:107: note: expected 'CollisionHeader *' but argument is of type 'const char (*)[52]'
+  257 | s32 DemoGj_InitSetIndexes(DemoGj* this, PlayState* play, s32 updateMode, s32 drawConfig, CollisionHeader* header) {
+      |                                                                                          ~~~~~~~~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_DrawRubbleTall':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:945:35: warning: passing argument 3 of 'DemoGj_DrawCommon' from incompatible pointer type [-Wincompatible-pointer-types]
+  945 |     DemoGj_DrawCommon(this, play, gGanonsCastleRubbleTallDL);
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                   |
+      |                                   const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:268:60: note: expected 'Gfx *' but argument is of type 'const char *'
+  268 | void DemoGj_DrawCommon(DemoGj* this, PlayState* play, Gfx* displayList) {
+      |                                                       ~~~~~^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_DrawRotatedRubbleTall':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:949:36: warning: passing argument 3 of 'DemoGj_DrawRotated' from incompatible pointer type [-Wincompatible-pointer-types]
+  949 |     DemoGj_DrawRotated(this, play, gGanonsCastleRubbleTallDL);
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                    |
+      |                                    const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:285:61: note: expected 'Gfx *' but argument is of type 'const char *'
+  285 | void DemoGj_DrawRotated(DemoGj* this, PlayState* play, Gfx* displayList) {
+      |                                                        ~~~~~^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_InitRubbleAroundArena':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:953:45: warning: passing argument 5 of 'DemoGj_InitSetIndexes' from incompatible pointer type [-Wincompatible-pointer-types]
+  953 |     DemoGj_InitSetIndexes(this, play, 0, 1, &gGanonsCastleRubbleAroundArenaCol);
+      |                                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                             |
+      |                                             const char (*)[59]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:257:107: note: expected 'CollisionHeader *' but argument is of type 'const char (*)[59]'
+  257 | s32 DemoGj_InitSetIndexes(DemoGj* this, PlayState* play, s32 updateMode, s32 drawConfig, CollisionHeader* header) {
+      |                                                                                          ~~~~~~~~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_DrawRubbleAroundArena':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:965:35: warning: passing argument 3 of 'DemoGj_DrawCommon' from incompatible pointer type [-Wincompatible-pointer-types]
+  965 |     DemoGj_DrawCommon(this, play, gGanonsCastleRubbleAroundArenaDL);
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                   |
+      |                                   const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:268:60: note: expected 'Gfx *' but argument is of type 'const char *'
+  268 | void DemoGj_DrawCommon(DemoGj* this, PlayState* play, Gfx* displayList) {
+      |                                                       ~~~~~^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'func_8097B128':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:1032:39: warning: passing argument 3 of 'DemoGj_InitCommon' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1032 |         DemoGj_InitCommon(this, play, &gGanonsCastleRubble2Col);
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                       |
+      |                                       const char (*)[49]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:243:72: note: expected 'CollisionHeader *' but argument is of type 'const char (*)[49]'
+  243 | void DemoGj_InitCommon(DemoGj* this, PlayState* play, CollisionHeader* header) {
+      |                                                       ~~~~~~~~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_DrawDestructableRubble1':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:1098:35: warning: passing argument 3 of 'DemoGj_DrawCommon' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1098 |     DemoGj_DrawCommon(this, play, gGanonsCastleRubble2DL);
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~
+      |                                   |
+      |                                   const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:268:60: note: expected 'Gfx *' but argument is of type 'const char *'
+  268 | void DemoGj_DrawCommon(DemoGj* this, PlayState* play, Gfx* displayList) {
+      |                                                       ~~~~~^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'func_8097B6C4':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:1176:39: warning: passing argument 3 of 'DemoGj_InitCommon' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1176 |         DemoGj_InitCommon(this, play, &gGanonsCastleRubble3Col);
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                       |
+      |                                       const char (*)[49]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:243:72: note: expected 'CollisionHeader *' but argument is of type 'const char (*)[49]'
+  243 | void DemoGj_InitCommon(DemoGj* this, PlayState* play, CollisionHeader* header) {
+      |                                                       ~~~~~~~~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_DemoGj_InitDestructableRubble2':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:1229:35: warning: passing argument 3 of 'DemoGj_DrawCommon' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1229 |     DemoGj_DrawCommon(this, play, gGanonsCastleRubble3DL);
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~
+      |                                   |
+      |                                   const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:268:60: note: expected 'Gfx *' but argument is of type 'const char *'
+  268 | void DemoGj_DrawCommon(DemoGj* this, PlayState* play, Gfx* displayList) {
+      |                                                       ~~~~~^~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'func_8097B9BC':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:1259:39: warning: passing argument 3 of 'DemoGj_InitCommon' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1259 |         DemoGj_InitCommon(this, play, &gGanonsCastleRubbleTallCol);
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                       |
+      |                                       const char (*)[52]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:243:72: note: expected 'CollisionHeader *' but argument is of type 'const char (*)[52]'
+  243 | void DemoGj_InitCommon(DemoGj* this, PlayState* play, CollisionHeader* header) {
+      |                                                       ~~~~~~~~~~~~~~~~~^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c: In function 'DemoGj_DemoGj_InitDestructableRubbleTall':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:1314:35: warning: passing argument 3 of 'DemoGj_DrawCommon' from incompatible pointer type [-Wincompatible-pointer-types]
+ 1314 |     DemoGj_DrawCommon(this, play, gGanonsCastleRubbleTallDL);
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                   |
+      |                                   const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Demo_Gj/z_demo_gj.c:268:60: note: expected 'Gfx *' but argument is of type 'const char *'
+  268 | void DemoGj_DrawCommon(DemoGj* this, PlayState* play, Gfx* displayList) {
+      |                                                       ~~~~~^~~~~~~~~~~

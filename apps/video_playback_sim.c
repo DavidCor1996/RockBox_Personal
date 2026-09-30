@@ -31,7 +31,7 @@ static const char *video_sim_path(const char *parameter)
         "youtube-app:", "youtube:", "netflix-restart:", "netflix:",
         "instagram-app:", "instagram-feed:", "tiktok-app:",
         "reddit-app:", "onlyfans-app:", "spotify-wrapped:",
-        "-mapsdash:",
+        "twitch-app:", "-mapsdash:",
     };
     size_t i;
 
@@ -39,6 +39,13 @@ static const char *video_sim_path(const char *parameter)
     {
         const char *separator = strchr(parameter + 13, ':');
 
+        return separator != NULL ? separator + 1 : parameter;
+    }
+    if (!strncmp(parameter, "twitch-live:", 12))
+    {
+        const char *separator = strchr(parameter + 12, ':');
+
+        separator = separator != NULL ? strchr(separator + 1, ':') : NULL;
         return separator != NULL ? separator + 1 : parameter;
     }
     for (i = 0; i < ARRAYLEN(prefixes); i++)
@@ -76,6 +83,17 @@ static uint32_t video_sim_test_limit_ms(void)
     return limit > UINT32_MAX ? UINT32_MAX : (uint32_t)limit;
 }
 
+static uint32_t video_sim_test_start_ms(void)
+{
+    const char *value = getenv("ROCKPOD_SIM_H264_AUDIO_START_MS");
+    unsigned long start;
+
+    if (value == NULL || value[0] == '\0')
+        return 0;
+    start = strtoul(value, NULL, 10);
+    return start > UINT32_MAX ? UINT32_MAX : (uint32_t)start;
+}
+
 static void video_sim_log(const char *path, uint32_t elapsed,
                           uint32_t duration, uint32_t target,
                           bool failed, int result)
@@ -105,7 +123,9 @@ int video_h264_play(const char *parameter, void *buffer, size_t buffer_size)
     size_t workspace_size;
     uint32_t duration_ms;
     uint32_t elapsed_ms = 0;
+    uint32_t test_start_ms;
     uint32_t test_limit_ms;
+    uint32_t test_target_ms;
     long deadline = 0;
     bool failed = false;
     int result = -1;
@@ -136,7 +156,12 @@ int video_h264_play(const char *parameter, void *buffer, size_t buffer_size)
         return -1;
 
     duration_ms = video_sim_audio_duration_ms(&demux);
+    test_start_ms = video_sim_test_start_ms();
     test_limit_ms = video_sim_test_limit_ms();
+    if (test_start_ms > duration_ms)
+        test_start_ms = duration_ms;
+    test_target_ms = test_limit_ms > UINT32_MAX - test_start_ms ?
+        UINT32_MAX : test_start_ms + test_limit_ms;
     if (test_limit_ms > 0)
         /* The SDL simulator deliberately runs slower than the device when it
          * is decoding AAC and repainting the status screen.  Keep this a
@@ -144,6 +169,8 @@ int video_h264_play(const char *parameter, void *buffer, size_t buffer_size)
         deadline = current_tick +
             (long)(((uint64_t)test_limit_ms * 2u + 30000u) * HZ / 1000u);
     video_audio_play();
+    if (test_start_ms > 0)
+        video_audio_seek(test_start_ms);
 
     while (video_audio_is_active() || !video_pcm_empty())
     {
@@ -164,7 +191,7 @@ int video_h264_play(const char *parameter, void *buffer, size_t buffer_size)
 
         if (failed)
             break;
-        if (test_limit_ms > 0 && elapsed_ms >= test_limit_ms)
+        if (test_limit_ms > 0 && elapsed_ms >= test_target_ms)
         {
             result = 0;
             break;
@@ -181,7 +208,7 @@ int video_h264_play(const char *parameter, void *buffer, size_t buffer_size)
         !video_audio_is_active() && video_pcm_empty())
         result = 0;
     video_audio_stop();
-    video_sim_log(path, elapsed_ms, duration_ms, test_limit_ms,
+    video_sim_log(path, elapsed_ms, duration_ms, test_target_ms,
                   failed, result);
     return result;
 }

@@ -39,6 +39,32 @@ def test_classify_home_video_from_path_keywords():
     assert info["kind"] == "home_video"
 
 
+def test_classify_known_movie_as_movie_even_in_home_video_folder():
+    track = {
+        "id": 3,
+        "title": "Spirited Away",
+        "file_path": "/Videos/Home Videos/Spirited Away (2001).mp4",
+        "video_kind": "home_video",
+    }
+
+    info = classify_video_track(track)
+
+    assert info["kind"] == "movie"
+
+
+def test_classify_known_movie_with_typo_delivery_service_as_movie():
+    track = {
+        "id": 4,
+        "title": "Kiki's Devlivery Service",
+        "file_path": "/Videos/Home Videos/Kiki's Devlivery Service (1989).mp4",
+        "video_kind": "home_video",
+    }
+
+    info = classify_video_track(track)
+
+    assert info["kind"] == "movie"
+
+
 def test_classify_music_video_as_its_own_type():
     track = {
         "id": 3,
@@ -102,7 +128,7 @@ def test_build_video_browser_groups_keeps_concerts_separate():
     assert [track["title"] for track in grouped["concert"]] == ["Live Set"]
 
 
-def test_video_grid_view_shows_one_cover_per_show_until_opened():
+def test_video_grid_view_shows_seasons_before_episodes():
     app = QApplication.instance() or QApplication([])
 
     class FakeThumbs:
@@ -122,7 +148,63 @@ def test_video_grid_view_shows_one_cover_per_show_until_opened():
     view._show_scope_key = "show:the show"
     view._refresh_tabs()
 
+    assert view._grids["show"].count() == 1
+    assert view._grids["show"].item(0).text().startswith("Season 1")
+
+    view._on_item_double_clicked("show", view._grids["show"].item(0))
     assert view._grids["show"].count() == 2
+
+
+def test_video_grid_view_hero_exposes_catalog_metadata_for_show():
+    app = QApplication.instance() or QApplication([])
+
+    class FakeThumbs:
+        def thumbnail_path(self, track, size=232):
+            return ""
+
+        def video_catalog_metadata(self, track):
+            return {
+                "show_title": "The Show",
+                "year": 2024,
+                "genre": "Drama",
+                "content_rating": "TV-14",
+                "show_plot": "A verified series synopsis.",
+                "external_rating": 8.7,
+                "external_rating_votes": 1200,
+            }
+
+        def video_catalog_banner_path(self, track):
+            return ""
+
+    view = VideoGridView(FakeThumbs())
+    view.set_tracks(
+        [
+            {
+                "id": 1,
+                "title": "Pilot",
+                "show_title": "The Show",
+                "season_number": 1,
+                "episode_number": 1,
+                "video_kind": "show",
+                "external_rating": 8.7,
+            },
+            {
+                "id": 2,
+                "title": "Finale",
+                "show_title": "The Show",
+                "season_number": 2,
+                "episode_number": 1,
+                "video_kind": "show",
+            },
+        ]
+    )
+
+    assert view._hero_title.text() == "The Show"
+    assert "2 seasons" in view._hero_meta.text()
+    assert "2 episodes" in view._hero_meta.text()
+    assert "TV-14" in view._hero_meta.text()
+    assert "★ 8.7/10" in view._hero_meta.text()
+    assert "A verified series synopsis." in view._hero_plot.text()
 
 
 def test_specials_group_with_show_in_browser_groups():

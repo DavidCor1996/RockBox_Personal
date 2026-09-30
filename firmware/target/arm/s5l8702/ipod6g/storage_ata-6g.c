@@ -66,6 +66,7 @@
 #define CEATA_COMMAND_TIMEOUT 1000000
 #define CEATA_DAT_NONBUSY_TIMEOUT 5000000
 #define CEATA_MMC_RCA 1
+#define ATA_CBR_READY_TIMEOUT 1000000
 
 /** static, private data **/
 static uint8_t ceata_taskfile[16] STORAGE_ALIGN_ATTR;
@@ -78,9 +79,20 @@ static bool ata_powered;
 static bool ata_ssd_mode = false;
 static long ssd_sleep_tick;
 static bool ssd_deep_asleep;
+static bool ata_driver_initialized;
 #if IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
 static bool hibernate_storage_reinit_pending;
 static bool hibernate_storage_io_pending;
+static bool hibernate_storage_transaction_owned;
+enum hibernate_storage_demand_state
+{
+    HIBERNATE_STORAGE_DEMAND_OPEN = 0,
+    HIBERNATE_STORAGE_DEMAND_OWNED,
+    HIBERNATE_STORAGE_DEMAND_WAIT_EVENT,
+};
+static volatile enum hibernate_storage_demand_state
+        hibernate_storage_demand_state;
+static volatile uint32_t hibernate_storage_sequence;
 #endif
 static struct semaphore mmc_wakeup;
 static struct semaphore mmc_comp_wakeup;
@@ -94,20 +106,66 @@ static const bool ata_error_srst = true;
 
 static int ata_reset(void);
 
+static void ata_demand_lock(void);
+#define ATA_MUTEX_LOCK() ata_demand_lock()
+#define ATA_MUTEX_UNLOCK() mutex_unlock(&ata_mutex)
 #include "ata-common.c"
+#undef ATA_MUTEX_LOCK
+#undef ATA_MUTEX_UNLOCK
 
-static uint16_t ata_read_cbr(uint32_t volatile* reg)
+static void ata_demand_lock(void)
 {
-    while (!(ATA_PIO_READY & 2));
-    volatile uint32_t dummy __attribute__((unused)) = *reg;
-    while (!(ATA_PIO_READY & 1));
-    return ATA_PIO_RDATA;
+#if IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+    /* RetailOS keeps DiskMgr in state 2 until its restored-UI event has
+     * entered the queue. Wait before taking ata_mutex so a filesystem owner
+     * can never block the committing UI thread while holding the disk lock.
+     * Recheck after locking to close the OPEN-to-OWNED race. */
+    while (true)
+    {
+        while (hibernate_storage_demand_state !=
+                    HIBERNATE_STORAGE_DEMAND_OPEN)
+            sleep(1);
+
+        mutex_lock(&ata_mutex);
+        if (hibernate_storage_demand_state ==
+                    HIBERNATE_STORAGE_DEMAND_OPEN)
+            return;
+
+        mutex_unlock(&ata_mutex);
+    }
+#else
+    mutex_lock(&ata_mutex);
+#endif
 }
 
-static void ata_write_cbr(uint32_t volatile* reg, uint16_t data)
+static int ata_wait_for_cbr_ready(uint32_t mask)
 {
-    while (!(ATA_PIO_READY & 2));
+    uint32_t start = USEC_TIMER;
+
+    while (!(ATA_PIO_READY & mask))
+    {
+        if (TIMEOUT_EXPIRED(start, ATA_CBR_READY_TIMEOUT))
+            RET_ERR(mask);
+        yield();
+    }
+
+    return 0;
+}
+
+static int ata_read_cbr(uint32_t volatile* reg, uint16_t *value)
+{
+    PASS_RC(ata_wait_for_cbr_ready(2), 1, 0);
+    volatile uint32_t dummy __attribute__((unused)) = *reg;
+    PASS_RC(ata_wait_for_cbr_ready(1), 1, 1);
+    *value = ATA_PIO_RDATA;
+    return 0;
+}
+
+static int ata_write_cbr(uint32_t volatile* reg, uint16_t data)
+{
+    PASS_RC(ata_wait_for_cbr_ready(2), 0, 0);
     *reg = data;
+    return 0;
 }
 
 static int ata_wait_for_not_bsy(long timeout)
@@ -115,7 +173,9 @@ static int ata_wait_for_not_bsy(long timeout)
     long startusec = USEC_TIMER;
     while (true)
     {
-        uint8_t csd = ata_read_cbr(&ATA_PIO_CSD);
+        uint16_t value;
+        PASS_RC(ata_read_cbr(&ATA_PIO_CSD, &value), 1, 0);
+        uint8_t csd = value;
         if (!(csd & BIT(7)))
             return 0;
         if (TIMEOUT_EXPIRED(startusec, timeout))
@@ -130,7 +190,9 @@ static int ata_wait_for_rdy(long timeout)
     PASS_RC(ata_wait_for_not_bsy(timeout), 1, 0);
     while (true)
     {
-        uint8_t dad = ata_read_cbr(&ATA_PIO_DAD);
+        uint16_t value;
+        PASS_RC(ata_read_cbr(&ATA_PIO_DAD, &value), 1, 0);
+        uint8_t dad = value;
         if (dad & BIT(6))
             return 0;
         if (TIMEOUT_EXPIRED(startusec, timeout))
@@ -145,7 +207,9 @@ static int ata_wait_for_start_of_transfer(long timeout)
     PASS_RC(ata_wait_for_not_bsy(timeout), 2, 0);
     while (true)
     {
-        uint8_t dad = ata_read_cbr(&ATA_PIO_DAD);
+        uint16_t value;
+        PASS_RC(ata_read_cbr(&ATA_PIO_DAD, &value), 2, 0);
+        uint8_t dad = value;
         if (dad & BIT(0))
             RET_ERR(1);
         if ((dad & (BIT(7) | BIT(3))) == BIT(3))
@@ -158,8 +222,11 @@ static int ata_wait_for_start_of_transfer(long timeout)
 
 static int ata_wait_for_end_of_transfer(long timeout)
 {
+    uint16_t value;
+
     PASS_RC(ata_wait_for_not_bsy(timeout), 2, 0);
-    uint8_t dad = ata_read_cbr(&ATA_PIO_DAD);
+    PASS_RC(ata_read_cbr(&ATA_PIO_DAD, &value), 2, 1);
+    uint8_t dad = value;
     if (dad & BIT(0))
         RET_ERR(1);
     if ((dad & (BIT(3) | BITRANGE(5, 7))) == BIT(6))
@@ -562,11 +629,11 @@ static int ata_identify(uint16_t* buf)
     else
     {
         PASS_RC(ata_wait_for_not_bsy(10000000), 1, 0);
-        ata_write_cbr(&ATA_PIO_DVR, 0);
-        ata_write_cbr(&ATA_PIO_CSD, CMD_IDENTIFY);
+        PASS_RC(ata_write_cbr(&ATA_PIO_DVR, 0), 2, 1);
+        PASS_RC(ata_write_cbr(&ATA_PIO_CSD, CMD_IDENTIFY), 2, 2);
         PASS_RC(ata_wait_for_start_of_transfer(10000000), 1, 1);
         for (i = 0; i < ATA_IDENTIFY_WORDS; i++)
-            buf[i] = ata_read_cbr(&ATA_PIO_DTR);
+            PASS_RC(ata_read_cbr(&ATA_PIO_DTR, &buf[i]), 2, 3);
     }
     return 0;
 }
@@ -596,10 +663,10 @@ static int ata_set_feature(uint32_t feature, uint32_t param)
     else
     {
         PASS_RC(ata_wait_for_rdy(2000000), 2, 0);
-        ata_write_cbr(&ATA_PIO_DVR, 0);
-        ata_write_cbr(&ATA_PIO_FED, feature);
-        ata_write_cbr(&ATA_PIO_SCR, param);
-        ata_write_cbr(&ATA_PIO_CSD, CMD_SET_FEATURES);
+        PASS_RC(ata_write_cbr(&ATA_PIO_DVR, 0), 3, 1);
+        PASS_RC(ata_write_cbr(&ATA_PIO_FED, feature), 3, 2);
+        PASS_RC(ata_write_cbr(&ATA_PIO_SCR, param), 3, 3);
+        PASS_RC(ata_write_cbr(&ATA_PIO_CSD, CMD_SET_FEATURES), 3, 4);
         PASS_RC(ata_wait_for_rdy(2000000), 2, 1);
     }
     return 0;
@@ -673,13 +740,16 @@ static int ata_power_up(void)
     ata_set_active();
 
     if (ata_ssd_mode && !ceata) {
-        if (!ssd_deep_asleep) {
+        if (!ssd_deep_asleep
+#if IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+            && !hibernate_storage_reinit_pending
+#endif
+           ) {
             /* Fast path: clock was gated, AUTOLDO still on */
             PWRCON(0) &= ~(1 << 5);
             ata_powered = true;
             return 0;
         }
-        ssd_deep_asleep = false;
         /* Fall through to full PATA init below */
     }
 
@@ -730,9 +800,9 @@ static int ata_power_up(void)
         ATA_PIO_TIME = 0x191f7;
         ATA_PIO_LHR = 0;
         ATA_CFG = BIT(6);
-        while (!(ATA_PIO_READY & BIT(1))) yield();
+        PASS_RC(ata_wait_for_cbr_ready(BIT(1)), 3, 3);
 
-        PASS_RC(ata_identify(identify_info), 3, 3);
+        PASS_RC(ata_identify(identify_info), 3, 4);
 
         uint32_t piotime = 0x11f3; /* PIO0-2? */
         if (identify_info[53] & BIT(1)) /* Word 64..70 valid */
@@ -767,22 +837,23 @@ static int ata_power_up(void)
         dma_mode = param;
 #endif /* HAVE_ATA_DMA */
         ata_dma = param ? true : false;
-        PASS_RC(ata_set_feature(0x03, param), 3, 4); /* Transfer mode */
+        PASS_RC(ata_set_feature(0x03, param), 3, 5); /* Transfer mode */
 
         /* SET_FEATURE only supported on PATA, not CE-ATA */
         if (identify_info[82] & BIT(5))
-            PASS_RC(ata_set_feature(0x02, 0), 3, 5); /* Enable volatile write cache */
+            PASS_RC(ata_set_feature(0x02, 0), 3, 6); /* Enable volatile write cache */
         if (identify_info[82] & BIT(6))
-            PASS_RC(ata_set_feature(0xaa, 0), 3, 6); /* Enable read lookahead */
+            PASS_RC(ata_set_feature(0xaa, 0), 3, 7); /* Enable read lookahead */
         if (!ata_ssd_mode)
         {
             if (identify_info[83] & BIT(3))
-                PASS_RC(ata_set_feature(0x05, 0x80), 3, 7); /* Enable lowest power mode w/o standby */
+                PASS_RC(ata_set_feature(0x05, 0x80), 4, 8); /* Enable lowest power mode w/o standby */
             if (identify_info[83] & BIT(9))
-                PASS_RC(ata_set_feature(0x42, 0x80), 3, 8); /* Enable lowest noise mode */
+                PASS_RC(ata_set_feature(0x42, 0x80), 4, 9); /* Enable lowest noise mode */
         }
 
-        PASS_RC(ata_identify(identify_info), 3, 9); /* Finally, re-read identify info */
+        /* Finally, re-read identify information. */
+        PASS_RC(ata_identify(identify_info), 4, 10);
     }
 
     spinup_time = current_tick - spinup_start;
@@ -800,6 +871,8 @@ static int ata_power_up(void)
     }
 
     ata_powered = true;
+    if (ata_ssd_mode && !ceata)
+        ssd_deep_asleep = false;
     ata_set_active();
 #if IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
     if (hibernate_reinit)
@@ -860,34 +933,62 @@ static int ata_rw_chunk_internal(uint64_t sector, uint32_t cnt, void* buffer, bo
 
     {
         PASS_RC(ata_wait_for_rdy(100000), 2, 0);
-        ata_write_cbr(&ATA_PIO_DVR, 0);
+        PASS_RC(ata_write_cbr(&ATA_PIO_DVR, 0), 3, 1);
         if (ata_lba48)
         {
-            ata_write_cbr(&ATA_PIO_SCR, (cnt >> 8) & 0xff);
-            ata_write_cbr(&ATA_PIO_SCR, (cnt) & 0xff);
-            ata_write_cbr(&ATA_PIO_LHR, (sector >> 40) & 0xff);
-            ata_write_cbr(&ATA_PIO_LMR, (sector >> 32) & 0xff);
-            ata_write_cbr(&ATA_PIO_LLR, (sector >> 24) & 0xff);
-            ata_write_cbr(&ATA_PIO_LHR, (sector >> 16) & 0xff);
-            ata_write_cbr(&ATA_PIO_LMR, (sector >> 8) & 0xff);
-            ata_write_cbr(&ATA_PIO_LLR, (sector) & 0xff);
-            ata_write_cbr(&ATA_PIO_DVR, BIT(6));
+            PASS_RC(ata_write_cbr(&ATA_PIO_SCR,
+                                  (cnt >> 8) & 0xff), 3, 2);
+            PASS_RC(ata_write_cbr(&ATA_PIO_SCR, cnt & 0xff), 3, 3);
+            PASS_RC(ata_write_cbr(&ATA_PIO_LHR,
+                                  (sector >> 40) & 0xff), 3, 4);
+            PASS_RC(ata_write_cbr(&ATA_PIO_LMR,
+                                  (sector >> 32) & 0xff), 3, 5);
+            PASS_RC(ata_write_cbr(&ATA_PIO_LLR,
+                                  (sector >> 24) & 0xff), 3, 6);
+            PASS_RC(ata_write_cbr(&ATA_PIO_LHR,
+                                  (sector >> 16) & 0xff), 3, 7);
+            PASS_RC(ata_write_cbr(&ATA_PIO_LMR,
+                                  (sector >> 8) & 0xff), 4, 8);
+            PASS_RC(ata_write_cbr(&ATA_PIO_LLR,
+                                  sector & 0xff), 4, 9);
+            PASS_RC(ata_write_cbr(&ATA_PIO_DVR, BIT(6)), 4, 10);
             if (write)
-                ata_write_cbr(&ATA_PIO_CSD, ata_dma ? CMD_WRITE_DMA_EXT : CMD_WRITE_MULTIPLE_EXT);
+            {
+                PASS_RC(ata_write_cbr(&ATA_PIO_CSD,
+                        ata_dma ? CMD_WRITE_DMA_EXT :
+                                  CMD_WRITE_MULTIPLE_EXT), 4, 11);
+            }
             else
-                ata_write_cbr(&ATA_PIO_CSD, ata_dma ? CMD_READ_DMA_EXT : CMD_READ_MULTIPLE_EXT);
+            {
+                PASS_RC(ata_write_cbr(&ATA_PIO_CSD,
+                        ata_dma ? CMD_READ_DMA_EXT :
+                                  CMD_READ_MULTIPLE_EXT), 4, 12);
+            }
         }
         else
         {
-            ata_write_cbr(&ATA_PIO_SCR, (cnt) & 0xff);
-            ata_write_cbr(&ATA_PIO_LHR, (sector >> 16) & 0xff);
-            ata_write_cbr(&ATA_PIO_LMR, (sector >> 8) & 0xff);
-            ata_write_cbr(&ATA_PIO_LLR, (sector) & 0xff);
-            ata_write_cbr(&ATA_PIO_DVR, BIT(6) | ((sector >> 24) & 0xf)); /* LBA28, mask off upper 4 bits of 32-bit sector address */
+            PASS_RC(ata_write_cbr(&ATA_PIO_SCR, cnt & 0xff), 3, 2);
+            PASS_RC(ata_write_cbr(&ATA_PIO_LHR,
+                                  (sector >> 16) & 0xff), 3, 3);
+            PASS_RC(ata_write_cbr(&ATA_PIO_LMR,
+                                  (sector >> 8) & 0xff), 3, 4);
+            PASS_RC(ata_write_cbr(&ATA_PIO_LLR,
+                                  sector & 0xff), 3, 5);
+            /* LBA28: mask off the upper four bits of the sector address. */
+            PASS_RC(ata_write_cbr(&ATA_PIO_DVR,
+                                  BIT(6) | ((sector >> 24) & 0xf)), 3, 6);
             if (write)
-                ata_write_cbr(&ATA_PIO_CSD, ata_dma ? CMD_WRITE_DMA : CMD_WRITE_SECTORS);
+            {
+                PASS_RC(ata_write_cbr(&ATA_PIO_CSD,
+                        ata_dma ? CMD_WRITE_DMA : CMD_WRITE_SECTORS),
+                        3, 7);
+            }
             else
-                ata_write_cbr(&ATA_PIO_CSD, ata_dma ? CMD_READ_DMA : CMD_READ_MULTIPLE);
+            {
+                PASS_RC(ata_write_cbr(&ATA_PIO_CSD,
+                        ata_dma ? CMD_READ_DMA : CMD_READ_MULTIPLE),
+                        4, 8);
+            }
         }
 #ifdef HAVE_ATA_DMA
         if (ata_dma)
@@ -929,11 +1030,17 @@ static int ata_rw_chunk_internal(uint64_t sector, uint32_t cnt, void* buffer, bo
                 uint16_t i;
                 PASS_RC(ata_wait_for_start_of_transfer(500000), 2, 1);
                 if (write)
+                {
                     for (i = 0; i < log_sector_size/2; i++)
-                        ata_write_cbr(&ATA_PIO_DTR, ((uint16_t*)buffer)[i]);
+                        PASS_RC(ata_write_cbr(&ATA_PIO_DTR,
+                                ((uint16_t*)buffer)[i]), 2, 2);
+                }
                 else
+                {
                     for (i = 0; i < log_sector_size/2; i++)
-                        ((uint16_t*)buffer)[i] = ata_read_cbr(&ATA_PIO_DTR);
+                        PASS_RC(ata_read_cbr(&ATA_PIO_DTR,
+                                &((uint16_t*)buffer)[i]), 2, 2);
+                }
                 buffer += log_sector_size;
             }
         }
@@ -957,7 +1064,7 @@ static int ata_transfer_sectors(uint64_t sector, int count, void* buffer, int wr
 #endif
 
     if (!ata_powered)
-        ata_power_up();
+        PASS_RC(ata_power_up(), 1, 0);
 #if IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
     if (hibernate_io)
         ipod6g_hibernate_runtime_checkpoint(
@@ -1025,9 +1132,9 @@ static int ata_transfer_sectors(uint64_t sector, int count, void* buffer, int wr
 int ata_soft_reset(void)
 {
     int rc;
-    mutex_lock(&ata_mutex);
+    ata_demand_lock();
     if (!ata_powered)
-        PASS_RC(ata_power_up(), 1, 0);
+        PASS_RC_MTX(ata_power_up(), 1, 0, &ata_mutex);
     ata_set_active();
     if (ceata)
     {
@@ -1035,9 +1142,11 @@ int ata_soft_reset(void)
     }
     else
     {
-        ata_write_cbr(&ATA_PIO_DAD, BIT(1) | BIT(2));
+        PASS_RC_MTX(ata_write_cbr(&ATA_PIO_DAD,
+                                  BIT(1) | BIT(2)), 1, 1, &ata_mutex);
         udelay(10);
-        ata_write_cbr(&ATA_PIO_DAD, 0);
+        PASS_RC_MTX(ata_write_cbr(&ATA_PIO_DAD, 0),
+                    1, 2, &ata_mutex);
         rc = ata_wait_for_rdy(3000000);
     }
     ata_set_active();
@@ -1048,8 +1157,8 @@ int ata_soft_reset(void)
 
 int ata_hard_reset(void)
 {
-    mutex_lock(&ata_mutex);
-    PASS_RC(ata_power_up(), 0, 0);
+    ata_demand_lock();
+    PASS_RC_MTX(ata_power_up(), 0, 0, &ata_mutex);
     ata_set_active();
     mutex_unlock(&ata_mutex);
     return 0;
@@ -1060,7 +1169,7 @@ static int ata_reset(void)
     int rc;
     mutex_lock(&ata_mutex);
     if (!ata_powered)
-        PASS_RC(ata_power_up(), 2, 0);
+        PASS_RC_MTX(ata_power_up(), 2, 0, &ata_mutex);
     ata_set_active();
     rc = ata_soft_reset();
     if (IS_ERR(rc))
@@ -1090,7 +1199,7 @@ int ata_read_sectors(IF_MD(int drive,) sector_t start, int incount,
     (void)drive; /* unused for now */
 #endif
 
-    mutex_lock(&ata_mutex);
+    ata_demand_lock();
     int rc = ata_transfer_sectors(start, incount, inbuf, false);
     mutex_unlock(&ata_mutex);
     return rc;
@@ -1103,7 +1212,7 @@ int ata_write_sectors(IF_MD(int drive,) sector_t start, int count,
     (void)drive; /* unused for now */
 #endif
 
-    mutex_lock(&ata_mutex);
+    ata_demand_lock();
     int rc = ata_transfer_sectors(start, count, (void*)((uint32_t)outbuf), true);
     mutex_unlock(&ata_mutex);
     return rc;
@@ -1115,7 +1224,7 @@ void ata_spindown(int seconds)
     ata_sleep_timeout = seconds * HZ;
 }
 
-static void ata_flush_cache(void)
+static int ata_flush_cache(void)
 {
     uint8_t cmd;
 
@@ -1124,12 +1233,13 @@ static void ata_flush_cache(void)
     if (ceata) {
         memset(ceata_taskfile, 0, 16);
         ceata_taskfile[0xf] = CMD_FLUSH_CACHE_EXT;  /* CE-ATA only supports EXT */
-        ceata_wait_idle();
-        ceata_write_multiple_register(0, ceata_taskfile, 16);
-        ceata_wait_idle();
+        PASS_RC(ceata_wait_idle(), 2, 0);
+        PASS_RC(ceata_write_multiple_register(0, ceata_taskfile, 16),
+                2, 1);
+        PASS_RC(ceata_wait_idle(), 2, 2);
     } else {
         if (!canflush) {
-            return;
+            return 0;
         } else if (ata_lba48 && identify_info[83] & BIT(13)) {
             cmd = CMD_FLUSH_CACHE_EXT; /* Flag, optional, ATA-6 and up, for use with LBA48 devices. Mandatory for CE-ATA */
         } else if (identify_info[83] & BIT(12)) {
@@ -1139,39 +1249,49 @@ static void ata_flush_cache(void)
         } else {
             /* If neither command is supported then don't issue it. */
             canflush = 0;
-            return;
+            return 0;
         }
 
-        ata_wait_for_rdy(1000000);
-        ata_write_cbr(&ATA_PIO_DVR, 0);
-        ata_write_cbr(&ATA_PIO_CSD, cmd);
-        ata_wait_for_rdy(1000000);
+        PASS_RC(ata_wait_for_rdy(1000000), 2, 0);
+        PASS_RC(ata_write_cbr(&ATA_PIO_DVR, 0), 2, 1);
+        PASS_RC(ata_write_cbr(&ATA_PIO_CSD, cmd), 2, 2);
+        PASS_RC(ata_wait_for_rdy(1000000), 2, 3);
     }
+
+    return 0;
 }
 
 int ata_flush(void)
 {
-    if (ata_powered) {
-        mutex_lock(&ata_mutex);
-        ata_flush_cache();
-        mutex_unlock(&ata_mutex);
-    }
-    return 0;
+    int rc = 0;
+
+    ata_demand_lock();
+    if (ata_powered)
+        rc = ata_flush_cache();
+    mutex_unlock(&ata_mutex);
+    return rc;
 }
 
-void ata_sleepnow(void)
+static int ata_sleepnow_locked(void)
 {
-    mutex_lock(&ata_mutex);
+    uint32_t start;
 
-    ata_flush_cache();
+    /* Match RetailOS's common live-device guard. An already-sleeping disk,
+     * including the reset controller retained from an earlier cycle, is a
+     * successful no-op and must never be touched through its PIO registers. */
+    if (!ata_powered)
+        return 0;
+
+    PASS_RC(ata_flush_cache(), 3, 0);
 
     if (ceata) {
         logf("ata SLEEP %ld", current_tick);
         memset(ceata_taskfile, 0, 16);
         ceata_taskfile[0xf] = CMD_STANDBY_IMMEDIATE;
-        ceata_wait_idle();
-        ceata_write_multiple_register(0, ceata_taskfile, 16);
-        ceata_wait_idle();
+        PASS_RC(ceata_wait_idle(), 3, 1);
+        PASS_RC(ceata_write_multiple_register(0, ceata_taskfile, 16),
+                3, 2);
+        PASS_RC(ceata_wait_idle(), 3, 3);
         sleep(HZ);
         PWRCON(0) |= (1 << 9);
         ata_power_down();
@@ -1189,24 +1309,86 @@ void ata_sleepnow(void)
         ssd_sleep_tick = current_tick;
     } else if (ata_disk_can_sleep()) {
         logf("ata SLEEP %ld", current_tick);
-        ata_wait_for_rdy(1000000);
-        ata_write_cbr(&ATA_PIO_DVR, 0);
-        ata_write_cbr(&ATA_PIO_CSD, CMD_STANDBY_IMMEDIATE);
-        ata_wait_for_rdy(1000000);
+        PASS_RC(ata_wait_for_rdy(1000000), 3, 4);
+        PASS_RC(ata_write_cbr(&ATA_PIO_DVR, 0), 3, 5);
+        PASS_RC(ata_write_cbr(&ATA_PIO_CSD,
+                              CMD_STANDBY_IMMEDIATE), 3, 6);
+        PASS_RC(ata_wait_for_rdy(1000000), 3, 7);
         sleep(HZ / 30);
         ATA_CONTROL = 0;
+
+        start = USEC_TIMER;
         while (!(ATA_CONTROL & BIT(1)))
+        {
+            if (TIMEOUT_EXPIRED(start, ATA_CBR_READY_TIMEOUT))
+                RET_ERR(8);
             yield();
+        }
         PWRCON(0) |= (1 << 5);
         ata_power_down();
     } else if (canflush) {
         ata_power_down();
     }
 
+    return 0;
+}
+
+void ata_sleepnow(void)
+{
+    ata_demand_lock();
+    (void)ata_sleepnow_locked();
     mutex_unlock(&ata_mutex);
 }
 
 #if IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+int ata_hibernate_suspend_begin(uint32_t sequence)
+{
+    int rc;
+
+    if (hibernate_storage_demand_state ==
+                HIBERNATE_STORAGE_DEMAND_WAIT_EVENT)
+    {
+        /* A prior base repair without its queue commit is safe to reopen but
+         * not safe to reuse as a new suspend transaction. Recover liveness
+         * and make this request fail closed. */
+        hibernate_storage_demand_state = HIBERNATE_STORAGE_DEMAND_OPEN;
+        RET_ERR(0);
+    }
+    if (hibernate_storage_demand_state != HIBERNATE_STORAGE_DEMAND_OPEN)
+        RET_ERR(0);
+
+    ata_demand_lock();
+    if (hibernate_storage_transaction_owned)
+    {
+        mutex_unlock(&ata_mutex);
+        RET_ERR(0);
+    }
+
+    /* RetailOS's type-4 DiskMgr request is synchronous and leaves the
+     * manager inactive across Standby. Carry this one ownership level over
+     * every remaining scheduler point so no Rockbox client can begin an ATA
+     * transaction against hardware that the retained entry will reset. */
+    hibernate_storage_sequence = sequence;
+    hibernate_storage_transaction_owned = true;
+    hibernate_storage_demand_state = HIBERNATE_STORAGE_DEMAND_OWNED;
+    rc = ata_sleepnow_locked();
+    if (IS_ERR(rc))
+    {
+        /* A timed-out command may have partially disabled the controller.
+         * Leave no live retry path believing those registers survived, and
+         * preserve the natural begin contract: errors return unlocked. */
+        ata_powered = false;
+        if (ata_ssd_mode && !ceata)
+            ssd_deep_asleep = true;
+        hibernate_storage_reinit_pending = true;
+        hibernate_storage_io_pending = true;
+        hibernate_storage_demand_state = HIBERNATE_STORAGE_DEMAND_OPEN;
+        hibernate_storage_transaction_owned = false;
+        mutex_unlock(&ata_mutex);
+    }
+    return rc;
+}
+
 void ata_hibernate_resume(void)
 {
     /* The software objects and media remain retained, but Standby resets the
@@ -1220,16 +1402,70 @@ void ata_hibernate_resume(void)
     hibernate_storage_reinit_pending = true;
     hibernate_storage_io_pending = true;
 }
+
+void ata_hibernate_base_repaired(uint32_t sequence)
+{
+    if (!hibernate_storage_transaction_owned ||
+        hibernate_storage_demand_state != HIBERNATE_STORAGE_DEMAND_OWNED ||
+        hibernate_storage_sequence != sequence)
+        return;
+
+    /* The retained hardware and scheduler are repaired, so ata_mutex may be
+     * released without allowing a physical wake. Keep demand admission
+     * closed until SYS_HIBERNATE_COMPLETE has been committed to its queue
+     * consumer, matching Apple's state-2-through-event-17 ordering. */
+    hibernate_storage_demand_state = HIBERNATE_STORAGE_DEMAND_WAIT_EVENT;
+    hibernate_storage_transaction_owned = false;
+    mutex_unlock(&ata_mutex);
+}
+
+void ata_hibernate_abort(uint32_t sequence)
+{
+    bool unlock = false;
+
+    if (hibernate_storage_sequence != sequence)
+        return;
+
+    if (hibernate_storage_demand_state == HIBERNATE_STORAGE_DEMAND_OWNED &&
+        hibernate_storage_transaction_owned)
+    {
+        hibernate_storage_demand_state = HIBERNATE_STORAGE_DEMAND_OPEN;
+        hibernate_storage_transaction_owned = false;
+        unlock = true;
+    }
+    else if (hibernate_storage_demand_state ==
+                HIBERNATE_STORAGE_DEMAND_WAIT_EVENT)
+    {
+        hibernate_storage_demand_state = HIBERNATE_STORAGE_DEMAND_OPEN;
+    }
+
+    if (unlock)
+        mutex_unlock(&ata_mutex);
+}
+
+void ata_hibernate_event_commit(uint32_t sequence)
+{
+    if (hibernate_storage_demand_state ==
+                HIBERNATE_STORAGE_DEMAND_WAIT_EVENT &&
+        hibernate_storage_sequence == sequence)
+    {
+        hibernate_storage_demand_state = HIBERNATE_STORAGE_DEMAND_OPEN;
+    }
+}
 #endif
 
 void ata_spin(void)
 {
     if (ata_ssd_mode && !ata_powered)
     {
-        mutex_lock(&ata_mutex);
+        int rc = 0;
+
+        ata_demand_lock();
         if (!ata_powered)
-            ata_power_up();
+            rc = ata_power_up();
         mutex_unlock(&ata_mutex);
+        if (IS_ERR(rc))
+            return;
     }
     ata_set_active();
 }
@@ -1272,7 +1508,21 @@ long ata_last_disk_activity(void)
 
 int ata_init(void)
 {
-    mutex_init(&ata_mutex);
+    if (!ata_driver_initialized)
+    {
+        mutex_init(&ata_mutex);
+#if IPOD6G_HIBERNATE_STAGE3 && !defined(BOOTLOADER)
+        hibernate_storage_demand_state = HIBERNATE_STORAGE_DEMAND_OPEN;
+        hibernate_storage_sequence = 0;
+        hibernate_storage_transaction_owned = false;
+#endif
+        ata_driver_initialized = true;
+    }
+
+    /* storage_init() is also used when leaving USB slave mode. Treat that
+     * runtime reinitialization as a real disk client: it must not reset the
+     * admission epoch or power the controller before event 17 is committed. */
+    ata_demand_lock();
     semaphore_init(&ata_wakeup, 1, 0);
     semaphore_init(&mmc_wakeup, 1, 0);
     semaphore_init(&mmc_comp_wakeup, 1, 0);
@@ -1283,11 +1533,9 @@ int ata_init(void)
     total_sectors = 0;
 
     /* get identify_info */
-    mutex_lock(&ata_mutex);
     int rc = ata_power_up(); /* Includes identify() call */
-    mutex_unlock(&ata_mutex);
     if (IS_ERR(rc))
-        return rc;
+        goto init_out;
 
     /* Auto-detect SSD before settings are loaded */
     ata_ssd_mode = ata_disk_isssd() || ata_is_iflash();
@@ -1311,10 +1559,12 @@ int ata_init(void)
 #ifdef MAX_PHYS_SECTOR_SIZE
     rc = ata_get_phys_sector_mult();
     if (IS_ERR(rc))
-        return rc;
+        goto init_out;
 #endif
 
-    return 0;
+  init_out:
+    mutex_unlock(&ata_mutex);
+    return rc;
 }
 
 #ifdef HAVE_ATA_SMART
@@ -1343,14 +1593,14 @@ static int ata_smart(uint16_t* buf, uint8_t cmd)
     {
         int i;
         PASS_RC(ata_wait_for_not_bsy(10000000), 3, 6);
-        ata_write_cbr(&ATA_PIO_FED, cmd);
-        ata_write_cbr(&ATA_PIO_LMR, 0x4f);
-        ata_write_cbr(&ATA_PIO_LHR, 0xc2);
-        ata_write_cbr(&ATA_PIO_DVR, BIT(6));
-        ata_write_cbr(&ATA_PIO_CSD, CMD_SMART);
+        PASS_RC(ata_write_cbr(&ATA_PIO_FED, cmd), 4, 8);
+        PASS_RC(ata_write_cbr(&ATA_PIO_LMR, 0x4f), 4, 9);
+        PASS_RC(ata_write_cbr(&ATA_PIO_LHR, 0xc2), 4, 10);
+        PASS_RC(ata_write_cbr(&ATA_PIO_DVR, BIT(6)), 4, 11);
+        PASS_RC(ata_write_cbr(&ATA_PIO_CSD, CMD_SMART), 4, 12);
         PASS_RC(ata_wait_for_start_of_transfer(10000000), 3, 7);
         for (i = 0; i < 0x100; i++)
-            buf[i] = ata_read_cbr(&ATA_PIO_DTR);
+            PASS_RC(ata_read_cbr(&ATA_PIO_DTR, &buf[i]), 4, 13);
     }
     ata_set_active();
     return 0;
@@ -1358,7 +1608,7 @@ static int ata_smart(uint16_t* buf, uint8_t cmd)
 
 int ata_read_smart(struct ata_smart_values* smart_data, uint8_t cmd)
 {
-    mutex_lock(&ata_mutex);
+    ata_demand_lock();
     int rc = ata_smart((uint16_t*)smart_data, cmd);
     mutex_unlock(&ata_mutex);
     return rc;
@@ -1433,10 +1683,14 @@ int ata_event(long id, intptr_t data)
     {
         if (ata_ssd_mode && !ata_powered)
         {
-            mutex_lock(&ata_mutex);
+            int wake_rc = 0;
+
+            ata_demand_lock();
             if (!ata_powered)
-                ata_power_up();
+                wake_rc = ata_power_up();
             mutex_unlock(&ata_mutex);
+            if (IS_ERR(wake_rc))
+                return wake_rc;
         }
         ata_set_active();
     }

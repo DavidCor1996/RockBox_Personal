@@ -33,6 +33,11 @@ _HOME_VIDEO_KEYWORDS = {
 }
 _MUSIC_VIDEO_KEYWORDS = {"music video", "music videos"}
 _CONCERT_KEYWORDS = {"concert", "concerts", "live concert", "live performance"}
+_KNOWN_MOVIE_TITLES = {
+    "spiritedaway",
+    "kikisdeliveryservice",
+    "kikisdevliveryservice",
+}
 _NOISE_TOKENS = {
     "2160p", "1080p", "720p", "480p", "x264", "x265", "h264", "h265", "hevc",
     "xvid", "divx", "bluray", "brrip", "dvdrip", "webrip", "webdl", "web-dl",
@@ -42,6 +47,20 @@ _NOISE_TOKENS = {
 _CAMERA_FILENAME_RE = re.compile(
     r"(?i)^(?:img|vid|mov|pxl|dsc|mvi|clip|gopr|gp\d{2}|gh\d{2})[-_ ]?\d+"
 )
+
+
+def _video_signature(value):
+    text = str(value or "").strip().casefold().replace("’", "'")
+    text = re.sub(r"[^a-z0-9]+", "", text)
+    text = re.sub(r"(19|20)\d{2}$", "", text)
+    return text
+
+
+def _looks_like_known_movie_title(*values):
+    for value in values:
+        if _video_signature(value) in _KNOWN_MOVIE_TITLES:
+            return True
+    return False
 _GENERIC_SHOW_TITLES = {"", "show", "shows", "series", "tv", "tv shows", "special", "specials"}
 _URL_RE = re.compile(r"(?i)\bhttps?://\S+")
 _ARCHIVE_SUFFIX_RE = re.compile(r"(?i)\s*[-:]\s*(?:https?://\S+|archive\.org/details/\S+)\s*$")
@@ -965,6 +984,23 @@ def _apply_video_path_fallback(track, filepath):
             track.video_kind = "home_video"
         else:
             track.video_kind = "movie"
+
+    if (
+        track.video_kind == "home_video"
+        and not track.show_title
+        and not track.season_number
+        and not track.episode_number
+        and _looks_like_known_movie_title(
+            track.title,
+            path.stem,
+            track.file_path,
+            track.album,
+            track.artist,
+            track.album_artist,
+        )
+    ):
+        track.video_kind = "movie"
+
     if track.video_kind == "movie":
         _normalize_movie_fields(track, path, parent)
 

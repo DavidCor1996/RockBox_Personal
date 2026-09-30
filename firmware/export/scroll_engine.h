@@ -130,6 +130,12 @@ struct scrollinfo
     bool backward;
     bool bidir;
     long start_tick;
+#ifdef HAVE_IPODJS_UI
+    /* Fractional configured-step progress for the bounded iPodJS WPS
+     * cadence.  Two words per line avoid any pixel or framebuffer cache. */
+    long smooth_tick;
+    int smooth_remainder;
+#endif
 
     /* support for custom scrolling functions,
      * must be called with ::line == NULL to indicate that the line

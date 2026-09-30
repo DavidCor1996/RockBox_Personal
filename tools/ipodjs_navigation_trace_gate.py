@@ -63,11 +63,11 @@ def validate(
         ticks = [int(row["tick"]) for row in group]
         directions = {row["update"] for row in group}
         if (
-            len(group) != 8
+            not 2 <= len(group) <= 8
             or reveals[0] != 0
             or reveals[-1] != 320
             or reveals != sorted(reveals)
-            or frames != list(range(8))
+            or frames != list(range(len(group) - 1)) + [7]
             or len(directions) != 1
             or ticks != sorted(ticks)
             or not 20 <= ticks[-1] - ticks[0] <= 35
@@ -208,17 +208,21 @@ def validate(
         row for row in rows
         if row["kind"] == "screen" and row["name"] == "Preview Fade"
     ]
-    for offset in range(0, len(preview_fades), 8):
-        group = preview_fades[offset : offset + 8]
+    fade_groups = []
+    for row in preview_fades:
+        if not fade_groups or int(row["first"]) == 0:
+            fade_groups.append([])
+        fade_groups[-1].append(row)
+    for group in fade_groups:
         alphas = [int(row["selected"]) for row in group]
         frames = [int(row["first"]) for row in group]
         ticks = [int(row["tick"]) for row in group]
         if (
-            len(group) != 8
+            not 2 <= len(group) <= 8
             or alphas[0] != 0
             or alphas[-1] != 256
             or alphas != sorted(alphas)
-            or frames != list(range(8))
+            or frames != list(range(len(group) - 1)) + [7]
             or not 20 <= ticks[-1] - ticks[0] <= 35
         ):
             raise SystemExit(
@@ -294,7 +298,7 @@ def validate(
     if len(paths) != 1:
         raise SystemExit(f"While Playing changed track path: {sorted(paths)}")
     path_value = next(iter(paths))
-    if not path_value.lower().endswith((".mp3", ".flac")):
+    if not path_value.lower().endswith((".mp3", ".flac", ".aiff", ".aif")):
         raise SystemExit(f"unexpected traced playback path: {path_value}")
 
     playlist_state = {

@@ -30,6 +30,9 @@ class PreferencesDialog(QDialog):
         # General tab
         tabs.addTab(self._build_general_tab(), "General")
 
+        # Metadata tab
+        tabs.addTab(self._build_metadata_tab(), "Metadata")
+
         # Sync tab
         tabs.addTab(self._build_sync_tab(), "Sync")
 
@@ -113,6 +116,62 @@ class PreferencesDialog(QDialog):
         note.setWordWrap(True)
         layout.addRow("", note)
 
+        return w
+
+    def _build_metadata_tab(self):
+        w = QWidget()
+        layout = QFormLayout(w)
+        layout.setSpacing(8)
+
+        self._ollama_enabled = QCheckBox("Enable Ollama video metadata assistant")
+        self._ollama_enabled.setChecked(
+            self._config.get("ollama_video_metadata_enabled", False)
+        )
+        layout.addRow("", self._ollama_enabled)
+
+        self._ollama_url_edit = QLineEdit(
+            self._config.get("ollama_base_url", "http://127.0.0.1:11434")
+        )
+        layout.addRow("Ollama URL:", self._ollama_url_edit)
+
+        self._ollama_model_edit = QLineEdit(
+            self._config.get("ollama_video_metadata_model", "qwen3:8b")
+        )
+        layout.addRow("Ollama Model:", self._ollama_model_edit)
+
+        self._ollama_confidence_edit = QLineEdit(
+            str(self._config.get("ollama_video_metadata_min_confidence", 0.86))
+        )
+        layout.addRow("Minimum Confidence:", self._ollama_confidence_edit)
+
+        self._ollama_sample_limit_edit = QLineEdit(
+            str(self._config.get("ollama_video_metadata_sample_limit", 5))
+        )
+        layout.addRow("Sample Target Limit:", self._ollama_sample_limit_edit)
+
+        self._ollama_artwork = QCheckBox("Fetch provider artwork during Ollama runs")
+        self._ollama_artwork.setChecked(
+            self._config.get("ollama_video_metadata_fetch_artwork", True)
+        )
+        layout.addRow("", self._ollama_artwork)
+
+        self._tmdb_key_edit = QLineEdit(self._config.get("tmdb_api_key", ""))
+        self._tmdb_key_edit.setEchoMode(QLineEdit.Password)
+        self._tmdb_key_edit.setPlaceholderText("Optional; enables posters, banners, seasons and ratings")
+        layout.addRow("TMDb API Key:", self._tmdb_key_edit)
+
+        self._omdb_key_edit = QLineEdit(self._config.get("omdb_api_key", ""))
+        self._omdb_key_edit.setEchoMode(QLineEdit.Password)
+        self._omdb_key_edit.setPlaceholderText("Optional fallback for IMDb metadata and ratings")
+        layout.addRow("OMDb API Key:", self._omdb_key_edit)
+
+        note = QLabel(
+            "Ollama only parses local filenames and suggests a search. RockPod "
+            "writes metadata from the configured provider, skips locked rows, "
+            "and defaults to a small sample so the first run is easy to review."
+        )
+        note.setWordWrap(True)
+        layout.addRow("", note)
         return w
 
     def _build_sync_tab(self):
@@ -348,6 +407,53 @@ class PreferencesDialog(QDialog):
         browser_home = self._browser_home_edit.text().strip()
         if browser_home != self._config.get("browser_home_url", "https://www.rockbox.org/"):
             changes["browser_home_url"] = browser_home
+        if self._ollama_enabled.isChecked() != self._config.get(
+            "ollama_video_metadata_enabled", False
+        ):
+            changes["ollama_video_metadata_enabled"] = self._ollama_enabled.isChecked()
+        ollama_url = self._ollama_url_edit.text().strip().rstrip("/")
+        if ollama_url != self._config.get(
+            "ollama_base_url", "http://127.0.0.1:11434"
+        ):
+            changes["ollama_base_url"] = ollama_url
+        ollama_model = self._ollama_model_edit.text().strip()
+        if ollama_model != self._config.get(
+            "ollama_video_metadata_model", "qwen3:8b"
+        ):
+            changes["ollama_video_metadata_model"] = ollama_model
+        try:
+            ollama_confidence = float(self._ollama_confidence_edit.text().strip() or "0.86")
+        except ValueError:
+            ollama_confidence = float(
+                self._config.get("ollama_video_metadata_min_confidence", 0.86)
+            )
+        ollama_confidence = max(0.0, min(1.0, ollama_confidence))
+        if ollama_confidence != self._config.get(
+            "ollama_video_metadata_min_confidence", 0.86
+        ):
+            changes["ollama_video_metadata_min_confidence"] = ollama_confidence
+        try:
+            ollama_sample_limit = int(self._ollama_sample_limit_edit.text().strip() or "5")
+        except ValueError:
+            ollama_sample_limit = int(
+                self._config.get("ollama_video_metadata_sample_limit", 5)
+            )
+        ollama_sample_limit = max(1, min(1000, ollama_sample_limit))
+        if ollama_sample_limit != self._config.get(
+            "ollama_video_metadata_sample_limit", 5
+        ):
+            changes["ollama_video_metadata_sample_limit"] = ollama_sample_limit
+        ollama_artwork = self._ollama_artwork.isChecked()
+        if ollama_artwork != self._config.get(
+            "ollama_video_metadata_fetch_artwork", True
+        ):
+            changes["ollama_video_metadata_fetch_artwork"] = ollama_artwork
+        tmdb_key = self._tmdb_key_edit.text().strip()
+        if tmdb_key != self._config.get("tmdb_api_key", ""):
+            changes["tmdb_api_key"] = tmdb_key
+        omdb_key = self._omdb_key_edit.text().strip()
+        if omdb_key != self._config.get("omdb_api_key", ""):
+            changes["omdb_api_key"] = omdb_key
         if self._auto_sync.isChecked() != self._config.auto_sync_on_connect:
             changes["auto_sync_on_connect"] = self._auto_sync.isChecked()
         if self._rockbox_autoupdate.isChecked() != self._config.get("auto_rebuild_rockbox_database_after_sync", False):

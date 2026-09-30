@@ -1,7 +1,9 @@
 #ifdef DESKTOP_1080
 /* iTunes video playback on the host panel uses Rockbox's registered MPEG
  * viewer, just as the 320x240 device build does. */
+#ifndef IPOD_NANO3G
 mpegplayer
+#endif
 #else
 /* For all targets */
 shortcuts
@@ -54,7 +56,9 @@ sudoku
 reversi
 goban
 #ifdef HAVE_LCD_COLOR
+#ifndef IPOD_NANO3G
 pocketcatch
+#endif
 #endif
 #if (defined(IPOD_6G) || defined(SIMULATOR)) && defined(HAVE_LCD_COLOR) \
     && (LCD_WIDTH == 320) && (LCD_HEIGHT == 240) \
@@ -62,11 +66,15 @@ pocketcatch
 anarch
 #endif
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240) \
-    && (PLUGIN_BUFFER_SIZE >= 0x300000) && (CONFIG_KEYPAD == IPOD_4G_PAD)
+    && ((PLUGIN_BUFFER_SIZE >= 0x300000) \
+        || (defined(IPOD_6G) && (PLUGIN_BUFFER_SIZE >= 0x2f0000))) \
+    && (CONFIG_KEYPAD == IPOD_4G_PAD)
 pocketsky
 #endif
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240) \
-    && (PLUGIN_BUFFER_SIZE >= 0x300000) && (CONFIG_KEYPAD == IPOD_4G_PAD)
+    && ((PLUGIN_BUFFER_SIZE >= 0x300000) \
+        || (defined(IPOD_6G) && (PLUGIN_BUFFER_SIZE >= 0x2f0000))) \
+    && (CONFIG_KEYPAD == IPOD_4G_PAD)
 ipodhero
 #endif
 #if defined(IPOD_6G) && defined(HAVE_LCD_COLOR) \
@@ -75,7 +83,8 @@ ipodgames
 #endif
 #if (defined(IPOD_6G) || defined(SIMULATOR)) && defined(HAVE_LCD_COLOR) \
     && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240) \
-    && (PLUGIN_BUFFER_SIZE >= 0x300000)
+    && ((PLUGIN_BUFFER_SIZE >= 0x300000) \
+        || (defined(IPOD_6G) && (PLUGIN_BUFFER_SIZE >= 0x2f0000)))
 maker_lite
 #endif
 frotz
@@ -124,8 +133,10 @@ openlara
 #endif
 #if defined(IPOD_6G) || defined(SIMULATOR)
 #ifndef ROCKPOD_IOS_EMBED
+#if PLUGIN_BUFFER_SIZE >= 0x300000
 sm64
 zelda3
+#endif
 #endif
 animalcrossing
 diablo
@@ -135,7 +146,9 @@ diablo
 
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 220) && (LCD_HEIGHT >= 176) \
     && (MEMORYSIZE > 2)
+#ifndef IPOD_NANO3G
 runescape_classic
+#endif
 #endif
 
 #if defined(HAVE_LCD_COLOR) && (LCD_WIDTH >= 320) && (LCD_HEIGHT >= 240) \
@@ -148,7 +161,9 @@ scummvm
 #if (defined(HAVE_LCD_COLOR) || defined(MROBE_100) || defined(SANSA_CLIPPLUS) \
     || defined(SANSA_CLIPV2) || (LCD_DEPTH == 2)) \
     && (MEMORYSIZE > 2 && !defined(RB_PROFILE)) && !defined(RG_NANO) /* musl libc issues */
+#ifndef IPOD_NANO3G
 doom
+#endif
 #endif
 
 #if MEMORYSIZE > 2 /* we need a lot of RAM for instruments */
@@ -166,7 +181,7 @@ mikmod
 pdbox
 #endif
 
-#if !defined(RB_PROFILE) && MEMORYSIZE > 2 && defined(HAVE_LCD_COLOR)  /* mpegplayer allocates at least 2MB of RAM */
+#if !defined(IPOD_NANO3G) && !defined(RB_PROFILE) && MEMORYSIZE > 2 && defined(HAVE_LCD_COLOR)  /* mpegplayer allocates at least 2MB of RAM */
 mpegplayer
 #endif
 

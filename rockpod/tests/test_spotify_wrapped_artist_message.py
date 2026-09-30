@@ -90,7 +90,7 @@ def test_snapshot_uses_real_cover_and_complete_rankings(tmp_path, monkeypatch):
         assert all(abs(actual - expected) <= 2 for actual, expected in zip(pixel, (12, 34, 56)))
 
 
-def test_snapshot_prefers_current_year_playback_log(tmp_path, monkeypatch):
+def test_snapshot_keeps_lifetime_totals_when_annual_logging_starts(tmp_path, monkeypatch):
     mount = Path(tmp_path)
     album_dir = mount / "Music" / "Artist" / "Album"
     album_dir.mkdir(parents=True)
@@ -117,7 +117,37 @@ def test_snapshot_prefers_current_year_playback_log(tmp_path, monkeypatch):
 
     wrapped._write_snapshot(mount)
     data = (rockbox / "spotify-wrapped/data.tsv").read_text()
-    assert "scope\tannual" in data
-    assert "plays\t1" in data
-    assert "seconds\t61" in data
-    assert "song\tSong\tArtist\t1\t61" in data
+    assert "scope\tlifetime" in data
+    assert "plays\t9" in data
+    assert "seconds\t1234" in data
+    assert "song\tSong\tArtist\t9\t1234" in data
+
+
+def test_snapshot_survives_database_reset_and_removed_track(tmp_path, monkeypatch):
+    tracks = [{"device_path": "Music/song.mp3", "title": "Song",
+               "artist": "Artist", "play_count": 9, "play_time": 900000}]
+    monkeypatch.setattr(wrapped, "read_rockbox_tagcache_tracks", lambda *_a, **_k: tracks)
+    wrapped._write_snapshot(tmp_path)
+    target = tmp_path / ".rockbox/spotify-wrapped/data.tsv"
+    original = target.read_text()
+    tracks.clear()
+    wrapped._write_snapshot(tmp_path)
+    assert target.read_text() == original
+    tracks.append({"device_path": "Music/song.mp3", "title": "Song",
+                   "artist": "Artist", "play_count": 0, "play_time": 0})
+    wrapped._write_snapshot(tmp_path)
+    assert target.read_text() == original
+
+
+def test_damaged_history_preserves_published_snapshot(tmp_path, monkeypatch):
+    import sqlite3
+    import pytest
+
+    monkeypatch.setattr(wrapped, "read_rockbox_tagcache_tracks", lambda *_a, **_k: [])
+    directory = tmp_path / ".rockbox/spotify-wrapped"
+    directory.mkdir(parents=True)
+    (directory / "data.tsv").write_text("previous recap\n")
+    (directory / "history.sqlite3").write_bytes(b"damaged")
+    with pytest.raises(sqlite3.DatabaseError):
+        wrapped._write_snapshot(tmp_path)
+    assert (directory / "data.tsv").read_text() == "previous recap\n"

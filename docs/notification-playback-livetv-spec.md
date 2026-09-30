@@ -81,7 +81,7 @@ After a short boot grace period, then at most once every 30 minutes, the
 manager checks `/.rockbox/rockpod/weather/forecast.tsv` metadata:
 
 - missing data asks the user to sync Weather with RockPod;
-- data older than 36 hours is marked potentially outdated;
+- data at least 72 hours old is marked potentially outdated;
 - data older than six days is marked expired.
 
 Warnings are edge-triggered by freshness level and forecast modification

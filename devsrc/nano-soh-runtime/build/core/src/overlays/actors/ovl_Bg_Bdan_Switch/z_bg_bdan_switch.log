@@ -1,0 +1,34 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Bdan_Switch/z_bg_bdan_switch.c: In function 'BgBdanSwitch_Init':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Bdan_Switch/z_bg_bdan_switch.c:160:51: warning: passing argument 3 of 'BgBdanSwitch_InitDynaPoly' from incompatible pointer type [-Wincompatible-pointer-types]
+  160 |             BgBdanSwitch_InitDynaPoly(this, play, &gJabuFloorSwitchCol, DPM_PLAYER);
+      |                                                   ^~~~~~~~~~~~~~~~~~~~
+      |                                                   |
+      |                                                   const char (*)[55]
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Bdan_Switch/z_bg_bdan_switch.c:94:86: note: expected 'CollisionHeader *' but argument is of type 'const char (*)[55]'
+   94 | void BgBdanSwitch_InitDynaPoly(BgBdanSwitch* this, PlayState* play, CollisionHeader* collision, s32 flag) {
+      |                                                                     ~~~~~~~~~~~~~~~~~^~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Bdan_Switch/z_bg_bdan_switch.c: In function 'BgBdanSwitch_Draw':
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Bdan_Switch/z_bg_bdan_switch.c:527:39: warning: passing argument 3 of 'func_8086DF58' from incompatible pointer type [-Wincompatible-pointer-types]
+  527 |             func_8086DF58(this, play, gJabuYellowFloorSwitchDL);
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                       |
+      |                                       const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Bdan_Switch/z_bg_bdan_switch.c:513:62: note: expected 'Gfx *' but argument is of type 'const char *'
+  513 | void func_8086DF58(BgBdanSwitch* this, PlayState* play, Gfx* dlist) {
+      |                                                         ~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Bdan_Switch/z_bg_bdan_switch.c:531:39: warning: passing argument 3 of 'func_8086DF58' from incompatible pointer type [-Wincompatible-pointer-types]
+  531 |             func_8086DF58(this, play, gJabuYellowFloorSwitchDL);
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                                       |
+      |                                       const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Bdan_Switch/z_bg_bdan_switch.c:513:62: note: expected 'Gfx *' but argument is of type 'const char *'
+  513 | void func_8086DF58(BgBdanSwitch* this, PlayState* play, Gfx* dlist) {
+      |                                                         ~~~~~^~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Bdan_Switch/z_bg_bdan_switch.c:536:39: warning: passing argument 3 of 'func_8086DF58' from incompatible pointer type [-Wincompatible-pointer-types]
+  536 |             func_8086DF58(this, play, gJabuBlueFloorSwitchDL);
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~
+      |                                       |
+      |                                       const char *
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Bg_Bdan_Switch/z_bg_bdan_switch.c:513:62: note: expected 'Gfx *' but argument is of type 'const char *'
+  513 | void func_8086DF58(BgBdanSwitch* this, PlayState* play, Gfx* dlist) {
+      |                                                         ~~~~~^~~~~

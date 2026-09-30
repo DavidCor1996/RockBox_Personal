@@ -1,0 +1,16 @@
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Tsubo/z_obj_tsubo.c:55:30: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   55 | static Gfx* D_80BA1B84[] = { gPotDL, object_tsubo_DL_0017C0 };
+      |                              ^~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Tsubo/z_obj_tsubo.c:55:30: note: (near initialization for 'D_80BA1B84[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Tsubo/z_obj_tsubo.c:55:38: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   55 | static Gfx* D_80BA1B84[] = { gPotDL, object_tsubo_DL_0017C0 };
+      |                                      ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Tsubo/z_obj_tsubo.c:55:38: note: (near initialization for 'D_80BA1B84[1]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Tsubo/z_obj_tsubo.c:57:30: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   57 | static Gfx* D_80BA1B8C[] = { gPotFragmentDL, object_tsubo_DL_001960 };
+      |                              ^~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Tsubo/z_obj_tsubo.c:57:30: note: (near initialization for 'D_80BA1B8C[0]')
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Tsubo/z_obj_tsubo.c:57:46: warning: initialization of 'Gfx *' from incompatible pointer type 'const char *' [-Wincompatible-pointer-types]
+   57 | static Gfx* D_80BA1B8C[] = { gPotFragmentDL, object_tsubo_DL_001960 };
+      |                                              ^~~~~~~~~~~~~~~~~~~~~~
+/home/david/Documents/RockBox_Personal-master/devsrc/nano-soh-runtime/Shipwright/soh/src/overlays/actors/ovl_Obj_Tsubo/z_obj_tsubo.c:57:46: note: (near initialization for 'D_80BA1B8C[1]')

@@ -21,6 +21,9 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#ifdef SIMULATOR
+#include <stdlib.h>
+#endif
 #include "action.h"
 #include "font.h"
 #ifdef HAVE_REMOTE_LCD
@@ -30,6 +33,9 @@
 #include "usb.h"
 #if defined(HAVE_USBSTACK)
 #include "usb_core.h"
+#if defined(USB_ENABLE_STORAGE) && !defined(SIMULATOR)
+#include "usbstack/usb_storage.h"
+#endif
 #ifdef USB_ENABLE_HID
 #include "usb_keymaps.h"
 #endif
@@ -76,7 +82,8 @@ static int handle_usb_events(void)
 #ifdef USB_ENABLE_HID
         if (usb_hid)
         {
-            button = get_hid_usb_action();
+            button = get_hid_usb_action(ipodjs_ui_enabled(SCREEN_MAIN) ?
+                MAX(1, HZ / 12) : HZ / 4);
 
             /* On mode change, we need to refresh the screen */
             if (button == ACTION_USB_HID_MODE_SWITCH_NEXT ||
@@ -88,7 +95,8 @@ static int handle_usb_events(void)
         else
 #endif
         {
-            button = button_get_w_tmo(HZ/2);
+            button = button_get_w_tmo(
+                ipodjs_ui_usb_animation_active() ? MAX(1, HZ / 12) : HZ / 2);
             /* hid emits the event in get_action */
             send_event(GUI_EVENT_ACTIONUPDATE, NULL);
         }
@@ -103,6 +111,11 @@ static int handle_usb_events(void)
             case SYS_TIMEOUT:
                 break;
         }
+
+        /* HID maps timeouts to ACTION_NONE. Redraw on elapsed time even
+         * with queued input, and keep polling for host eject after spinning. */
+        if (ipodjs_ui_enabled(SCREEN_MAIN))
+            return 0;
 
 #if (CONFIG_STORAGE & STORAGE_MMC) /* USB-MMC bridge can report activity */
         if(TIME_AFTER(current_tick,next_update))
@@ -247,6 +260,9 @@ static void usb_screens_draw(struct usb_screen_vps_t *usb_screen_vps_ar)
         last_vp = screen->set_viewport(parent);
         if (i == SCREEN_MAIN && ipodjs_ui_enabled(SCREEN_MAIN))
         {
+#if defined(HAVE_USBSTACK) && defined(USB_ENABLE_STORAGE) && !defined(SIMULATOR)
+            ipodjs_ui_usb_set_ejected(usb_storage_safe_to_disconnect());
+#endif
             ipodjs_ui_draw_usb_connected(screen);
             screen->set_viewport(last_vp);
             continue;
@@ -282,11 +298,15 @@ static void usb_screens_draw(struct usb_screen_vps_t *usb_screen_vps_ar)
 
 void gui_usb_screen_run(bool early_usb, intptr_t seqnum)
 {
+    lcd_boot_frame_hold(false);
 #ifdef SIMULATOR /* the sim allows toggling USB fast enough to overflow viewportmanagers stack */
     static bool in_usb_screen = false;
     if (in_usb_screen)
         return;
     in_usb_screen = true;
+    /* Simulator-only host eject injection; no native storage polling here. */
+    const char *eject_delay = getenv("ROCKPOD_SIM_USB_EJECT_SECONDS");
+    long eject_at = current_tick + (eject_delay ? atoi(eject_delay) * HZ : 0);
 #endif
 
     struct usb_screen_vps_t usb_screen_vps_ar[NB_SCREENS];
@@ -337,7 +357,8 @@ void gui_usb_screen_run(bool early_usb, intptr_t seqnum)
     {
         usb_screens_draw(usb_screen_vps_ar);
 #ifdef SIMULATOR
-        int button = button_get_w_tmo(HZ/2);
+        int button = button_get_w_tmo(
+            ipodjs_ui_usb_animation_active() ? MAX(1, HZ / 12) : HZ / 2);
         if (ipodjs_ui_enabled(SCREEN_MAIN))
         {
             /* The connect key can still be queued after USB enumeration.
@@ -349,6 +370,8 @@ void gui_usb_screen_run(bool early_usb, intptr_t seqnum)
         }
         else if (button)
             break;
+        if (eject_delay && TIME_AFTER(current_tick, eject_at))
+            ipodjs_ui_usb_set_ejected(true);
         send_event(GUI_EVENT_ACTIONUPDATE, NULL);
 #else
         if (handle_usb_events())

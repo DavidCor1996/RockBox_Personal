@@ -122,7 +122,15 @@
 #define VIEWERS_CONFIG      ROCKBOX_DIR "/viewers.config"
 
 #define RESUMEFILE          ROCKBOX_DIR "/.resume.cfg"
+#if defined(IPOD6G_HIBERNATE_ROLO_CANDIDATE) && \
+        IPOD6G_HIBERNATE_ROLO_CANDIDATE
+/* Keep a Rolo qualification core on the normal runtime/database tree while
+ * preventing its forced test policy and visual identity from being written
+ * into the user's normal Rockbox configuration. */
+#define CONFIGFILE          ROCKBOX_DIR "/hibernate-rolo.cfg"
+#else
 #define CONFIGFILE          ROCKBOX_DIR "/config.cfg"
+#endif
 #define FIXEDSETTINGSFILE   ROCKBOX_DIR "/fixed.cfg"
 
 #define PLAYLIST_CONTROL_FILE   ROCKBOX_DIR "/.playlist_control"
